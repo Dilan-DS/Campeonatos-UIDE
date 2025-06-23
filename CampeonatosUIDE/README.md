@@ -20,7 +20,7 @@ Este sistema web fue desarrollado para la gestión de campeonatos deportivos en 
 
 ## Autor
 
-Desarrollado por Stephano Galvez - TICS UIDE Loja
+Desarrollado por Stephano Galvez, Jhosty Soto, Felix Rodas - TICS UIDE Loja
 
 ---
 
