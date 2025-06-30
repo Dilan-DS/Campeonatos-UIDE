@@ -82,6 +82,18 @@ class CodigoQR(models.Model):
         verbose_name = "Código QR"
         verbose_name_plural = "Códigos QR"
 
+class TipoCampeonato(models.Model):
+    # Nombre único del tipo de campeonato ( Fútbol, Básquet, etc.)
+    nombre = models.CharField(max_length=30, unique=True)
+    # Descripción opcional del tipo de campeonato
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Tipo de Campeonato"
+        verbose_name_plural = "Tipos de Campeonato"
 # Modelo campeonato
 class Campeonato(models.Model):
     # Opciones para días de la semana donde se juega
@@ -104,6 +116,9 @@ class Campeonato(models.Model):
 
     # Nombre único del campeonato
     nombre = models.CharField(max_length=100, unique=True)
+    # Tipo de campeonato (FK a TipoCampeonato)
+    tipo_campeonato = models.ForeignKey(TipoCampeonato, on_delete=models.SET_NULL, null=True, blank=True, related_name='campeonatos')
+
     # Descripción del campeonato
     descripcion = models.TextField()
     # Reglamento en archivo (PDF u otro), opcional
