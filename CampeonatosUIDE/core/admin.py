@@ -208,55 +208,6 @@ class SuspensionAdmin(admin.ModelAdmin):
         return "Sí" if obj.esta_activa() else "No"
     esta_activa_display.short_description = '¿Activa?'
 
-
-
-
-class EstadisticaFutbolAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'partidos_jugados', 'goles', 'tarjetas_amarillas', 'tarjetas_rojas', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-
-class EstadisticaBasquetAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'partidos_jugados', 'canastas', 'rebotes', 'asistencias', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-
-class EstadisticaAjedrezAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'partidas_jugadas', 'partidas_ganadas', 'partidas_empatadas', 'partidas_perdidas', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-
-class EstadisticaEcuabolyAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'sets_ganados', 'sets_perdidos', 'partidos_ganados', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-
-class EstadisticaPingPongAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'partidos_ganados', 'partidos_perdidos', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-class EstadisticaFutbolinAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'partidos_ganados', 'partidos_perdidos', 'goles', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-class EstadisticaTenisAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'sets_ganados', 'sets_perdidos', 'partidos_ganados', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-class EstadisticaVideojuegosAdmin(admin.ModelAdmin):
-    list_display = ('equipo', 'campeonato', 'partidas_jugadas', 'partidas_ganadas', 'partidas_perdidas', 'puntos')
-    search_fields = ('equipo__nombre', 'campeonato__nombre')
-    list_filter = ('campeonato',)
-
-
-
 class TipoCampeonatoAdmin(admin.ModelAdmin):
     # Campos que se mostrarán en la tabla del admin
     list_display = ('nombre', 'descripcion')
@@ -333,21 +284,6 @@ admin.site.register(Pago, PagoAdmin)
 # Registra el modelo TipoCampeonato 
 admin.site.register(TipoCampeonato, TipoCampeonatoAdmin)
 admin.site.register(Usuario, UsuarioAdmin)
-admin.site.register(EstadisticaFutbol, EstadisticaFutbolAdmin)
-# Registra los modelos de estadísticas para diferentes deportes
-admin.site.register(EstadisticaBasquet, EstadisticaBasquetAdmin)
-# Registra las estadísticas de ajedrez
-admin.site.register(EstadisticaAjedrez, EstadisticaAjedrezAdmin)
-# Registra las estadísticas de ecuaboly
-admin.site.register(EstadisticaEcuaboly, EstadisticaEcuabolyAdmin)
-# Registra las estadísticas de ping pong
-admin.site.register(EstadisticaPingPong, EstadisticaPingPongAdmin)
-# Registra las estadísticas de futbolín
-admin.site.register(EstadisticaFutbolin, EstadisticaFutbolinAdmin)
-# Registra las estadísticas de tenis
-admin.site.register(EstadisticaTenis, EstadisticaTenisAdmin)
-# Registra las estadísticas de videojuegos
-admin.site.register(EstadisticaVideojuegos, EstadisticaVideojuegosAdmin)
 # Estadísticas por jugador - Futbol
 admin.site.register(EstadisticaJugadorFutbol, EstadisticaJugadorFutbolAdmin)
 # Estadísticas por jugador - Basquet

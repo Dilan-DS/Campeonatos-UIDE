@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="tabla-header">
+    <h1 class="titulo-tabla">🏅 Tabla de Posiciones</h1>
+    <p class="subtitulo-tabla">Visualiza cómo van los equipos en el campeonato actual</p>
+  </div>
+
+  <table class="tabla-posiciones">
+    <thead class="tabla-encabezado">
+      <tr>
+        <th>#</th>
+        <th>Equipo</th>
+        <th>Puntos</th>
+        <th>Logo</th>
+        {% if user.is_authenticated %}
+          <th>Acciones</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody class="tabla-cuerpo">
+      {% for equipo in equipos %}
+      <tr class="fila-equipo">
+        <td>{{ forloop.counter }}</td>
+        <td>{{ equipo.nombre }}</td>
+        <td>{{ equipo.puntos }}</td>
+        <td>
+          {% if equipo.logo %}
+            <img src="{{ equipo.logo.url }}" alt="logo" class="logo-equipo">
+          {% else %}
+            <span class="sin-logo">-</span>
+          {% endif %}
+        </td>
+        {% if user.is_authenticated %}
+          <td>
+            <a href="{% url 'detalle_equipo' equipo.id %}" class="boton-ver-detalles">Ver detalles</a>
+          </td>
+        {% endif %}
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="sin-equipos">No hay equipos registrados todavía.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
