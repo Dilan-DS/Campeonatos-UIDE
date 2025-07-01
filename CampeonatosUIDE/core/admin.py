@@ -1,7 +1,11 @@
 from django.contrib import admin  
+from .forms import EquipoForm
 from .models import *
 from django.contrib.auth.admin import UserAdmin
 
+class CarreraAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre', 'descripcion')
+    search_fields = ('nombre',)
 
 # Registra el modelo Usuario para poder gestionarlo desde el panel de administración
 
@@ -55,6 +59,7 @@ class CampeonatoAdmin(admin.ModelAdmin):
 
 
 class EquipoAdmin(admin.ModelAdmin):
+    form = EquipoForm
     # Mostrar campos clave en la lista
     list_display = ('nombre', 'campeonato', 'carrera', 'aprobado', 'delegado', 'puede_participar')
     # Campos de búsqueda
@@ -63,8 +68,8 @@ class EquipoAdmin(admin.ModelAdmin):
     list_filter = ('aprobado', 'campeonato', 'carrera')
     # Orden por nombre de equipo
     ordering = ('nombre',)
-    # Mostrar el logo como solo lectura si quieres evitar ediciones accidentales
-    readonly_fields = ('logo',)
+    # Mostrar el logo como solo lectura para evitar ediciones accidentales
+    # readonly_fields = ('logo',)
 
 
 
@@ -359,3 +364,4 @@ admin.site.register(EstadisticaJugadorFutbolin, EstadisticaJugadorFutbolinAdmin)
 admin.site.register(EstadisticaJugadorAjedrez, EstadisticaJugadorAjedrezAdmin)
 # Estadísticas por jugador - Videojuegos
 admin.site.register(EstadisticaJugadorVideojuegos, EstadisticaJugadorVideojuegosAdmin)
+admin.site.register(Carrera, CarreraAdmin)

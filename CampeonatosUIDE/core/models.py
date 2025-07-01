@@ -7,6 +7,18 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.db.models import Q 
 
+# Modelo carrera
+class Carrera(models.Model):
+    # Nombre único de la carrera
+    nombre = models.CharField(max_length=100, unique=True)
+    # Descripción opcional
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+
+
 # Modelo personalizado de usuario
 class Usuario(AbstractUser):
     # Definición de roles posibles
@@ -18,7 +30,7 @@ class Usuario(AbstractUser):
     # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
     rol = models.CharField(max_length=10, choices=ROLES)
     # Carrera a la que pertenece el usuario (opcional para delegados)
-    carrera = models.CharField(max_length=100, blank=True, null=True)
+    carrera = models.ForeignKey('Carrera', on_delete=models.SET_NULL, null=True, blank=True, related_name='usuarios')
 
     # Relación con grupos para permisos (ManyToMany)
     groups = models.ManyToManyField(
@@ -143,6 +155,8 @@ class Campeonato(models.Model):
     max_jugadores_por_equipo = models.PositiveIntegerField(default=11, help_text="Cantidad máxima de jugadores por equipo en este campeonato")
     # Precio que debe pagar cada equipo para inscribirse
     precio_inscripcion = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    # Código QR del campeonato (opcional, solo si acepta transferencia)
+    codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True, related_name='campeonatos')
 
     # Validación para que la fecha fin no sea anterior a la fecha inicio
     def clean(self):
@@ -159,14 +173,15 @@ class Equipo(models.Model):
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='equipos')
     # Nombre del equipo
     nombre = models.CharField(max_length=100)
-    # Carrera a la que pertenece el equipo (opcional)
-    carrera = models.CharField(max_length=100, blank=True, null=True)
+    # Carrera a la que pertenece el equipo (FK obligatorio)
+    carrera = models.ForeignKey('Carrera', on_delete=models.PROTECT, related_name='equipos')
     # Logo del equipo (imagen opcional)
-    logo = models.ImageField(upload_to='logos_equipos/', blank=True, null=True)
+    logo = models.ImageField(upload_to='logos_equipos/')
     # Indicador si el equipo está aprobado para participar
     aprobado = models.BooleanField(default=False)
     # Delegado que registró el equipo (debe ser rol DELEGADO)
     delegado = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, limit_choices_to={'rol': 'DELEGADO'})
+
 
     def clean(self):
         # Validar que el nombre del equipo no esté vacío
@@ -185,8 +200,11 @@ class Equipo(models.Model):
         if not self.delegado:
             raise ValidationError("El equipo debe tener un delegado asignado.")
 
+
+        if not self.logo:
+            raise ValidationError("Debes subir el logo del equipo.")
+
         # VALIDACIÓN MEJORADA: Si se quiere aprobar el equipo, debe tener pago aprobado
-        # Usar getattr para acceder a 'pago' de forma segura y evitar AttributeError
         pago_obj = getattr(self, 'pago', None)
         if self.aprobado and (not pago_obj or pago_obj.estado != 'APROBADO'):
             raise ValidationError("No puedes aprobar el equipo sin un pago aprobado o si no tiene un pago asociado.")
@@ -202,9 +220,9 @@ class Equipo(models.Model):
     # Propiedad que indica si el equipo puede participar (pago aprobado)
     @property
     def puede_participar(self):
-        # Usar getattr para acceder a 'pago' de forma segura
         pago_obj = getattr(self, 'pago', None)
         return pago_obj and pago_obj.estado == 'APROBADO'
+
 
 # Modelo jugador
 class Jugador(models.Model):
