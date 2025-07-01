@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar-principal">
+    <div class="navbar-contenedor">
+      <a class="navbar-logo" href="{% url 'inicio_publico' %}">Campeonatos UIDE</a>
+      <ul class="navbar-links">
+        {% if user.is_authenticated %}
+          <li class="nav-item saludo">Hola, {{ user.username }}</li>
+          <li class="nav-item"><a href="{% url 'inicio' %}">Panel principal</a></li>
+          <li class="nav-item"><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+        {% else %}
+          <li class="nav-item"><a href="{% url 'login' %}">Iniciar sesión</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenido-principal">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

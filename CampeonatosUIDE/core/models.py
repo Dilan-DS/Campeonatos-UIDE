@@ -6,6 +6,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.db.models import Q 
+from django.db.models import Sum
+
 
 # Modelo carrera
 class Carrera(models.Model):
@@ -182,7 +184,6 @@ class Equipo(models.Model):
     # Delegado que registró el equipo (debe ser rol DELEGADO)
     delegado = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, limit_choices_to={'rol': 'DELEGADO'})
 
-
     def clean(self):
         # Validar que el nombre del equipo no esté vacío
         if not self.nombre:
@@ -222,6 +223,80 @@ class Equipo(models.Model):
     def puede_participar(self):
         pago_obj = getattr(self, 'pago', None)
         return pago_obj and pago_obj.estado == 'APROBADO'
+
+
+    @property
+    def goles_totales(self):
+        from .models import EstadisticaJugadorFutbol
+        return sum(est.goles for est in EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self))
+
+    @property
+    def tarjetas_totales(self):
+        from .models import EstadisticaJugadorFutbol
+        return sum(est.tarjetas_amarillas + est.tarjetas_rojas for est in EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self))
+
+    @property
+    def puntos_totales(self):
+        deporte = self.campeonato.deporte.nombre.upper()
+
+        if deporte == 'FUTBOL':
+            # Puntos por partidos ganados o empatados
+            partidos_local = self.partidos_locales.filter(estado='FINALIZADO')
+            partidos_visitante = self.partidos_visitantes.filter(estado='FINALIZADO')
+            puntos = 0
+
+            for p in partidos_local:
+                if p.resultado_local > p.resultado_visitante:
+                    puntos += 3
+                elif p.resultado_local == p.resultado_visitante:
+                    puntos += 1
+
+            for p in partidos_visitante:
+                if p.resultado_visitante > p.resultado_local:
+                    puntos += 3
+                elif p.resultado_visitante == p.resultado_local:
+                    puntos += 1
+
+            return puntos
+
+        elif deporte == 'AJEDREZ':
+            from .models import EstadisticaJugadorAjedrez
+            stats = EstadisticaJugadorAjedrez.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            puntos = 0
+            for stat in stats:
+                puntos += stat.partidas_ganadas * 1
+                puntos += stat.partidas_empatadas * 0.5
+            return puntos
+
+        elif deporte == 'ECUABOLY':
+            # importar el modelo de estadísticas de Ecuaboly
+            from .models import EstadisticaJugadorEcuaboly
+            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
+            stats = EstadisticaJugadorEcuaboly.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            # 3 por cada partido ganado 
+            return stats.aggregate(total=models.Sum('sets_ganados'))['total'] or 0
+
+        elif deporte == 'PING PONG':
+            from .models import EstadisticaJugadorPingPong
+            stats = EstadisticaJugadorPingPong.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            return stats.aggregate(total=models.Sum('partidos_ganados'))['total'] * 3 if stats.exists() else 0
+
+        elif deporte == 'TENIS':
+            from .models import EstadisticaJugadorTenis
+            stats = EstadisticaJugadorTenis.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            return stats.aggregate(total=models.Sum('sets_ganados'))['total'] or 0
+
+        elif deporte == 'FUTBOLIN':
+            from .models import EstadisticaJugadorFutbolin
+            stats = EstadisticaJugadorFutbolin.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            return stats.aggregate(total=models.Sum('partidos_ganados'))['total'] * 3 if stats.exists() else 0
+
+        elif deporte == 'VIDEOJUEGOS':
+            from .models import EstadisticaJugadorVideojuegos
+            stats = EstadisticaJugadorVideojuegos.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            return stats.aggregate(total=models.Sum('partidas_ganadas'))['total'] * 3 if stats.exists() else 0
+        return 0  
+
 
 
 # Modelo jugador
@@ -268,12 +343,12 @@ class Jugador(models.Model):
     def __str__(self):
         return f"{self.usuario.username} ({self.equipo.nombre})"
 
-    # MÉTODO MEJORADO: Verificar si el jugador está suspendido
-    #def esta_suspendido(self):
-        #return self.suspensiones.filter(
-         #  fecha_inicio__lte=timezone.now().date(),
-          #  fecha_fin__gte=timezone.now().date()
-       # ).exists()
+    #   Verificar si el jugador está suspendido
+    def esta_suspendido(self):
+        return self.suspensiones.filter(
+            fecha_inicio__lte=timezone.now().date(),
+            fecha_fin__gte=timezone.now().date()
+       ).exists()
 
 # Modelo árbitro
 class Arbitro(models.Model):
@@ -488,183 +563,7 @@ class Suspension(models.Model):
 
     def __str__(self):
         return f"Suspensión de {self.jugador.usuario.username} desde {self.fecha_inicio} hasta {self.fecha_fin}"
-# Modelo de estadísticas para fútbol
-class EstadisticaFutbol(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del fútbol
-    # Partidos jugados, goles, tarjetas amarillas y rojas, puntos
-    partidos_jugados = models.PositiveIntegerField(default=0)
-    goles = models.PositiveIntegerField(default=0)
-    tarjetas_amarillas = models.PositiveIntegerField(default=0)
-    tarjetas_rojas = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        return f"Futbol: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para básquet
-class EstadisticaBasquet(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del básquet
-    # Partidos jugados, canastas, rebotes, asistencias, puntos  por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    partidos_jugados = models.PositiveIntegerField(default=0)  
-    canastas = models.PositiveIntegerField(default=0)
-    rebotes = models.PositiveIntegerField(default=0)
-    asistencias = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        return f"Basquet: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para ajedrez
-class EstadisticaAjedrez(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del ajedrez
-    # Partidas jugadas, ganadas, empatadas, perdidas, puntos por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    partidas_jugadas = models.PositiveIntegerField(default=0)
-    partidas_ganadas = models.PositiveIntegerField(default=0)
-    partidas_empatadas = models.PositiveIntegerField(default=0)
-    partidas_perdidas = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-
-    class Meta:
-    # Restricción única para evitar duplicados de estadísticas por campeonato y equipo
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        # Representación en texto de las estadísticas de ajedrez
-        # Incluye el nombre del equipo y del campeonato
-        return f"Ajedrez: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para ecuaboly
-class EstadisticaEcuaboly(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del ecuaboly
-    # Sets ganados, perdidos, partidos ganados y puntos por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    sets_ganados = models.PositiveIntegerField(default=0)
-    sets_perdidos = models.PositiveIntegerField(default=0)
-    partidos_ganados = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y equipo
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        # Representación en texto de las estadísticas de ecuaboly
-        # Incluye el nombre del equipo y del campeonato
-        return f"Ecuaboly: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para ping pong
-class EstadisticaPingPong(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo 
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del ping pong
-    # Partidos ganados, perdidos y puntos por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    partidos_ganados = models.PositiveIntegerField(default=0)
-    partidos_perdidos = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y equipo
-        # Esto asegura que cada equipo tenga una única entrada de estadísticas por campeonato
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        # Representación en texto de las estadísticas de ping pong
-        # Incluye el nombre del equipo y del campeonato
-        return f"Ping Pong: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para futbolín
-class EstadisticaFutbolin(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del futbolín
-    # Partidos ganados, perdidos, goles y puntos por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    partidos_ganados = models.PositiveIntegerField(default=0)
-    partidos_perdidos = models.PositiveIntegerField(default=0)
-    goles = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y equipo
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        # Representación en texto de las estadísticas de futbolín
-        return f"Futbolin: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para tenis
-class EstadisticaTenis(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas del tenis
-    # Sets ganados, perdidos, partidos ganados y puntos por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    sets_ganados = models.PositiveIntegerField(default=0)
-    sets_perdidos = models.PositiveIntegerField(default=0)
-    partidos_ganados = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-
-    class Meta: 
-        # Restricción única para evitar duplicados de estadísticas por campeonato y equipo
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        # Representación en texto de las estadísticas de tenis
-        return f"Tenis: {self.equipo.nombre} - {self.campeonato.nombre}"
-
-# Modelo de estadísticas para videojuegos
-class EstadisticaVideojuegos(models.Model):
-    # Relación con campeonato y equipo
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con equipo
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE)
-    # Estadísticas específicas de videojuegos
-    # Partidas jugadas, ganadas, perdidas y puntos por defecto son en 0
-    # Estos campos se pueden actualizar a medida que avanza el campeonato
-    partidas_ganadas = models.PositiveIntegerField(default=0)
-    partidas_perdidas = models.PositiveIntegerField(default=0)
-    puntos = models.PositiveIntegerField(default=0)
-    partidas_jugadas = models.PositiveIntegerField(default=0)
-
-
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y equipo
-        # Esto asegura que cada equipo tenga una única entrada de estadísticas por campeonato
-        unique_together = ('campeonato', 'equipo')
-
-    def __str__(self):
-        return f"Videojuegos: {self.equipo.nombre} - {self.campeonato.nombre}"
 
 class EstadisticaJugadorFutbol(models.Model):
     # Relación con campeonato y jugador

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Tabla Pública - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<div class="contenedor-tabla">
+  <h1>Tabla de Posiciones</h1>
+  <p>Consulta cómo van los equipos en el campeonato actual. ¡Todos pueden verlo!</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Equipo</th>
+        <th>Puntos</th>
+        <th>Logo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for equipo in equipos %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ equipo.nombre }}</td>
+        <td>{{ equipo.puntos }}</td>
+        <td>
+          {% if equipo.logo %}
+            <img src="{{ equipo.logo.url }}" alt="Logo" width="50">
+          {% else %}
+            <span>Sin logo</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4">Aún no hay equipos registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
