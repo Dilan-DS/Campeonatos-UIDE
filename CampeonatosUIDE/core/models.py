@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.db.models import Q # Importar Q para consultas complejas
+from django.db.models import Q 
 
 # Modelo personalizado de usuario
 class Usuario(AbstractUser):
@@ -81,7 +81,10 @@ class CodigoQR(models.Model):
     class Meta:
         verbose_name = "Código QR"
         verbose_name_plural = "Códigos QR"
+    
 
+# Modelo para tipos de campeonatos
+# aqui eligen q tipo quieren si eliminatorias si fase de grupos etc y eligen en capeonato 
 class TipoCampeonato(models.Model):
     # Nombre único del tipo de campeonato ( Fútbol, Básquet, etc.)
     nombre = models.CharField(max_length=30, unique=True)
@@ -248,11 +251,11 @@ class Jugador(models.Model):
         return f"{self.usuario.username} ({self.equipo.nombre})"
 
     # MÉTODO MEJORADO: Verificar si el jugador está suspendido
-    def esta_suspendido(self):
-        return self.suspensiones.filter(
-            fecha_inicio__lte=timezone.now().date(),
-            fecha_fin__gte=timezone.now().date()
-        ).exists()
+    #def esta_suspendido(self):
+        #return self.suspensiones.filter(
+         #  fecha_inicio__lte=timezone.now().date(),
+          #  fecha_fin__gte=timezone.now().date()
+       # ).exists()
 
 # Modelo árbitro
 class Arbitro(models.Model):
@@ -644,3 +647,139 @@ class EstadisticaVideojuegos(models.Model):
 
     def __str__(self):
         return f"Videojuegos: {self.equipo.nombre} - {self.campeonato.nombre}"
+
+class EstadisticaJugadorFutbol(models.Model):
+    # Relación con campeonato y jugador
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+
+    partidos_jugados = models.PositiveIntegerField(default=0)
+    goles = models.PositiveIntegerField(default=0)
+    tarjetas_amarillas = models.PositiveIntegerField(default=0)
+    tarjetas_rojas = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+class EstadisticaJugadorBasquet(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+
+    partidos_jugados = models.PositiveIntegerField(default=0)
+    canastas = models.PositiveIntegerField(default=0)
+    rebotes = models.PositiveIntegerField(default=0)
+    asistencias = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+class EstadisticaJugadorAjedrez(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+
+    partidas_jugadas = models.PositiveIntegerField(default=0)
+    partidas_ganadas = models.PositiveIntegerField(default=0)
+    partidas_empatadas = models.PositiveIntegerField(default=0)
+    partidas_perdidas = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+
+class EstadisticaJugadorEcuaboly(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+
+    partidos_jugados = models.PositiveIntegerField(default=0)
+    sets_ganados = models.PositiveIntegerField(default=0)
+    sets_perdidos = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+
+class EstadisticaJugadorPingPong(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+
+    partidos_jugados = models.PositiveIntegerField(default=0)
+    partidos_ganados = models.PositiveIntegerField(default=0)
+    partidos_perdidos = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+class EstadisticaJugadorTenis(models.Model):
+    # Relación con campeonato y jugador
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+    # Estadísticas específicas del tenis
+    # Partidos jugados, sets ganados, sets perdidos
+    partidos_jugados = models.PositiveIntegerField(default=0)
+    sets_ganados = models.PositiveIntegerField(default=0)
+    sets_perdidos = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+class EstadisticaJugadorVideojuegos(models.Model):
+    # Relación con campeonato y jugador
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+    # Estadísticas específicas de videojuegos
+    partidas_jugadas = models.PositiveIntegerField(default=0)
+    partidas_ganadas = models.PositiveIntegerField(default=0)
+    partidas_perdidas = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+class EstadisticaJugadorFutbolin(models.Model):
+      # Relación con el campeonato
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con el jugador
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+
+    # Estadísticas esenciales del futbolín
+    partidos_jugados = models.PositiveIntegerField(default=0)
+    partidos_ganados = models.PositiveIntegerField(default=0)
+    partidos_perdidos = models.PositiveIntegerField(default=0)
+    # Goles anotados por el jugador
+    goles = models.PositiveIntegerField(default=0)  
+
+    class Meta:
+        unique_together = ('campeonato', 'jugador')
+
+    def __str__(self):
+        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
