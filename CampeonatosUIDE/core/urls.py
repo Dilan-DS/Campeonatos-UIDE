@@ -16,6 +16,8 @@ from .views import (
     estadisticas_futbol, estadisticas_basquet, estadisticas_ecuaboly,
     estadisticas_ajedrez, estadisticas_tenis, estadisticas_pingpong,
     estadisticas_futbolin, estadisticas_videojuegos,
+    # Transmisiones
+    listar_transmisiones, registrar_transmision, detalle_transmision,
 )
 
 urlpatterns = [
@@ -70,4 +72,11 @@ urlpatterns = [
     path('equipo/<int:id>/editar/', editar_equipo, name='editar_equipo'),
     path('equipo/<int:id>/pago/', pago_equipo, name='pago_equipo'),
     path('equipo/<int:id>/jugadores/', jugadores_equipo, name='jugadores_equipo'),
+
+    # Transmisiones
+    path('transmisiones/', listar_transmisiones, name='listar_transmisiones'),
+    path('transmisiones/nuevo/', registrar_transmision, name='registrar_transmision'),
+    path('transmisiones/<int:id>/', detalle_transmision, name='detalle_transmision'),
+
+
 ]

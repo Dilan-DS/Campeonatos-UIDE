@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.safestring import mark_safe
-from .models import Equipo, Pago, Arbitro, Campeonato
+from .models import Equipo, Pago, Arbitro, Campeonato, Transmision
 
 # Ya existentes
 class EquipoForm(forms.ModelForm):
@@ -52,4 +52,10 @@ class ArbitroForm(forms.ModelForm):
 class CampeonatoForm(forms.ModelForm):
     class Meta:
         model = Campeonato
+        fields = '__all__'
+
+# NUEVO: Formulario para TRANSMISIÓN
+class TransmisionForm(forms.ModelForm):
+    class Meta:
+        model = Transmision
         fields = '__all__'

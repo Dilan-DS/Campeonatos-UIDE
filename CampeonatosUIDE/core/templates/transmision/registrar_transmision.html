@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="titulo">Registrar Transmisión</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="formulario-transmision">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn-registrar">Guardar Transmisión</button>
+    </form>
+</div>
+{% endblock %}
