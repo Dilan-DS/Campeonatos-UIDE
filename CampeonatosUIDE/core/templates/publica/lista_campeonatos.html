@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Campeonatos Públicos{% endblock %}
+
+{% block content %}
+<h1>Campeonatos Disponibles</h1>
+<div class="grid-campeonatos">
+  {% for campeonato in campeonatos %}
+    <div class="card">
+      <h3>{{ campeonato.nombre }}</h3>
+      <p>{{ campeonato.descripcion }}</p>
+      <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="btn">Ver tabla de posiciones</a>
+    </div>
+  {% empty %}
+    <p>No hay campeonatos disponibles.</p>
+  {% endfor %}
+</div>
+{% endblock %}

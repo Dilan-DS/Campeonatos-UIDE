@@ -1,0 +1,90 @@
+/* Contenedor general del formulario */
+.form-contenedor {
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Título principal */
+.form-titulo {
+  text-align: center;
+  font-size: 28px;
+  color: #54001d; /* vino */
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+}
+
+/* Estilo de los campos del formulario */
+.formulario-registro input[type="text"],
+.formulario-registro input[type="password"],
+.formulario-registro input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Etiquetas del formulario */
+.formulario-registro label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Botón de registro */
+.btn-formulario {
+  background-color: #54001d; /* vino */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.btn-formulario:hover {
+  background-color: #72002a;
+}
+
+/* Texto inferior con enlace */
+.form-enlace {
+  text-align: center;
+  margin-top: 1.2rem;
+  font-size: 14px;
+}
+
+.form-enlace a {
+  color: #54001d;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.form-enlace a:hover {
+  text-decoration: underline;
+}
+
+/* Mensajes de ayuda del password */
+ul {
+  margin-left: 20px;
+  color: #888;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .form-contenedor {
+    padding: 1rem;
+    margin: 20px;
+  }
+
+  .form-titulo {
+    font-size: 22px;
+  }
+}

@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Tabla Pública - Campeonatos UIDE{% endblock %}
+{% block title %}Tabla Pública - {{ campeonato.nombre }}{% endblock %}
 
 {% block content %}
 <div class="contenedor-tabla">
   <h1>Tabla de Posiciones</h1>
-  <p>Consulta cómo van los equipos en el campeonato actual. ¡Todos pueden verlo!</p>
+  <p>Consulta cómo van los equipos en el campeonato: <strong>{{ campeonato.nombre }}</strong></p>
 
   <table>
     <thead>
@@ -21,7 +21,7 @@
       <tr>
         <td>{{ forloop.counter }}</td>
         <td>{{ equipo.nombre }}</td>
-        <td>{{ equipo.puntos }}</td>
+        <td>{{ equipo.puntos_totales }}</td>
         <td>
           {% if equipo.logo %}
             <img src="{{ equipo.logo.url }}" alt="Logo" width="50">

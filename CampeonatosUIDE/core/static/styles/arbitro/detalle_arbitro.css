@@ -1,0 +1,70 @@
+/* 🎨 Variables de colores */
+:root {
+  --vino: #5a0f2c;          /* Color institucional vino */
+  --amarillo: #f9c80e;      /* Color de acento */
+  --blanco: #ffffff;        /* Color de fondo y texto claro */
+  --gris-texto: #333333;    /* Color de texto oscuro */
+  --gris-suave: #f8f8f8;    /* Fondo claro para contraste */
+}
+
+/* 📦 Contenedor principal del detalle */
+.detalle-contenedor {
+  max-width: 600px;                     /* Ancho máximo */
+  margin: 3rem auto;                    /* Centrado vertical y horizontal */
+  padding: 2rem;
+  background-color: var(--blanco);     /* Fondo blanco */
+  border-radius: 10px;                 /* Bordes redondeados */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  color: var(--gris-texto);            /* Color del texto */
+}
+
+/* 🏷️ Título de sección */
+.titulo-seccion {
+  color: var(--vino);          /* Título color vino */
+  margin-bottom: 1.5rem;       /* Espacio inferior */
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+/* 📄 Párrafos informativos */
+.detalle-contenedor p {
+  margin-bottom: 0.8rem;       /* Espaciado entre líneas */
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* 🔙 Botón para volver al listado */
+.btn-volver {
+  display: inline-block;                 /* Para que se comporte como botón */
+  margin-top: 2rem;
+  background-color: var(--vino);        /* Fondo vino */
+  color: var(--blanco);                 /* Texto blanco */
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;                   /* Bordes suaves */
+  text-decoration: none;               /* Sin subrayado */
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+/* 🎯 Hover en botón */
+.btn-volver:hover {
+  background-color: var(--amarillo);   /* Fondo amarillo al pasar */
+  color: var(--vino);                  /* Texto vino */
+}
+
+/* 📱 Adaptabilidad para móviles */
+@media (max-width: 480px) {
+  .detalle-contenedor {
+    margin: 2rem 1rem;
+    padding: 1.5rem;
+  }
+
+  .titulo-seccion {
+    font-size: 1.5rem;
+  }
+
+  .btn-volver {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}

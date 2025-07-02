@@ -42,6 +42,12 @@ INSTALLED_APPS = [
     "core",
     "multiselectfield",
 ]
+STATIC_URL = '/static/'
+
+# Opcional 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -160,6 +160,8 @@ class Campeonato(models.Model):
     # Código QR del campeonato (opcional, solo si acepta transferencia)
     codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True, related_name='campeonatos')
 
+    activo = models.BooleanField(default=True)
+
     # Validación para que la fecha fin no sea anterior a la fecha inicio
     def clean(self):
         if self.fecha_fin < self.fecha_inicio:
