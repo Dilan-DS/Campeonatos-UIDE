@@ -1,37 +1,35 @@
-<footer class="footer has-background-primary-light">
+{% load static %}
+<!-- comun/footer.html -->
+<footer class="footer has-background-primary-light py-5">
   <div class="container">
-    <div class="columns is-variable is-6">
-
-      <!-- Integrante 1 -->
-      <div class="column has-text-centered">
+    <div class="columns is-variable is-6 is-multiline">
+      <div class="column is-4 has-text-centered">
         <figure class="image is-128x128 is-inline-block">
-          <img class="is-rounded" src="{% static 'img/integrante1.jpg' %}" alt="Foto integrante 1">
+          <img class="is-rounded" src="{% static 'img/integrante1.jpg' %}" alt="Integrante 1">
         </figure>
-        <p class="title is-5 mt-3">Nombre del Integrante 1</p>
+        <p class="title is-5 mt-3">Integrante 1</p>
         <p><strong>Correo:</strong> integrante1@ejemplo.com</p>
         <p><strong>Teléfono:</strong> +593 999 999 999</p>
       </div>
-
-      <!-- Integrante 2 -->
-      <div class="column has-text-centered">
+      <div class="column is-4 has-text-centered">
         <figure class="image is-128x128 is-inline-block">
-          <img class="is-rounded" src="{% static 'img/integrante2.jpg' %}" alt="Foto integrante 2">
+         <img class="is-rounded" src="{% static 'img/integrante 2.png' %}" alt="Integrante 2"> 
         </figure>
-        <p class="title is-5 mt-3">Nombre del Integrante 2</p>
+        <p class="title is-5 mt-3">Integrante 2</p>
         <p><strong>Correo:</strong> integrante2@ejemplo.com</p>
         <p><strong>Teléfono:</strong> +593 888 888 888</p>
       </div>
-
-      <!-- Integrante 3 -->
-      <div class="column has-text-centered">
+      <div class="column is-4 has-text-centered">
         <figure class="image is-128x128 is-inline-block">
-          <img class="is-rounded" src="{% static 'img/integrante3.jpg' %}" alt="Foto integrante 3">
+          <img class="is-rounded" src="{% static 'img/integrante3.jpg' %}" alt="Integrante 3">
         </figure>
-        <p class="title is-5 mt-3">Nombre del Integrante 3</p>
+        <p class="title is-5 mt-3">Integrante 3</p>
         <p><strong>Correo:</strong> integrante3@ejemplo.com</p>
         <p><strong>Teléfono:</strong> +593 777 777 777</p>
       </div>
-
+    </div>
+    <div class="has-text-centered mt-5">
+      <p class="is-size-7 has-text-grey">© 2025 UIDE Loja - Proyecto Campeonatos</p>
     </div>
   </div>
 </footer>

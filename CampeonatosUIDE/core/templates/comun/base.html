@@ -1,24 +1,45 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-  
-  <!-- 🔗 Inclusión de estilos y configuración del <head> -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
+
+  <!-- 🧠 Estilos globales (Bulma, CSS personalizado) -->
   {% include "comun/estilos.html" %}
+</head>
 
-  <body>
+<body>
 
-    <!-- 🟦 NAVBAR global -->
-    {% include "comun/navbar.html" %}
+  <!-- 🟦 Navbar institucional -->
+  {% include "comun/navabar.html" %}
 
-    <!-- ✅ CONTENIDO por vista -->
-    <main class="section">
-      <div class="container">
-        {% block content %}{% endblock %}
-      </div>
-    </main>
+  <!-- ✅ Contenido de cada vista -->
+  <main class="section">
+    <div class="container">
+      {% block content %}
+      <!-- Aquí va el contenido dinámico -->
+      {% endblock %}
+    </div>
+  </main>
 
-    <!-- 🔻 FOOTER global (opcional) -->
-    {% include "comun/footer.html" %}
+  <!-- 🔻 Footer con integrantes -->
+  {% include "comun/footer.html" %}
 
-  </body>
+  <!-- 📱 Script para activar el menú hamburguesa en móviles -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const burgers = document.querySelectorAll('.navbar-burger');
+      burgers.forEach(burger => {
+        burger.addEventListener('click', () => {
+          const target = document.getElementById(burger.dataset.target);
+          burger.classList.toggle('is-active');
+          target.classList.toggle('is-active');
+        });
+      });
+    });
+  </script>
+
+</body>
 </html>

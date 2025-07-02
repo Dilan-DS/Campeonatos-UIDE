@@ -1,5 +1,8 @@
 from django.urls import path
 from .views import (
+
+    vista_inicio,
+
     vista_login,
     vista_logout,
     vista_registro,
@@ -42,22 +45,23 @@ from .views import (
     listar_transmisiones,
     registrar_transmision,
     detalle_transmision,
+    
+
 )
 
 
 
 urlpatterns = [
-    # Página pública
+    # Página de inicio pública
     path('', vista_inicio_publico, name='inicio_publico'),
-    
+
+    # Inicio de sesión para usuarios
+    path('dashboard/', vista_inicio, name='inicio'),  # vista protegida luego de login
 
     # Autenticación
     path('login/', vista_login, name='login'),
     path('logout/', vista_logout, name='logout'),
     path('registro/', vista_registro, name='registro'),
-
-    # Dashboard
-#    path('admin/dashboard/', vista_dashboard, name='dashboard'),
 
     # Árbitros
     path('arbitros/', listar_arbitros, name='listar_arbitros'),
@@ -66,13 +70,10 @@ urlpatterns = [
     path('arbitros/<int:id>/editar/', editar_arbitro, name='editar_arbitro'),
 
     # Campeonatos
-   # Campeonatos públicos (visibles sin iniciar sesión)
     path('campeonatos/publicos/', campeonatos_publicos, name='campeonatos_publicos'),
     path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),
 
-    # Campeonatos privados (administración)
     path('campeonatos/', listar_campeonatos, name='listar_campeonatos'),
-
     path('campeonatos/nuevo/', crear_campeonato, name='crear_campeonato'),
     path('campeonatos/<int:id>/', detalle_campeonato, name='detalle_campeonato'),
     path('campeonatos/<int:id>/editar/', editar_campeonato, name='editar_campeonato'),

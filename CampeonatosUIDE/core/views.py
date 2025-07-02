@@ -10,6 +10,9 @@ from .models import Campeonato, Equipo, Arbitro, Transmision
 # Formularios
 from .forms import ArbitroForm, CampeonatoForm, PagoForm, EquipoForm, TransmisionForm, CustomUsuarioCreationForm
 
+def vista_inicio(request):
+    return render(request, 'publica/inicio_publico.html')
+
 def campeonatos_publicos(request):
     campeonatos = Campeonato.objects.filter(estado='activo')[:6]
     return render(request, 'publica/campeonatos_publicos.html', {'campeonatos': campeonatos})

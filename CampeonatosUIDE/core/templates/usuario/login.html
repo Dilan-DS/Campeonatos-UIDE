@@ -1,21 +1,47 @@
-{% extends "base.html" %}
+{% extends 'comun/base.html' %}
+{% load static %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="contenedor-login">
-  <h2 class="titulo-login">Iniciar sesión</h2>
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
 
-  <form method="POST" class="formulario-login">
-    {% csrf_token %}
-    <div class="campos-login">
-      {{ form.as_p }}
+        <div class="box" style="border-radius: 16px; padding: 2rem;">
+          <h2 class="title is-4 has-text-centered">Iniciar sesión</h2>
+
+          <form method="POST" class="has-text-centered">
+            {% csrf_token %}
+
+            {% for field in form %}
+              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
+                <label class="label">{{ field.label }}</label>
+                <div class="control" style="width: 80%;">
+                  {{ field }}
+                </div>
+                {% for error in field.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="field mt-5">
+              <div class="control">
+                <button type="submit" class="button is-primary is-fullwidth">Entrar</button>
+              </div>
+            </div>
+          </form>
+
+          <p class="has-text-centered mt-4">
+            ¿No tienes cuenta? <a href="{% url 'registro' %}" class="has-text-link">Regístrate aquí</a>
+          </p>
+        </div>
+
+      </div>
     </div>
-    <button type="submit" class="boton-login">Entrar</button>
-  </form>
-
-  <div class="registro-link">
-    <p>¿No tienes cuenta? <a href="{% url 'registro' %}" class="enlace-registro">Regístrate aquí</a></p>
   </div>
-</div>
+</section>
 {% endblock %}
+
