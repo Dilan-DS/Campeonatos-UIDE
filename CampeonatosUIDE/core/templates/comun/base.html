@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  
+  <!-- 🔗 Inclusión de estilos y configuración del <head> -->
+  {% include "comun/estilos.html" %}
+
+  <body>
+
+    <!-- 🟦 NAVBAR global -->
+    {% include "comun/navbar.html" %}
+
+    <!-- ✅ CONTENIDO por vista -->
+    <main class="section">
+      <div class="container">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- 🔻 FOOTER global (opcional) -->
+    {% include "comun/footer.html" %}
+
+  </body>
+</html>
