@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Árbitro - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="form-contenedor">
+    <h2 class="form-titulo">Registrar Árbitro</h2>
+
+    <form method="POST" class="formulario-registro">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn-formulario">Guardar</button>
+    </form>
+
+    <a href="{% url 'listar_arbitros' %}" class="btn-volver">← Volver al listado</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="dashboard-contenedor">
+    <h1 class="titulo-dashboard">Panel de Administración</h1>
+
+    <div class="estadisticas-dashboard">
+      <p>Total de campeonatos: {{ total_campeonatos }}</p>
+      <p>Total de equipos: {{ total_equipos }}</p>
+      <p>Total de árbitros: {{ total_arbitros }}</p>
+    </div>
+
+    <div class="enlaces-rapidos">
+      <a href="{% url 'listar_campeonatos' %}" class="btn-dashboard">Ver campeonatos</a>
+      <a href="{% url 'listar_arbitros' %}" class="btn-dashboard">Ver árbitros</a>
+    </div>
+  </div>
+{% endblock %}

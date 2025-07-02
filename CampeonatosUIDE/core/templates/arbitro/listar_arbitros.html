@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Árbitros - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="contenedor-lista">
+    <h2 class="titulo-seccion">Árbitros Registrados</h2>
+
+    <a href="{% url 'registrar_arbitro' %}" class="btn-accion">+ Nuevo Árbitro</a>
+
+    <ul class="lista-items">
+      {% for arbitro in arbitros %}
+        <li class="item-lista">
+          <span class="item-nombre">{{ arbitro.nombre }} {{ arbitro.apellido }}</span> |
+          <a href="{% url 'detalle_arbitro' arbitro.id %}" class="btn-detalle">Ver</a> |
+          <a href="{% url 'editar_arbitro' arbitro.id %}" class="btn-editar">Editar</a>
+        </li>
+      {% empty %}
+        <li class="item-lista">No hay árbitros registrados.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

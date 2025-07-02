@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Jugadores del Equipo{% endblock %}
+
+{% block content %}
+<h1>Jugadores del Equipo</h1>
+<!-- Aquí puedes listar jugadores, número de camiseta, edad, estadísticas -->
+<ul>
+  {% for jugador in jugadores %}
+    <li>{{ jugador.usuario.username }} - #{{ jugador.numero_camiseta }} - {{ jugador.edad }} años</li>
+  {% empty %}
+    <li>No hay jugadores registrados.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

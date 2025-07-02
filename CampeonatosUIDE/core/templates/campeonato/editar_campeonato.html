@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Campeonato - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="form-contenedor">
+    <h2 class="form-titulo">Editar campeonato</h2>
+
+    <form method="POST" enctype="multipart/form-data" class="formulario-editar">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn-formulario">Actualizar</button>
+    </form>
+
+    <a href="{% url 'listar_campeonatos' %}" class="btn-volver">← Volver al listado</a>
+  </div>
+{% endblock %}

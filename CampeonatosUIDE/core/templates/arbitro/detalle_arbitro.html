@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle del Árbitro - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="detalle-contenedor">
+    <h2 class="titulo-seccion">Detalle del Árbitro</h2>
+
+    <p><strong>Nombre:</strong> {{ arbitro.nombre }} {{ arbitro.apellido }}</p>
+    <p><strong>Deportes:</strong>
+      {% for deporte in arbitro.deportes.all %}
+        {{ deporte.nombre }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+    <p><strong>Experiencia:</strong> {{ arbitro.experiencia }}</p>
+    <p><strong>Contacto:</strong> {{ arbitro.contacto }}</p>
+    <p><strong>Estado:</strong> {% if arbitro.estado %}Activo{% else %}Inactivo{% endif %}</p>
+
+    <a href="{% url 'listar_arbitros' %}" class="btn-volver">← Volver al listado</a>
+  </div>
+{% endblock %}

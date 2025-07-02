@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Equipos{% endblock %}
+
+{% block content %}
+<h1>Equipos Registrados</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Carrera</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for equipo in equipos %}
+      <tr>
+        <td>{{ equipo.nombre }}</td>
+        <td>{{ equipo.carrera.nombre }}</td>
+        <td>{{ equipo.aprobado|yesno:"Aprobado,No aprobado" }}</td>
+        <td>
+          <a href="{% url 'detalle_equipo' equipo.id %}">Ver</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4">No hay equipos registrados.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

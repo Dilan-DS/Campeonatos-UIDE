@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Estadísticas Basquet{% endblock %}
+
+{% block content %}
+<h2 class="titulo">Estadísticas de Básquet</h2>
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>Jugador</th>
+      <th>Partidos</th>
+      <th>Canastas</th>
+      <th>Rebotes</th>
+      <th>Asistencias</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for stat in estadisticas %}
+    <tr>
+      <td>{{ stat.jugador.usuario.username }}</td>
+      <td>{{ stat.partidos_jugados }}</td>
+      <td>{{ stat.canastas }}</td>
+      <td>{{ stat.rebotes }}</td>
+      <td>{{ stat.asistencias }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

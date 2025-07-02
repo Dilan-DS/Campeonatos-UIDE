@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle del Campeonato - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="detalle-contenedor">
+    <h2 class="titulo-seccion">{{ campeonato.nombre }}</h2>
+
+    <p><strong>Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
+    <p><strong>Descripción:</strong> {{ campeonato.descripcion }}</p>
+    <p><strong>Fechas:</strong> {{ campeonato.fecha_inicio }} a {{ campeonato.fecha_fin }}</p>
+    <p><strong>Estado:</strong> {{ campeonato.estado }}</p>
+    <p><strong>Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
+    <p><strong>Delegado:</strong> {{ campeonato.delegado.username if campeonato.delegado }}</p>
+    <p><strong>Precio inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
+
+    {% if campeonato.reglamento %}
+      <p><a href="{{ campeonato.reglamento.url }}" target="_blank">Ver reglamento</a></p>
+    {% endif %}
+
+    <a href="{% url 'listar_campeonatos' %}" class="btn-volver">← Volver al listado</a>
+  </div>
+{% endblock %}
