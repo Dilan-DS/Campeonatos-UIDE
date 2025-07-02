@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Campeonatos - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="contenedor-lista">
+    <h2 class="titulo-seccion">Campeonatos</h2>
+
+    <a href="{% url 'crear_campeonato' %}" class="btn-accion">+ Crear nuevo campeonato</a>
+
+    <ul class="lista-items">
+      {% for campeonato in campeonatos %}
+        <li class="item-lista">
+          <strong>{{ campeonato.nombre }}</strong> - {{ campeonato.deporte.nombre }}
+          | <a href="{% url 'detalle_campeonato' campeonato.id %}" class="btn-detalle">Ver</a>
+          | <a href="{% url 'editar_campeonato' campeonato.id %}" class="btn-editar">Editar</a>
+        </li>
+      {% empty %}
+        <li class="item-lista">No hay campeonatos registrados.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

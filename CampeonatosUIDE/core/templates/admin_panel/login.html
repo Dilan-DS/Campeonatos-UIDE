@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+  <div class="form-contenedor">
+    <h2 class="form-titulo">Iniciar sesión</h2>
+
+    <form method="POST" class="formulario-login">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="submit" class="btn-formulario">Entrar</button>
+    </form>
+
+    <p class="form-enlace">
+      ¿No tienes una cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a>.
+    </p>
+  </div>
+{% endblock %}

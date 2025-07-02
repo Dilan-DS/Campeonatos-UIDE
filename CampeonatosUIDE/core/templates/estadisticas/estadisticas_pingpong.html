@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Estadísticas Ping Pong{% endblock %}
+
+{% block content %}
+<h2 class="titulo">Estadísticas de Ping Pong</h2>
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>Jugador</th>
+      <th>Partidos</th>
+      <th>Ganados</th>
+      <th>Perdidos</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for stat in estadisticas %}
+    <tr>
+      <td>{{ stat.jugador.usuario.username }}</td>
+      <td>{{ stat.partidos_jugados }}</td>
+      <td>{{ stat.partidos_ganados }}</td>
+      <td>{{ stat.partidos_perdidos }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

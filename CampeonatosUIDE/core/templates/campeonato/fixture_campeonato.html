@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Fixture - {{ campeonato.nombre }}{% endblock %}
+
+{% block content %}
+  <div class="detalle-contenedor">
+    <h2 class="titulo-seccion">Fixture de {{ campeonato.nombre }}</h2>
+
+    <ul class="lista-items">
+      {% for partido in partidos %}
+        <li class="item-lista">
+          {{ partido.fecha }} - {{ partido.hora }} - 
+          {{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }} en {{ partido.lugar }}
+        </li>
+      {% empty %}
+        <li class="item-lista">No hay partidos programados.</li>
+      {% endfor %}
+    </ul>
+
+    <a href="{% url 'listar_campeonatos' %}" class="btn-volver">← Volver al listado</a>
+  </div>
+{% endblock %}

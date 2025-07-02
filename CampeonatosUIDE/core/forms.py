@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.safestring import mark_safe
-from .models import Equipo, Pago
+from .models import Equipo, Pago, Arbitro, Campeonato
 
+# Ya existentes
 class EquipoForm(forms.ModelForm):
     class Meta:
         model = Equipo
@@ -10,7 +11,6 @@ class EquipoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Mostrar el QR si el campeonato tiene uno
         if self.instance.pk and self.instance.campeonato and self.instance.campeonato.codigo_qr:
             codigo_qr = self.instance.campeonato.codigo_qr
             self.fields['codigo_qr_info'] = forms.CharField(
@@ -22,7 +22,6 @@ class EquipoForm(forms.ModelForm):
                     f"<img src='{codigo_qr.imagen_qr.url}' width='200' style='border:1px solid #ccc; padding:5px'/>"
                 )
             )
-
 
 class PagoForm(forms.ModelForm):
     class Meta:
@@ -42,3 +41,15 @@ class PagoForm(forms.ModelForm):
                     f"<img src='{self.instance.codigo_qr.imagen_qr.url}' width='200' style='border:1px solid #ccc;'/>"
                 )
             )
+
+# NUEVO: Formulario para Árbitro
+class ArbitroForm(forms.ModelForm):
+    class Meta:
+        model = Arbitro
+        fields = '__all__'
+
+# NUEVO: Formulario para Campeonato
+class CampeonatoForm(forms.ModelForm):
+    class Meta:
+        model = Campeonato
+        fields = '__all__'

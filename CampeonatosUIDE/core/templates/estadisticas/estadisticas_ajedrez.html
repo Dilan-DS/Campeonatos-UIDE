@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Estadísticas Ajedrez{% endblock %}
+
+{% block content %}
+<h2 class="titulo">Estadísticas de Ajedrez</h2>
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>Jugador</th>
+      <th>Partidas Jugadas</th>
+      <th>Ganadas</th>
+      <th>Empatadas</th>
+      <th>Perdidas</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for stat in estadisticas %}
+    <tr>
+      <td>{{ stat.jugador.usuario.username }}</td>
+      <td>{{ stat.partidas_jugadas }}</td>
+      <td>{{ stat.partidas_ganadas }}</td>
+      <td>{{ stat.partidas_empatadas }}</td>
+      <td>{{ stat.partidas_perdidas }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
