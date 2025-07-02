@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.safestring import mark_safe
-from .models import Equipo, Pago, Arbitro, Campeonato, Transmision
+from .models import Equipo, Pago, Arbitro, Campeonato, Transmision, Usuario
+from django.contrib.auth.forms import UserCreationForm
+
 
 # Ya existentes
 class EquipoForm(forms.ModelForm):
@@ -59,3 +61,8 @@ class TransmisionForm(forms.ModelForm):
     class Meta:
         model = Transmision
         fields = '__all__'
+
+class CustomUsuarioCreationForm(UserCreationForm):
+    class Meta:
+        model = Usuario  # Este es tu modelo personalizado
+        fields = ('username', 'first_name', 'last_name', 'email', 'rol', 'carrera')  # Ajusta los campos según tu modelo

@@ -1,0 +1,104 @@
+/* 🎨 Variables reutilizables */
+:root {
+  --vino: #5a0f2c;          /* Color principal: vino */
+  --amarillo: #f9c80e;      /* Color de acento: amarillo */
+  --blanco: #ffffff;        /* Fondo y texto claro */
+  --gris-claro: #f9f9f9;    /* Fondo neutro */
+  --gris-texto: #333;       /* Color de texto principal */
+}
+
+/* 🌐 Fondo general */
+body {
+  background-color: var(--gris-claro);  /* Fondo claro general */
+  color: var(--gris-texto);             /* Color de texto base */
+  font-family: 'Segoe UI', sans-serif;  /* Fuente moderna y legible */
+  margin: 0;
+  padding: 0;
+}
+
+/* 📦 Contenedor del formulario */
+.contenedor-login {
+  max-width: 400px;                /* Ancho máximo del formulario */
+  margin: 3rem auto;               /* Centrado vertical y horizontal */
+  padding: 2rem;
+  background-color: var(--blanco);/* Fondo blanco para contraste */
+  border-radius: 10px;             /* Bordes redondeados */
+  box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra ligera */
+}
+
+/* 📝 Título del formulario */
+.titulo-login {
+  text-align: center;       /* Centrado */
+  color: var(--vino);       /* Color vino */
+  margin-bottom: 1rem;      /* Espacio inferior */
+}
+
+/* 🧾 Formulario */
+.formulario-login {
+  display: flex;            /* Usamos flexbox */
+  flex-direction: column;   /* Apila los campos verticalmente */
+  gap: 1rem;                /* Espacio entre campos */
+}
+
+/* 🎯 Campos del formulario */
+.campos-login p {
+  margin: 0;                /* Eliminamos márgenes por defecto */
+}
+
+/* ✏️ Campos de entrada */
+.campos-login input {
+  width: 100%;                      /* Que ocupe todo el ancho */
+  padding: 0.5rem;                  /* Espacio interno */
+  border: 1px solid #ccc;          /* Borde gris claro */
+  border-radius: 5px;              /* Bordes redondeados */
+  font-size: 1rem;
+}
+
+/* 🔒 Botón de enviar */
+.boton-login {
+  background-color: var(--vino);   /* Fondo vino */
+  color: var(--blanco);            /* Texto blanco */
+  padding: 0.6rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;                 /* Cambia el cursor al pasar */
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+/* 🟡 Efecto hover del botón */
+.boton-login:hover {
+  background-color: var(--amarillo); /* Fondo amarillo */
+  color: var(--vino);                /* Texto vino */
+}
+
+/* 🔗 Enlace para ir a registro */
+.registro-link {
+  text-align: center;               /* Centrado */
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* 🔗 Enlace con color amarillo */
+.enlace-registro {
+  color: var(--amarillo);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* 🖱️ Hover en el enlace */
+.enlace-registro:hover {
+  text-decoration: underline;
+}
+
+/* 📱 Responsividad para celulares pequeños */
+@media (max-width: 480px) {
+  .contenedor-login {
+    margin: 2rem 1rem;
+    padding: 1.5rem;
+  }
+
+  .boton-login {
+    font-size: 0.9rem;
+  }
+}

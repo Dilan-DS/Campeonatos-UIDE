@@ -1,0 +1,139 @@
+/* ==== CONTENEDOR GENERAL DE LA TABLA ==== */
+.contenedor-tabla {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ==== TÍTULO Y DESCRIPCIÓN ==== */
+.contenedor-tabla h1 {
+  text-align: center;
+  color: #54001d;
+  margin-bottom: 0.5rem;
+}
+
+.contenedor-tabla p {
+  text-align: center;
+  color: #444;
+  margin-bottom: 1.5rem;
+}
+
+/* ==== TABLA ==== */
+.contenedor-tabla table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 16px;
+}
+
+.contenedor-tabla thead {
+  background-color: #54001d;
+  color: white;
+}
+
+.contenedor-tabla th,
+.contenedor-tabla td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* ==== LOGO REDONDO ==== */
+.contenedor-tabla img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ==== FILAS ALTERNAS ==== */
+.contenedor-tabla tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* ==== RESPONSIVE TABLA ==== */
+@media (max-width: 600px) {
+  .contenedor-tabla table {
+    font-size: 14px;
+  }
+
+  .contenedor-tabla h1 {
+    font-size: 22px;
+  }
+}
+
+/* ==== CONTENEDOR CAMPEONATOS ==== */
+.contenedor-campeonatos {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+/* ==== GRID DE TARJETAS ==== */
+.grid-campeonatos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+/* ==== TARJETA CAMPEONATO ==== */
+.card-campeonato {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-left: 5px solid #54001d;
+  transition: transform 0.2s ease;
+}
+
+.card-campeonato:hover {
+  transform: translateY(-5px);
+}
+
+.card-campeonato h3 {
+  color: #54001d;
+  margin-bottom: 10px;
+}
+
+.card-campeonato p {
+  color: #333;
+  margin: 4px 0;
+}
+
+/* ==== BOTÓN VER ESTADÍSTICAS ==== */
+.btn-ver-estadisticas {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background-color: #54001d;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ver-estadisticas:hover {
+  background-color: #72002a;
+}
+
+/* ==== BOTÓN DE INICIO DE SESIÓN ==== */
+.boton-login {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 20px;
+  background-color: #54001d;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.boton-login:hover {
+  background-color: #72002a;
+}
