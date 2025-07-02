@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="titulo">Detalle de Transmisión</h2>
+
+    <div class="transmision-detalle">
+        <p><strong>Campeonato:</strong> {{ transmision.campeonato.nombre }}</p>
+        <p><strong>Partido:</strong> {{ transmision.partido }}</p>
+        <p><strong>Enlace:</strong> <a href="{{ transmision.enlace }}" target="_blank">{{ transmision.enlace }}</a></p>
+        <p><strong>Descripción:</strong> {{ transmision.descripcion }}</p>
+        <p><strong>Activa:</strong> {{ transmision.activa|yesno:"Sí,No" }}</p>
+    </div>
+
+    <a href="{% url 'listar_transmisiones' %}" class="btn-volver">Volver a la lista</a>
+</div>
+{% endblock %}

@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from .models import Campeonato, Equipo, Arbitro
-from .forms import ArbitroForm, CampeonatoForm, PagoForm, EquipoForm
+from .models import Campeonato, Equipo, Arbitro, Transmision
+from .forms import ArbitroForm, CampeonatoForm, PagoForm, EquipoForm, TransmisionForm  
 from django.contrib import messages
 
 
@@ -198,3 +198,26 @@ def estadisticas_tenis(request):
 
 def estadisticas_videojuegos(request):
     return render(request, 'estadisticas/estadisticas_videojuegos.html')
+
+def listar_transmisiones(request):
+    transmisiones = Transmision.objects.all()
+    return render(request, 'transmision/listar_transmisiones.html', {'transmisiones': transmisiones})
+
+
+def registrar_transmision(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        url = request.POST.get('url')
+        campeonato_id = request.POST.get('campeonato')
+        campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+
+        Transmision.objects.create(nombre=nombre, url=url, campeonato=campeonato)
+        return redirect('listar_transmisiones')
+    else:
+        campeonatos = Campeonato.objects.all()
+        return render(request, 'transmision/registrar_transmision.html', {'campeonatos': campeonatos})
+
+
+def detalle_transmision(request, id):
+    transmision = get_object_or_404(Transmision, id=id)
+    return render(request, 'transmision/detalle_transmision.html', {'transmision': transmision})
