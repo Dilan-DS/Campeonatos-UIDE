@@ -1,20 +1,46 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
 
-{% block title %}Dashboard - Campeonatos UIDE{% endblock %}
+  <!-- 🧠 Estilos globales -->
+  {% include "comun/estilos.html" %}
+</head>
 
-{% block content %}
-  <div class="dashboard-contenedor">
-    <h1 class="titulo-dashboard">Panel de Administración</h1>
+<body>
 
-    <div class="estadisticas-dashboard">
-      <p>Total de campeonatos: {{ total_campeonatos }}</p>
-      <p>Total de equipos: {{ total_equipos }}</p>
-      <p>Total de árbitros: {{ total_arbitros }}</p>
+  <!-- 🔝 Menú de navegación -->
+  {% include "comun/navbar.html" %}
+
+  <!-- 🎓 Encabezado institucional -->
+  {% include "comun/header.html" %}
+
+  <!-- ✅ Contenido de cada vista -->
+  <main class="section">
+    <div class="container">
+      {% block content %}{% endblock %}
     </div>
+  </main>
 
-    <div class="enlaces-rapidos">
-      <a href="{% url 'listar_campeonatos' %}" class="btn-dashboard">Ver campeonatos</a>
-      <a href="{% url 'listar_arbitros' %}" class="btn-dashboard">Ver árbitros</a>
-    </div>
-  </div>
-{% endblock %}
+  <!-- 🔻 Pie de página -->
+  {% include "comun/footer.html" %}
+
+  <!-- 📱 Script para menú hamburguesa móvil -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const burgers = document.querySelectorAll('.navbar-burger');
+      burgers.forEach(burger => {
+        burger.addEventListener('click', () => {
+          const target = document.getElementById(burger.dataset.target);
+          burger.classList.toggle('is-active');
+          target.classList.toggle('is-active');
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
