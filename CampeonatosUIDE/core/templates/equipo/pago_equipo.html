@@ -1,12 +1,45 @@
-{% extends 'base.html' %}
+{% extends 'comun/base.html' %}
 
-{% block title %}Pago del Equipo{% endblock %}
+{% block title %}Registrar Pago - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<h1>Registrar Pago</h1>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Enviar pago</button>
-</form>
+<section class="section">
+  <div class="container">
+
+    <div class="box has-background-warning-light" style="border-radius: 16px; padding: 2rem;">
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">Registrar Pago del Equipo</h2>
+
+      <form method="post" enctype="multipart/form-data" class="mt-5">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="field">
+            <label class="label">{{ field.label }}</label>
+            <div class="control">
+              {{ field }}
+            </div>
+            {% if field.errors %}
+              <p class="help is-danger">{{ field.errors }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-success is-fullwidth is-rounded is-medium">
+              💸 Enviar pago
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'listar_equipos' %}" class="button is-link is-light is-rounded">
+          ← Volver a Equipos
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
 {% endblock %}

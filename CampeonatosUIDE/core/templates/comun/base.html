@@ -2,42 +2,101 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sistema de Campeonatos Deportivos UIDE Loja" />
+  <meta name="author" content="Tu equipo UIDE" />
+  <meta name="theme-color" content="#d32f2f" />
   <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
 
-  <!-- 🧠 Estilos globales (Bulma, CSS personalizado) -->
-  {% include "comun/estilos.html" %}
+  <!-- 🔗 Favicon -->
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+
+  <!-- 🎨 Bulma y estilos -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'styles/base.css' %}">
 </head>
 
-<body>
+<body class="has-background-white has-text-black">
 
-  <!-- 🟦 Navbar institucional -->
-  {% include "comun/navabar.html" %}
+  <!-- 🧭 NAVBAR CON CONTROL DE ROLES -->
+  <nav class="navbar is-danger" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{% url 'inicio_publico' %}">
+        <strong>🏆 UIDE Campeonatos</strong>
+      </a>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
 
-  <!-- ✅ Contenido de cada vista -->
-  <main class="section">
+    <div id="menuPrincipal" class="navbar-menu">
+      <div class="navbar-start">
+        {% if user.is_authenticated %}
+          {% if user.rol == 'ADMIN' %}
+            <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
+            <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
+            <a class="navbar-item" href="{% url 'listar_jugadores' %}">Jugadores</a>
+            <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
+            <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
+            <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
+
+          {% elif user.rol == 'DELEGADO' %}
+            <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
+            <a class="navbar-item" href="{% url 'jugadores_equipo' equipo_id=1 %}">Mis Jugadores</a>
+            <a class="navbar-item" href="{% url 'pago_equipo' equipo_id=1 %}">Subir Pago</a>
+
+          {% elif user.rol == 'JUGADOR' %}
+            <a class="navbar-item" href="{% url 'posiciones' %}">Tabla de Posiciones</a>
+            <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador_id=1 %}">Mis Estadísticas</a>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="navbar-end">
+        {% if user.is_authenticated %}
+          <div class="navbar-item">👤 {{ user.username }} ({{ user.rol }})</div>
+          <div class="navbar-item">
+            <a class="button is-light" href="{% url 'logout' %}">Cerrar sesión</a>
+          </div>
+        {% else %}
+          <div class="navbar-item">
+            <a class="button is-light" href="{% url 'login' %}">Iniciar sesión</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- 📦 Contenido dinámico -->
+  <main class="section pt-6 pb-6">
     <div class="container">
       {% block content %}
-      <!-- Aquí va el contenido dinámico -->
+      <!-- Contenido inyectado por cada plantilla -->
       {% endblock %}
     </div>
   </main>
 
-  <!-- 🔻 Footer con integrantes -->
   {% include "comun/footer.html" %}
 
-  <!-- 📱 Script para activar el menú hamburguesa en móviles -->
+
+  <!-- 📱 JS para el menú hamburguesa -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const burgers = document.querySelectorAll('.navbar-burger');
-      burgers.forEach(burger => {
-        burger.addEventListener('click', () => {
-          const target = document.getElementById(burger.dataset.target);
-          burger.classList.toggle('is-active');
-          target.classList.toggle('is-active');
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      if ($navbarBurgers.length > 0) {
+        $navbarBurgers.forEach(el => {
+          el.addEventListener('click', () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+          });
         });
-      });
+      }
     });
   </script>
 

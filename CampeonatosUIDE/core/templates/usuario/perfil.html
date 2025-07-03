@@ -1,21 +1,27 @@
 {% extends 'comun/base.html' %}
-{% load static %}
 
-{% block title %}Perfil de Usuario{% endblock %}
+{% block title %}Registro{% endblock %}
 
 {% block content %}
-<div class="perfil-contenedor">
-  <div class="perfil-card">
-    <div class="perfil-foto">
-      <img src="{% static 'images/default-user.png' %}" alt="Foto de perfil">
-    </div>
-    <div class="perfil-info">
-      <h2>{{ user.first_name }} {{ user.last_name }}</h2>
-      <p><strong>Usuario:</strong> {{ user.username }}</p>
-      <p><strong>Correo:</strong> {{ user.email }}</p>
-      <p><strong>Rol:</strong> {{ user.rol }}</p>
-      <a href="{% url 'editar_perfil' %}" class="btn-editar">Editar Perfil</a>
-    </div>
-  </div>
+<div class="container">
+  <h1 class="title">Crear cuenta</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div class="field">
+        <label class="label">{{ field.label }}</label>
+        <div class="control">
+          {{ field }}
+        </div>
+        {% if field.errors %}
+          <p class="help is-danger">{{ field.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button class="button is-primary" type="submit">Registrarse</button>
+  </form>
 </div>
 {% endblock %}

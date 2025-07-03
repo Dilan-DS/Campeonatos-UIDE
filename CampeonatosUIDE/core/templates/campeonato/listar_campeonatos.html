@@ -1,23 +1,46 @@
 {% extends 'comun/base.html' %}
+{% load static %}
 
 {% block title %}Listado de Campeonatos - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="contenedor-lista">
-    <h2 class="titulo-seccion">Campeonatos</h2>
+<section class="section">
+  <div class="container">
 
-    <a href="{% url 'crear_campeonato' %}" class="btn-accion">+ Crear nuevo campeonato</a>
+    <div class="box" style="background-color: #fdf7f0; border-radius: 18px; padding: 2.5rem;">
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        🏆 Campeonatos Registrados
+      </h2>
 
-    <ul class="lista-items">
-      {% for campeonato in campeonatos %}
-        <li class="item-lista">
-          <strong>{{ campeonato.nombre }}</strong> - {{ campeonato.deporte.nombre }}
-          | <a href="{% url 'detalle_campeonato' campeonato.id %}" class="btn-detalle">Ver</a>
-          | <a href="{% url 'editar_campeonato' campeonato.id %}" class="btn-editar">Editar</a>
-        </li>
-      {% empty %}
-        <li class="item-lista">No hay campeonatos registrados.</li>
-      {% endfor %}
-    </ul>
+      <div class="has-text-right mb-4">
+        <a href="{% url 'crear_campeonato' %}" class="button is-link is-rounded is-small">
+          ➕ Crear nuevo campeonato
+        </a>
+      </div>
+
+      {% if campeonatos %}
+        <div class="content">
+          <ul>
+            {% for campeonato in campeonatos %}
+              <li class="box mb-3" style="background-color: #fffbea; border-left: 6px solid #b30059;">
+                <strong>{{ campeonato.nombre }}</strong> — {{ campeonato.deporte.nombre }}
+                <br>
+                <span class="is-size-7 has-text-grey">Desde {{ campeonato.fecha_inicio }} hasta {{ campeonato.fecha_fin }}</span>
+                <div class="mt-2">
+                  <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-small is-info is-light is-rounded">👁️ Ver</a>
+                  <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light is-rounded">✏️ Editar</a>
+                  <a href="{% url 'fixture_campeonato' campeonato.id %}" class="button is-small is-danger is-light is-rounded">📅 Fixture</a>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p class="notification is-warning is-light has-text-centered">No hay campeonatos registrados todavía.</p>
+      {% endif %}
+
+    </div>
+
   </div>
+</section>
 {% endblock %}

@@ -1,12 +1,45 @@
-{% extends 'base.html' %}
+{% extends 'comun/base.html' %}
 
-{% block title %}Registrar Equipo{% endblock %}
+{% block title %}Registrar Nuevo Equipo - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<h1>Registrar Nuevo Equipo</h1>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Registrar</button>
-</form>
+<section class="section">
+  <div class="container">
+
+    <div class="box has-background-light" style="border-radius: 20px; padding: 2rem;">
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">Registrar Nuevo Equipo</h2>
+
+      <form method="post" enctype="multipart/form-data" class="mt-4">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="field">
+            <label class="label has-text-dark">{{ field.label }}</label>
+            <div class="control">
+              {{ field|add_class:"input is-rounded is-medium" }}
+            </div>
+            {% if field.errors %}
+              <p class="help is-danger">{{ field.errors }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-link is-fullwidth is-rounded is-medium">
+              ✅ Registrar Equipo
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded">
+          ← Volver al listado
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
 {% endblock %}

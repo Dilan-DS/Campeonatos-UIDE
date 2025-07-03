@@ -6,8 +6,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
 
-  <!-- 🧠 Estilos globales -->
-  {% include "comun/estilos.html" %}
+  <!-- ✅ Bulma CSS desde CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+  <!-- 🎨 Estilos personalizados -->
+  <style>
+    body {
+      background-color: #fdfcfb; /* blanco suave */
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar, footer {
+      background-color: #5a0035; /* vino */
+      color: white;
+    }
+
+    .navbar a.navbar-item,
+    .navbar-brand .navbar-item {
+      color: white;
+    }
+
+    .navbar-item:hover {
+      background-color: #7b114b; /* vino más claro */
+    }
+
+    .button.is-custom {
+      background-color: #eac70a;  /* amarillo */
+      color: #5a0035;
+      border: none;
+    }
+
+    .button.is-custom:hover {
+      background-color: #f0d42d;
+    }
+
+    footer {
+      padding: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>

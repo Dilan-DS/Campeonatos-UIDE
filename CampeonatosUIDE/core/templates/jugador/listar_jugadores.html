@@ -1,0 +1,38 @@
+{% extends 'comun/base.html' %}
+{% block title %}Jugadores{% endblock %}
+
+{% block content %}
+<div class="box mt-6">
+  <h2 class="title is-4">Jugadores Registrados</h2>
+
+  <a href="{% url 'registrar_jugador' %}" class="button is-link is-rounded mb-4">+ Agregar Jugador</a>
+
+  <table class="table is-fullwidth is-striped">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Edad</th>
+        <th>N° Camiseta</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for jugador in jugadores %}
+      <tr>
+        <td>{{ jugador.usuario.first_name }} {{ jugador.usuario.last_name }}</td>
+        <td>{{ jugador.edad }}</td>
+        <td>{{ jugador.numero_camiseta }}</td>
+        <td>
+          <a class="button is-small is-info" href="{% url 'detalle_jugador' jugador.id %}">Ver</a>
+          <a class="button is-small is-warning" href="{% url 'editar_jugador' jugador.id %}">Editar</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4">No hay jugadores registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

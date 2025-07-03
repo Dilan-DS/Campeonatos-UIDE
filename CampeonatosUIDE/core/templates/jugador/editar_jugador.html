@@ -1,0 +1,16 @@
+{% extends 'comun/base.html' %}
+{% block title %}Editar Jugador{% endblock %}
+
+{% block content %}
+<div class="box mt-6">
+  <h2 class="title is-4">Editar Información del Jugador</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="button is-warning is-rounded mt-4">Actualizar</button>
+  </form>
+
+  <a href="{% url 'listar_jugadores' %}" class="button is-light mt-4">← Volver al listado</a>
+</div>
+{% endblock %}

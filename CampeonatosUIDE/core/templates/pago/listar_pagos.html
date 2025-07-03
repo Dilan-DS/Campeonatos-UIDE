@@ -1,0 +1,37 @@
+{% extends 'comun/base.html' %}
+{% block title %}Listado de Pagos{% endblock %}
+
+{% block content %}
+<div class="box p-5">
+  <h2 class="title is-4">Pagos Registrados</h2>
+
+  <a href="{% url 'registrar_pago' %}" class="button is-link mb-4">+ Nuevo Pago</a>
+
+  <table class="table is-striped is-fullwidth">
+    <thead>
+      <tr>
+        <th>Equipo</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pago in pagos %}
+      <tr>
+        <td>{{ pago.equipo.nombre }}</td>
+        <td>${{ pago.monto }}</td>
+        <td>{{ pago.fecha }}</td>
+        <td>
+          <a href="{% url 'detalle_pago' pago.id %}" class="button is-small is-info">Ver</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="has-text-centered">No hay pagos registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

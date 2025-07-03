@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Lista de Partidos{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Lista de Partidos</h1>
+    <a href="{% url 'registrar_partido' %}" class="button is-primary">Registrar Partido</a>
+    <table class="table is-fullwidth is-striped mt-4">
+      <thead>
+        <tr>
+          <th>Campeonato</th>
+          <th>Local</th>
+          <th>Visitante</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for partido in partidos %}
+        <tr>
+          <td>{{ partido.campeonato.nombre }}</td>
+          <td>{{ partido.equipo_local.nombre }}</td>
+          <td>{{ partido.equipo_visitante.nombre }}</td>
+          <td>{{ partido.fecha }}</td>
+          <td>{{ partido.hora }}</td>
+          <td>
+            <a href="{% url 'detalle_partido' partido.id %}" class="button is-small is-link">Ver</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

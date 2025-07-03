@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Detalle de Suspensión</h1>
+    <div class="box">
+      <p><strong>Jugador:</strong> {{ suspension.jugador.usuario.username }}</p>
+      <p><strong>Equipo:</strong> {{ suspension.jugador.equipo.nombre }}</p>
+      <p><strong>Fecha Inicio:</strong> {{ suspension.fecha_inicio }}</p>
+      <p><strong>Fecha Fin:</strong> {{ suspension.fecha_fin }}</p>
+      <p><strong>Motivo:</strong> {{ suspension.motivo }}</p>
+    </div>
+    <a href="{% url 'listar_suspensiones' %}" class="button is-link">Volver</a>
+  </div>
+</section>
+{% endblock %}

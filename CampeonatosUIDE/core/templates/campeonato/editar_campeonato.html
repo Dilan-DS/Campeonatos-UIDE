@@ -1,17 +1,45 @@
 {% extends 'comun/base.html' %}
+{% load static %}
+{% load widget_tweaks %}  {# Asegúrate de tener django-widget-tweaks instalado #}
 
 {% block title %}Editar Campeonato - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="form-contenedor">
-    <h2 class="form-titulo">Editar campeonato</h2>
+<section class="section">
+  <div class="container">
+    <div class="box" style="background-color: #fff9f4; border-radius: 18px; padding: 2.5rem;">
 
-    <form method="POST" enctype="multipart/form-data" class="formulario-editar">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn-formulario">Actualizar</button>
-    </form>
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">Editar Campeonato</h2>
 
-    <a href="{% url 'listar_campeonatos' %}" class="btn-volver">← Volver al listado</a>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="field mb-4">
+            <label class="label has-text-weight-semibold">{{ field.label }}</label>
+            <div class="control">
+              {{ field|add_class:"input is-rounded is-medium" }}
+            </div>
+            {% for error in field.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-warning is-fullwidth is-medium is-rounded">
+              <strong>Actualizar</strong>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">← Volver al listado</a>
+      </div>
+
+    </div>
   </div>
+</section>
 {% endblock %}

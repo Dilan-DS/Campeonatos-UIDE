@@ -1,8 +1,52 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalle del Equipo{% endblock %}
+{% block title %}Detalle del Equipo - {{ equipo.nombre }}{% endblock %}
 
 {% block content %}
-<h1>Detalle del Equipo</h1>
-<!-- Aquí puedes mostrar nombre, logo, jugadores, estadísticas, etc. -->
+<div class="equipo-detalle">
+  <h1>{{ equipo.nombre }}</h1>
+
+  <div class="equipo-info">
+    <img src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}" class="equipo-logo">
+    
+    <ul class="equipo-datos">
+      <li><strong>Campeonato:</strong> {{ equipo.campeonato.nombre }}</li>
+      <li><strong>Carrera:</strong> {{ equipo.carrera.nombre }}</li>
+      <li><strong>Aprobado:</strong> {{ equipo.aprobado|yesno:"Sí,No" }}</li>
+      <li><strong>Puntos Totales:</strong> {{ equipo.puntos_totales }}</li>
+      <li><strong>Goles Totales:</strong> {{ equipo.goles_totales }}</li>
+      <li><strong>Tarjetas Totales:</strong> {{ equipo.tarjetas_totales }}</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <h2>Jugadores</h2>
+  {% if equipo.jugadores.all %}
+    <table class="jugadores-tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Edad</th>
+          <th>N° Camiseta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for jugador in equipo.jugadores.all %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ jugador.usuario.first_name }} {{ jugador.usuario.last_name }}</td>
+            <td>{{ jugador.edad }}</td>
+            <td>{{ jugador.numero_camiseta }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No hay jugadores registrados aún.</p>
+  {% endif %}
+
+  <a href="{% url 'listar_equipos' %}" class="btn-volver">← Volver al listado</a>
+</div>
 {% endblock %}

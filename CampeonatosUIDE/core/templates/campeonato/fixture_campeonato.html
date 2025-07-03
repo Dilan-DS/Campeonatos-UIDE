@@ -1,22 +1,47 @@
 {% extends 'comun/base.html' %}
+{% load static %}
 
 {% block title %}Fixture - {{ campeonato.nombre }}{% endblock %}
 
 {% block content %}
-  <div class="detalle-contenedor">
-    <h2 class="titulo-seccion">Fixture de {{ campeonato.nombre }}</h2>
+<section class="section">
+  <div class="container">
 
-    <ul class="lista-items">
-      {% for partido in partidos %}
-        <li class="item-lista">
-          {{ partido.fecha }} - {{ partido.hora }} - 
-          {{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }} en {{ partido.lugar }}
-        </li>
-      {% empty %}
-        <li class="item-lista">No hay partidos programados.</li>
-      {% endfor %}
-    </ul>
+    <div class="box" style="background-color: #fdf7f0; border-radius: 18px; padding: 2.5rem;">
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        📅 Fixture: {{ campeonato.nombre }}
+      </h2>
 
-    <a href="{% url 'listar_campeonatos' %}" class="btn-volver">← Volver al listado</a>
+      {% if partidos %}
+        <div class="content">
+          <ul>
+            {% for partido in partidos %}
+              <li class="box mb-3" style="border-left: 6px solid #b30059; background-color: #fff;">
+                <p class="has-text-weight-semibold">
+                  🗓️ {{ partido.fecha }} | 🕒 {{ partido.hora }}
+                </p>
+                <p>
+                  ⚽ {{ partido.equipo_local.nombre }} <strong>vs</strong> {{ partido.equipo_visitante.nombre }}
+                  <br>
+                  📍 <em>{{ partido.lugar }}</em>
+                </p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p class="notification is-warning has-text-centered is-light">
+          No hay partidos programados para este campeonato.
+        </p>
+      {% endif %}
+
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
+          ← Volver al listado de campeonatos
+        </a>
+      </div>
+    </div>
+
   </div>
+</section>
 {% endblock %}

@@ -9,7 +9,7 @@
     <div class="columns is-centered">
       <div class="column is-6">
 
-        <!-- Caja con sombra y bordes redondeados -->
+        <!-- Caja de registro con sombra -->
         <div class="box" style="border-radius: 16px; padding: 2rem;">
           <h2 class="title is-4 has-text-centered">Registro de Usuario</h2>
 
@@ -38,8 +38,10 @@
             </div>
           </form>
 
+          <!-- Enlace para login -->
           <p class="has-text-centered mt-4">
-            ¿Ya tienes cuenta? <a href="{% url 'login' %}" class="has-text-link">Inicia sesión</a>
+            ¿Ya tienes cuenta?
+            <a href="{% url 'login' %}" class="has-text-link"><strong>Inicia sesión aquí</strong></a>
           </p>
         </div>
 

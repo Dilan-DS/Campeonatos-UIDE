@@ -1,28 +1,55 @@
-{% extends 'base.html' %}
-{% block title %}Estadísticas Futbolín{% endblock %}
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Estadísticas Futbolín - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<h2 class="titulo">Estadísticas de Futbolín</h2>
-<table class="tabla">
-  <thead>
-    <tr>
-      <th>Jugador</th>
-      <th>Partidos</th>
-      <th>Ganados</th>
-      <th>Perdidos</th>
-      <th>Goles</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for stat in estadisticas %}
-    <tr>
-      <td>{{ stat.jugador.usuario.username }}</td>
-      <td>{{ stat.partidos_jugados }}</td>
-      <td>{{ stat.partidos_ganados }}</td>
-      <td>{{ stat.partidos_perdidos }}</td>
-      <td>{{ stat.goles }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<section class="section">
+  <div class="container">
+
+    <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+      <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
+        🎯 Estadísticas de Futbolín
+      </h2>
+
+      <div class="table-container">
+        <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+          <thead class="has-background-warning-light has-text-centered">
+            <tr>
+              <th>Jugador</th>
+              <th>Partidos</th>
+              <th>Ganados</th>
+              <th>Perdidos</th>
+              <th>Goles</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for stat in estadisticas %}
+            <tr class="has-text-centered">
+              <td>{{ stat.jugador.usuario.username }}</td>
+              <td>{{ stat.partidos_jugados }}</td>
+              <td>{{ stat.partidos_ganados }}</td>
+              <td>{{ stat.partidos_perdidos }}</td>
+              <td>{{ stat.goles }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="has-text-centered has-text-grey-light">
+                No hay estadísticas registradas.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
+          ← Volver al inicio
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
 {% endblock %}

@@ -4,7 +4,7 @@ from .models import *
 from django.contrib.auth.admin import UserAdmin
 
 class CarreraAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'descripcion')
+    list_display = ('id', 'nombre')
     search_fields = ('nombre',)
 
 # Registra el modelo Usuario para poder gestionarlo desde el panel de administración

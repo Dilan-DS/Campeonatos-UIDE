@@ -3,16 +3,39 @@
 {% block title %}Campeonatos Públicos{% endblock %}
 
 {% block content %}
-<h1>Campeonatos Disponibles</h1>
-<div class="grid-campeonatos">
-  {% for campeonato in campeonatos %}
-    <div class="card">
-      <h3>{{ campeonato.nombre }}</h3>
-      <p>{{ campeonato.descripcion }}</p>
-      <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="btn">Ver tabla de posiciones</a>
+<section class="section">
+  <div class="container">
+    <h1 class="title is-3 has-text-centered">Campeonatos Disponibles</h1>
+    <div class="columns is-multiline is-centered">
+
+      {% for campeonato in campeonatos %}
+        <div class="column is-4">
+          <div class="card">
+            <div class="card-content">
+              <h3 class="title is-5">{{ campeonato.nombre }}</h3>
+              <p class="mb-3">{{ campeonato.descripcion }}</p>
+
+              <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="button is-info is-small">
+                Ver tabla de posiciones
+              </a>
+
+              {% if user.is_authenticated %}
+                {% if user.rol == "DELEGADO" %}
+                  <p class="mt-2 has-text-success">Eres delegado. Puedes registrar equipos desde el panel.</p>
+                {% elif user.rol == "JUGADOR" %}
+                  <p class="mt-2 has-text-link">Eres jugador. Solo puedes ver las posiciones y tu equipo.</p>
+                {% elif user.rol == "ADMIN" %}
+                  <p class="mt-2 has-text-danger">Eres administrador. Gestión completa desde el dashboard.</p>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="has-text-centered">No hay campeonatos disponibles.</p>
+      {% endfor %}
+
     </div>
-  {% empty %}
-    <p>No hay campeonatos disponibles.</p>
-  {% endfor %}
-</div>
+  </div>
+</section>
 {% endblock %}

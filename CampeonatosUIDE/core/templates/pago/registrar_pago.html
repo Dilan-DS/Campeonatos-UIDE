@@ -1,0 +1,20 @@
+{% extends 'comun/base.html' %}
+{% block title %}Registrar Pago{% endblock %}
+
+{% block content %}
+<div class="box p-6" style="max-width: 600px; margin: auto;">
+  <h2 class="title is-4 has-text-centered">Registrar Pago</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="field mt-5">
+      <button class="button is-success is-fullwidth is-rounded">Guardar Pago</button>
+    </div>
+  </form>
+
+  <div class="has-text-centered mt-4">
+    <a href="{% url 'listar_pagos' %}" class="button is-light">← Volver</a>
+  </div>
+</div>
+{% endblock %}

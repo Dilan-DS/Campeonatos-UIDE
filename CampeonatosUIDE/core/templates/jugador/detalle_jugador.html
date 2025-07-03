@@ -1,0 +1,15 @@
+{% extends 'comun/base.html' %}
+{% block title %}Detalle del Jugador{% endblock %}
+
+{% block content %}
+<div class="box mt-6">
+  <h2 class="title is-4">Información del Jugador</h2>
+
+  <p><strong>Nombre:</strong> {{ jugador.usuario.first_name }} {{ jugador.usuario.last_name }}</p>
+  <p><strong>Usuario:</strong> {{ jugador.usuario.username }}</p>
+  <p><strong>Edad:</strong> {{ jugador.edad }}</p>
+  <p><strong>Número de Camiseta:</strong> {{ jugador.numero_camiseta }}</p>
+  <p><strong>Equipo:</strong> {{ jugador.equipo.nombre }}</p>
+
+  <a href="{% url 'listar_jugadores' %}" class="button is-light mt-4">← Volver al listado</a>
+{% endblock %}

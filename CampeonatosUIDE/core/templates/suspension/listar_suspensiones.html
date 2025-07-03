@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Lista de Suspensiones</h1>
+    <table class="table is-striped is-hoverable is-fullwidth">
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Equipo</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Motivo</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in suspensiones %}
+        <tr>
+          <td>{{ s.jugador.usuario.username }}</td>
+          <td>{{ s.jugador.equipo.nombre }}</td>
+          <td>{{ s.fecha_inicio }}</td>
+          <td>{{ s.fecha_fin }}</td>
+          <td>{{ s.motivo|truncatewords:6 }}</td>
+          <td><a class="button is-small is-link" href="{% url 'detalle_suspension' s.id %}">Ver</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{% url 'registrar_suspension' %}" class="button is-success">Registrar nueva</a>
+  </div>
+</section>
+{% endblock %}
