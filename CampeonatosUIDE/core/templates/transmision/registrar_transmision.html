@@ -2,15 +2,41 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2 class="titulo">Registrar Transmisión</h2>
+<section class="section">
+  <div class="container">
+    <h1 class="title is-4 has-text-primary">🎥 Registrar Nueva Transmisión</h1>
 
-    <form method="POST">
-        {% csrf_token %}
-        <div class="formulario-transmision">
-            {{ form.as_p }}
+    <form method="POST" class="box">
+      {% csrf_token %}
+      
+      <div class="columns is-multiline">
+        {% for field in form %}
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">{{ field.label }}</label>
+            <div class="control">
+              {{ field }}
+            </div>
+            {% if field.help_text %}
+              <p class="help">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
         </div>
-        <button type="submit" class="btn-registrar">Guardar Transmisión</button>
+        {% endfor %}
+      </div>
+
+      <div class="field is-grouped is-justify-content-center">
+        <div class="control">
+          <button type="submit" class="button is-success is-light">💾 Guardar Transmisión</button>
+        </div>
+        <div class="control">
+          <a href="{% url 'listar_transmisiones' %}" class="button is-link is-light">↩️ Cancelar</a>
+        </div>
+      </div>
     </form>
-</div>
+  </div>
+</section>
 {% endblock %}

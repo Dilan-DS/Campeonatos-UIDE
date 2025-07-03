@@ -1,33 +1,52 @@
-{% extends 'base.html' %}
+{% extends 'comun/base.html' %}
 
-{% block title %}Listado de Equipos{% endblock %}
+{% block title %}Listado de Equipos - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<h1>Equipos Registrados</h1>
-<table>
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Carrera</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for equipo in equipos %}
-      <tr>
-        <td>{{ equipo.nombre }}</td>
-        <td>{{ equipo.carrera.nombre }}</td>
-        <td>{{ equipo.aprobado|yesno:"Aprobado,No aprobado" }}</td>
-        <td>
-          <a href="{% url 'detalle_equipo' equipo.id %}">Ver</a>
-        </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="4">No hay equipos registrados.</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<section class="section">
+  <div class="container">
+
+    <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">Equipos Registrados</h2>
+
+      {% if equipos %}
+        <table class="table is-fullwidth is-striped is-hoverable mt-5">
+          <thead>
+            <tr class="has-background-warning-light">
+              <th>Nombre</th>
+              <th>Carrera</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for equipo in equipos %}
+              <tr>
+                <td>{{ equipo.nombre }}</td>
+                <td>{{ equipo.carrera.nombre }}</td>
+                <td>
+                  {% if equipo.aprobado %}
+                    <span class="tag is-success">Aprobado</span>
+                  {% else %}
+                    <span class="tag is-danger">No aprobado</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="has-text-centered has-text-grey">No hay equipos registrados.</p>
+      {% endif %}
+
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">← Volver al inicio</a>
+      </div>
+    </div>
+
+  </div>
+</section>
 {% endblock %}

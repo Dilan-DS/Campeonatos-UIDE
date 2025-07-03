@@ -1,0 +1,23 @@
+{% extends 'comun/base.html' %}
+{% block title %}Detalle de Pago{% endblock %}
+
+{% block content %}
+<div class="box p-6" style="max-width: 600px; margin: auto;">
+  <h2 class="title is-4 has-text-centered">Detalle del Pago</h2>
+
+  <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
+  <p><strong>Monto:</strong> ${{ pago.monto }}</p>
+  <p><strong>Fecha:</strong> {{ pago.fecha }}</p>
+  <p><strong>Estado:</strong> {{ pago.estado }}</p>
+
+  {% if pago.comprobante %}
+    <p><strong>Comprobante:</strong> 
+      <a href="{{ pago.comprobante.url }}" target="_blank">Ver comprobante</a>
+    </p>
+  {% endif %}
+
+  <div class="has-text-centered mt-4">
+    <a href="{% url 'listar_pagos' %}" class="button is-light">← Volver</a>
+  </div>
+</div>
+{% endblock %}

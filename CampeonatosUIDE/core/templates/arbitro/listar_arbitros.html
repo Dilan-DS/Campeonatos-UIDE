@@ -1,23 +1,47 @@
 {% extends 'comun/base.html' %}
+{% load static %}
 
 {% block title %}Listado de Árbitros - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="contenedor-lista">
-    <h2 class="titulo-seccion">Árbitros Registrados</h2>
+<section class="section">
+  <div class="container">
 
-    <a href="{% url 'registrar_arbitro' %}" class="btn-accion">+ Nuevo Árbitro</a>
+    <div class="box" style="border-radius: 18px; background-color: #fffdf7; padding: 2rem;">
+      <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+        <h2 class="title is-3" style="color: #5a0035;">Árbitros Registrados</h2>
+        <a href="{% url 'registrar_arbitro' %}" class="button is-warning is-rounded">
+          <strong>+ Nuevo Árbitro</strong>
+        </a>
+      </div>
 
-    <ul class="lista-items">
-      {% for arbitro in arbitros %}
-        <li class="item-lista">
-          <span class="item-nombre">{{ arbitro.nombre }} {{ arbitro.apellido }}</span> |
-          <a href="{% url 'detalle_arbitro' arbitro.id %}" class="btn-detalle">Ver</a> |
-          <a href="{% url 'editar_arbitro' arbitro.id %}" class="btn-editar">Editar</a>
-        </li>
-      {% empty %}
-        <li class="item-lista">No hay árbitros registrados.</li>
-      {% endfor %}
-    </ul>
+      {% if arbitros %}
+        <table class="table is-fullwidth is-hoverable is-striped">
+          <thead>
+            <tr class="has-background-warning-light">
+              <th>Nombre</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for arbitro in arbitros %}
+              <tr>
+                <td>{{ arbitro.nombre }} {{ arbitro.apellido }}</td>
+                <td>
+                  <a href="{% url 'detalle_arbitro' arbitro.id %}" class="button is-small is-info is-light is-rounded mr-2">Ver</a>
+                  <a href="{% url 'editar_arbitro' arbitro.id %}" class="button is-small is-link is-light is-rounded">Editar</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="notification is-warning is-light has-text-centered">
+          No hay árbitros registrados.
+        </div>
+      {% endif %}
+    </div>
+
   </div>
+</section>
 {% endblock %}

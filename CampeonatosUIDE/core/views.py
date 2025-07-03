@@ -1,48 +1,118 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from datetime import date
-from .models import Campeonato, Equipo
 from django.http import HttpResponse
-# Modelos
-from .models import Campeonato, Equipo, Arbitro, Transmision
-# Formularios
-from .forms import ArbitroForm, CampeonatoForm, PagoForm, EquipoForm, TransmisionForm, CustomUsuarioCreationForm
+from .models import Partido
+from .forms import PartidoForm
+from .models import Suspension
+from .forms import SuspensionForm
 
-def vista_inicio(request):
-    return render(request, 'publica/inicio_publico.html')
+def es_admin(user):
+    return user.rol == 'ADMIN'
 
-def campeonatos_publicos(request):
-    campeonatos = Campeonato.objects.filter(estado='activo')[:6]
-    return render(request, 'publica/campeonatos_publicos.html', {'campeonatos': campeonatos})
+def es_delegado(user):
+    return user.rol == 'DELEGADO'
 
-# ========================
-# AUTENTICACIÓN
-# ========================
+def es_jugador(user):
+    return user.rol == 'JUGADOR'
 
-def vista_registro(request):
-    if request.user.is_authenticated:
-        return redirect('inicio')
+
+@user_passes_test(es_admin)
+def listar_usuarios(request):
+    # solo el admin ve esto
+    pass
+
+@user_passes_test(es_delegado)
+def registrar_equipo(request):
+    # solo delegado puede crear
+    pass
+
+@user_passes_test(es_jugador)
+def ver_estadisticas_jugador(request, jugador_id):
+    # solo jugadores
+    pass
+
+# Listar suspensiones
+def listar_suspensiones(request):
+    suspensiones = Suspension.objects.select_related('jugador__usuario', 'jugador__equipo').all()
+    return render(request, 'suspension/listar.html', {'suspensiones': suspensiones})
+
+# Detalle de una suspensión
+def detalle_suspension(request, suspension_id):
+    suspension = get_object_or_404(Suspension, id=suspension_id)
+    return render(request, 'suspension/detalle.html', {'suspension': suspension})
+
+# Registrar nueva suspensión
+def registrar_suspension(request):
     if request.method == 'POST':
-        form = CustomUsuarioCreationForm(request.POST)
+        form = SuspensionForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')
+            messages.success(request, "Suspensión registrada correctamente.")
+            return redirect('listar_suspensiones')
     else:
-        form = CustomUsuarioCreationForm()
-    return render(request, 'usuario/registro.html', {'form': form})
+        form = SuspensionForm()
+    return render(request, 'suspension/registrar.html', {'form': form})
+
+# Modelos
+from .models import Campeonato, Equipo, Arbitro, Transmision
+
+# Formularios
+from .forms import (
+    ArbitroForm, CampeonatoForm, PagoForm,
+    EquipoForm, TransmisionForm, CustomUsuarioCreationForm
+)
+
+def listar_partidos(request):
+    partidos = Partido.objects.all().order_by('-fecha', '-hora')
+    return render(request, 'partido/listar_partidos.html', {'partidos': partidos})
+
+def registrar_partido(request):
+    if request.method == 'POST':
+        form = PartidoForm(request.POST)
+        if form.is_valid():
+            partido = form.save()
+            messages.success(request, ' Partido registrado correctamente.')
+            return redirect('listar_partidos')
+    else:
+        form = PartidoForm()
+    return render(request, 'partido/registrar_partido.html', {'form': form})
+
+def detalle_partido(request, partido_id):
+    partido = get_object_or_404(Partido, id=partido_id)
+    return render(request, 'partido/detalle_partido.html', {'partido': partido})
+# ========================
+# AUTENTICACION
+# ========================
 
 def vista_login(request):
     if request.user.is_authenticated:
-        return redirect('inicio')
+        return redirect('dashboard')
+
     form = AuthenticationForm()
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect('inicio')
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Usuario o contraseña incorrectos")
+
     return render(request, 'usuario/login.html', {'form': form})
+def vista_registro(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
+    form = CustomUsuarioCreationForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('login')
+    
+    return render(request, 'usuario/registro.html', {'form': form})
+
 
 def vista_logout(request):
     logout(request)
@@ -50,39 +120,38 @@ def vista_logout(request):
 
 # ========================
 # INICIO PÚBLICO Y PRIVADO
-# ======================== 
+# ========================
 
-# Vista para la página de inicio pública
 def vista_inicio_publico(request):
     return render(request, 'publica/inicio_publico.html')
 
-# Vista para listar campeonatos activos públicamente
+def vista_inicio(request):
+    return render(request, 'publica/inicio_publico.html')
+
+# ========================
+# PERFIL DE USUARIO
+# ========================
+
+@login_required
+def vista_perfil_usuario(request):
+    return render(request, 'usuario/perfil.html')
+
+@login_required
+def editar_perfil(request):
+    return render(request, 'usuario/editar_perfil.html')
+
+# ========================
+# CAMPEONATOS PÚBLICOS
+# ========================
+
 def campeonatos_publicos(request):
     campeonatos = Campeonato.objects.filter(estado='activo')
     return render(request, 'publica/lista_campeonatos.html', {'campeonatos': campeonatos})
 
-# Vista para mostrar tabla pública de posiciones
-def tabla_estadisticas(request, campeonato_id):
-    campeonato = get_object_or_404(Campeonato, pk=campeonato_id)
-    equipos = Equipo.objects.filter(campeonato=campeonato).order_by('-puntos_totales')
-    return render(request, 'publica/tabla_publica.html', {
-        'campeonato': campeonato,
-        'equipos': equipos,
-    })
-
-    print("CAMPEONATOS FILTRADOS:", campeonatos)
-
-    campeonatos_con_equipo = set()
-    if request.user.is_authenticated and request.user.rol == 'delegado':
-        campeonatos_con_equipo = set(
-            Equipo.objects.filter(fk_delegado=request.user).values_list('campeonato_id', flat=True)
-        )
-        print("CAMPEONATOS CON EQUIPO DEL DELEGADO:", campeonatos_con_equipo)
-
-    return render(request, 'publica/inicio_publico.html', {
-        'campeonatos': campeonatos,
-        'campeonatos_con_equipo': campeonatos_con_equipo,
-    })
+def vista_tabla_publica(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    equipos = sorted(campeonato.equipos.all(), key=lambda e: e.puntos_totales, reverse=True)
+    return render(request, 'publica/tabla_publica.html', {'campeonato': campeonato, 'equipos': equipos})
 
 # ========================
 # EQUIPOS
@@ -92,16 +161,31 @@ def listar_equipos(request):
     equipos = Equipo.objects.all().order_by('-puntos_totales')
     return render(request, 'equipo/listar_equipos.html', {'equipos': equipos})
 
+def registrar_equipo(request):
+    campeonato_id = request.GET.get('campeonato_id')
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id) if campeonato_id else None
+
+    if request.method == 'POST':
+        form = EquipoForm(request.POST, request.FILES)
+        if form.is_valid():
+            equipo = form.save(commit=False)
+            equipo.fk_delegado = request.user
+            equipo.campeonato = campeonato
+            equipo.save()
+            messages.success(request, 'Equipo registrado correctamente.')
+            return redirect('inicio_publico')
+    else:
+        form = EquipoForm()
+
+    return render(request, 'equipo/registrar_equipo.html', {'form': form, 'campeonato': campeonato})
+
 def editar_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
-    if request.method == 'POST':
-        form = EquipoForm(request.POST, request.FILES, instance=equipo)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Equipo actualizado correctamente.')
-            return redirect('detalle_equipo', id=equipo.id)
-    else:
-        form = EquipoForm(instance=equipo)
+    form = EquipoForm(request.POST or None, request.FILES or None, instance=equipo)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Equipo actualizado correctamente.')
+        return redirect('detalle_equipo', id=equipo.id)
     return render(request, 'equipo/editar_equipo.html', {'form': form, 'equipo': equipo})
 
 def detalle_equipo(request, id):
@@ -110,16 +194,13 @@ def detalle_equipo(request, id):
 
 def pago_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
-    if request.method == 'POST':
-        form = PagoForm(request.POST, request.FILES)
-        if form.is_valid():
-            pago = form.save(commit=False)
-            pago.equipo = equipo
-            pago.save()
-            messages.success(request, 'Pago registrado correctamente.')
-            return redirect('detalle_equipo', id=equipo.id)
-    else:
-        form = PagoForm()
+    form = PagoForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        pago = form.save(commit=False)
+        pago.equipo = equipo
+        pago.save()
+        messages.success(request, 'Pago registrado correctamente.')
+        return redirect('detalle_equipo', id=equipo.id)
     return render(request, 'equipo/pago_equipo.html', {'form': form, 'equipo': equipo})
 
 def jugadores_equipo(request, id):
@@ -128,7 +209,7 @@ def jugadores_equipo(request, id):
     return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores': jugadores})
 
 # ========================
-# ÁRBITROS
+# ARBITROS
 # ========================
 
 def listar_arbitros(request):
@@ -155,7 +236,7 @@ def detalle_arbitro(request, id):
     return render(request, 'arbitro/detalle.html', {'arbitro': arbitro})
 
 # ========================
-# CAMPEONATOS
+# CAMPEONATOS PRIVADOS
 # ========================
 
 def listar_campeonatos(request):
@@ -186,14 +267,8 @@ def fixture_campeonato(request, id):
     return render(request, 'campeonato/fixture.html', {'campeonato': campeonato})
 
 # ========================
-# ESTADÍSTICAS
+# ESTADISTICAS
 # ========================
-
-def vista_tabla_publica(request, campeonato_id):
-    campeonato = Campeonato.objects.get(id=campeonato_id)
-    equipos = list(campeonato.equipos.all())
-    equipos.sort(key=lambda e: e.puntos_totales, reverse=True)
-    return render(request, 'publica/tabla_publica.html', {'campeonato': campeonato, 'equipos': equipos})
 
 def estadisticas_futbol(request):
     return render(request, 'estadisticas/estadisticas_futbol.html')
@@ -241,28 +316,3 @@ def registrar_transmision(request):
 def detalle_transmision(request, id):
     transmision = get_object_or_404(Transmision, id=id)
     return render(request, 'transmision/detalle_transmision.html', {'transmision': transmision})
-
-# ========================
-# REGISTRO DE EQUIPOS POR DELEGADO
-# ========================
-
-def registrar_equipo(request):
-    campeonato_id = request.GET.get('campeonato_id')
-    campeonato = get_object_or_404(Campeonato, id=campeonato_id) if campeonato_id else None
-
-    if request.method == 'POST':
-        form = EquipoForm(request.POST, request.FILES)
-        if form.is_valid():
-            equipo = form.save(commit=False)
-            equipo.fk_delegado = request.user
-            equipo.campeonato = campeonato
-            equipo.save()
-            messages.success(request, 'Equipo registrado correctamente.')
-            return redirect('inicio_publico')
-    else:
-        form = EquipoForm()
-
-    return render(request, 'equipo/registrar_equipo.html', {
-        'form': form,
-        'campeonato': campeonato
-    })

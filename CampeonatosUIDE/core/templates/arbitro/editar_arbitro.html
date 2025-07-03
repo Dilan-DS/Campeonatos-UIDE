@@ -1,17 +1,51 @@
 {% extends 'comun/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Editar Árbitro - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="form-contenedor">
-    <h2 class="form-titulo">Editar Árbitro</h2>
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-6">
 
-    <form method="POST" class="formulario-editar">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn-formulario">Actualizar</button>
-    </form>
+        <div class="box" style="border-radius: 18px; background-color: #fffdf7; padding: 2.5rem; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);">
+          <h2 class="title is-3 has-text-centered" style="color: #5a0035;">Editar Árbitro</h2>
 
-    <a href="{% url 'listar_arbitros' %}" class="btn-volver">← Volver al listado</a>
+          <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+              <div class="field">
+                <label class="label has-text-warning">{{ field.label }}</label>
+                <div class="control">
+                  {{ field|add_class:"input is-rounded is-medium" }}
+                </div>
+                {% for error in field.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="field mt-5">
+              <div class="control">
+                <button type="submit" class="button is-link is-fullwidth is-rounded is-medium">
+                  <strong>Actualizar</strong>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="has-text-centered mt-4">
+            <a href="{% url 'listar_arbitros' %}" class="button is-warning is-light is-rounded">
+              ← Volver al listado
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
+</section>
 {% endblock %}

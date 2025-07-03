@@ -11,10 +11,7 @@ from django.db.models import Sum
 
 # Modelo carrera
 class Carrera(models.Model):
-    # Nombre único de la carrera
     nombre = models.CharField(max_length=100, unique=True)
-    # Descripción opcional
-    descripcion = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -23,6 +20,14 @@ class Carrera(models.Model):
 
 # Modelo personalizado de usuario
 class Usuario(AbstractUser):
+
+    CARRERA_CHOICES = [
+        ("Tics", "Tics"),
+        ("Derecho", "Derecho"),
+        ("Medicina", "Medicina"),
+        ("Arquitectura", "Arquitectura"),
+        # Puedes agregar más carreras aquí
+    ]
     # Definición de roles posibles
     ROLES = [
         ('ADMIN', 'Administrador'),
@@ -30,10 +35,9 @@ class Usuario(AbstractUser):
         ('JUGADOR', 'Jugador'),
     ]
     # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
-    rol = models.CharField(max_length=10, choices=ROLES)
+    rol = models.CharField(max_length=20, choices=ROLES)
     # Carrera a la que pertenece el usuario (opcional para delegados)
-    carrera = models.ForeignKey('Carrera', on_delete=models.SET_NULL, null=True, blank=True, related_name='usuarios')
-
+    carrera = models.CharField(max_length=100, choices=CARRERA_CHOICES)
     # Relación con grupos para permisos (ManyToMany)
     groups = models.ManyToManyField(
         Group,

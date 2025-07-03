@@ -1,15 +1,56 @@
-{% extends 'base.html' %}
+{% extends 'comun/base.html' %}
 
-{% block title %}Jugadores del Equipo{% endblock %}
+{% block title %}Jugadores del Equipo - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<h1>Jugadores del Equipo</h1>
-<!-- Aquí puedes listar jugadores, número de camiseta, edad, estadísticas -->
-<ul>
-  {% for jugador in jugadores %}
-    <li>{{ jugador.usuario.username }} - #{{ jugador.numero_camiseta }} - {{ jugador.edad }} años</li>
-  {% empty %}
-    <li>No hay jugadores registrados.</li>
-  {% endfor %}
-</ul>
+<section class="section">
+  <div class="container">
+
+    <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">Jugadores del Equipo</h2>
+
+      {% if jugadores %}
+        <table class="table is-striped is-hoverable is-fullwidth mt-4">
+          <thead>
+            <tr>
+              <th>Nombre de Usuario</th>
+              <th>Número de Camiseta</th>
+              <th>Edad</th>
+              <th>Estadísticas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for jugador in jugadores %}
+              <tr>
+                <td>{{ jugador.usuario.username }}</td>
+                <td>#{{ jugador.numero_camiseta }}</td>
+                <td>{{ jugador.edad }} años</td>
+                <td>
+                  {% if jugador.goles %}
+                    ⚽ Goles: {{ jugador.goles }}
+                  {% elif jugador.canastas %}
+                    🏀 Canastas: {{ jugador.canastas }}
+                  {% elif jugador.puntos %}
+                    🎯 Puntos: {{ jugador.puntos }}
+                  {% else %}
+                    Sin estadísticas
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="has-text-centered has-text-grey">No hay jugadores registrados.</p>
+      {% endif %}
+
+      <div class="has-text-centered mt-5">
+        <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded">
+          ← Volver a Equipos
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
 {% endblock %}

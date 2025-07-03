@@ -1,13 +1,23 @@
+{% load static %}
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{% block title %}Proyecto Actividades UIDE-TI{% endblock %}</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sistema de Campeonatos Universitarios UIDE">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ✅ Bulma CSS desde CDN -->
+  <!-- ✅ Favicon (opcional) -->
+  <link rel="icon" href="{% static 'img/favicon.ico' %}">
+
+  <!-- ✅ Bulma CSS desde CDN (versión estable) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
-  <!-- ✅ Estilos adicionales -->
+  <!-- ✅ Tipografía bonita (opcional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
+  <!-- ✅ Estilos personalizados (si tienes) -->
+  <link rel="stylesheet" href="{% static 'styles/base.css' %}">
+
+  <!-- 🎨 Espacio para más CSS -->
   {% block extra_css %}{% endblock %}
 </head>

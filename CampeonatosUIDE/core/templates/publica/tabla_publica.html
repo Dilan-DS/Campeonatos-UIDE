@@ -3,39 +3,57 @@
 {% block title %}Tabla Pública - {{ campeonato.nombre }}{% endblock %}
 
 {% block content %}
-<div class="contenedor-tabla">
-  <h1>Tabla de Posiciones</h1>
-  <p>Consulta cómo van los equipos en el campeonato: <strong>{{ campeonato.nombre }}</strong></p>
+<section class="section">
+  <div class="container">
+    <h1 class="title is-3">Tabla de Posiciones - {{ campeonato.nombre }}</h1>
+    <p class="subtitle is-6">Consulta cómo van los equipos en el campeonato</p>
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Equipo</th>
-        <th>Puntos</th>
-        <th>Logo</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for equipo in equipos %}
-      <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{ equipo.nombre }}</td>
-        <td>{{ equipo.puntos_totales }}</td>
-        <td>
-          {% if equipo.logo %}
-            <img src="{{ equipo.logo.url }}" alt="Logo" width="50">
-          {% else %}
-            <span>Sin logo</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4">Aún no hay equipos registrados.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+    <div class="table-container">
+      <table class="table is-striped is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Equipo</th>
+            <th>Puntos</th>
+            <th>Logo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for equipo in equipos %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ equipo.nombre }}</td>
+            <td>{{ equipo.puntos_totales }}</td>
+            <td>
+              {% if equipo.logo %}
+                <figure class="image is-64x64">
+                  <img src="{{ equipo.logo.url }}" alt="Logo equipo">
+                </figure>
+              {% else %}
+                <span class="has-text-grey-light">Sin logo</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="has-text-centered">Aún no hay equipos registrados.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if user.is_authenticated %}
+      {% if user.rol == "DELEGADO" %}
+        <p class="has-text-success mt-4">Eres delegado. Puedes registrar tu equipo si aún no lo has hecho.</p>
+      {% elif user.rol == "JUGADOR" %}
+        <p class="has-text-info mt-4">Eres jugador. Puedes seguir el progreso de tu equipo desde esta tabla.</p>
+      {% elif user.rol == "ADMIN" %}
+        <p class="has-text-danger mt-4">Eres administrador. Puedes gestionar este campeonato desde el panel.</p>
+      {% endif %}
+    {% endif %}
+
+    <a href="{% url 'campeonatos_publicos' %}" class="button is-light mt-5">⬅ Volver a campeonatos</a>
+  </div>
+</section>
 {% endblock %}

@@ -1,23 +1,42 @@
 {% extends 'comun/base.html' %}
+{% load static %}
 
 {% block title %}Detalle del Campeonato - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="detalle-contenedor">
-    <h2 class="titulo-seccion">{{ campeonato.nombre }}</h2>
+<section class="section">
+  <div class="container">
+    <div class="box" style="border-radius: 16px; background-color: #fff8f5; padding: 2.5rem;">
+      
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">{{ campeonato.nombre }}</h2>
 
-    <p><strong>Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
-    <p><strong>Descripción:</strong> {{ campeonato.descripcion }}</p>
-    <p><strong>Fechas:</strong> {{ campeonato.fecha_inicio }} a {{ campeonato.fecha_fin }}</p>
-    <p><strong>Estado:</strong> {{ campeonato.estado }}</p>
-    <p><strong>Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
-    <p><strong>Delegado:</strong> {{ campeonato.delegado.username if campeonato.delegado }}</p>
-    <p><strong>Precio inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
+      <div class="content is-medium">
+        <p><strong>🏅 Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
+        <p><strong>📖 Descripción:</strong> {{ campeonato.descripcion }}</p>
+        <p><strong>📅 Fechas:</strong> {{ campeonato.fecha_inicio }} a {{ campeonato.fecha_fin }}</p>
+        <p><strong>📌 Estado:</strong> 
+          <span class="tag is-medium {% if campeonato.estado == 'activo' %}is-success{% else %}is-danger{% endif %}">
+            {{ campeonato.estado|capfirst }}
+          </span>
+        </p>
+        <p><strong>📆 Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
+        <p><strong>👤 Delegado:</strong> {{ campeonato.delegado.username if campeonato.delegado }}</p>
+        <p><strong>💲 Precio de inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
 
-    {% if campeonato.reglamento %}
-      <p><a href="{{ campeonato.reglamento.url }}" target="_blank">Ver reglamento</a></p>
-    {% endif %}
+        {% if campeonato.reglamento %}
+          <p><strong>📄 Reglamento:</strong> 
+            <a href="{{ campeonato.reglamento.url }}" target="_blank" class="has-text-link">Ver archivo PDF</a>
+          </p>
+        {% endif %}
+      </div>
 
-    <a href="{% url 'listar_campeonatos' %}" class="btn-volver">← Volver al listado</a>
+      <div class="has-text-centered mt-5">
+        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
+          ← Volver al listado
+        </a>
+      </div>
+
+    </div>
   </div>
+</section>
 {% endblock %}

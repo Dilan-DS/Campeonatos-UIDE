@@ -1,37 +1,42 @@
 {% extends 'comun/base.html' %}
 
-
 {% block title %}Campeonatos Activos - UIDE{% endblock %}
 
 {% block content %}
 <div class="contenedor-campeonatos">
-  <h1>Campeonatos Activos</h1>
-  <p>Explora los campeonatos en curso. ¡Consulta sus estadísticas!</p>
+  <h1 class="title is-3 has-text-centered">Campeonatos Activos</h1>
+  <p class="subtitle has-text-centered">Explora los campeonatos en curso. ¡Consulta sus estadísticas!</p>
 
-  <div class="grid-campeonatos">
+  <div class="columns is-multiline is-centered">
     {% for campeonato in campeonatos %}
-      <div class="card-campeonato">
-        <h3>{{ campeonato.nombre }}</h3>
-        <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio|date:"d/m/Y" }}</p>
-        <p><strong>Fin:</strong> {{ campeonato.fecha_fin|date:"d/m/Y" }}</p>
+      <div class="column is-4">
+        <div class="card">
+          <div class="card-content">
+            <h3 class="title is-5">{{ campeonato.nombre }}</h3>
+            <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio|date:"d/m/Y" }}</p>
+            <p><strong>Fin:</strong> {{ campeonato.fecha_fin|date:"d/m/Y" }}</p>
 
-        <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="btn-ver-estadisticas">
-          Ver estadísticas
-        </a>
+            <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="button is-link is-small mt-3">
+              Ver estadísticas
+            </a>
 
-        {% if user.is_authenticated and user.rol == "delegado" %}
-          {% if campeonato.id not in campeonatos_con_equipo %}
-            <form method="get" action="{% url 'registrar_equipo' %}">
-              <input type="hidden" name="campeonato_id" value="{{ campeonato.id }}">
-              <button type="submit" class="btn-registrar-equipo">Registrar equipo</button>
-            </form>
-          {% else %}
-            <p class="mensaje-equipo-existente">Ya tienes un equipo en este campeonato.</p>
-          {% endif %}
-        {% endif %}
+            {% if user.is_authenticated and user.rol == "DELEGADO" %}
+              {% if campeonato.id not in campeonatos_con_equipo %}
+                <form method="get" action="{% url 'registrar_equipo' %}" class="mt-2">
+                  <input type="hidden" name="campeonato_id" value="{{ campeonato.id }}">
+                  <button type="submit" class="button is-success is-small">
+                    Registrar equipo
+                  </button>
+                </form>
+              {% else %}
+                <p class="has-text-success mt-2">✅ Ya tienes un equipo en este campeonato.</p>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
       </div>
     {% empty %}
-      <p>No hay campeonatos activos en este momento.</p>
+      <p class="has-text-centered">No hay campeonatos activos en este momento.</p>
     {% endfor %}
   </div>
 </div>

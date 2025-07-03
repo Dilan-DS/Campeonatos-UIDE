@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Detalle Partido{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Detalle del Partido</h1>
+    <p><strong>Campeonato:</strong> {{ partido.campeonato.nombre }}</p>
+    <p><strong>Local:</strong> {{ partido.equipo_local.nombre }}</p>
+    <p><strong>Visitante:</strong> {{ partido.equipo_visitante.nombre }}</p>
+    <p><strong>Fecha:</strong> {{ partido.fecha }}</p>
+    <p><strong>Hora:</strong> {{ partido.hora }}</p>
+    <p><strong>Lugar:</strong> {{ partido.lugar }}</p>
+    <p><strong>Árbitro:</strong> {{ partido.arbitro }}</p>
+    <p><strong>Estado:</strong> {{ partido.estado }}</p>
+  </div>
+</section>
+{% endblock %}

@@ -2,17 +2,29 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2 class="titulo">Detalle de Transmisión</h2>
+<section class="section">
+  <div class="container">
+    <h1 class="title is-4 has-text-primary">Detalle de Transmisión</h1>
 
-    <div class="transmision-detalle">
-        <p><strong>Campeonato:</strong> {{ transmision.campeonato.nombre }}</p>
-        <p><strong>Partido:</strong> {{ transmision.partido }}</p>
-        <p><strong>Enlace:</strong> <a href="{{ transmision.enlace }}" target="_blank">{{ transmision.enlace }}</a></p>
-        <p><strong>Descripción:</strong> {{ transmision.descripcion }}</p>
-        <p><strong>Activa:</strong> {{ transmision.activa|yesno:"Sí,No" }}</p>
+    <div class="box">
+      <p><strong>🎯 Campeonato:</strong> {{ transmision.campeonato.nombre }}</p>
+      <p><strong>⚽ Partido:</strong> {{ transmision.partido }}</p>
+      <p><strong>🔗 Enlace:</strong> 
+        <a href="{{ transmision.enlace }}" target="_blank" class="has-text-link">
+          {{ transmision.enlace }}
+        </a>
+      </p>
+      <p><strong>📝 Descripción:</strong> {{ transmision.descripcion }}</p>
+      <p><strong>📡 Activa:</strong> 
+        <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
+          {{ transmision.activa|yesno:"Sí,No" }}
+        </span>
+      </p>
     </div>
 
-    <a href="{% url 'listar_transmisiones' %}" class="btn-volver">Volver a la lista</a>
-</div>
+    <a href="{% url 'listar_transmisiones' %}" class="button is-info is-light mt-2">
+      ← Volver al listado
+    </a>
+  </div>
+</section>
 {% endblock %}

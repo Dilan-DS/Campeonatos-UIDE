@@ -1,20 +1,59 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Iniciar sesión - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="form-contenedor">
-    <h2 class="form-titulo">Iniciar sesión</h2>
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
 
-    <form method="POST" class="formulario-login">
-      {% csrf_token %}
-      {{ form.as_p }}
+        <div class="box has-shadow" style="border-radius: 20px; padding: 2.5rem;">
+          <h2 class="title is-4 has-text-centered mb-5" style="color: #5a0035;">Iniciar sesión</h2>
 
-      <button type="submit" class="btn-formulario">Entrar</button>
-    </form>
+          {% if messages %}
+            <div class="notification is-danger">
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}
+            </div>
+          {% endif %}
 
-    <p class="form-enlace">
-      ¿No tienes una cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a>.
-    </p>
+          <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+              <div class="field mb-4">
+                <label class="label">{{ field.label }}</label>
+                <div class="control">
+                  {{ field|add_class:"input is-rounded" }}
+                </div>
+                {% for error in field.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="field">
+              <button type="submit" class="button is-link is-fullwidth is-rounded"><strong>Entrar</strong></button>
+            </div>
+          </form>
+
+          <div class="has-text-centered mt-4">
+            <p>
+              ¿No tienes una cuenta?
+              <a href="{% url 'registro' %}" class="has-text-link has-text-weight-bold">Regístrate aquí</a>
+            </p>
+            <p class="mt-2">
+              <a href="{% url 'password_reset' %}" class="has-text-warning has-text-weight-semibold">¿Olvidaste tu contraseña?</a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
+</section>
 {% endblock %}

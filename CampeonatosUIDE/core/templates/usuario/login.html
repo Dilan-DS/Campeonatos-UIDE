@@ -1,5 +1,6 @@
 {% extends 'comun/base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
@@ -9,17 +10,33 @@
     <div class="columns is-centered">
       <div class="column is-5">
 
-        <div class="box" style="border-radius: 16px; padding: 2rem;">
-          <h2 class="title is-4 has-text-centered">Iniciar sesión</h2>
+        {% if messages %}
+          <div class="notification is-danger is-light has-text-centered">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+          </div>
+        {% endif %}
 
-          <form method="POST" class="has-text-centered">
+        <!-- Caja del formulario -->
+        <div class="box" style="
+          border-radius: 20px;
+          padding: 2.5rem;
+          background-color: #fff3e1;
+          box-shadow: 0 10px 30px rgba(108, 41, 67, 0.2);">
+          
+          <h2 class="title is-4 has-text-centered has-text-weight-bold" style="color: #6c2943;">
+            🎓 Bienvenido de nuevo
+          </h2>
+
+          <form method="POST">
             {% csrf_token %}
 
             {% for field in form %}
-              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
-                <label class="label">{{ field.label }}</label>
-                <div class="control" style="width: 80%;">
-                  {{ field }}
+              <div class="field">
+                <label class="label has-text-dark">{{ field.label }}</label>
+                <div class="control">
+                  {{ field|add_class:"input is-rounded is-medium" }}
                 </div>
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -29,14 +46,24 @@
 
             <div class="field mt-5">
               <div class="control">
-                <button type="submit" class="button is-primary is-fullwidth">Entrar</button>
+                <button type="submit" class="button is-fullwidth is-medium is-rounded" style="background-color: #6c2943; color: white;">
+                  <strong>Entrar</strong>
+                </button>
               </div>
             </div>
           </form>
 
-          <p class="has-text-centered mt-4">
-            ¿No tienes cuenta? <a href="{% url 'registro' %}" class="has-text-link">Regístrate aquí</a>
-          </p>
+          <!-- Enlaces -->
+          <div class="has-text-centered mt-4">
+            <p>
+              ¿No tienes cuenta?
+              <a href="{% url 'registro' %}" class="has-text-link has-text-weight-bold">Regístrate aquí</a>
+            </p>
+            <p class="has-text-centered mt-2">
+              <a href="{% url 'password_reset' %}" class="has-text-warning has-text-weight-bold">¿Olvidaste tu contraseña?</a>
+            </p>
+          </div>
+
         </div>
 
       </div>
@@ -44,4 +71,3 @@
   </div>
 </section>
 {% endblock %}
-

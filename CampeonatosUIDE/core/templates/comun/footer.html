@@ -1,35 +1,55 @@
 {% load static %}
 <!-- comun/footer.html -->
-<footer class="footer has-background-primary-light py-5">
+<footer class="footer" style="background-color: #FFD700; padding: 3rem 1.5rem;">
   <div class="container">
-    <div class="columns is-variable is-6 is-multiline">
-      <div class="column is-4 has-text-centered">
-        <figure class="image is-128x128 is-inline-block">
-          <img class="is-rounded" src="{% static 'img/integrante1.jpg' %}" alt="Integrante 1">
-        </figure>
-        <p class="title is-5 mt-3">Integrante 1</p>
-        <p><strong>Correo:</strong> integrante1@ejemplo.com</p>
-        <p><strong>Teléfono:</strong> +593 999 999 999</p>
+    <div class="columns is-variable is-6 is-multiline is-centered">
+
+      <!-- Integrante 1 -->
+      <div class="column is-4">
+        <div class="box has-text-centered" style="background-color: #fff; border: 2px solid #800000; padding-top: 2rem;">
+          <figure class="image is-128x128 is-inline-block">
+            <img class="is-rounded" src="{% static 'img/integrante1.jpg' %}" alt="Integrante 1" style="width: 128px; height: 128px; object-fit: cover; border: 3px solid #800000; margin-bottom: 1rem;">
+          </figure>
+          <div style="margin-top: 1rem;">
+            <p class="title is-5" style="color: #800000;">Integrante 1</p>
+            <p><strong style="color: #800000;">Correo:</strong> <span style="color: #000;">integrante1@ejemplo.com</span></p>
+            <p><strong style="color: #800000;">Teléfono:</strong> <span style="color: #000;">+593 999 999 999</span></p>
+          </div>
+        </div>
       </div>
-      <div class="column is-4 has-text-centered">
-        <figure class="image is-128x128 is-inline-block">
-         <img class="is-rounded" src="{% static 'img/integrante 2.png' %}" alt="Integrante 2"> 
-        </figure>
-        <p class="title is-5 mt-3">Integrante 2</p>
-        <p><strong>Correo:</strong> integrante2@ejemplo.com</p>
-        <p><strong>Teléfono:</strong> +593 888 888 888</p>
+
+      <!-- Integrante 2 -->
+      <div class="column is-4">
+        <div class="box has-text-centered" style="background-color: #fff; border: 2px solid #800000; padding-top: 2rem;">
+          <figure class="image is-128x128 is-inline-block">
+            <img class="is-rounded" src="{% static 'img/integrante2.png' %}" alt="Integrante 2" style="width: 128px; height: 128px; object-fit: cover; border: 3px solid #800000; margin-bottom: 1rem;">
+          </figure>
+          <div style="margin-top: 1rem;">
+            <p class="title is-5" style="color: #800000;">Integrante 2</p>
+            <p><strong style="color: #800000;">Correo:</strong> <span style="color: #000;">integrante2@ejemplo.com</span></p>
+            <p><strong style="color: #800000;">Teléfono:</strong> <span style="color: #000;">+593 888 888 888</span></p>
+          </div>
+        </div>
       </div>
-      <div class="column is-4 has-text-centered">
-        <figure class="image is-128x128 is-inline-block">
-          <img class="is-rounded" src="{% static 'img/integrante3.jpg' %}" alt="Integrante 3">
-        </figure>
-        <p class="title is-5 mt-3">Integrante 3</p>
-        <p><strong>Correo:</strong> integrante3@ejemplo.com</p>
-        <p><strong>Teléfono:</strong> +593 777 777 777</p>
+
+      <!-- Integrante 3 -->
+      <div class="column is-4">
+        <div class="box has-text-centered" style="background-color: #fff; border: 2px solid #800000; padding-top: 2rem;">
+          <figure class="image is-128x128 is-inline-block">
+            <img class="is-rounded" src="{% static 'img/integrante3.jpg' %}" alt="Integrante 3" style="width: 128px; height: 128px; object-fit: cover; border: 3px solid #800000; margin-bottom: 1rem;">
+          </figure>
+          <div style="margin-top: 1rem;">
+            <p class="title is-5" style="color: #800000;">Integrante 3</p>
+            <p><strong style="color: #800000;">Correo:</strong> <span style="color: #000;">integrante3@ejemplo.com</span></p>
+            <p><strong style="color: #800000;">Teléfono:</strong> <span style="color: #000;">+593 777 777 777</span></p>
+          </div>
+        </div>
       </div>
+
     </div>
+
     <div class="has-text-centered mt-5">
-      <p class="is-size-7 has-text-grey">© 2025 UIDE Loja - Proyecto Campeonatos</p>
+      <p class="is-size-7" style="color: #800000;">© 2025 UIDE Loja - Proyecto Campeonatos</p>
     </div>
   </div>
 </footer>

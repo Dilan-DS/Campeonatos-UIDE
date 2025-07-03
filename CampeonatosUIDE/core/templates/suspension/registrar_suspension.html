@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Registrar Suspensión</h1>
+    <form method="POST">
+      {% csrf_token %}
+      <div class="box">
+        {{ form.as_p }}
+      </div>
+      <button class="button is-primary" type="submit">Guardar</button>
+      <a href="{% url 'listar_suspensiones' %}" class="button is-light">Cancelar</a>
+    </form>
+  </div>
+</section>
+{% endblock %}

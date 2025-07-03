@@ -1,20 +1,60 @@
 {% extends 'comun/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Registro de Usuario - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-  <div class="form-contenedor">
-    <h2 class="form-titulo">Registro de Usuario</h2>
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-6">
 
-    <form method="POST" class="formulario-registro">
-      {% csrf_token %}
-      {{ form.as_p }}
+        <div class="box has-shadow" style="border-radius: 20px; padding: 2rem;">
+          <h2 class="title is-4 has-text-centered mb-5" style="color: #5a0035;">Registro de Usuario</h2>
 
-      <button type="submit" class="btn-formulario">Registrarse</button>
-    </form>
+          {% if messages %}
+            <div class="notification is-danger">
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}
+            </div>
+          {% endif %}
 
-    <p class="form-enlace">
-      ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>.
-    </p>
+          <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+              <div class="field mb-4">
+                <label class="label">{{ field.label }}</label>
+                <div class="control">
+                  {{ field|add_class:"input is-rounded" }}
+                </div>
+                {% for error in field.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="field mt-5">
+              <div class="control">
+                <button type="submit" class="button is-primary is-fullwidth is-rounded">
+                  <strong>Registrarse</strong>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="has-text-centered mt-4">
+            <p>
+              ¿Ya tienes una cuenta?
+              <a href="{% url 'login' %}" class="has-text-link has-text-weight-bold">Inicia sesión</a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
+</section>
 {% endblock %}

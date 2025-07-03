@@ -2,40 +2,48 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2 class="titulo">Lista de Transmisiones</h2>
+<section class="section">
+  <div class="container">
+    <h1 class="title is-4 has-text-primary">📺 Lista de Transmisiones</h1>
 
-    <table class="tabla-transmisiones">
-        <thead>
-            <tr>
-                <th>Campeonato</th>
-                <th>Partido</th>
-                <th>Enlace</th>
-                <th>Activa</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transmision in transmisiones %}
-            <tr>
-                <td>{{ transmision.campeonato.nombre }}</td>
-                <td>{{ transmision.partido }}</td>
-                <td>
-                    <a href="{{ transmision.enlace }}" target="_blank" class="link-transmision">
-                        Ver Transmisión
-                    </a>
-                </td>
-                <td>{{ transmision.activa|yesno:"Sí,No" }}</td>
-                <td>
-                    <a href="{% url 'detalle_transmision' transmision.id %}" class="btn-detalle">Ver Detalles</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No hay transmisiones registradas.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+    <table class="table is-striped is-hoverable is-fullwidth">
+      <thead>
+        <tr>
+          <th>🏆 Campeonato</th>
+          <th>⚽ Partido</th>
+          <th>🔗 Enlace</th>
+          <th>📡 Activa</th>
+          <th>⚙️ Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for transmision in transmisiones %}
+        <tr>
+          <td>{{ transmision.campeonato.nombre }}</td>
+          <td>{{ transmision.partido }}</td>
+          <td>
+            <a href="{{ transmision.enlace }}" target="_blank" class="has-text-link">
+              Ver Transmisión
+            </a>
+          </td>
+          <td>
+            <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
+              {{ transmision.activa|yesno:"Sí,No" }}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'detalle_transmision' transmision.id %}" class="button is-small is-info is-light">
+              Ver Detalles
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="has-text-centered">No hay transmisiones registradas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</div>
+  </div>
+</section>
 {% endblock %}
