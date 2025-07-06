@@ -1,0 +1,83 @@
+{% extends "comun/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard Admin | Campeonatos UIDE{% endblock %}
+
+{% block content %}
+
+<!-- 🎯 SECCIÓN PRINCIPAL DEL PANEL DE ADMINISTRADOR -->
+<section class="section">
+  <div class="container">
+
+    <!-- Título de bienvenida -->
+    <h1 class="title has-text-danger">📊 Panel de Administración</h1>
+    <p class="subtitle">Bienvenido, {{ user.first_name|default:user.username }}. Aquí puedes gestionar todo el sistema.</p>
+
+    <!-- 📦 Tarjetas de acceso rápido -->
+    <div class="columns is-multiline mt-5">
+
+      <!-- 🏆 CAMPEONATOS -->
+      <div class="column is-4">
+        <a href="{% url 'listar_campeonatos' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">🏆 Campeonatos</p>
+            <p class="subtitle is-6">Ver y administrar campeonatos</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 👥 EQUIPOS -->
+      <div class="column is-4">
+        <a href="{% url 'listar_equipos' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">👥 Equipos</p>
+            <p class="subtitle is-6">Listar y editar equipos inscritos</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- ⚖️ ÁRBITROS -->
+      <div class="column is-4">
+        <a href="{% url 'listar_arbitros' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">⚖️ Árbitros</p>
+            <p class="subtitle is-6">Gestionar árbitros registrados</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 📺 TRANSMISIONES -->
+      <div class="column is-4">
+        <a href="{% url 'listar_transmisiones' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">📺 Transmisiones</p>
+            <p class="subtitle is-6">Ver y editar enlaces en vivo</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 🚫 SUSPENSIONES -->
+      <div class="column is-4">
+        <a href="{% url 'listar_suspensiones' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">🚫 Suspensiones</p>
+            <p class="subtitle is-6">Ver historial y sanciones</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 📈 ESTADÍSTICAS -->
+      <div class="column is-4">
+        <a href="{% url 'estadisticas_futbol' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">📈 Estadísticas</p>
+            <p class="subtitle is-6">Resumen general por deporte</p>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

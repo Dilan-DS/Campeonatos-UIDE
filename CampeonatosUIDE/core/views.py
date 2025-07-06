@@ -1,15 +1,21 @@
+# ========================
+# IMPORTACIONES Y CONFIG
+# ========================
+
 from django.shortcuts import render, redirect, get_object_or_404
+# Importaciones de Django
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from datetime import date
-from django.http import HttpResponse
-from .models import Partido
-from .forms import PartidoForm
-from .models import Suspension
-from .forms import SuspensionForm
+from django.http import HttpResponse, HttpResponseForbidden
+from .models import *
+from .forms import *
 
+# ========================
+# VALIDACIONES DE ROL
+# ========================
+#   Estas funciones se utilizan para verificar el rol del usuario autenticado.
 def es_admin(user):
     return user.rol == 'ADMIN'
 
@@ -19,107 +25,89 @@ def es_delegado(user):
 def es_jugador(user):
     return user.rol == 'JUGADOR'
 
-
+# ========================
+# DASHBOARDS POR ROL
+# ========================
+#   Estas vistas renderizan los dashboards específicos para cada rol de usuario.
+@login_required
 @user_passes_test(es_admin)
-def listar_usuarios(request):
-    # solo el admin ve esto
-    pass
+def admin_dashboard(request):
+    return render(request, 'dashboard/admin.html')
 
+@login_required
 @user_passes_test(es_delegado)
-def registrar_equipo(request):
-    # solo delegado puede crear
-    pass
+def delegado_dashboard(request):
+    try:
+        equipo = Equipo.objects.get(delegado=request.user)
+    except Equipo.DoesNotExist:
+        equipo = None
 
+    return render(request, 'dashboard/delegado.html', {
+        'equipo': equipo
+    })
+
+
+@login_required
 @user_passes_test(es_jugador)
-def ver_estadisticas_jugador(request, jugador_id):
-    # solo jugadores
-    pass
+def jugador_dashboard(request):
+    try:
+        jugador = Jugador.objects.select_related('equipo__campeonato').get(usuario=request.user)
+        equipo = jugador.equipo
+        campeonato = equipo.campeonato
 
-# Listar suspensiones
-def listar_suspensiones(request):
-    suspensiones = Suspension.objects.select_related('jugador__usuario', 'jugador__equipo').all()
-    return render(request, 'suspension/listar.html', {'suspensiones': suspensiones})
+        return render(request, 'dashboard/jugador.html', {
+            'jugador': jugador,
+            'equipo': equipo,
+            'campeonato': campeonato
+        })
 
-# Detalle de una suspensión
-def detalle_suspension(request, suspension_id):
-    suspension = get_object_or_404(Suspension, id=suspension_id)
-    return render(request, 'suspension/detalle.html', {'suspension': suspension})
+    except Jugador.DoesNotExist:
+        messages.error(request, "No se encontró tu perfil de jugador.")
+        return redirect('inicio_publico')
 
-# Registrar nueva suspensión
-def registrar_suspension(request):
-    if request.method == 'POST':
-        form = SuspensionForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Suspensión registrada correctamente.")
-            return redirect('listar_suspensiones')
-    else:
-        form = SuspensionForm()
-    return render(request, 'suspension/registrar.html', {'form': form})
 
-# Modelos
-from .models import Campeonato, Equipo, Arbitro, Transmision
-
-# Formularios
-from .forms import (
-    ArbitroForm, CampeonatoForm, PagoForm,
-    EquipoForm, TransmisionForm, CustomUsuarioCreationForm
-)
-
-def listar_partidos(request):
-    partidos = Partido.objects.all().order_by('-fecha', '-hora')
-    return render(request, 'partido/listar_partidos.html', {'partidos': partidos})
-
-def registrar_partido(request):
-    if request.method == 'POST':
-        form = PartidoForm(request.POST)
-        if form.is_valid():
-            partido = form.save()
-            messages.success(request, ' Partido registrado correctamente.')
-            return redirect('listar_partidos')
-    else:
-        form = PartidoForm()
-    return render(request, 'partido/registrar_partido.html', {'form': form})
-
-def detalle_partido(request, partido_id):
-    partido = get_object_or_404(Partido, id=partido_id)
-    return render(request, 'partido/detalle_partido.html', {'partido': partido})
 # ========================
 # AUTENTICACION
 # ========================
 
 def vista_login(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('vista_inicio')
 
-    form = AuthenticationForm()
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            login(request, form.get_user())
-            return redirect('dashboard')
+    form = AuthenticationForm(request, data=request.POST or None)
+    if form.is_valid():
+        usuario = form.get_user()
+        login(request, usuario)
+
+        # Redirige según el rol del usuario
+        if usuario.rol == 'ADMIN':
+            return redirect('admin_dashboard')
+        elif usuario.rol == 'DELEGADO':
+            return redirect('delegado_dashboard')
+        elif usuario.rol == 'JUGADOR':
+            return redirect('jugador_dashboard')
         else:
-            messages.error(request, "Usuario o contraseña incorrectos")
+            return redirect('inicio_publico')
 
     return render(request, 'usuario/login.html', {'form': form})
+
 def vista_registro(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
-    
+        return redirect('vista_inicio')
+
     form = CustomUsuarioCreationForm(request.POST or None)
     if form.is_valid():
         form.save()
         return redirect('login')
-    
-    return render(request, 'usuario/registro.html', {'form': form})
 
+    return render(request, 'usuario/registro.html', {'form': form})
 
 def vista_logout(request):
     logout(request)
     return redirect('login')
 
 # ========================
-# INICIO PÚBLICO Y PRIVADO
+# INICIO PÚBLICO
 # ========================
 
 def vista_inicio_publico(request):
@@ -141,11 +129,50 @@ def editar_perfil(request):
     return render(request, 'usuario/editar_perfil.html')
 
 # ========================
+# USUARIOS POR ROL
+# ========================
+
+@user_passes_test(es_admin)
+def listar_usuarios(request):
+    return HttpResponse("Solo admin ve esto")
+
+@user_passes_test(es_delegado)
+def vista_delegado(request):
+    return HttpResponse("Vista solo para delegado")
+
+@user_passes_test(es_jugador)
+def ver_estadisticas_jugador(request, jugador_id):
+    return HttpResponse(f"Estadísticas del jugador {jugador_id}")
+
+# ========================
+# SUSPENSIONES
+# ========================
+
+def listar_suspensiones(request):
+    suspensiones = Suspension.objects.select_related('jugador__usuario', 'jugador__equipo').all()
+    return render(request, 'suspension/listar.html', {'suspensiones': suspensiones})
+
+def detalle_suspension(request, suspension_id):
+    suspension = get_object_or_404(Suspension, id=suspension_id)
+    return render(request, 'suspension/detalle.html', {'suspension': suspension})
+
+def registrar_suspension(request):
+    if request.method == 'POST':
+        form = SuspensionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Suspensión registrada correctamente.")
+            return redirect('listar_suspensiones')
+    else:
+        form = SuspensionForm()
+    return render(request, 'suspension/registrar.html', {'form': form})
+
+# ========================
 # CAMPEONATOS PÚBLICOS
 # ========================
 
 def campeonatos_publicos(request):
-    campeonatos = Campeonato.objects.filter(estado='activo')
+    campeonatos = Campeonato.objects.filter(activo=True)
     return render(request, 'publica/lista_campeonatos.html', {'campeonatos': campeonatos})
 
 def vista_tabla_publica(request, campeonato_id):
@@ -157,10 +184,8 @@ def vista_tabla_publica(request, campeonato_id):
 # EQUIPOS
 # ========================
 
-def listar_equipos(request):
-    equipos = Equipo.objects.all().order_by('-puntos_totales')
-    return render(request, 'equipo/listar_equipos.html', {'equipos': equipos})
-
+@login_required
+@user_passes_test(es_delegado)
 def registrar_equipo(request):
     campeonato_id = request.GET.get('campeonato_id')
     campeonato = get_object_or_404(Campeonato, id=campeonato_id) if campeonato_id else None
@@ -169,15 +194,23 @@ def registrar_equipo(request):
         form = EquipoForm(request.POST, request.FILES)
         if form.is_valid():
             equipo = form.save(commit=False)
-            equipo.fk_delegado = request.user
+            equipo.delegado = request.user
             equipo.campeonato = campeonato
             equipo.save()
             messages.success(request, 'Equipo registrado correctamente.')
-            return redirect('inicio_publico')
+            return redirect('vista_inicio')
     else:
         form = EquipoForm()
 
     return render(request, 'equipo/registrar_equipo.html', {'form': form, 'campeonato': campeonato})
+
+def listar_equipos(request):
+    equipos = Equipo.objects.all().order_by('-puntos_totales')
+    return render(request, 'equipo/listar_equipos.html', {'equipos': equipos})
+
+def detalle_equipo(request, id):
+    equipo = get_object_or_404(Equipo, id=id)
+    return render(request, 'equipo/detalle.html', {'equipo': equipo})
 
 def editar_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
@@ -187,10 +220,6 @@ def editar_equipo(request, id):
         messages.success(request, 'Equipo actualizado correctamente.')
         return redirect('detalle_equipo', id=equipo.id)
     return render(request, 'equipo/editar_equipo.html', {'form': form, 'equipo': equipo})
-
-def detalle_equipo(request, id):
-    equipo = get_object_or_404(Equipo, id=id)
-    return render(request, 'equipo/detalle.html', {'equipo': equipo})
 
 def pago_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
@@ -267,7 +296,30 @@ def fixture_campeonato(request, id):
     return render(request, 'campeonato/fixture.html', {'campeonato': campeonato})
 
 # ========================
-# ESTADISTICAS
+# PARTIDOS
+# ========================
+
+def listar_partidos(request):
+    partidos = Partido.objects.all().order_by('-fecha', '-hora')
+    return render(request, 'partido/listar_partidos.html', {'partidos': partidos})
+
+def registrar_partido(request):
+    if request.method == 'POST':
+        form = PartidoForm(request.POST)
+        if form.is_valid():
+            partido = form.save()
+            messages.success(request, 'Partido registrado correctamente.')
+            return redirect('listar_partidos')
+    else:
+        form = PartidoForm()
+    return render(request, 'partido/registrar_partido.html', {'form': form})
+
+def detalle_partido(request, partido_id):
+    partido = get_object_or_404(Partido, id=partido_id)
+    return render(request, 'partido/detalle_partido.html', {'partido': partido})
+
+# ========================
+# ESTADÍSTICAS
 # ========================
 
 def estadisticas_futbol(request):
@@ -316,3 +368,43 @@ def registrar_transmision(request):
 def detalle_transmision(request, id):
     transmision = get_object_or_404(Transmision, id=id)
     return render(request, 'transmision/detalle_transmision.html', {'transmision': transmision})
+# Editar una transmisión (solo admin)
+@login_required
+@user_passes_test(es_admin)
+def editar_transmision(request, id):
+    transmision = get_object_or_404(Transmision, id=id)
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        url = request.POST.get('url')
+        campeonato_id = request.POST.get('campeonato')
+
+        if nombre and url and campeonato_id:
+            transmision.nombre = nombre
+            transmision.url = url
+            transmision.campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+            transmision.save()
+            messages.success(request, 'Transmisión actualizada correctamente.')
+            return redirect('listar_transmisiones')
+        else:
+            messages.error(request, 'Todos los campos son obligatorios.')
+
+    campeonatos = Campeonato.objects.all()
+    return render(request, 'transmision/editar_transmision.html', {
+        'transmision': transmision,
+        'campeonatos': campeonatos
+    })
+# Eliminar una transmisión (solo admin)
+@login_required
+@user_passes_test(es_admin)
+def eliminar_transmision(request, id):
+    transmision = get_object_or_404(Transmision, id=id)
+
+    if request.method == 'POST':
+        transmision.delete()
+        messages.success(request, 'Transmisión eliminada correctamente.')
+        return redirect('listar_transmisiones')
+
+    return render(request, 'transmision/eliminar_transmision.html', {
+        'transmision': transmision
+    })
