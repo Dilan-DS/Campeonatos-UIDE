@@ -9,10 +9,7 @@
   <meta name="theme-color" content="#d32f2f" />
   <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
 
-  <!-- 🔗 Favicon -->
   <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
-
-  <!-- 🎨 Bulma y estilos -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'styles/base.css' %}">
@@ -39,20 +36,20 @@
           {% if user.rol == 'ADMIN' %}
             <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
             <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
-            <a class="navbar-item" href="{% url 'listar_jugadores' %}">Jugadores</a>
             <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
             <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
             <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
 
           {% elif user.rol == 'DELEGADO' %}
             <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
-            <a class="navbar-item" href="{% url 'jugadores_equipo' equipo_id=1 %}">Mis Jugadores</a>
-            <a class="navbar-item" href="{% url 'pago_equipo' equipo_id=1 %}">Subir Pago</a>
+            <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
+            <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
 
           {% elif user.rol == 'JUGADOR' %}
-            <a class="navbar-item" href="{% url 'posiciones' %}">Tabla de Posiciones</a>
-            <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador_id=1 %}">Mis Estadísticas</a>
+            <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Panel</a>
           {% endif %}
+        {% else %}
+          <a class="navbar-item" href="{% url 'campeonatos_publicos' %}">Campeonatos</a>
         {% endif %}
       </div>
 
@@ -81,7 +78,6 @@
   </main>
 
   {% include "comun/footer.html" %}
-
 
   <!-- 📱 JS para el menú hamburguesa -->
   <script>

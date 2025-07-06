@@ -1,0 +1,92 @@
+{% extends "comun/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard Delegado | Campeonatos UIDE{% endblock %}
+
+{% block content %}
+
+<!-- 🎓 PANEL DEL DELEGADO -->
+<section class="section">
+  <div class="container">
+
+    <!-- Título de bienvenida -->
+    <h1 class="title has-text-danger">🎓 Panel del Delegado</h1>
+    <p class="subtitle">Hola, {{ user.first_name|default:user.username }}. Desde aquí puedes gestionar tu equipo y jugadores.</p>
+
+    <!-- 📦 Tarjetas de acción -->
+    <div class="columns is-multiline mt-5">
+
+      <!-- ⚽ Registrar equipo -->
+      <div class="column is-4">
+        <a href="{% url 'registrar_equipo' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">⚽ Registrar Equipo</p>
+            <p class="subtitle is-6">Inscribir un nuevo equipo</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 📋 Ver mis equipos -->
+      <div class="column is-4">
+        {% if equipo %}
+        <a href="{% url 'detalle_equipo' id=equipo.id %}">
+        {% else %}
+        <a href="#">
+        {% endif %}
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">📋 Mi Equipo</p>
+            <p class="subtitle is-6">
+              {% if equipo %}Ver detalles del equipo{% else %}Aún no tienes equipo registrado{% endif %}
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 👥 Mis jugadores -->
+      <div class="column is-4">
+        {% if equipo %}
+        <a href="{% url 'jugadores_equipo' id=equipo.id %}">
+        {% else %}
+        <a href="#">
+        {% endif %}
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">👥 Mis Jugadores</p>
+            <p class="subtitle is-6">
+              {% if equipo %}Gestionar jugadores del equipo{% else %}Registra un equipo primero{% endif %}
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 💰 Subir pago -->
+      <div class="column is-4">
+        {% if equipo %}
+        <a href="{% url 'pago_equipo' id=equipo.id %}">
+        {% else %}
+        <a href="#">
+        {% endif %}
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">💰 Subir Pago</p>
+            <p class="subtitle is-6">
+              {% if equipo %}Registrar comprobante de pago{% else %}Registra un equipo primero{% endif %}
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- 📆 Ver partidos -->
+      <div class="column is-4">
+        <a href="{% url 'listar_partidos' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">📆 Partidos</p>
+            <p class="subtitle is-6">Revisar calendario y resultados</p>
+          </div>
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

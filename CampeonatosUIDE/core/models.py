@@ -26,7 +26,7 @@ class Usuario(AbstractUser):
         ("Derecho", "Derecho"),
         ("Medicina", "Medicina"),
         ("Arquitectura", "Arquitectura"),
-        # Puedes agregar más carreras aquí
+ 
     ]
     # Definición de roles posibles
     ROLES = [
@@ -35,7 +35,7 @@ class Usuario(AbstractUser):
         ('JUGADOR', 'Jugador'),
     ]
     # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
-    rol = models.CharField(max_length=20, choices=ROLES)
+    rol = models.CharField(max_length=20, choices=ROLES, default='JUGADOR')
     # Carrera a la que pertenece el usuario (opcional para delegados)
     carrera = models.CharField(max_length=100, choices=CARRERA_CHOICES)
     # Relación con grupos para permisos (ManyToMany)
