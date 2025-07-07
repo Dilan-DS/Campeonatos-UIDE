@@ -1,34 +1,63 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base del sistema (estructura general, estilos globales, etc.) -->
+
 {% block title %}Registrar Código QR - UIDE{% endblock %}
+<!-- Título que aparece en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido de la página -->
+
 <section class="section">
+  <!-- Sección con espaciado vertical estándar de Bulma -->
   <div class="container">
+    <!-- Contenedor centrado -->
+
     <div class="box" style="max-width: 600px; margin: auto; border-radius: 16px; background-color: #fffef8; padding: 2rem;">
-      <h2 class="title is-3 has-text-danger has-text-centered">🖼 Registrar Código QR</h2>
+      <!-- Caja con fondo claro, bordes redondeados, padding interno y centrado -->
+
+      <h2 class="title is-3 has-text-danger has-text-centered">
+        <!-- Título en rojo, centrado y con ícono -->
+        🖼 Registrar Código QR
+      </h2>
 
       <form method="POST" enctype="multipart/form-data">
+        <!-- Formulario con método POST y soporte para subida de archivos -->
         {% csrf_token %}
+        <!-- Token de seguridad CSRF de Django -->
+
         <div class="field">
+          <!-- Campo del formulario -->
           <label class="label">Banco</label>
+          <!-- Etiqueta para el campo banco -->
           <div class="control">
             {{ form.banco }}
+            <!-- Renderiza el campo 'banco' del formulario -->
           </div>
         </div>
 
         <div class="field">
+          <!-- Segundo campo del formulario -->
           <label class="label">Imagen QR</label>
+          <!-- Etiqueta para el campo de imagen QR -->
           <div class="control">
             {{ form.imagen_qr }}
+            <!-- Renderiza el campo 'imagen_qr' del formulario -->
           </div>
         </div>
 
         <div class="field is-grouped is-grouped-centered mt-4">
+          <!-- Grupo de botones centrado con margen superior -->
           <div class="control">
-            <button type="submit" class="button is-danger is-rounded">Guardar</button>
+            <button type="submit" class="button is-danger is-rounded">
+              <!-- Botón rojo, redondeado -->
+              Guardar
+            </button>
           </div>
           <div class="control">
-            <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">Cancelar</a>
+            <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">
+              <!-- Botón claro para cancelar y volver al listado -->
+              Cancelar
+            </a>
           </div>
         </div>
       </form>
@@ -36,3 +65,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

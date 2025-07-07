@@ -1,37 +1,67 @@
 {% extends 'comun/base.html' %}
+<!-- Extiende la plantilla base común del sitio -->
+
 {% load static %}
+<!-- Carga de archivos estáticos (CSS, imágenes, JS) -->
+
 {% load widget_tweaks %}
+<!-- Carga los filtros útiles para modificar widgets de formularios en tiempo de render -->
 
 {% block title %}Registrar Árbitro - Campeonatos UIDE{% endblock %}
+<!-- Define el título de la página que se verá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque de contenido principal -->
+
 <section class="section">
+  <!-- Sección principal con espaciado vertical -->
   <div class="container">
+    <!-- Contenedor central -->
+
     <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <!-- Caja blanca clara con esquinas redondeadas, padding amplio y sombra suave -->
 
       <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        <!-- Título grande, centrado, con margen inferior y color personalizado -->
         🧑‍⚖️ Registrar Árbitro
       </h2>
 
       <form method="POST">
+        <!-- Formulario que enviará los datos por POST -->
         {% csrf_token %}
+        <!-- Token de seguridad contra ataques CSRF -->
 
         <div class="columns is-multiline">
+          <!-- Distribuye los campos del formulario en columnas múltiples -->
           {% for field in form %}
+            <!-- Itera sobre cada campo del formulario -->
             <div class="column is-12-mobile is-6-tablet">
+              <!-- Cada campo ocupa toda la fila en móvil y mitad en tablet -->
               <div class="field">
+                <!-- Contenedor de campo de formulario -->
                 <label class="label has-text-grey-dark">{{ field.label }}</label>
+                <!-- Muestra el nombre del campo -->
+
                 <div class="control">
+                  <!-- Contenedor del input o widget -->
                   {% if field|widget_type == 'textarea' %}
+                    <!-- Si el campo es un textarea (área de texto) -->
                     {{ field|add_class:"textarea is-rounded is-medium is-light" }}
+                    <!-- Se aplica clase para textarea estilizado -->
                   {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
+                    <!-- Si el campo es un select o select múltiple -->
                     {{ field|add_class:"is-rounded is-medium is-light" }}
+                    <!-- Se le aplican clases directamente al widget select -->
                   {% else %}
+                    <!-- Si es un input normal -->
                     {{ field|add_class:"input is-rounded is-medium is-light" }}
+                    <!-- Se le aplican clases Bulma para inputs -->
                   {% endif %}
                 </div>
+
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
+                  <!-- Muestra mensaje de error en caso de validación fallida -->
                 {% endfor %}
               </div>
             </div>
@@ -39,16 +69,21 @@
         </div>
 
         <div class="field mt-5">
+          <!-- Campo para el botón de guardar, con margen arriba -->
           <div class="control">
             <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
+              <!-- Botón amarillo claro, redondeado y de tamaño medio -->
               <strong>Guardar Árbitro</strong>
+              <!-- Texto del botón en negrita -->
             </button>
           </div>
         </div>
       </form>
 
       <div class="has-text-centered mt-5">
+        <!-- Sección inferior con enlace para volver -->
         <a href="{% url 'listar_arbitros' %}" class="button is-light is-rounded">
+          <!-- Botón claro, redondeado -->
           ← Volver al listado
         </a>
       </div>
@@ -57,3 +92,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Cierre del bloque de contenido -->

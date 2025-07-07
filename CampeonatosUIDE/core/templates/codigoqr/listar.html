@@ -1,35 +1,57 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base del proyecto (estructura, cabecera, pie, etc.) -->
+
 {% load static %}
+<!-- Carga archivos estáticos si se necesitan (CSS, imágenes, JS, etc.) -->
 
 {% block title %}Códigos QR - Campeonatos UIDE{% endblock %}
+<!-- Título que se muestra en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido -->
+
 <section class="section">
+  <!-- Sección visual principal con márgenes verticales -->
   <div class="container">
+    <!-- Contenedor centrado para el contenido -->
 
     <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      <!-- Caja visual clara con bordes redondeados, padding y sombra suave -->
+
       <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+        <!-- Fila con título y botón alineados en extremos -->
         <h2 class="title is-3 has-text-danger">🧾 Códigos QR Registrados</h2>
+        <!-- Título rojo con ícono y tamaño grande -->
         <a href="{% url 'registrar_codigo_qr' %}" class="button is-warning is-rounded">
+          <!-- Botón amarillo redondeado para registrar nuevo código QR -->
           <strong>+ Agregar QR</strong>
         </a>
       </div>
 
       <form method="get" class="mb-4">
+        <!-- Formulario para buscar códigos QR -->
         <div class="field has-addons">
+          <!-- Grupo de campos juntos (input + botón) -->
           <div class="control is-expanded">
+            <!-- Campo de texto expandido (ocupa todo el ancho disponible) -->
             <input class="input" type="text" name="q" value="{{ request.GET.q }}" placeholder="🔍 Buscar por banco o número de cuenta">
+            <!-- Input para búsqueda, mantiene el valor actual si se ha buscado -->
           </div>
           <div class="control">
+            <!-- Botón para ejecutar la búsqueda -->
             <button type="submit" class="button is-info">Buscar</button>
           </div>
         </div>
       </form>
 
       {% if codigos_qr %}
+        <!-- Si hay códigos QR registrados, muestra la tabla -->
         <table class="table is-fullwidth is-hoverable is-striped">
+          <!-- Tabla completa, con filas resaltadas al pasar el mouse y filas alternadas -->
           <thead>
+            <!-- Cabecera de la tabla -->
             <tr class="has-background-warning-light">
+              <!-- Fila de cabecera con fondo amarillo claro -->
               <th>Banco</th>
               <th>Número de Cuenta</th>
               <th>Imagen</th>
@@ -38,26 +60,36 @@
           </thead>
           <tbody>
             {% for codigo in codigos_qr %}
+              <!-- Itera sobre cada código QR -->
               <tr>
                 <td>{{ codigo.banco }}</td>
+                <!-- Muestra el banco asociado al código -->
                 <td>{{ codigo.numero_cuenta }}</td>
+                <!-- Muestra el número de cuenta -->
                 <td>
                   {% if codigo.imagen_qr %}
+                    <!-- Si tiene imagen QR asociada -->
                     <img src="{{ codigo.imagen_qr.url }}" width="80" alt="QR Banco">
+                    <!-- Muestra la imagen con ancho limitado -->
                   {% else %}
                     <em>Sin imagen</em>
+                    <!-- Muestra mensaje si no tiene imagen QR -->
                   {% endif %}
                 </td>
                 <td>
+                  <!-- Acciones disponibles: editar y eliminar -->
                   <a href="{% url 'editar_codigo_qr' codigo.id %}" class="button is-small is-info is-light">✏️ Editar</a>
                   <a href="{% url 'eliminar_codigo_qr' codigo.id %}" class="button is-small is-danger is-light"
-                     onclick="return confirm('¿Estás seguro de eliminar este código QR?');">🗑️ Eliminar</a>
+                     onclick="return confirm('¿Estás seguro de eliminar este código QR?');">
+                    🗑️ Eliminar
+                  </a>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
+        <!-- Si no hay códigos QR registrados -->
         <div class="notification is-warning is-light has-text-centered">
           No hay códigos QR registrados todavía.
         </div>
@@ -67,3 +99,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido principal -->
