@@ -1,8 +1,22 @@
 from django import forms
 from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import UserCreationForm
-from .models import Equipo, Pago, Arbitro, Campeonato, Transmision, Usuario, Partido, Suspension
+from .models import *
 
+
+class TipoCampeonatoForm(forms.ModelForm):
+    class Meta:
+        model = TipoCampeonato
+        fields = ['nombre', 'descripcion']
+
+
+class DeporteForm(forms.ModelForm):
+    class Meta:
+        model = Deporte
+        fields = ['nombre', 'descripcion']
+# =============================
+# FORMULARIO: SUSPENSIÓN
+# =============================
 class SuspensionForm(forms.ModelForm):
     class Meta:
         model = Suspension
@@ -13,6 +27,9 @@ class SuspensionForm(forms.ModelForm):
             'motivo': forms.Textarea(attrs={'rows': 3}),
         }
 
+# =============================
+# FORMULARIO: PARTIDO
+# =============================
 class PartidoForm(forms.ModelForm):
     class Meta:
         model = Partido
@@ -21,6 +38,7 @@ class PartidoForm(forms.ModelForm):
             'fecha': forms.DateInput(attrs={'type': 'date'}),
             'hora': forms.TimeInput(attrs={'type': 'time'}),
         }
+
 # =============================
 # FORMULARIO: EQUIPO
 # =============================
@@ -45,7 +63,6 @@ class EquipoForm(forms.ModelForm):
                     )
                 )
 
-
 # =============================
 # FORMULARIO: PAGO
 # =============================
@@ -68,7 +85,6 @@ class PagoForm(forms.ModelForm):
                 )
             )
 
-
 # =============================
 # FORMULARIO: ÁRBITRO
 # =============================
@@ -77,14 +93,19 @@ class ArbitroForm(forms.ModelForm):
         model = Arbitro
         fields = '__all__'
 
-
 # =============================
 # FORMULARIO: CAMPEONATO
 # =============================
+
 class CampeonatoForm(forms.ModelForm):
     class Meta:
         model = Campeonato
         fields = '__all__'
+        widgets = {
+            'dias_partido': forms.CheckboxSelectMultiple(),
+            'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 
 # =============================
@@ -95,13 +116,43 @@ class TransmisionForm(forms.ModelForm):
         model = Transmision
         fields = '__all__'
 
+# =============================
+# FORMULARIO DE REGISTRO PÚBLICO — Solo jugadores
+# =============================
+class RegistroJugadorForm(UserCreationForm):
+    class Meta:
+        model = Usuario
+        fields = (
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'carrera',
+            'password1',
+            'password2',
+        )
+
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'input'}),
+            'first_name': forms.TextInput(attrs={'class': 'input'}),
+            'last_name': forms.TextInput(attrs={'class': 'input'}),
+            'email': forms.EmailInput(attrs={'class': 'input'}),
+            'carrera': forms.TextInput(attrs={'class': 'input'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.rol = 'JUGADOR'  # Por defecto
+        if commit:
+            user.save()
+        return user
 
 # =============================
-# FORMULARIO: USUARIO PERSONALIZADO
+# FORMULARIO: ADMIN CREA USUARIOS (con rol)
 # =============================
-class CustomUsuarioCreationForm(UserCreationForm):
+class CrearUsuarioAdminForm(UserCreationForm):
     class Meta:
-        model = Usuario  # Tu modelo personalizado
+        model = Usuario
         fields = (
             'username',
             'first_name',

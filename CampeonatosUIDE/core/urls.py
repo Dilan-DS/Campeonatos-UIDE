@@ -1,79 +1,28 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import (
-    editar_perfil,
-    vista_perfil_usuario,
-    vista_inicio,
-    vista_login,
-    vista_logout,
-    vista_registro,
-    vista_inicio_publico,
-    vista_tabla_publica,
-    campeonatos_publicos,
+from . import views
+from django.urls import path
+from django.contrib.auth import views as auth_views
+from . import views
+from .views import *
 
-    # Dashboards por rol
-    admin_dashboard,
-    delegado_dashboard,
-    jugador_dashboard,
-
-    # Árbitros
-    listar_arbitros,
-    registrar_arbitro,
-    editar_arbitro,
-    detalle_arbitro,
-
-    # Campeonatos
-    listar_campeonatos,
-    crear_campeonato,
-    editar_campeonato,
-    detalle_campeonato,
-    fixture_campeonato,
-
-    # Equipos
-    listar_equipos,
-    registrar_equipo,
-    detalle_equipo,
-    editar_equipo,
-    pago_equipo,
-    jugadores_equipo,
-
-    # Partidos
-    listar_partidos,
-    registrar_partido,
-    detalle_partido,
-
-    # Suspensiones
-    listar_suspensiones,
-    registrar_suspension,
-    detalle_suspension,
-
-    # Estadísticas
-    estadisticas_futbol,
-    estadisticas_basquet,
-    estadisticas_ecuaboly,
-    estadisticas_ajedrez,
-    estadisticas_tenis,
-    estadisticas_pingpong,
-    estadisticas_futbolin,
-    estadisticas_videojuegos,
-
-    # Transmisiones
-    listar_transmisiones,
-    registrar_transmision,
-    detalle_transmision,
-    editar_transmision,
-    eliminar_transmision,
-)
 
 urlpatterns = [
     # Inicio público y dashboard general
     path('', vista_inicio_publico, name='inicio_publico'),
-    path('dashboard/', vista_inicio, name='dashboard'),
+    path('dashboard/', vista_inicio, name='vista_inicio'),
+
 
     # Dashboards por rol
-    path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
-    path('delegado/dashboard/', delegado_dashboard, name='delegado_dashboard'),
-    path('jugador/dashboard/', jugador_dashboard, name='jugador_dashboard'),
+    path('panel/admin/', admin_dashboard, name='admin_dashboard'),
+    path('panel/admin/crear-usuario/', crear_usuario_admin, name='crear_usuario_admin'),
+    path('panel/delegado/', delegado_dashboard, name='delegado_dashboard'),
+    path('panel/jugador/', jugador_dashboard, name='jugador_dashboard'),
+
+
+    path('deportes/', views.listar_deportes, name='listar_deportes'),  
+    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
+
 
     # Autenticación
     path('login/', vista_login, name='login'),
@@ -110,6 +59,7 @@ urlpatterns = [
     path('equipo/<int:id>/editar/', editar_equipo, name='editar_equipo'),
     path('equipo/<int:id>/pago/', pago_equipo, name='pago_equipo'),
     path('equipo/<int:id>/jugadores/', jugadores_equipo, name='jugadores_equipo'),
+    
 
     # Estadísticas
     path('estadisticas/futbol/', estadisticas_futbol, name='estadisticas_futbol'),
@@ -137,4 +87,13 @@ urlpatterns = [
     path('suspensiones/', listar_suspensiones, name='listar_suspensiones'),
     path('suspension/<int:suspension_id>/', detalle_suspension, name='detalle_suspension'),
     path('suspension/registrar/', registrar_suspension, name='registrar_suspension'),
+
+
+
+    path('deportes/', listar_deportes, name='listar_deportes'),
+    path('deportes/registrar/', registrar_deporte, name='registrar_deporte'),
+
+    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
+    path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
+
 ]

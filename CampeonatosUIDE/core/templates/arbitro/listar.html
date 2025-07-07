@@ -1,0 +1,49 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Listado de Árbitros - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2rem; box-shadow: 0 0 12px rgba(0,0,0,0.05);">
+      <div class="is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center mb-4">
+        <h2 class="title is-3 has-text-weight-semibold" style="color: #5a0035;">📋 Árbitros Registrados</h2>
+        <a href="{% url 'registrar_arbitro' %}" class="button is-warning is-rounded mt-2-mobile">
+          <strong>+ Nuevo Árbitro</strong>
+        </a>
+      </div>
+
+      {% if arbitros %}
+        <div class="table-container">
+          <table class="table is-fullwidth is-hoverable is-striped is-bordered">
+            <thead>
+              <tr class="has-background-warning-light">
+                <th class="has-text-centered">Nombre</th>
+                <th class="has-text-centered">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for arbitro in arbitros %}
+                <tr>
+                  <td class="has-text-centered">{{ arbitro.nombre }} {{ arbitro.apellido }}</td>
+                  <td class="has-text-centered">
+                    <a href="{% url 'detalle_arbitro' arbitro.id %}" class="button is-small is-info is-light is-rounded mb-1">Ver</a>
+                    <a href="{% url 'editar_arbitro' arbitro.id %}" class="button is-small is-link is-light is-rounded mb-1">Editar</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="notification is-warning is-light has-text-centered mt-4">
+          No hay árbitros registrados aún.
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}

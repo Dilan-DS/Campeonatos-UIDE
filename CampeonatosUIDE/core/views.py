@@ -1,7 +1,3 @@
-# ========================
-# IMPORTACIONES Y CONFIG
-# ========================
-
 from django.shortcuts import render, redirect, get_object_or_404
 # Importaciones de Django
 from django.contrib.auth import authenticate, login, logout
@@ -11,6 +7,8 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseForbidden
 from .models import *
 from .forms import *
+
+
 
 # ========================
 # VALIDACIONES DE ROL
@@ -24,6 +22,44 @@ def es_delegado(user):
 
 def es_jugador(user):
     return user.rol == 'JUGADOR'
+# ========================
+# GESTIÓN DE DEPORTES Y TIPOS DE CAMPEONATO (solo admin)
+# ========================
+
+@login_required
+@user_passes_test(es_admin)
+def registrar_deporte(request):
+    if request.method == 'POST':
+        form = DeporteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_deportes')
+    else:
+        form = DeporteForm()
+    return render(request, 'deporte/registrar.html', {'form': form})
+
+@login_required
+@user_passes_test(es_admin)
+def registrar_tipo_campeonato(request):
+    if request.method == 'POST':
+        form = TipoCampeonatoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_tipos_campeonato')
+    else:
+        form = TipoCampeonatoForm()
+
+    return render(request, 'tipo_campeonato/registrar_tipo_campeonato.html', {'form': form})
+
+
+def listar_tipos_campeonato(request):
+    tipos = TipoCampeonato.objects.all()
+    return render(request, 'tipo_campeonato/listar_tipos.html', {'tipos': tipos})
+
+def listar_deportes(request):
+    deportes = Deporte.objects.all()
+    return render(request, 'deporte/listar_deportes.html', {'deportes': deportes})
+
 
 # ========================
 # DASHBOARDS POR ROL
@@ -95,10 +131,11 @@ def vista_registro(request):
     if request.user.is_authenticated:
         return redirect('vista_inicio')
 
-    form = CustomUsuarioCreationForm(request.POST or None)
+    form = RegistroJugadorForm(request.POST or None)
     if form.is_valid():
-        form.save()
-        return redirect('login')
+        user = form.save()
+        login(request, user)
+        return redirect('jugador_dashboard')  
 
     return render(request, 'usuario/registro.html', {'form': form})
 
@@ -205,8 +242,10 @@ def registrar_equipo(request):
     return render(request, 'equipo/registrar_equipo.html', {'form': form, 'campeonato': campeonato})
 
 def listar_equipos(request):
-    equipos = Equipo.objects.all().order_by('-puntos_totales')
+    equipos = list(Equipo.objects.all())
+    equipos.sort(key=lambda e: e.puntos_totales or 0, reverse=True)
     return render(request, 'equipo/listar_equipos.html', {'equipos': equipos})
+
 
 def detalle_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
@@ -408,3 +447,16 @@ def eliminar_transmision(request, id):
     return render(request, 'transmision/eliminar_transmision.html', {
         'transmision': transmision
     })
+
+@login_required
+@user_passes_test(es_admin)
+def crear_usuario_admin(request):
+    if request.method == 'POST':
+        form = CrearUsuarioAdminForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Usuario creado correctamente.')
+            return redirect('admin_dashboard')
+    else:
+        form = CrearUsuarioAdminForm()
+    return render(request, 'admin_panel/registro_usuario.html', {'form': form})

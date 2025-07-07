@@ -1,0 +1,63 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Editar Árbitro - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-12-mobile is-8-tablet is-6-desktop">
+
+        <div class="box" style="border-radius: 18px; background-color: #fffdf9; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
+          <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">📝 Editar Árbitro</h2>
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="columns is-multiline">
+              {% for field in form %}
+                <div class="column is-12-mobile is-6-tablet">
+                  <div class="field">
+                    <label class="label has-text-grey-dark">{{ field.label }}</label>
+                    <div class="control">
+                      {% if field|widget_type == 'textarea' %}
+                        {{ field|add_class:"textarea is-rounded is-light" }}
+                      {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
+                        <div class="select is-fullwidth is-rounded is-light">
+                          {{ field }}
+                        </div>
+                      {% else %}
+                        {{ field|add_class:"input is-rounded is-medium is-light" }}
+                      {% endif %}
+                    </div>
+                    {% for error in field.errors %}
+                      <p class="help is-danger">{{ error }}</p>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <div class="field mt-4">
+              <div class="control">
+                <button type="submit" class="button is-link is-fullwidth is-rounded is-medium">
+                  <strong>Actualizar</strong>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="has-text-centered mt-4">
+            <a href="{% url 'listar_arbitros' %}" class="button is-warning is-light is-rounded">
+              ← Volver al listado
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

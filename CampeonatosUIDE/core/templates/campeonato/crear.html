@@ -1,0 +1,69 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Crear Campeonato - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box" style="border-radius: 20px; background-color: #fffaf2; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        🏆 Crear nuevo campeonato
+      </h2>
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="columns is-multiline">
+          {% for field in form %}
+            <div class="column is-12-mobile is-6-tablet">
+              <div class="field">
+                <label class="label has-text-grey-dark">{{ field.label }}</label>
+                <div class="control">
+
+                  {% if field.name == "dias_partido" %}
+                    <div class="tags are-medium">
+                      {% for checkbox in field %}
+                        <label class="tag is-rounded" style="background-color: #d8d6ff; color: #3a3a58; margin: 0.25rem;">
+                          {{ checkbox.tag }} {{ checkbox.choice_label }}
+                        </label>
+                      {% endfor %}
+                    </div>
+                  {% elif field|widget_type == 'fileinput' %}
+                    {{ field|add_class:"file-input has-background-white-ter" }}
+                  {% elif field|widget_type == 'textarea' %}
+                    {{ field|add_class:"textarea is-rounded has-background-link-light" }}
+                  {% else %}
+                    {{ field|add_class:"input is-rounded has-background-link-light" }}
+                  {% endif %}
+
+                </div>
+                {% for error in field.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
+              <strong>🌟 Guardar Campeonato</strong>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="has-text-centered mt-5">
+        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
+          ← Volver al listado
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
