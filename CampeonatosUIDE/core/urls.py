@@ -22,6 +22,9 @@ urlpatterns = [
 
     path('deportes/', views.listar_deportes, name='listar_deportes'),  
     path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
+    path('tipos-campeonato/<int:id>/editar/', editar_tipo_campeonato, name='editar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/eliminar/', eliminar_tipo_campeonato, name='eliminar_tipo_campeonato'),
+
 
 
     # Autenticación
@@ -95,5 +98,13 @@ urlpatterns = [
 
     path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
     path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
+    path('deportes/<int:id>/editar/', editar_deporte, name='editar_deporte'),
+    path('deportes/<int:id>/eliminar/', eliminar_deporte, name='eliminar_deporte'),
+
+    # codigo qr
+    path('qrs/', listar_codigos_qr, name='listar_codigos_qr'),
+    path('qrs/registrar/', registrar_codigo_qr, name='registrar_codigo_qr'),
+    path('qrs/<int:id>/editar/', editar_codigo_qr, name='editar_codigo_qr'),
+    path('qrs/<int:id>/eliminar/', eliminar_codigo_qr, name='eliminar_codigo_qr'),
 
 ]

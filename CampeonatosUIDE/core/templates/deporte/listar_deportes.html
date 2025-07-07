@@ -18,12 +18,25 @@
         {% endif %}
       </div>
 
+      <!-- Barra de búsqueda -->
+      <div class="field mb-4">
+        <div class="control has-icons-left">
+          <input class="input" type="text" placeholder="Buscar por nombre..." id="busquedaInput">
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+
       {% if deportes %}
-        <table class="table is-fullwidth is-hoverable is-striped">
+        <table class="table is-fullwidth is-hoverable is-striped" id="tablaDeportes">
           <thead>
             <tr class="has-background-warning-light">
               <th>Nombre</th>
               <th>Descripción</th>
+              {% if user.rol == "ADMIN" %}
+              <th class="has-text-centered">Acciones</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>
@@ -31,6 +44,12 @@
               <tr>
                 <td>{{ deporte.nombre }}</td>
                 <td>{{ deporte.descripcion|default:"Sin descripción" }}</td>
+                {% if user.rol == "ADMIN" %}
+                <td class="has-text-centered">
+                  <a href="{% url 'editar_deporte' deporte.id %}" class="button is-small is-info is-light">✏️ Editar</a>
+                  <a href="{% url 'eliminar_deporte' deporte.id %}" class="button is-small is-danger is-light" onclick="return confirm('¿Estás seguro de eliminar este deporte?')">🗑️ Eliminar</a>
+                </td>
+                {% endif %}
               </tr>
             {% endfor %}
           </tbody>
@@ -44,4 +63,17 @@
 
   </div>
 </section>
+
+<!-- Script para búsqueda -->
+<script>
+  document.getElementById("busquedaInput").addEventListener("keyup", function() {
+    const filtro = this.value.toLowerCase();
+    const filas = document.querySelectorAll("#tablaDeportes tbody tr");
+
+    filas.forEach(fila => {
+      const texto = fila.textContent.toLowerCase();
+      fila.style.display = texto.includes(filtro) ? "" : "none";
+    });
+  });
+</script>
 {% endblock %}

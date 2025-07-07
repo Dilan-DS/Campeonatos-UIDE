@@ -1,0 +1,25 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Tipo de Campeonato - UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box has-text-centered" style="max-width: 500px; margin: auto; background-color: #fff0f0; border-radius: 20px; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      
+      <h2 class="title is-4 has-text-danger mb-4">¿Estás seguro que deseas eliminar este tipo de campeonato?</h2>
+      <p class="mb-5"><strong>{{ tipo.nombre }}</strong></p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="buttons is-centered">
+          <button type="submit" class="button is-danger is-rounded px-5">Sí, eliminar</button>
+          <a href="{% url 'listar_tipos_campeonato' %}" class="button is-light is-rounded px-5">Cancelar</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

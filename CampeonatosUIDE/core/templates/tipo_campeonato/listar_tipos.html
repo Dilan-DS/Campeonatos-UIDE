@@ -7,27 +7,42 @@
 <section class="section">
   <div class="container">
     <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-      
+
       <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-        <h2 class="title is-3 has-text-danger">📘 Tipos de Campeonato</h2>
-        <a href="{% url 'registrar_tipo_campeonato' %}" class="button is-warning is-rounded">
+        <h2 class="title is-3 has-text-danger">🧩 Tipos de Campeonato</h2>
+        <a href="{% url 'registrar_tipo_campeonato' %}" class="button is-danger is-rounded">
           <strong>+ Agregar Tipo</strong>
         </a>
       </div>
 
+      <!-- 🧠 Barra de búsqueda -->
+      <div class="field mb-4">
+        <div class="control has-icons-left">
+          <input class="input" type="text" placeholder="Buscar por nombre..." id="busquedaInput">
+          <span class="icon is-small is-left">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+
       {% if tipos %}
-        <table class="table is-fullwidth is-hoverable is-striped">
+        <table class="table is-fullwidth is-striped is-hoverable" id="tablaTipos">
           <thead>
-            <tr class="has-background-warning-light">
+            <tr class="has-background-danger-light">
               <th>Nombre</th>
               <th>Descripción</th>
+              <th class="has-text-centered">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for tipo in tipos %}
               <tr>
                 <td>{{ tipo.nombre }}</td>
-                <td>{{ tipo.descripcion|default:"Sin descripción" }}</td>
+                <td>{{ tipo.descripcion|default:"—" }}</td>
+                <td class="has-text-centered">
+                  <a href="{% url 'editar_tipo_campeonato' tipo.id %}" class="button is-small is-warning is-light">✏️ Editar</a>
+                  <a href="{% url 'eliminar_tipo_campeonato' tipo.id %}" class="button is-small is-danger is-light" onclick="return confirm('¿Estás seguro que deseas eliminar este tipo?')">🗑️ Eliminar</a>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -37,8 +52,21 @@
           No hay tipos de campeonato registrados todavía.
         </div>
       {% endif %}
-
     </div>
   </div>
 </section>
+
+<!-- 🔍 Script de búsqueda -->
+<script>
+  document.getElementById("busquedaInput").addEventListener("keyup", function() {
+    const filtro = this.value.toLowerCase();
+    const filas = document.querySelectorAll("#tablaTipos tbody tr");
+
+    filas.forEach(fila => {
+      const texto = fila.textContent.toLowerCase();
+      fila.style.display = texto.includes(filtro) ? "" : "none";
+    });
+  });
+</script>
+
 {% endblock %}

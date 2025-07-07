@@ -1,0 +1,38 @@
+{% extends 'comun/base.html' %}
+{% block title %}Registrar Código QR - UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box" style="max-width: 600px; margin: auto; border-radius: 16px; background-color: #fffef8; padding: 2rem;">
+      <h2 class="title is-3 has-text-danger has-text-centered">🖼 Registrar Código QR</h2>
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="field">
+          <label class="label">Banco</label>
+          <div class="control">
+            {{ form.banco }}
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Imagen QR</label>
+          <div class="control">
+            {{ form.imagen_qr }}
+          </div>
+        </div>
+
+        <div class="field is-grouped is-grouped-centered mt-4">
+          <div class="control">
+            <button type="submit" class="button is-danger is-rounded">Guardar</button>
+          </div>
+          <div class="control">
+            <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">Cancelar</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

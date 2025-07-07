@@ -1,0 +1,52 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Editar Tipo de Campeonato - UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box" style="max-width: 640px; margin: auto; border-radius: 20px; background-color: #fffef8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.07);">
+
+      <h2 class="title is-3 has-text-centered has-text-warning mb-5">✏️ Editar Tipo de Campeonato</h2>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="field">
+          <label class="label has-text-grey-dark">Nombre</label>
+          <div class="control has-icons-left">
+            {{ form.nombre }}
+            <span class="icon is-small is-left">
+              <i class="fas fa-trophy"></i>
+            </span>
+          </div>
+          {% if form.nombre.errors %}
+            <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="field">
+          <label class="label has-text-grey-dark">Descripción</label>
+          <div class="control">
+            {{ form.descripcion }}
+          </div>
+          {% if form.descripcion.errors %}
+            <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="field is-grouped is-grouped-centered mt-5">
+          <div class="control">
+            <button type="submit" class="button is-warning is-rounded px-5">💾 Actualizar</button>
+          </div>
+          <div class="control">
+            <a href="{% url 'listar_tipos_campeonato' %}" class="button is-light is-rounded px-5">Cancelar</a>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

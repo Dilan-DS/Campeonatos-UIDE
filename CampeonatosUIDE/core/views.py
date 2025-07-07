@@ -22,6 +22,97 @@ def es_delegado(user):
 
 def es_jugador(user):
     return user.rol == 'JUGADOR'
+
+@login_required
+@user_passes_test(es_admin)
+def listar_codigos_qr(request):
+    codigos = CodigoQR.objects.all()
+    return render(request, 'codigoqr/listar.html', {'codigos': codigos})
+
+@login_required
+@user_passes_test(es_admin)
+def registrar_codigo_qr(request):
+    if request.method == 'POST':
+        form = CodigoQRForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Código QR registrado con éxito.')
+            return redirect('listar_codigos_qr')
+    else:
+        form = CodigoQRForm()
+    return render(request, 'codigoqr/registrar.html', {'form': form})
+
+@login_required
+@user_passes_test(es_admin)
+def editar_codigo_qr(request, id):
+    qr = get_object_or_404(CodigoQR, id=id)
+    if request.method == 'POST':
+        form = CodigoQRForm(request.POST, request.FILES, instance=qr)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Código QR actualizado.')
+            return redirect('listar_codigos_qr')
+    else:
+        form = CodigoQRForm(instance=qr)
+    return render(request, 'codigoqr/editar.html', {'form': form, 'codigo': qr})
+
+@login_required
+@user_passes_test(es_admin)
+def eliminar_codigo_qr(request, id):
+    qr = get_object_or_404(CodigoQR, id=id)
+    if request.method == 'POST':
+        qr.delete()
+        messages.success(request, 'Código QR eliminado.')
+        return redirect('listar_codigos_qr')
+    return render(request, 'codigoqr/eliminar.html', {'codigo': qr})
+
+@login_required
+@user_passes_test(es_admin)
+def eliminar_tipo_campeonato(request, id):
+    tipo = get_object_or_404(TipoCampeonato, id=id)
+    if request.method == 'POST':
+        tipo.delete()
+        messages.success(request, 'Tipo de campeonato eliminado correctamente.')
+        return redirect('listar_tipos_campeonato')
+    
+    return render(request, 'tipo_campeonato/eliminar_tipo_campeonato.html', {'tipo': tipo})
+
+@login_required
+@user_passes_test(es_admin)
+def editar_tipo_campeonato(request, id):
+    tipo = get_object_or_404(TipoCampeonato, id=id)
+    if request.method == 'POST':
+        form = TipoCampeonatoForm(request.POST, instance=tipo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Tipo de campeonato actualizado correctamente.')
+            return redirect('listar_tipos_campeonato')
+    else:
+        form = TipoCampeonatoForm(instance=tipo)
+    
+    return render(request, 'tipo_campeonato/editar_tipo_campeonato.html', {'form': form, 'tipo': tipo})
+
+@login_required
+@user_passes_test(es_admin)
+def editar_deporte(request, id):
+    deporte = get_object_or_404(Deporte, id=id)
+    form = DeporteForm(request.POST or None, instance=deporte)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Deporte actualizado correctamente.")
+        return redirect('listar_deportes')
+    return render(request, 'deporte/editar_deporte.html', {'form': form})
+
+@login_required
+@user_passes_test(es_admin)
+def eliminar_deporte(request, id):
+    deporte = get_object_or_404(Deporte, id=id)
+    if request.method == 'POST':
+        deporte.delete()
+        messages.success(request, "Deporte eliminado correctamente.")
+        return redirect('listar_deportes')
+    return render(request, 'deporte/eliminar_deporte.html', {'deporte': deporte})
+
 # ========================
 # GESTIÓN DE DEPORTES Y TIPOS DE CAMPEONATO (solo admin)
 # ========================
