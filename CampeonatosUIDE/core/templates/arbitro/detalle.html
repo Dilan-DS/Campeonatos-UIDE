@@ -1,41 +1,70 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base con estructura común como <head>, menú, footer, etc. -->
+
 {% load static %}
+<!-- Carga los archivos estáticos (CSS, JS, imágenes, etc.) -->
 
 {% block title %}Detalle del Árbitro - Campeonatos UIDE{% endblock %}
+<!-- Título que se muestra en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido que se insertará en la plantilla base -->
+
 <section class="section">
+  <!-- Sección principal con padding (Bulma) -->
   <div class="container">
+    <!-- Contenedor central con márgenes automáticos -->
     <div class="columns is-centered">
+      <!-- Centra horizontalmente el contenido en columnas -->
       <div class="column is-12-mobile is-10-tablet is-8-desktop">
+        <!-- Define el ancho responsivo de la columna en diferentes dispositivos -->
 
         <div class="box" style="border-radius: 16px; background-color: #fffdf7; padding: 2.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);">
-          <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">🧑‍⚖️ Detalle del Árbitro</h2>
+          <!-- Caja con bordes redondeados, color claro y sombra suave -->
+          <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+            <!-- Título centrado, tamaño grande, con margen inferior y color personalizado -->
+            🧑‍⚖️ Detalle del Árbitro
+          </h2>
 
           <div class="content is-size-5">
+            <!-- Contenedor de contenido con fuente más grande -->
             <p><strong class="has-text-link">👤 Nombre:</strong> {{ arbitro.nombre }} {{ arbitro.apellido }}</p>
+            <!-- Muestra nombre y apellido del árbitro -->
 
             <p><strong class="has-text-link">🏅 Deportes:</strong>
+              <!-- Título para la lista de deportes -->
               {% for deporte in arbitro.deportes.all %}
+                <!-- Recorre todos los deportes relacionados al árbitro -->
                 <span class="tag is-rounded is-info is-light mb-1">{{ deporte.nombre }}</span>
+                <!-- Muestra cada deporte como una etiqueta azul clara -->
               {% empty %}
+                <!-- Si el árbitro no tiene deportes asignados -->
                 <span class="tag is-light">No asignado</span>
               {% endfor %}
             </p>
 
             <p><strong class="has-text-link">📜 Experiencia:</strong> {{ arbitro.experiencia }}</p>
+            <!-- Muestra los años o descripción de experiencia -->
+
             <p><strong class="has-text-link">📞 Contacto:</strong> {{ arbitro.contacto }}</p>
+            <!-- Muestra el número o medio de contacto -->
+
             <p><strong class="has-text-link">📶 Estado:</strong>
+              <!-- Estado activo o inactivo -->
               {% if arbitro.estado %}
+                <!-- Si el árbitro está activo -->
                 <span class="tag is-success is-light is-medium">Activo</span>
               {% else %}
+                <!-- Si está inactivo -->
                 <span class="tag is-danger is-light is-medium">Inactivo</span>
               {% endif %}
             </p>
           </div>
 
           <div class="has-text-centered mt-5">
+            <!-- Botón centrado con margen arriba -->
             <a href="{% url 'listar_arbitros' %}" class="button is-warning is-light is-rounded">
+              <!-- Botón para volver al listado de árbitros, con estilo amarillo claro y redondeado -->
               ← Volver al listado
             </a>
           </div>
@@ -46,3 +75,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

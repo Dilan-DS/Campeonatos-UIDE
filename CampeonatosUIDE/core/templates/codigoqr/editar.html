@@ -1,34 +1,63 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base del sistema, que incluye cabecera, estilos y estructura general -->
+
 {% block title %}Editar Código QR - UIDE{% endblock %}
+<!-- Define el título que aparecerá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido de la página -->
+
 <section class="section">
+  <!-- Sección principal con espaciado vertical -->
   <div class="container">
+    <!-- Contenedor centrado -->
+
     <div class="box" style="max-width: 600px; margin: auto; border-radius: 16px; background-color: #fffef8; padding: 2rem;">
-      <h2 class="title is-3 has-text-centered has-text-warning">✏️ Editar Código QR</h2>
+      <!-- Caja visual con ancho máximo, centrada, bordes redondeados, fondo claro y padding interno -->
+
+      <h2 class="title is-3 has-text-centered has-text-warning">
+        <!-- Título principal, tamaño grande, centrado y color amarillo -->
+        ✏️ Editar Código QR
+      </h2>
 
       <form method="POST" enctype="multipart/form-data">
+        <!-- Formulario que usa POST y permite envío de archivos (imagen QR) -->
         {% csrf_token %}
+        <!-- Token de seguridad CSRF para prevenir ataques de falsificación -->
+
         <div class="field">
+          <!-- Campo del formulario -->
           <label class="label">Banco</label>
+          <!-- Etiqueta del campo 'banco' -->
           <div class="control">
             {{ form.banco }}
+            <!-- Renderiza el widget del formulario para el banco -->
           </div>
         </div>
 
         <div class="field">
+          <!-- Campo del formulario -->
           <label class="label">Imagen QR</label>
+          <!-- Etiqueta para subir imagen del código QR -->
           <div class="control">
             {{ form.imagen_qr }}
+            <!-- Renderiza el widget de carga de imagen QR -->
           </div>
         </div>
 
         <div class="field is-grouped is-grouped-centered mt-4">
+          <!-- Grupo de botones centrado con margen superior -->
           <div class="control">
-            <button type="submit" class="button is-warning is-rounded">Actualizar</button>
+            <button type="submit" class="button is-warning is-rounded">
+              <!-- Botón amarillo redondeado para enviar el formulario -->
+              Actualizar
+            </button>
           </div>
           <div class="control">
-            <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">Cancelar</a>
+            <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">
+              <!-- Botón claro y redondeado que redirige al listado de códigos QR -->
+              Cancelar
+            </a>
           </div>
         </div>
       </form>
@@ -36,3 +65,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

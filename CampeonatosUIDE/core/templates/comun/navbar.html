@@ -1,11 +1,19 @@
 {% load static %}
+<!-- Carga archivos estáticos como imágenes o estilos -->
+
 <nav class="navbar has-background-danger" role="navigation" aria-label="main navigation">
+  <!-- Barra de navegación con fondo rojo -->
+
   <div class="navbar-brand">
+    <!-- Sección izquierda del navbar (marca y hamburguesa) -->
+
     <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">
+      <!-- Nombre/logo del sistema que redirige al inicio -->
       🏆 Campeonatos UIDE
     </a>
 
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
+      <!-- Botón hamburguesa para activar menú en móviles -->
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -13,13 +21,21 @@
   </div>
 
   <div id="menuPrincipal" class="navbar-menu">
+    <!-- Contenedor del menú desplegable -->
+
     <div class="navbar-start">
-      <!-- Todos pueden ver los campeonatos públicos -->
-      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">Campeonatos</a>
+      <!-- Menú del lado izquierdo -->
+
+      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">
+        <!-- Enlace accesible para todos: campeonatos públicos -->
+        Campeonatos
+      </a>
 
       {% if request.user.is_authenticated %}
+        <!-- Solo si el usuario ha iniciado sesión -->
+
         {% if request.user.rol == "ADMIN" %}
-          <!-- Admin: acceso total -->
+          <!-- Opciones solo para el administrador -->
           <a class="navbar-item has-text-white" href="{% url 'admin_dashboard' %}">Dashboard Admin</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_campeonatos' %}">Gestión Campeonatos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Equipos</a>
@@ -28,18 +44,19 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
 
         {% elif request.user.rol == "DELEGADO" %}
-          <!-- Delegado: gestión de su equipo -->
+          <!-- Opciones solo para delegados -->
           <a class="navbar-item has-text-white" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
           <a class="navbar-item has-text-white" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Mis Equipos</a>
 
         {% elif request.user.rol == "JUGADOR" %}
-          <!-- Jugador: sus datos -->
+          <!-- Opciones solo para jugadores -->
           <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
 
-          {# ⚠️ IMPORTANTE: debes asegurar que estas variables estén disponibles en el contexto si usas ID dinámico #}
+          {# Importante: debes asegurarte que request.user.jugador esté disponible en el contexto #}
           {% with request.user.jugador as jugador %}
             {% if jugador %}
+              <!-- Muestra estadísticas y tabla si el jugador tiene datos relacionados -->
               <a class="navbar-item has-text-white" href="{% url 'ver_estadisticas_jugador' jugador.id %}">Mis Estadísticas</a>
               <a class="navbar-item has-text-white" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">Mi Tabla</a>
             {% endif %}
@@ -48,27 +65,31 @@
       {% endif %}
     </div>
 
-    <!-- Perfil / login logout -->
+    <!-- Área derecha del navbar: perfil, login/logout -->
     <div class="navbar-end">
       <div class="navbar-item">
         <div class="buttons">
+
           {% if request.user.is_authenticated %}
+            <!-- Si está autenticado, muestra su nombre y opciones -->
             <span class="has-text-white mr-3">
               Hola, {{ request.user.first_name|default:request.user.username }} ({{ request.user.get_rol_display }})
             </span>
             <a class="button is-info" href="{% url 'perfil_usuario' %}">Perfil</a>
             <a class="button is-warning" href="{% url 'logout' %}">Cerrar sesión</a>
           {% else %}
+            <!-- Si no está logueado, muestra botones de registro y login -->
             <a class="button is-warning" href="{% url 'registro' %}"><strong>Registrarse</strong></a>
             <a class="button is-light" href="{% url 'login' %}">Iniciar sesión</a>
           {% endif %}
+
         </div>
       </div>
     </div>
   </div>
 </nav>
 
-<!-- Menú responsive hamburguesa -->
+<!-- Script para activar menú hamburguesa en dispositivos móviles -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const burger = document.querySelector('.navbar-burger');
