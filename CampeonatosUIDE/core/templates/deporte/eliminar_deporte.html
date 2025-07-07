@@ -1,0 +1,26 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Deporte - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <div class="box has-background-warning-light" style="max-width: 600px; margin: auto; border-radius: 18px; padding: 2rem;">
+      <h2 class="title is-3 has-text-centered has-text-danger mb-4">🗑️ Eliminar Deporte</h2>
+
+      <p class="has-text-centered mb-4">
+        ¿Estás seguro que deseas eliminar el deporte <strong>{{ deporte.nombre }}</strong>?
+      </p>
+
+      <form method="post" class="has-text-centered">
+        {% csrf_token %}
+        <button type="submit" class="button is-danger is-rounded">Sí, eliminar</button>
+        <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded ml-3">Cancelar</a>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

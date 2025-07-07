@@ -1,0 +1,69 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Códigos QR - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+        <h2 class="title is-3 has-text-danger">🧾 Códigos QR Registrados</h2>
+        <a href="{% url 'registrar_codigo_qr' %}" class="button is-warning is-rounded">
+          <strong>+ Agregar QR</strong>
+        </a>
+      </div>
+
+      <form method="get" class="mb-4">
+        <div class="field has-addons">
+          <div class="control is-expanded">
+            <input class="input" type="text" name="q" value="{{ request.GET.q }}" placeholder="🔍 Buscar por banco o número de cuenta">
+          </div>
+          <div class="control">
+            <button type="submit" class="button is-info">Buscar</button>
+          </div>
+        </div>
+      </form>
+
+      {% if codigos_qr %}
+        <table class="table is-fullwidth is-hoverable is-striped">
+          <thead>
+            <tr class="has-background-warning-light">
+              <th>Banco</th>
+              <th>Número de Cuenta</th>
+              <th>Imagen</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for codigo in codigos_qr %}
+              <tr>
+                <td>{{ codigo.banco }}</td>
+                <td>{{ codigo.numero_cuenta }}</td>
+                <td>
+                  {% if codigo.imagen_qr %}
+                    <img src="{{ codigo.imagen_qr.url }}" width="80" alt="QR Banco">
+                  {% else %}
+                    <em>Sin imagen</em>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'editar_codigo_qr' codigo.id %}" class="button is-small is-info is-light">✏️ Editar</a>
+                  <a href="{% url 'eliminar_codigo_qr' codigo.id %}" class="button is-small is-danger is-light"
+                     onclick="return confirm('¿Estás seguro de eliminar este código QR?');">🗑️ Eliminar</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="notification is-warning is-light has-text-centered">
+          No hay códigos QR registrados todavía.
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}

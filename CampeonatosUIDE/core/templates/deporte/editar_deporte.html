@@ -1,0 +1,49 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Editar Deporte - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <div class="box" style="max-width: 600px; margin: auto; border-radius: 18px; background-color: #fffef8; padding: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      <h2 class="title is-3 has-text-centered has-text-danger mb-5">✏️ Editar Deporte</h2>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="field">
+          <label class="label">Nombre</label>
+          <div class="control">
+            {{ form.nombre|add_class:"input" }}
+          </div>
+          {% if form.nombre.errors %}
+            <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="field">
+          <label class="label">Descripción</label>
+          <div class="control">
+            {{ form.descripcion|add_class:"textarea" }}
+          </div>
+          {% if form.descripcion.errors %}
+            <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="field is-grouped is-grouped-centered mt-5">
+          <div class="control">
+            <button type="submit" class="button is-danger is-rounded">Guardar cambios</button>
+          </div>
+          <div class="control">
+            <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded">Cancelar</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'comun/base.html' %}
+{% block title %}Eliminar Código QR - UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box has-text-centered" style="max-width: 600px; margin: auto; background-color: #fff5f5; padding: 2rem; border-radius: 16px;">
+      <h2 class="title is-3 has-text-danger">⚠️ Eliminar Código QR</h2>
+      <p class="mb-4">¿Estás seguro que deseas eliminar el QR del banco <strong>{{ codigo.banco }}</strong>?</p>
+
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="button is-danger is-rounded mr-2">Sí, eliminar</button>
+        <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">Cancelar</a>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
