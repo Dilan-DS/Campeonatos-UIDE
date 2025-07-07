@@ -1,0 +1,44 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Tipos de Campeonato - UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      
+      <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+        <h2 class="title is-3 has-text-danger">📘 Tipos de Campeonato</h2>
+        <a href="{% url 'registrar_tipo_campeonato' %}" class="button is-warning is-rounded">
+          <strong>+ Agregar Tipo</strong>
+        </a>
+      </div>
+
+      {% if tipos %}
+        <table class="table is-fullwidth is-hoverable is-striped">
+          <thead>
+            <tr class="has-background-warning-light">
+              <th>Nombre</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tipo in tipos %}
+              <tr>
+                <td>{{ tipo.nombre }}</td>
+                <td>{{ tipo.descripcion|default:"Sin descripción" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="notification is-warning is-light has-text-centered">
+          No hay tipos de campeonato registrados todavía.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+{% endblock %}

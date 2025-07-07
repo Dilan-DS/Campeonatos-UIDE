@@ -1,0 +1,48 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Detalle del Árbitro - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-12-mobile is-10-tablet is-8-desktop">
+
+        <div class="box" style="border-radius: 16px; background-color: #fffdf7; padding: 2.5rem; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);">
+          <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">🧑‍⚖️ Detalle del Árbitro</h2>
+
+          <div class="content is-size-5">
+            <p><strong class="has-text-link">👤 Nombre:</strong> {{ arbitro.nombre }} {{ arbitro.apellido }}</p>
+
+            <p><strong class="has-text-link">🏅 Deportes:</strong>
+              {% for deporte in arbitro.deportes.all %}
+                <span class="tag is-rounded is-info is-light mb-1">{{ deporte.nombre }}</span>
+              {% empty %}
+                <span class="tag is-light">No asignado</span>
+              {% endfor %}
+            </p>
+
+            <p><strong class="has-text-link">📜 Experiencia:</strong> {{ arbitro.experiencia }}</p>
+            <p><strong class="has-text-link">📞 Contacto:</strong> {{ arbitro.contacto }}</p>
+            <p><strong class="has-text-link">📶 Estado:</strong>
+              {% if arbitro.estado %}
+                <span class="tag is-success is-light is-medium">Activo</span>
+              {% else %}
+                <span class="tag is-danger is-light is-medium">Inactivo</span>
+              {% endif %}
+            </p>
+          </div>
+
+          <div class="has-text-centered mt-5">
+            <a href="{% url 'listar_arbitros' %}" class="button is-warning is-light is-rounded">
+              ← Volver al listado
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

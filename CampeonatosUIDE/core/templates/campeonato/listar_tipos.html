@@ -1,0 +1,15 @@
+{% extends "comun/base.html" %}
+{% block title %}Tipos de Campeonato{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">Tipos de Campeonato</h1>
+    <ul>
+      {% for tipo in tipos %}
+        <li>{{ tipo.nombre }} - {{ tipo.descripcion }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}
