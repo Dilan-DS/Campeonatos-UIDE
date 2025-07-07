@@ -1,47 +1,82 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base general del sitio web -->
+
 {% load static %}
+<!-- Carga archivos estáticos (CSS, imágenes, JS) -->
+
 {% load widget_tweaks %}
+<!-- Permite modificar los campos del formulario con filtros como add_class -->
 
 {% block title %}Crear Campeonato - Campeonatos UIDE{% endblock %}
+<!-- Título que aparecerá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido -->
+
 <section class="section">
+  <!-- Sección con margen vertical -->
   <div class="container">
+    <!-- Contenedor general centrado -->
     <div class="box" style="border-radius: 20px; background-color: #fffaf2; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
+      <!-- Caja clara con bordes redondeados, sombra suave y padding -->
 
       <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        <!-- Título grande, centrado y con color personalizado -->
         🏆 Crear nuevo campeonato
       </h2>
 
       <form method="POST" enctype="multipart/form-data">
+        <!-- Formulario con método POST y soporte para archivos -->
         {% csrf_token %}
+        <!-- Token de seguridad CSRF para evitar ataques -->
 
         <div class="columns is-multiline">
+          <!-- Rejilla de campos (responsive en varias líneas) -->
           {% for field in form %}
+            <!-- Itera por cada campo del formulario -->
             <div class="column is-12-mobile is-6-tablet">
+              <!-- Cada campo ocupa toda la fila en móvil, y media en tablet -->
               <div class="field">
+                <!-- Contenedor de un campo -->
                 <label class="label has-text-grey-dark">{{ field.label }}</label>
+                <!-- Muestra la etiqueta del campo -->
+
                 <div class="control">
+                  <!-- Contenedor del input o widget -->
 
                   {% if field.name == "dias_partido" %}
+                    <!-- Si el campo se llama 'dias_partido', renderiza los checkboxes -->
                     <div class="tags are-medium">
+                      <!-- Agrupa los checkboxes como etiquetas visuales -->
                       {% for checkbox in field %}
+                        <!-- Itera por cada checkbox del campo -->
                         <label class="tag is-rounded" style="background-color: #d8d6ff; color: #3a3a58; margin: 0.25rem;">
                           {{ checkbox.tag }} {{ checkbox.choice_label }}
+                          <!-- Renderiza el input y su nombre -->
                         </label>
                       {% endfor %}
                     </div>
-                  {% elif field|widget_type == 'fileinput' %}
-                    {{ field|add_class:"file-input has-background-white-ter" }}
-                  {% elif field|widget_type == 'textarea' %}
-                    {{ field|add_class:"textarea is-rounded has-background-link-light" }}
-                  {% else %}
-                    {{ field|add_class:"input is-rounded has-background-link-light" }}
-                  {% endif %}
 
+                  {% elif field|widget_type == 'fileinput' %}
+                    <!-- Si es un campo de subida de archivos -->
+                    {{ field|add_class:"file-input has-background-white-ter" }}
+                    <!-- Aplica clase para estilo de input tipo archivo -->
+
+                  {% elif field|widget_type == 'textarea' %}
+                    <!-- Si es un textarea (campo de texto largo) -->
+                    {{ field|add_class:"textarea is-rounded has-background-link-light" }}
+                    <!-- Aplica clases Bulma para textarea -->
+
+                  {% else %}
+                    <!-- Para todos los demás tipos de campo -->
+                    {{ field|add_class:"input is-rounded has-background-link-light" }}
+                    <!-- Aplica clases de estilo al input -->
+                  {% endif %}
                 </div>
+
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
+                  <!-- Muestra mensajes de error si el campo tiene errores -->
                 {% endfor %}
               </div>
             </div>
@@ -49,16 +84,21 @@
         </div>
 
         <div class="field mt-5">
+          <!-- Botón de envío del formulario con margen superior -->
           <div class="control">
             <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
+              <!-- Botón amarillo, redondeado, de tamaño medio y ancho completo -->
               <strong>🌟 Guardar Campeonato</strong>
+              <!-- Texto del botón en negrita -->
             </button>
           </div>
         </div>
       </form>
 
       <div class="has-text-centered mt-5">
+        <!-- Sección final con botón para regresar -->
         <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
+          <!-- Botón claro y redondeado que redirige al listado de campeonatos -->
           ← Volver al listado
         </a>
       </div>
@@ -67,3 +107,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

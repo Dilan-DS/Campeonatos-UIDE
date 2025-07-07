@@ -1,36 +1,70 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la estructura base del sitio, incluyendo cabecera, navbar, etc. -->
+
 {% load static %}
+<!-- Permite usar archivos estáticos como imágenes o CSS -->
 
 {% block title %}Detalle del Campeonato - Campeonatos UIDE{% endblock %}
+<!-- Define el título que aparecerá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque de contenido principal de la página -->
+
 <section class="section">
+  <!-- Sección visual con espaciado vertical -->
   <div class="container">
+    <!-- Contenedor central para ajustar márgenes -->
+
     <div class="box" style="border-radius: 16px; background-color: #fff8f5; padding: 2.5rem;">
-      
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">{{ campeonato.nombre }}</h2>
+      <!-- Caja con fondo suave, bordes redondeados y buen padding -->
+
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        <!-- Título principal del campeonato con estilo personalizado -->
+        {{ campeonato.nombre }}
+      </h2>
 
       <div class="content is-medium">
+        <!-- Contenedor del detalle con tamaño de fuente mediano -->
+
         <p><strong>🏅 Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
+        <!-- Muestra el nombre del deporte asociado al campeonato -->
+
         <p><strong>📖 Descripción:</strong> {{ campeonato.descripcion }}</p>
+        <!-- Descripción del campeonato -->
+
         <p><strong>📅 Fechas:</strong> {{ campeonato.fecha_inicio }} a {{ campeonato.fecha_fin }}</p>
+        <!-- Muestra fecha de inicio y fin del campeonato -->
+
         <p><strong>📌 Estado:</strong> 
+          <!-- Muestra el estado del campeonato con una etiqueta visual -->
           <span class="tag is-medium {% if campeonato.estado == 'activo' %}is-success{% else %}is-danger{% endif %}">
             {{ campeonato.estado|capfirst }}
+            <!-- Capitaliza el estado (por ejemplo: "Activo" o "Inactivo") -->
           </span>
         </p>
+
         <p><strong>📆 Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
+        <!-- Muestra los días seleccionados como lista separada por comas -->
+
         <p><strong>👤 Delegado:</strong> {{ campeonato.delegado.username if campeonato.delegado }}</p>
+        <!-- Muestra el nombre de usuario del delegado (si tiene asignado uno) -->
+
         <p><strong>💲 Precio de inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
+        <!-- Muestra el costo de inscripción -->
 
         {% if campeonato.reglamento %}
+          <!-- Si se ha subido un archivo PDF de reglamento -->
           <p><strong>📄 Reglamento:</strong> 
-            <a href="{{ campeonato.reglamento.url }}" target="_blank" class="has-text-link">Ver archivo PDF</a>
+            <a href="{{ campeonato.reglamento.url }}" target="_blank" class="has-text-link">
+              Ver archivo PDF
+              <!-- Enlace para abrir el reglamento en otra pestaña -->
+            </a>
           </p>
         {% endif %}
       </div>
 
       <div class="has-text-centered mt-5">
+        <!-- Botón centrado para volver al listado -->
         <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
           ← Volver al listado
         </a>
@@ -40,3 +74,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

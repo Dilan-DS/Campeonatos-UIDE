@@ -5,47 +5,71 @@
 {% block title %}Iniciar sesión - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- Sección principal de inicio de sesión -->
 <section class="section">
+  <!-- Contenedor para centrar el formulario -->
   <div class="container">
+    <!-- División para centrar el formulario -->
     <div class="columns is-centered">
+      <!-- Columna para el formulario de inicio de sesión -->
       <div class="column is-5">
-
+        <!-- Caja con sombra y bordes redondeados para el formulario -->
         <div class="box has-shadow" style="border-radius: 20px; padding: 2.5rem;">
+          <!-- Título del formulario -->
           <h2 class="title is-4 has-text-centered mb-5" style="color: #5a0035;">Iniciar sesión</h2>
 
           {% if messages %}
+          <!-- Si hay mensajes de error, los mostramos en una notificación -->
             <div class="notification is-danger">
+              <!-- Iteramos sobre los mensajes y los mostramos -->
               {% for message in messages %}
+              <!-- Mostramos cada mensaje -->
                 {{ message }}
+              <!-- Fin del mensaje -->
               {% endfor %}
+              <!-- Fin de los mensajes -->
             </div>
+          <!-- Fin de la verificación de mensajes -->
           {% endif %}
-
+          <!-- Formulario de inicio de sesión -->
           <form method="POST">
+            <!-- Token CSRF para seguridad -->
             {% csrf_token %}
+            <!-- Iteramos sobre los campos del formulario -->
 
             {% for field in form %}
+            <!-- Campo del formulario -->
               <div class="field mb-4">
+                <!-- Etiqueta del campo -->
                 <label class="label">{{ field.label }}</label>
+                <!-- Contenedor del campo -->
                 <div class="control">
+                  <!-- Campo de entrada con clase personalizada -->
                   {{ field|add_class:"input is-rounded" }}
+
                 </div>
+                <!-- Si hay errores en el campo, los mostramos -->
                 {% for error in field.errors %}
+                <!-- Mensaje de error -->
                   <p class="help is-danger">{{ error }}</p>
+                
                 {% endfor %}
               </div>
             {% endfor %}
 
             <div class="field">
+              
               <button type="submit" class="button is-link is-fullwidth is-rounded"><strong>Entrar</strong></button>
             </div>
           </form>
 
           <div class="has-text-centered mt-4">
+            <!-- crear una cuenta-->
             <p>
               ¿No tienes una cuenta?
               <a href="{% url 'registro' %}" class="has-text-link has-text-weight-bold">Regístrate aquí</a>
             </p>
+            <!-- recuerar la contraseña-->
             <p class="mt-2">
               <a href="{% url 'password_reset' %}" class="has-text-warning has-text-weight-semibold">¿Olvidaste tu contraseña?</a>
             </p>

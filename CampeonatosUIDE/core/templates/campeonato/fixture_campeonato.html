@@ -1,26 +1,44 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base del sistema que incluye cabecera, navegación, etc. -->
+
 {% load static %}
+<!-- Permite usar archivos estáticos como CSS, JS o imágenes -->
 
 {% block title %}Fixture - {{ campeonato.nombre }}{% endblock %}
+<!-- Define el título de la pestaña en el navegador, incluyendo el nombre del campeonato -->
 
 {% block content %}
+<!-- Inicio del bloque de contenido principal -->
+
 <section class="section">
+  <!-- Sección general con padding vertical -->
   <div class="container">
+    <!-- Contenedor centrado -->
 
     <div class="box" style="background-color: #fdf7f0; border-radius: 18px; padding: 2.5rem;">
+      <!-- Caja visual con fondo claro, bordes redondeados y padding cómodo -->
+
       <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        <!-- Título principal del fixture, centrado y estilizado -->
         📅 Fixture: {{ campeonato.nombre }}
       </h2>
 
       {% if partidos %}
+        <!-- Si hay partidos registrados, se muestra la lista -->
         <div class="content">
+          <!-- Contenedor del contenido con formato limpio -->
           <ul>
+            <!-- Lista de partidos -->
             {% for partido in partidos %}
+              <!-- Itera sobre todos los partidos del campeonato -->
               <li class="box mb-3" style="border-left: 6px solid #b30059; background-color: #fff;">
+                <!-- Cada partido se muestra como caja con borde lateral rosa -->
                 <p class="has-text-weight-semibold">
+                  <!-- Muestra fecha y hora del partido con fuente seminegrita -->
                   🗓️ {{ partido.fecha }} | 🕒 {{ partido.hora }}
                 </p>
                 <p>
+                  <!-- Muestra equipos enfrentados y lugar del partido -->
                   ⚽ {{ partido.equipo_local.nombre }} <strong>vs</strong> {{ partido.equipo_visitante.nombre }}
                   <br>
                   📍 <em>{{ partido.lugar }}</em>
@@ -30,12 +48,14 @@
           </ul>
         </div>
       {% else %}
+        <!-- Si no hay partidos programados -->
         <p class="notification is-warning has-text-centered is-light">
           No hay partidos programados para este campeonato.
         </p>
       {% endif %}
 
       <div class="has-text-centered mt-4">
+        <!-- Botón centrado para volver al listado de campeonatos -->
         <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
           ← Volver al listado de campeonatos
         </a>
@@ -45,3 +65,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

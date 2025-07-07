@@ -1,45 +1,75 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base que contiene la estructura general del sitio -->
+
 {% load static %}
+<!-- Carga los archivos estáticos como CSS o imágenes -->
+
 {% load widget_tweaks %}  {# Asegúrate de tener django-widget-tweaks instalado #}
+<!-- Carga la librería para modificar widgets del formulario con filtros como add_class -->
 
 {% block title %}Editar Campeonato - Campeonatos UIDE{% endblock %}
+<!-- Define el título que aparecerá en la pestaña del navegador -->
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="box" style="background-color: #fff9f4; border-radius: 18px; padding: 2.5rem;">
+<!-- Inicio del bloque de contenido principal de la página -->
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">Editar Campeonato</h2>
+<section class="section">
+  <!-- Sección con espaciado vertical general -->
+  <div class="container">
+    <!-- Contenedor central -->
+
+    <div class="box" style="background-color: #fff9f4; border-radius: 18px; padding: 2.5rem;">
+      <!-- Caja clara con fondo personalizado, bordes redondeados y padding amplio -->
+
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        <!-- Título grande, centrado, con margen inferior y color personalizado -->
+        Editar Campeonato
+      </h2>
 
       <form method="POST" enctype="multipart/form-data">
+        <!-- Formulario para editar el campeonato, permite enviar archivos -->
         {% csrf_token %}
+        <!-- Token CSRF para proteger contra ataques de falsificación de formularios -->
 
         {% for field in form %}
+          <!-- Itera sobre cada campo del formulario -->
           <div class="field mb-4">
+            <!-- Contenedor del campo con margen inferior -->
             <label class="label has-text-weight-semibold">{{ field.label }}</label>
+            <!-- Etiqueta del campo con peso de fuente fuerte -->
             <div class="control">
               {{ field|add_class:"input is-rounded is-medium" }}
+              <!-- Renderiza el campo con clases adicionales usando widget_tweaks -->
             </div>
             {% for error in field.errors %}
               <p class="help is-danger">{{ error }}</p>
+              <!-- Muestra los mensajes de error del campo, si los hay -->
             {% endfor %}
           </div>
         {% endfor %}
 
         <div class="field mt-5">
+          <!-- Campo para el botón, con margen superior -->
           <div class="control">
             <button type="submit" class="button is-warning is-fullwidth is-medium is-rounded">
+              <!-- Botón de envío del formulario, color amarillo, ancho completo y redondeado -->
               <strong>Actualizar</strong>
+              <!-- Texto del botón en negrita -->
             </button>
           </div>
         </div>
       </form>
 
       <div class="has-text-centered mt-4">
-        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">← Volver al listado</a>
+        <!-- Contenedor centrado con botón para regresar -->
+        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
+          <!-- Botón claro y redondeado que redirige al listado de campeonatos -->
+          ← Volver al listado
+        </a>
       </div>
 
     </div>
   </div>
 </section>
 {% endblock %}
+<!-- Cierre del bloque de contenido -->

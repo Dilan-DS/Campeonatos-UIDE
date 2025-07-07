@@ -1,42 +1,81 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base general que contiene la estructura del sitio -->
+
 {% load static %}
+<!-- Carga archivos estáticos como CSS o imágenes si se usan más adelante -->
 
 {% block title %}Listado de Campeonatos - Campeonatos UIDE{% endblock %}
+<!-- Define el título que se verá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido -->
+
 <section class="section">
+  <!-- Sección con espaciado vertical -->
   <div class="container">
+    <!-- Contenedor central para todo el contenido -->
 
     <div class="box" style="background-color: #fdf7f0; border-radius: 18px; padding: 2.5rem;">
+      <!-- Caja visual clara con fondo crema, bordes redondeados y padding -->
+
       <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        <!-- Título grande, centrado, con margen inferior y color personalizado -->
         🏆 Campeonatos Registrados
       </h2>
 
       <div class="has-text-right mb-4">
+        <!-- Botón alineado a la derecha con margen inferior -->
         <a href="{% url 'crear_campeonato' %}" class="button is-link is-rounded is-small">
+          <!-- Botón azul claro, redondeado y pequeño para crear campeonato -->
           ➕ Crear nuevo campeonato
         </a>
       </div>
 
       {% if campeonatos %}
+        <!-- Si existen campeonatos, se listan -->
         <div class="content">
           <ul>
+            <!-- Lista desordenada de campeonatos -->
             {% for campeonato in campeonatos %}
+              <!-- Itera sobre cada campeonato -->
               <li class="box mb-3" style="background-color: #fffbea; border-left: 6px solid #b30059;">
+                <!-- Cada campeonato se muestra en una caja con borde lateral fucsia -->
+
                 <strong>{{ campeonato.nombre }}</strong> — {{ campeonato.deporte.nombre }}
+                <!-- Nombre del campeonato y su deporte -->
+
                 <br>
-                <span class="is-size-7 has-text-grey">Desde {{ campeonato.fecha_inicio }} hasta {{ campeonato.fecha_fin }}</span>
+                <span class="is-size-7 has-text-grey">
+                  <!-- Fecha de inicio y fin del campeonato con estilo gris y tamaño pequeño -->
+                  Desde {{ campeonato.fecha_inicio }} hasta {{ campeonato.fecha_fin }}
+                </span>
+
                 <div class="mt-2">
-                  <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-small is-info is-light is-rounded">👁️ Ver</a>
-                  <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light is-rounded">✏️ Editar</a>
-                  <a href="{% url 'fixture_campeonato' campeonato.id %}" class="button is-small is-danger is-light is-rounded">📅 Fixture</a>
+                  <!-- Botones con acciones para el campeonato -->
+                  <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-small is-info is-light is-rounded">
+                    👁️ Ver
+                  </a>
+                  <!-- Botón para ver detalles del campeonato -->
+
+                  <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light is-rounded">
+                    ✏️ Editar
+                  </a>
+                  <!-- Botón para editar el campeonato -->
+
+                  <a href="{% url 'fixture_campeonato' campeonato.id %}" class="button is-small is-danger is-light is-rounded">
+                    📅 Fixture
+                  </a>
+                  <!-- Botón para ver el fixture del campeonato -->
                 </div>
               </li>
             {% endfor %}
           </ul>
         </div>
       {% else %}
-        <p class="notification is-warning is-light has-text-centered">No hay campeonatos registrados todavía.</p>
+        <!-- Si no hay campeonatos registrados -->
+        <p class="notification is-warning is-light has-text-centered">
+          No hay campeonatos registrados todavía.
+        </p>
       {% endif %}
 
     </div>
@@ -44,3 +83,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->
