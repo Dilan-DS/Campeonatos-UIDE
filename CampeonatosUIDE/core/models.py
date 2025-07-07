@@ -227,51 +227,74 @@ class Equipo(models.Model):
     # Propiedad que indica si el equipo puede participar (pago aprobado)
     @property
     def puede_participar(self):
+        # Verifica si el equipo tiene un pago asociado y si está aprobado
         pago_obj = getattr(self, 'pago', None)
+        # Si no hay pago asociado, no puede participar
         return pago_obj and pago_obj.estado == 'APROBADO'
 
 
     @property
     def goles_totales(self):
+        # Sumar los goles de todos los jugadores del equipo
         from .models import EstadisticaJugadorFutbol
+        # Filtrar las estadísticas de los jugadores que pertenecen a este equipo
         return sum(est.goles for est in EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self))
 
     @property
     def tarjetas_totales(self):
+        # Sumar las tarjetas amarillas y rojas de todos los jugadores del equipo
         from .models import EstadisticaJugadorFutbol
+        # Filtrar las estadísticas de los jugadores que pertenecen a este equipo
         return sum(est.tarjetas_amarillas + est.tarjetas_rojas for est in EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self))
 
     @property
     def puntos_totales(self):
+        # Calcular los puntos totales del equipo según el deporte del campeonato
         deporte = self.campeonato.deporte.nombre.upper()
 
         if deporte == 'FUTBOL':
             # Puntos por partidos ganados o empatados
             partidos_local = self.partidos_locales.filter(estado='FINALIZADO')
+            # Filtrar partidos donde este equipo es local
             partidos_visitante = self.partidos_visitantes.filter(estado='FINALIZADO')
             puntos = 0
 
             for p in partidos_local:
+                # Sumar puntos según el resultado del partido
                 if p.resultado_local > p.resultado_visitante:
+                    # equipo local ganó
                     puntos += 3
+                    # elif p.resultado_local < p.resultado_visitante:
                 elif p.resultado_local == p.resultado_visitante:
+                    # partido empatado
                     puntos += 1
 
             for p in partidos_visitante:
+                # Sumar puntos según el resultado del partido
                 if p.resultado_visitante > p.resultado_local:
+                    # equipo visitante ganó
                     puntos += 3
+                # elif p.resultado_visitante < p.resultado_local:
                 elif p.resultado_visitante == p.resultado_local:
+                    # partido empatado
                     puntos += 1
 
             return puntos
 
         elif deporte == 'AJEDREZ':
+            # importar el modelo de estadísticas de ajedrez
             from .models import EstadisticaJugadorAjedrez
+            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
             stats = EstadisticaJugadorAjedrez.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            # Calcular puntos: 1 por cada partida ganada, 0.5 por cada partida empatada
             puntos = 0
+            # Sumar puntos por cada estadística
             for stat in stats:
+            # Sumar puntos por cada estadística
                 puntos += stat.partidas_ganadas * 1
+                # Sumar puntos por partidas empatadas
                 puntos += stat.partidas_empatadas * 0.5
+            # Retornar el total de puntos
             return puntos
 
         elif deporte == 'ECUABOLY':
@@ -283,23 +306,35 @@ class Equipo(models.Model):
             return stats.aggregate(total=models.Sum('sets_ganados'))['total'] or 0
 
         elif deporte == 'PING PONG':
+            # importar el modelo de estadísticas de Ping Pong
             from .models import EstadisticaJugadorPingPong
+            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
             stats = EstadisticaJugadorPingPong.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            # 3 por cada partido ganado
             return stats.aggregate(total=models.Sum('partidos_ganados'))['total'] * 3 if stats.exists() else 0
 
         elif deporte == 'TENIS':
+            # importar el modelo de estadísticas de Tenis
             from .models import EstadisticaJugadorTenis
+            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
             stats = EstadisticaJugadorTenis.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            # 3 por cada set ganado
             return stats.aggregate(total=models.Sum('sets_ganados'))['total'] or 0
 
         elif deporte == 'FUTBOLIN':
+        # importar el modelo de estadísticas de Futbolín
             from .models import EstadisticaJugadorFutbolin
+            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
             stats = EstadisticaJugadorFutbolin.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            # 3 por cada partido ganado
             return stats.aggregate(total=models.Sum('partidos_ganados'))['total'] * 3 if stats.exists() else 0
 
         elif deporte == 'VIDEOJUEGOS':
+            # importar el modelo de estadísticas de Videojuegos
             from .models import EstadisticaJugadorVideojuegos
+            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
             stats = EstadisticaJugadorVideojuegos.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
+            # 3 por cada partida ganada
             return stats.aggregate(total=models.Sum('partidas_ganadas'))['total'] * 3 if stats.exists() else 0
         return 0  
 
@@ -351,8 +386,11 @@ class Jugador(models.Model):
 
     #   Verificar si el jugador está suspendido
     def esta_suspendido(self):
+         # Verifica si el jugador tiene suspensiones activas
         return self.suspensiones.filter(
+            # La suspensión debe estar activa
             fecha_inicio__lte=timezone.now().date(),
+            # La fecha de fin debe ser mayor o igual a hoy
             fecha_fin__gte=timezone.now().date()
        ).exists()
 
@@ -414,6 +452,7 @@ class Partido(models.Model):
         
         # Validar equipos diferentes
         if self.equipo_local == self.equipo_visitante:
+            #  Validación mejorada: no permitir que el equipo local y visitante sean el mismo       
             raise ValidationError("El equipo local y visitante no pueden ser el mismo.")
         
         # Validar que el día del partido esté dentro de los días permitidos del campeonato
@@ -434,18 +473,24 @@ class Partido(models.Model):
 
         # ya tiene un partido programado (como local o visitante) en la misma fecha y hora
         conflictos = Partido.objects.filter(
+            # Filtrar por campeonato, fecha y hora
             campeonato=self.campeonato,
+            # Verificar que la fecha y hora coincidan
             fecha=self.fecha,
             hora=self.hora
         ).filter(
+            # Verificar si el equipo local o visitante ya tiene un partido programado
             Q(equipo_local=self.equipo_local) | Q(equipo_visitante=self.equipo_local) | 
+            # Verificar si el equipo visitante ya tiene un partido programado
             Q(equipo_local=self.equipo_visitante) | Q(equipo_visitante=self.equipo_visitante)
         ).exclude(pk=self.pk) # Excluir el partido actual si está siendo editado
 
         if conflictos.exists():
+            # Si hay conflictos, lanzar una excepción de validación
             raise ValidationError("Alguno de los equipos ya tiene un partido programado en esta fecha y hora.")
         
         conflicto_lugar = Partido.objects.filter(
+            # Filtrar por campeonato, fecha, hora y lugar
             campeonato=self.campeonato,
             fecha=self.fecha,
             hora=self.hora,
@@ -453,6 +498,7 @@ class Partido(models.Model):
         ).exclude(pk=self.pk)
 
         if conflicto_lugar.exists():
+            # Si hay conflictos de lugar, lanzar una excepción de validación
             raise ValidationError("Ya hay un partido programado en este lugar, fecha y hora.")
     # Representación en texto del partido
     def __str__(self):
@@ -473,6 +519,7 @@ class Transmision(models.Model):
 
     # Metadatos para admin
     class Meta:
+        # Restricción única para evitar duplicados de transmisión por partido
         verbose_name = "Transmisión"
         verbose_name_plural = "Transmisiones"
         unique_together = ('campeonato', 'partido')
@@ -544,30 +591,45 @@ class Pago(models.Model):
         verbose_name_plural = "Pagos"
 # Señal para actualizar estado del equipo al cambiar el estado del pago
 @receiver(post_save, sender=Pago)
+# Actualizar el estado del equipo según el estado del pago
 def actualizar_estado_equipo(sender, instance, **kwargs):
+    # Verificar si el pago está aprobado o rechazado
     equipo = instance.equipo
+    # Si el pago está aprobado, marcar el equipo como aprobado
     if instance.estado == 'APROBADO' and not equipo.aprobado:
+        # Validación mejorada: solo aprobar si el equipo no está ya aprobado
         equipo.aprobado = True
+        # Guardar el equipo
         equipo.save()
+    # Si el pago está rechazado, marcar el equipo como no aprobado
     elif instance.estado == 'RECHAZADO' and equipo.aprobado:
+        # Validación mejorada: solo rechazar si el equipo está aprobado
         equipo.aprobado = False
+        # Guardar el equipo
         equipo.save()
 
 class Suspension(models.Model):
+    # Relación con el jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='suspensiones')
+    # Fechas de inicio y fin de la suspensión
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     motivo = models.TextField()
 
     def clean(self):
+        # Validar que las fechas no sean nulas
         if self.fecha_fin < self.fecha_inicio:
+            # Validación mejorada: la fecha fin debe ser posterior a la fecha inicio
             raise ValidationError("La fecha fin debe ser posterior a la fecha inicio.")
 
     def esta_activa(self):
+        # Verifica si la suspensión está activa en la fecha actual
         hoy = timezone.now().date()
+        # Validación mejorada: la suspensión está activa si hoy está entre las fechas de inicio y fin
         return self.fecha_inicio <= hoy <= self.fecha_fin
 
     def __str__(self):
+        # Representación en texto de la suspensión
         return f"Suspensión de {self.jugador.usuario.username} desde {self.fecha_inicio} hasta {self.fecha_fin}"
 
 
@@ -578,7 +640,9 @@ class EstadisticaJugadorFutbol(models.Model):
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
 
     partidos_jugados = models.PositiveIntegerField(default=0)
+    # Estadísticas específicas del fútbol
     goles = models.PositiveIntegerField(default=0)
+    # Tarjetas amarillas y rojas
     tarjetas_amarillas = models.PositiveIntegerField(default=0)
     tarjetas_rojas = models.PositiveIntegerField(default=0)
 
@@ -590,15 +654,18 @@ class EstadisticaJugadorFutbol(models.Model):
 
 
 class EstadisticaJugadorBasquet(models.Model):
+    # Relación con campeonato y jugador
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-
+    # Estadísticas específicas del baloncesto
     partidos_jugados = models.PositiveIntegerField(default=0)
     canastas = models.PositiveIntegerField(default=0)
     rebotes = models.PositiveIntegerField(default=0)
     asistencias = models.PositiveIntegerField(default=0)
 
     class Meta:
+        # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
         unique_together = ('campeonato', 'jugador')
 
     def __str__(self):
@@ -606,11 +673,15 @@ class EstadisticaJugadorBasquet(models.Model):
 
 
 class EstadisticaJugadorAjedrez(models.Model):
+    # Relación con campeonato y jugador
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
 
     partidas_jugadas = models.PositiveIntegerField(default=0)
+    # Estadísticas específicas del ajedrez
     partidas_ganadas = models.PositiveIntegerField(default=0)
+    # Partidas empatadas y perdidas
     partidas_empatadas = models.PositiveIntegerField(default=0)
     partidas_perdidas = models.PositiveIntegerField(default=0)
 
@@ -623,33 +694,43 @@ class EstadisticaJugadorAjedrez(models.Model):
 
 
 class EstadisticaJugadorEcuaboly(models.Model):
+    # Relación con campeonato y jugador
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
+    # Estadísticas específicas del Ecuaboly
+    # Partidos jugados, sets ganados y perdidos
 
     partidos_jugados = models.PositiveIntegerField(default=0)
     sets_ganados = models.PositiveIntegerField(default=0)
     sets_perdidos = models.PositiveIntegerField(default=0)
 
     class Meta:
+        # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
         unique_together = ('campeonato', 'jugador')
 
     def __str__(self):
+        # Representación en texto de la estadística del jugador en el campeonato
         return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
 
 
 
 class EstadisticaJugadorPingPong(models.Model):
+    # Relación con campeonato y jugador
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
+    # Relación con jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-
+    # Estadísticas específicas del ping pong
     partidos_jugados = models.PositiveIntegerField(default=0)
     partidos_ganados = models.PositiveIntegerField(default=0)
     partidos_perdidos = models.PositiveIntegerField(default=0)
 
     class Meta:
+    # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
         unique_together = ('campeonato', 'jugador')
 
     def __str__(self):
+        # Representación en texto de la estadística del jugador en el campeonato
         return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
 
 
