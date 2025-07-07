@@ -4,43 +4,54 @@
 {% block title %}Editar Tipo de Campeonato - UIDE{% endblock %}
 
 {% block content %}
+<!-- Sección principal para editar un tipo de campeonato -->
 <section class="section">
   <div class="container">
+    <!-- Caja centrada con máximo ancho, bordes redondeados y sombra sutil -->
     <div class="box" style="max-width: 640px; margin: auto; border-radius: 20px; background-color: #fffef8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.07);">
 
+      <!-- Título con icono y estilo centrado y color amarillo (warning) -->
       <h2 class="title is-3 has-text-centered has-text-warning mb-5">✏️ Editar Tipo de Campeonato</h2>
 
+      <!-- Formulario que envía datos por POST, sin validación HTML nativa -->
       <form method="post" novalidate>
-        {% csrf_token %}
+        {% csrf_token %} <!-- Token de seguridad para protección CSRF -->
 
+        <!-- Campo para editar el nombre del tipo de campeonato -->
         <div class="field">
           <label class="label has-text-grey-dark">Nombre</label>
           <div class="control has-icons-left">
-            {{ form.nombre }}
+            {{ form.nombre }} <!-- Campo generado desde el formulario Django -->
             <span class="icon is-small is-left">
-              <i class="fas fa-trophy"></i>
+              <i class="fas fa-trophy"></i> <!-- Icono pequeño a la izquierda -->
             </span>
           </div>
+          <!-- Mostrar primer error del campo nombre si existe -->
           {% if form.nombre.errors %}
             <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
           {% endif %}
         </div>
 
+        <!-- Campo para editar la descripción del tipo de campeonato -->
         <div class="field">
           <label class="label has-text-grey-dark">Descripción</label>
           <div class="control">
-            {{ form.descripcion }}
+            {{ form.descripcion }} <!-- Campo textarea o input generado por Django -->
           </div>
+          <!-- Mostrar primer error del campo descripción si existe -->
           {% if form.descripcion.errors %}
             <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
           {% endif %}
         </div>
 
+        <!-- Botones agrupados y centrados -->
         <div class="field is-grouped is-grouped-centered mt-5">
           <div class="control">
+            <!-- Botón para enviar y actualizar el tipo de campeonato -->
             <button type="submit" class="button is-warning is-rounded px-5">💾 Actualizar</button>
           </div>
           <div class="control">
+            <!-- Botón para cancelar y regresar a la lista de tipos de campeonato -->
             <a href="{% url 'listar_tipos_campeonato' %}" class="button is-light is-rounded px-5">Cancelar</a>
           </div>
         </div>
@@ -49,4 +60,5 @@
     </div>
   </div>
 </section>
+
 {% endblock %}

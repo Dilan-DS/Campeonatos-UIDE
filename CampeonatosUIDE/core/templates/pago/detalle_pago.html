@@ -2,22 +2,40 @@
 {% block title %}Detalle de Pago{% endblock %}
 
 {% block content %}
+
+<!-- Contenedor principal con padding y ancho máximo de 600px centrado -->
 <div class="box p-6" style="max-width: 600px; margin: auto;">
+
+  <!-- Título centrado de la sección -->
   <h2 class="title is-4 has-text-centered">Detalle del Pago</h2>
 
+  <!-- Muestra el nombre del equipo al que se le realizó el pago -->
   <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
+
+  <!-- Muestra el monto del pago con formato en dólares -->
   <p><strong>Monto:</strong> ${{ pago.monto }}</p>
+
+  <!-- Muestra la fecha en que se realizó el pago -->
   <p><strong>Fecha:</strong> {{ pago.fecha }}</p>
+
+  <!-- Muestra el estado actual del pago (ej. Aprobado, Pendiente) -->
   <p><strong>Estado:</strong> {{ pago.estado }}</p>
 
+  <!-- Condición: Si existe un comprobante de pago, se muestra el enlace -->
   {% if pago.comprobante %}
+    <!-- Enlace para visualizar el comprobante del pago en una nueva pestaña -->
     <p><strong>Comprobante:</strong> 
       <a href="{{ pago.comprobante.url }}" target="_blank">Ver comprobante</a>
     </p>
   {% endif %}
 
+  <!-- Botón centrado para volver a la lista de pagos -->
   <div class="has-text-centered mt-4">
     <a href="{% url 'listar_pagos' %}" class="button is-light">← Volver</a>
   </div>
 </div>
+
 {% endblock %}
+
+
+

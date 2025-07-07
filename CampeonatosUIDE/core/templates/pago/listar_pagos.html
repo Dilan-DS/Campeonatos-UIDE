@@ -2,35 +2,59 @@
 {% block title %}Listado de Pagos{% endblock %}
 
 {% block content %}
+<!-- Contenedor principal con padding -->
 <div class="box p-5">
+
+  <!-- Título de la sección -->
   <h2 class="title is-4">Pagos Registrados</h2>
 
+  <!-- Botón para ir al formulario de registro de un nuevo pago -->
   <a href="{% url 'registrar_pago' %}" class="button is-link mb-4">+ Nuevo Pago</a>
 
+  <!-- Tabla con estilo listrado y ancho completo para mostrar los pagos -->
   <table class="table is-striped is-fullwidth">
     <thead>
       <tr>
+        <!-- Encabezado de columna: nombre del equipo -->
         <th>Equipo</th>
+
+        <!-- Encabezado de columna: monto del pago -->
         <th>Monto</th>
+
+        <!-- Encabezado de columna: fecha del pago -->
         <th>Fecha</th>
+
+        <!-- Encabezado de columna: acciones disponibles -->
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
+
+      <!-- Bucle que recorre todos los pagos disponibles -->
       {% for pago in pagos %}
       <tr>
+        <!-- Muestra el nombre del equipo asociado al pago -->
         <td>{{ pago.equipo.nombre }}</td>
+
+        <!-- Muestra el monto del pago con símbolo de dólar -->
         <td>${{ pago.monto }}</td>
+
+        <!-- Muestra la fecha en que se realizó el pago -->
         <td>{{ pago.fecha }}</td>
+
+        <!-- Botón para ver el detalle del pago -->
         <td>
           <a href="{% url 'detalle_pago' pago.id %}" class="button is-small is-info">Ver</a>
         </td>
       </tr>
+
+      <!-- En caso de que no haya pagos registrados, muestra un mensaje -->
       {% empty %}
       <tr>
         <td colspan="4" class="has-text-centered">No hay pagos registrados.</td>
       </tr>
       {% endfor %}
+      
     </tbody>
   </table>
 </div>

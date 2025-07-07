@@ -4,24 +4,35 @@
 
 {% block content %}
 <div class="container">
+  <!-- Título principal de la página para crear una cuenta -->
   <h1 class="title">Crear cuenta</h1>
 
+  <!-- Formulario con método POST para enviar datos -->
   <form method="POST">
-    {% csrf_token %}
+    {% csrf_token %} <!-- Token CSRF para proteger contra ataques CSRF -->
+
+    <!-- Mostrar errores generales no asociados a un campo específico -->
     {{ form.non_field_errors }}
+
+    <!-- Bucle para mostrar cada campo del formulario -->
     {% for field in form %}
       <div class="field">
+        <!-- Etiqueta del campo -->
         <label class="label">{{ field.label }}</label>
         <div class="control">
+          <!-- Campo de entrada -->
           {{ field }}
         </div>
+        <!-- Mostrar errores específicos del campo si existen -->
         {% if field.errors %}
           <p class="help is-danger">{{ field.errors|join:", " }}</p>
         {% endif %}
       </div>
     {% endfor %}
 
+    <!-- Botón para enviar el formulario -->
     <button class="button is-primary" type="submit">Registrarse</button>
   </form>
 </div>
+
 {% endblock %}

@@ -1,36 +1,72 @@
 {% extends 'comun/base.html' %}
 {% block title %}Lista de Partidos{% endblock %}
 {% block content %}
+
+<!-- Sección principal que agrupa el contenido -->
 <section class="section">
+
+  <!-- Contenedor central que organiza el contenido horizontalmente -->
   <div class="container">
+
+    <!-- Título principal de la sección -->
     <h1 class="title">Lista de Partidos</h1>
+
+    <!-- Botón que redirige al formulario para registrar un nuevo partido -->
     <a href="{% url 'registrar_partido' %}" class="button is-primary">Registrar Partido</a>
+
+    <!-- Tabla con clases de Bulma: ancho completo, con rayas y margen superior -->
     <table class="table is-fullwidth is-striped mt-4">
       <thead>
         <tr>
+          <!-- Encabezado de columna: nombre del campeonato -->
           <th>Campeonato</th>
+
+          <!-- Encabezado de columna: equipo local -->
           <th>Local</th>
+
+          <!-- Encabezado de columna: equipo visitante -->
           <th>Visitante</th>
+
+          <!-- Encabezado de columna: fecha del partido -->
           <th>Fecha</th>
+
+          <!-- Encabezado de columna: hora del partido -->
           <th>Hora</th>
+
+          <!-- Encabezado de columna: acciones disponibles -->
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
+
+        <!-- Bucle para recorrer todos los partidos registrados -->
         {% for partido in partidos %}
         <tr>
+          <!-- Muestra el nombre del campeonato del partido -->
           <td>{{ partido.campeonato.nombre }}</td>
+
+          <!-- Muestra el nombre del equipo local -->
           <td>{{ partido.equipo_local.nombre }}</td>
+
+          <!-- Muestra el nombre del equipo visitante -->
           <td>{{ partido.equipo_visitante.nombre }}</td>
+
+          <!-- Muestra la fecha del partido -->
           <td>{{ partido.fecha }}</td>
+
+          <!-- Muestra la hora del partido -->
           <td>{{ partido.hora }}</td>
+
+          <!-- Botón que enlaza a la vista de detalle del partido -->
           <td>
             <a href="{% url 'detalle_partido' partido.id %}" class="button is-small is-link">Ver</a>
           </td>
         </tr>
         {% endfor %}
+        
       </tbody>
     </table>
   </div>
 </section>
+
 {% endblock %}

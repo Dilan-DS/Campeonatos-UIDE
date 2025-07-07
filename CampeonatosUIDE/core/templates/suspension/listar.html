@@ -1,11 +1,18 @@
 {% extends "comun/base.html" %}
 {% block content %}
+<!-- Sección principal que contiene la lista de suspensiones -->
 <section class="section">
+  <!-- Contenedor para centralizar y organizar el contenido -->
   <div class="container">
+
+    <!-- Título principal de la página -->
     <h1 class="title">Lista de Suspensiones</h1>
+
+    <!-- Tabla estilizada para mostrar suspensiones -->
     <table class="table is-striped is-hoverable is-fullwidth">
       <thead>
         <tr>
+          <!-- Encabezados de columna -->
           <th>Jugador</th>
           <th>Equipo</th>
           <th>Inicio</th>
@@ -15,19 +22,36 @@
         </tr>
       </thead>
       <tbody>
+        <!-- Iteración sobre la lista de suspensiones -->
         {% for s in suspensiones %}
         <tr>
+          <!-- Nombre de usuario del jugador suspendido -->
           <td>{{ s.jugador.usuario.username }}</td>
+
+          <!-- Nombre del equipo del jugador -->
           <td>{{ s.jugador.equipo.nombre }}</td>
+
+          <!-- Fecha de inicio de la suspensión -->
           <td>{{ s.fecha_inicio }}</td>
+
+          <!-- Fecha de fin de la suspensión -->
           <td>{{ s.fecha_fin }}</td>
+
+          <!-- Motivo de la suspensión, truncado a 6 palabras para evitar texto muy largo -->
           <td>{{ s.motivo|truncatewords:6 }}</td>
-          <td><a class="button is-small is-link" href="{% url 'detalle_suspension' s.id %}">Ver</a></td>
+
+          <!-- Enlace para ver detalle completo de la suspensión -->
+          <td>
+            <a class="button is-small is-link" href="{% url 'detalle_suspension' s.id %}">Ver</a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+
+    <!-- Botón para registrar una nueva suspensión -->
     <a href="{% url 'registrar_suspension' %}" class="button is-success">Registrar nueva</a>
   </div>
 </section>
+
 {% endblock %}

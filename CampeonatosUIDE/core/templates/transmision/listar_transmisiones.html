@@ -4,11 +4,15 @@
 {% block content %}
 <section class="section">
   <div class="container">
+
+    <!-- Título principal de la sección con icono y estilo -->
     <h1 class="title is-4 has-text-primary">📺 Lista de Transmisiones</h1>
 
+    <!-- Tabla para listar las transmisiones -->
     <table class="table is-striped is-hoverable is-fullwidth">
       <thead>
         <tr>
+          <!-- Encabezados de las columnas -->
           <th>🏆 Campeonato</th>
           <th>⚽ Partido</th>
           <th>🔗 Enlace</th>
@@ -17,20 +21,26 @@
         </tr>
       </thead>
       <tbody>
+        <!-- Bucle para mostrar cada transmisión -->
         {% for transmision in transmisiones %}
         <tr>
+          <!-- Nombre del campeonato -->
           <td>{{ transmision.campeonato.nombre }}</td>
+          <!-- Partido correspondiente -->
           <td>{{ transmision.partido }}</td>
+          <!-- Enlace de la transmisión, abre en nueva pestaña -->
           <td>
             <a href="{{ transmision.enlace }}" target="_blank" class="has-text-link">
               Ver Transmisión
             </a>
           </td>
+          <!-- Indicador visual de si la transmisión está activa o no -->
           <td>
             <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
               {{ transmision.activa|yesno:"Sí,No" }}
             </span>
           </td>
+          <!-- Botón para ver detalles individuales de la transmisión -->
           <td>
             <a href="{% url 'detalle_transmision' transmision.id %}" class="button is-small is-info is-light">
               Ver Detalles
@@ -38,6 +48,7 @@
           </td>
         </tr>
         {% empty %}
+        <!-- Mensaje si no hay transmisiones registradas -->
         <tr>
           <td colspan="5" class="has-text-centered">No hay transmisiones registradas.</td>
         </tr>
@@ -46,4 +57,5 @@
     </table>
   </div>
 </section>
+
 {% endblock %}

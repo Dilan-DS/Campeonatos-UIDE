@@ -10,6 +10,7 @@
     <div class="columns is-centered">
       <div class="column is-5">
 
+        <!-- Mostrar mensajes de error o notificaciones, si existen -->
         {% if messages %}
           <div class="notification is-danger is-light has-text-centered">
             {% for message in messages %}
@@ -18,32 +19,37 @@
           </div>
         {% endif %}
 
-        <!-- Caja del formulario -->
+        <!-- Caja principal del formulario de inicio de sesión -->
         <div class="box" style="
           border-radius: 20px;
           padding: 2.5rem;
           background-color: #fff3e1;
           box-shadow: 0 10px 30px rgba(108, 41, 67, 0.2);">
           
+          <!-- Título de bienvenida -->
           <h2 class="title is-4 has-text-centered has-text-weight-bold" style="color: #6c2943;">
             🎓 Bienvenido de nuevo
           </h2>
 
+        <!-- Formulario de inicio de sesión -->
           <form method="POST">
             {% csrf_token %}
 
+            <!-- Iterar sobre los campos del formulario y mostrarlos con estilos -->
             {% for field in form %}
               <div class="field">
                 <label class="label has-text-dark">{{ field.label }}</label>
                 <div class="control">
                   {{ field|add_class:"input is-rounded is-medium" }}
                 </div>
+                <!-- Mostrar errores específicos de cada campo -->
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
                 {% endfor %}
               </div>
             {% endfor %}
 
+            <!-- Botón de envío del formulario -->
             <div class="field mt-5">
               <div class="control">
                 <button type="submit" class="button is-fullwidth is-medium is-rounded" style="background-color: #6c2943; color: white;">
@@ -53,7 +59,7 @@
             </div>
           </form>
 
-          <!-- Enlaces -->
+          <!-- Enlaces adicionales para registro y recuperación de contraseña -->
           <div class="has-text-centered mt-4">
             <p>
               ¿No tienes cuenta?
@@ -70,4 +76,5 @@
     </div>
   </div>
 </section>
+
 {% endblock %}

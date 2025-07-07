@@ -1,17 +1,41 @@
 {% extends 'comun/base.html' %}
 {% block title %}Detalle Partido{% endblock %}
 {% block content %}
+
+<!-- Sección principal del contenido -->
 <section class="section">
+
+  <!-- Contenedor central utilizando clases de Bulma -->
   <div class="container">
+
+    <!-- Título principal de la sección -->
     <h1 class="title">Detalle del Partido</h1>
+
+    <!-- Muestra el nombre del campeonato al que pertenece el partido -->
     <p><strong>Campeonato:</strong> {{ partido.campeonato.nombre }}</p>
+
+    <!-- Muestra el nombre del equipo local -->
     <p><strong>Local:</strong> {{ partido.equipo_local.nombre }}</p>
+
+    <!-- Muestra el nombre del equipo visitante -->
     <p><strong>Visitante:</strong> {{ partido.equipo_visitante.nombre }}</p>
+
+    <!-- Muestra la fecha en que se juega el partido -->
     <p><strong>Fecha:</strong> {{ partido.fecha }}</p>
+
+    <!-- Muestra la hora del partido -->
     <p><strong>Hora:</strong> {{ partido.hora }}</p>
+
+    <!-- Muestra el lugar donde se llevará a cabo el partido -->
     <p><strong>Lugar:</strong> {{ partido.lugar }}</p>
+
+    <!-- Muestra el nombre del árbitro asignado al partido -->
     <p><strong>Árbitro:</strong> {{ partido.arbitro }}</p>
+
+    <!-- Muestra el estado actual del partido (ej. Pendiente, Jugado, Cancelado) -->
     <p><strong>Estado:</strong> {{ partido.estado }}</p>
+
   </div>
 </section>
+
 {% endblock %}
