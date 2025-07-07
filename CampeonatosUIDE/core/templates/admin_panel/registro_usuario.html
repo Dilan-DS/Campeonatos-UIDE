@@ -1,54 +1,88 @@
 {% extends 'comun/base.html' %}
+<!-- Extiende la plantilla base del proyecto que contiene la estructura común como <head>, navbar, etc. -->
+
 {% load static %}
+<!-- Carga las etiquetas para usar archivos estáticos como CSS, JS o imágenes. -->
+
 {% load widget_tweaks %}
+<!-- Carga la librería para personalizar widgets de formularios con filtros como add_class. -->
 
 {% block title %}Registro de Usuario - Campeonatos UIDE{% endblock %}
+<!-- Define el contenido del bloque 'title', usado en <title> del navegador. -->
 
 {% block content %}
+<!-- Inicio del bloque 'content', donde se inserta el contenido principal de la página. -->
+
 <section class="section">
+  <!-- Sección principal con estilo Bulma para dar margen y padding. -->
   <div class="container">
+    <!-- Contenedor centrado de ancho limitado para evitar que el contenido se vea muy extendido. -->
     <div class="columns is-centered">
+      <!-- Centra las columnas horizontalmente. -->
       <div class="column is-6">
+        <!-- Crea una columna de 6 columnas de ancho (en una grilla de 12). -->
 
         <div class="box has-shadow" style="border-radius: 20px; padding: 2rem;">
-          <h2 class="title is-4 has-text-centered mb-5" style="color: #5a0035;">Registro de Usuario</h2>
+          <!-- Caja blanca con sombra, bordes redondeados y padding personalizado. -->
+          <h2 class="title is-4 has-text-centered mb-5" style="color: #5a0035;">
+            <!-- Título centrado, tamaño 4, con margen inferior y color personalizado. -->
+            Registro de Usuario
+          </h2>
 
           {% if messages %}
+            <!-- Si existen mensajes del sistema (por ejemplo, errores de validación), se muestran. -->
             <div class="notification is-danger">
+              <!-- Caja de notificación roja (tipo error). -->
               {% for message in messages %}
                 {{ message }}
+                <!-- Se imprime cada mensaje disponible. -->
               {% endfor %}
             </div>
           {% endif %}
 
           <form method="POST">
+            <!-- Formulario que enviará los datos con método POST (más seguro que GET). -->
             {% csrf_token %}
+            <!-- Token de seguridad de Django para prevenir ataques CSRF. -->
 
             {% for field in form %}
+              <!-- Itera sobre cada campo del formulario para renderizarlo. -->
               <div class="field mb-4">
+                <!-- Grupo de campo con margen inferior. -->
                 <label class="label">{{ field.label }}</label>
+                <!-- Muestra la etiqueta del campo (por ejemplo, 'Nombre de usuario'). -->
                 <div class="control">
                   {{ field|add_class:"input is-rounded" }}
+                  <!-- Renderiza el campo de entrada con clases extra usando widget_tweaks. -->
                 </div>
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
+                  <!-- Muestra cada mensaje de error específico de ese campo. -->
                 {% endfor %}
               </div>
             {% endfor %}
 
             <div class="field mt-5">
+              <!-- Botón para enviar el formulario, con margen superior. -->
               <div class="control">
                 <button type="submit" class="button is-primary is-fullwidth is-rounded">
+                  <!-- Botón azul, redondeado y de ancho completo. -->
                   <strong>Registrarse</strong>
+                  <!-- Texto del botón en negrita. -->
                 </button>
               </div>
             </div>
           </form>
 
           <div class="has-text-centered mt-4">
+            <!-- Texto centrado con margen superior. -->
             <p>
               ¿Ya tienes una cuenta?
-              <a href="{% url 'login' %}" class="has-text-link has-text-weight-bold">Inicia sesión</a>
+              <!-- Mensaje para redirigir a login si ya está registrado. -->
+              <a href="{% url 'login' %}" class="has-text-link has-text-weight-bold">
+                <!-- Enlace al login con estilo llamativo. -->
+                Inicia sesión
+              </a>
             </p>
           </div>
         </div>
@@ -58,3 +92,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Cierra el bloque 'content'. -->

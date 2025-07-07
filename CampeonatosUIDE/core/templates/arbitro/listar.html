@@ -1,36 +1,64 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base del proyecto (estructura general, estilos, etc.) -->
+
 {% load static %}
+<!-- Carga de archivos estáticos como CSS, imágenes, JS -->
 
 {% block title %}Listado de Árbitros - Campeonatos UIDE{% endblock %}
+<!-- Define el título de la página que se muestra en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del contenido principal de la página -->
+
 <section class="section">
+  <!-- Sección con padding general según el framework Bulma -->
   <div class="container">
+    <!-- Contenedor centrado con márgenes automáticos -->
 
     <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2rem; box-shadow: 0 0 12px rgba(0,0,0,0.05);">
+      <!-- Caja con fondo claro, bordes redondeados, padding interno y sombra suave -->
+
       <div class="is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center mb-4">
-        <h2 class="title is-3 has-text-weight-semibold" style="color: #5a0035;">📋 Árbitros Registrados</h2>
+        <!-- Fila flexible que acomoda elementos uno junto al otro, con espacio entre ellos -->
+        <h2 class="title is-3 has-text-weight-semibold" style="color: #5a0035;">
+          <!-- Título principal con peso fuerte y color personalizado -->
+          📋 Árbitros Registrados
+        </h2>
         <a href="{% url 'registrar_arbitro' %}" class="button is-warning is-rounded mt-2-mobile">
+          <!-- Botón para registrar un nuevo árbitro -->
           <strong>+ Nuevo Árbitro</strong>
         </a>
       </div>
 
       {% if arbitros %}
+        <!-- Si existen árbitros registrados, muestra la tabla -->
         <div class="table-container">
+          <!-- Contenedor que permite que la tabla sea desplazable horizontalmente en móviles -->
           <table class="table is-fullwidth is-hoverable is-striped is-bordered">
+            <!-- Tabla con estilos Bulma: ancho completo, filas resaltadas al pasar el mouse, rayas alternadas, bordeada -->
             <thead>
+              <!-- Encabezado de la tabla -->
               <tr class="has-background-warning-light">
+                <!-- Fila de encabezado con fondo amarillo claro -->
                 <th class="has-text-centered">Nombre</th>
+                <!-- Columna para el nombre del árbitro -->
                 <th class="has-text-centered">Acciones</th>
+                <!-- Columna para los botones de acción -->
               </tr>
             </thead>
             <tbody>
+              <!-- Cuerpo de la tabla -->
               {% for arbitro in arbitros %}
+                <!-- Itera sobre cada árbitro -->
                 <tr>
                   <td class="has-text-centered">{{ arbitro.nombre }} {{ arbitro.apellido }}</td>
+                  <!-- Muestra el nombre y apellido del árbitro -->
                   <td class="has-text-centered">
+                    <!-- Botones de acción -->
                     <a href="{% url 'detalle_arbitro' arbitro.id %}" class="button is-small is-info is-light is-rounded mb-1">Ver</a>
+                    <!-- Botón para ver detalles del árbitro -->
                     <a href="{% url 'editar_arbitro' arbitro.id %}" class="button is-small is-link is-light is-rounded mb-1">Editar</a>
+                    <!-- Botón para editar datos del árbitro -->
                   </td>
                 </tr>
               {% endfor %}
@@ -38,6 +66,7 @@
           </table>
         </div>
       {% else %}
+        <!-- Si no hay árbitros registrados, muestra mensaje de advertencia -->
         <div class="notification is-warning is-light has-text-centered mt-4">
           No hay árbitros registrados aún.
         </div>
@@ -47,3 +76,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

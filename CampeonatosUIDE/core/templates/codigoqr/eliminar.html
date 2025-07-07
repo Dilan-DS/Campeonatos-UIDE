@@ -1,19 +1,48 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base del sistema (estructura general, cabecera, etc.) -->
+
 {% block title %}Eliminar Código QR - UIDE{% endblock %}
+<!-- Define el título que se mostrará en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque de contenido principal -->
+
 <section class="section">
+  <!-- Sección con espaciado vertical -->
   <div class="container">
+    <!-- Contenedor central -->
+
     <div class="box has-text-centered" style="max-width: 600px; margin: auto; background-color: #fff5f5; padding: 2rem; border-radius: 16px;">
-      <h2 class="title is-3 has-text-danger">⚠️ Eliminar Código QR</h2>
-      <p class="mb-4">¿Estás seguro que deseas eliminar el QR del banco <strong>{{ codigo.banco }}</strong>?</p>
+      <!-- Caja visual con fondo rosado claro, bordes redondeados, centrada y con padding -->
+      
+      <h2 class="title is-3 has-text-danger">
+        <!-- Título principal de advertencia, tamaño grande y color rojo -->
+        ⚠️ Eliminar Código QR
+      </h2>
+
+      <p class="mb-4">
+        <!-- Mensaje de confirmación al usuario con margen inferior -->
+        ¿Estás seguro que deseas eliminar el QR del banco <strong>{{ codigo.banco }}</strong>?
+        <!-- Inserta dinámicamente el nombre del banco del código QR -->
+      </p>
 
       <form method="POST">
+        <!-- Formulario con método POST (más seguro para eliminar) -->
         {% csrf_token %}
-        <button type="submit" class="button is-danger is-rounded mr-2">Sí, eliminar</button>
-        <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">Cancelar</a>
+        <!-- Token de seguridad contra ataques CSRF -->
+
+        <button type="submit" class="button is-danger is-rounded mr-2">
+          <!-- Botón rojo para confirmar la eliminación -->
+          Sí, eliminar
+        </button>
+
+        <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-rounded">
+          <!-- Botón claro para cancelar y volver al listado -->
+          Cancelar
+        </a>
       </form>
     </div>
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->

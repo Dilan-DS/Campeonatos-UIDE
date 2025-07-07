@@ -1,39 +1,72 @@
 {% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base común del sistema -->
+
 {% load static %}
+<!-- Carga archivos estáticos como CSS o imágenes -->
+
 {% load widget_tweaks %}
+<!-- Carga filtros útiles para personalizar widgets de formularios (como add_class) -->
 
 {% block title %}Editar Árbitro - Campeonatos UIDE{% endblock %}
+<!-- Título que aparecerá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque principal de contenido que se insertará en la plantilla base -->
+
 <section class="section">
+  <!-- Sección con espaciado vertical (Bulma) -->
   <div class="container">
+    <!-- Contenedor centralizado -->
     <div class="columns is-centered">
+      <!-- Centra horizontalmente las columnas -->
       <div class="column is-12-mobile is-8-tablet is-6-desktop">
+        <!-- Columna responsiva: full en móvil, 8/12 en tablet, 6/12 en desktop -->
 
         <div class="box" style="border-radius: 18px; background-color: #fffdf9; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);">
-          <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">📝 Editar Árbitro</h2>
+          <!-- Caja blanca clara con bordes redondeados, sombra suave y padding -->
+          <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+            <!-- Título principal centrado, con margen inferior -->
+            📝 Editar Árbitro
+          </h2>
 
           <form method="POST">
+            <!-- Formulario que envía los datos con POST -->
             {% csrf_token %}
+            <!-- Token de seguridad contra ataques CSRF -->
 
             <div class="columns is-multiline">
+              <!-- Grilla de campos en múltiples columnas -->
               {% for field in form %}
+                <!-- Itera sobre cada campo del formulario -->
                 <div class="column is-12-mobile is-6-tablet">
+                  <!-- Cada campo ocupa 100% en móvil, 50% en tablet -->
                   <div class="field">
+                    <!-- Contenedor del campo -->
                     <label class="label has-text-grey-dark">{{ field.label }}</label>
+                    <!-- Muestra la etiqueta del campo -->
+
                     <div class="control">
+                      <!-- Contenedor del input o widget -->
                       {% if field|widget_type == 'textarea' %}
+                        <!-- Si es un área de texto -->
                         {{ field|add_class:"textarea is-rounded is-light" }}
+                        <!-- Le aplica estilos de Bulma para textarea -->
                       {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
+                        <!-- Si es un select o select múltiple -->
                         <div class="select is-fullwidth is-rounded is-light">
                           {{ field }}
+                          <!-- Renderiza el select con estilo -->
                         </div>
                       {% else %}
+                        <!-- Si es input normal -->
                         {{ field|add_class:"input is-rounded is-medium is-light" }}
+                        <!-- Aplica clases de estilo al input -->
                       {% endif %}
                     </div>
+
                     {% for error in field.errors %}
                       <p class="help is-danger">{{ error }}</p>
+                      <!-- Muestra errores debajo del campo -->
                     {% endfor %}
                   </div>
                 </div>
@@ -41,8 +74,10 @@
             </div>
 
             <div class="field mt-4">
+              <!-- Botón para enviar el formulario con margen arriba -->
               <div class="control">
                 <button type="submit" class="button is-link is-fullwidth is-rounded is-medium">
+                  <!-- Botón azul, redondeado y ancho completo -->
                   <strong>Actualizar</strong>
                 </button>
               </div>
@@ -50,7 +85,9 @@
           </form>
 
           <div class="has-text-centered mt-4">
+            <!-- Sección inferior con botón para volver -->
             <a href="{% url 'listar_arbitros' %}" class="button is-warning is-light is-rounded">
+              <!-- Botón amarillo claro, redondeado -->
               ← Volver al listado
             </a>
           </div>
@@ -61,3 +98,4 @@
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido principal -->

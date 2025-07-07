@@ -1,28 +1,40 @@
 {% load static %}
+<!-- Carga archivos estáticos (CSS, imágenes, JS) -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Configuración general de la página -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Sistema de Campeonatos Deportivos UIDE Loja" />
   <meta name="author" content="Tu equipo UIDE" />
   <meta name="theme-color" content="#d32f2f" />
   <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
+  <!-- Título dinámico, definido por cada plantilla hija -->
 
+  <!-- Ícono del navegador -->
   <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+  <!-- Framework CSS Bulma -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+  <!-- Fuente Roboto desde Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <!-- Hoja de estilos personalizada -->
   <link rel="stylesheet" href="{% static 'styles/base.css' %}">
 </head>
 
 <body class="has-background-white has-text-black">
+<!-- Cuerpo con fondo blanco y texto negro -->
 
   <!-- 🧭 NAVBAR CON CONTROL DE ROLES -->
   <nav class="navbar is-danger" role="navigation" aria-label="main navigation">
+    <!-- Barra de navegación principal con fondo rojo -->
     <div class="navbar-brand">
+      <!-- Logo o nombre de marca -->
       <a class="navbar-item" href="{% url 'inicio_publico' %}">
         <strong>🏆 UIDE Campeonatos</strong>
       </a>
+      <!-- Botón hamburguesa para móviles -->
       <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
@@ -31,9 +43,13 @@
     </div>
 
     <div id="menuPrincipal" class="navbar-menu">
+      <!-- Menú principal que se despliega -->
       <div class="navbar-start">
+        <!-- Opciones de la izquierda del menú -->
         {% if user.is_authenticated %}
+          <!-- Si el usuario ha iniciado sesión -->
           {% if user.rol == 'ADMIN' %}
+            <!-- Opciones exclusivas para el administrador -->
             <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
             <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
             <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
@@ -41,25 +57,31 @@
             <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
 
           {% elif user.rol == 'DELEGADO' %}
+            <!-- Opciones para el delegado -->
             <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
             <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
             <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
 
           {% elif user.rol == 'JUGADOR' %}
+            <!-- Opciones para el jugador -->
             <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Panel</a>
           {% endif %}
         {% else %}
+          <!-- Opciones para usuarios no autenticados -->
           <a class="navbar-item" href="{% url 'campeonatos_publicos' %}">Campeonatos</a>
         {% endif %}
       </div>
 
       <div class="navbar-end">
+        <!-- Sección derecha del navbar -->
         {% if user.is_authenticated %}
+          <!-- Si el usuario está logueado, muestra su nombre y rol -->
           <div class="navbar-item">👤 {{ user.username }} ({{ user.rol }})</div>
           <div class="navbar-item">
             <a class="button is-light" href="{% url 'logout' %}">Cerrar sesión</a>
           </div>
         {% else %}
+          <!-- Si no ha iniciado sesión, muestra botón de login -->
           <div class="navbar-item">
             <a class="button is-light" href="{% url 'login' %}">Iniciar sesión</a>
           </div>
@@ -70,16 +92,18 @@
 
   <!-- 📦 Contenido dinámico -->
   <main class="section pt-6 pb-6">
+    <!-- Contenido principal de cada vista -->
     <div class="container">
       {% block content %}
-      <!-- Contenido inyectado por cada plantilla -->
+      <!-- Aquí se inyecta el contenido específico de cada plantilla hija -->
       {% endblock %}
     </div>
   </main>
 
   {% include "comun/footer.html" %}
+  <!-- Pie de página incluido desde un archivo común -->
 
-  <!-- 📱 JS para el menú hamburguesa -->
+  <!-- JS para el menú hamburguesa en dispositivos móviles -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);

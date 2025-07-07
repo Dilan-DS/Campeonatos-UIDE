@@ -1,15 +1,30 @@
 {% extends "comun/base.html" %}
+<!-- Hereda la estructura base de todo el sitio, incluyendo cabecera, estilos y scripts -->
+
 {% block title %}Tipos de Campeonato{% endblock %}
+<!-- Define el título que aparecerá en la pestaña del navegador -->
 
 {% block content %}
+<!-- Inicio del bloque de contenido principal que será renderizado en base.html -->
+
 <section class="section">
+  <!-- Sección visual con margen vertical según Bulma -->
   <div class="container">
+    <!-- Contenedor central con márgenes automáticos -->
+
     <h1 class="title">Tipos de Campeonato</h1>
+    <!-- Título principal de la sección -->
+
     <ul>
+      <!-- Lista simple sin estilos -->
       {% for tipo in tipos %}
+        <!-- Itera sobre todos los objetos 'tipo' pasados desde la vista -->
         <li>{{ tipo.nombre }} - {{ tipo.descripcion }}</li>
+        <!-- Muestra el nombre y la descripción de cada tipo de campeonato -->
       {% endfor %}
     </ul>
+
   </div>
 </section>
 {% endblock %}
+<!-- Fin del bloque de contenido -->
