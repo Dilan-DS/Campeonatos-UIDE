@@ -3,27 +3,36 @@
 {% block title %}Registrar Pago - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- FORMULARIO PARA REGISTRAR PAGO DE UN EQUIPO -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja visual con fondo amarillo claro, padding y bordes redondeados -->
     <div class="box has-background-warning-light" style="border-radius: 16px; padding: 2rem;">
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">Registrar Pago del Equipo</h2>
-
+      <!-- Título centrado con estilo visual claro -->
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">
+        Registrar Pago del Equipo
+      </h2>
+      <!-- Formulario con método POST y soporte para subida de archivos -->
       <form method="post" enctype="multipart/form-data" class="mt-5">
-        {% csrf_token %}
-
+        {% csrf_token %} <!-- 🔐 Protección contra ataques CSRF -->
+        <!-- Itera sobre los campos del formulario de pago -->
         {% for field in form %}
           <div class="field">
+            <!-- 🏷️ Etiqueta del campo -->
             <label class="label">{{ field.label }}</label>
+            <!-- Campo del formulario (input, select, etc.) -->
             <div class="control">
               {{ field }}
             </div>
+            <!-- Muestra errores del campo, si existen -->
             {% if field.errors %}
               <p class="help is-danger">{{ field.errors }}</p>
             {% endif %}
           </div>
         {% endfor %}
 
+        <!-- Botón para enviar el formulario -->
         <div class="field mt-5">
           <div class="control">
             <button type="submit" class="button is-success is-fullwidth is-rounded is-medium">
@@ -33,6 +42,7 @@
         </div>
       </form>
 
+      <!-- Enlace para regresar al listado de equipos -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'listar_equipos' %}" class="button is-link is-light is-rounded">
           ← Volver a Equipos

@@ -4,16 +4,19 @@
 {% block title %}Estadísticas Ping Pong - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- VISTA DE ESTADÍSTICAS DE PING PONG -->
 <section class="section">
   <div class="container">
-
+    <!-- Caja visual principal con fondo claro y esquinas redondeadas -->
     <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+      <!-- Título de sección centrado, con emoji temático -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
         🏓 Estadísticas de Ping Pong
       </h2>
-
+      <!-- Contenedor responsivo para la tabla -->
       <div class="table-container">
         <table class="table is-striped is-hoverable is-bordered is-fullwidth">
+          <!-- Encabezado con color temático y centrado -->
           <thead class="has-background-warning-light has-text-centered">
             <tr>
               <th>Jugador</th>
@@ -22,15 +25,17 @@
               <th>Perdidos</th>
             </tr>
           </thead>
+          <!-- Cuerpo de la tabla que lista una fila por jugador -->
           <tbody>
             {% for stat in estadisticas %}
             <tr class="has-text-centered">
-              <td>{{ stat.jugador.usuario.username }}</td>
-              <td>{{ stat.partidos_jugados }}</td>
-              <td>{{ stat.partidos_ganados }}</td>
-              <td>{{ stat.partidos_perdidos }}</td>
+              <td>{{ stat.jugador.usuario.username }}</td>             
+              <td>{{ stat.partidos_jugados }}</td>                     
+              <td>{{ stat.partidos_ganados }}</td>                     
+              <td>{{ stat.partidos_perdidos }}</td>                    
             </tr>
             {% empty %}
+            <!-- Fila alternativa si no hay estadísticas -->
             <tr>
               <td colspan="4" class="has-text-centered has-text-grey-light">
                 No hay estadísticas registradas.
@@ -41,14 +46,13 @@
         </table>
       </div>
 
+      <!-- Botón de retorno al menú principal -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
           ← Volver al inicio
         </a>
       </div>
-
-    </div>
-
-  </div>
+    </div> 
+  </div> 
 </section>
 {% endblock %}

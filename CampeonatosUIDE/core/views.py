@@ -8,8 +8,6 @@ from django.http import HttpResponse, HttpResponseForbidden
 from .models import *
 from .forms import *
 
-
-
 # ========================
 # VALIDACIONES DE ROL
 # ========================

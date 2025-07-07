@@ -3,29 +3,37 @@
 {% block title %}Editar Equipo - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- FORMULARIO DE EDICIÓN DE EQUIPO -->
 <section class="section">
   <div class="container">
+    <!-- Centra el contenido en el viewport -->
     <div class="columns is-centered">
       <div class="column is-6">
-
-        <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
-          <h2 class="title is-4 has-text-centered has-text-danger-dark">Editar Información del Equipo</h2>
-
+        <!-- Caja con fondo claro, padding y bordes redondeados -->
+        <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">         
+          <!-- Encabezado del formulario -->
+          <h2 class="title is-4 has-text-centered has-text-danger-dark">
+            Editar Información del Equipo
+          </h2>
+          <!-- Formulario POST que permite subida de archivos (ej. logo) -->
           <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
+            {% csrf_token %}  <!-- 🔐 Protección CSRF -->
+            <!-- Itera sobre todos los campos del formulario -->
             {% for field in form %}
               <div class="field mb-4">
-                <label class="label">{{ field.label }}</label>
+                <!-- Etiqueta del campo -->
+                <label class="label">{{ field.label }}</label>               
+                <!-- Campo de entrada (input, select, etc.) -->
                 <div class="control">
                   {{ field }}
                 </div>
+                <!-- Mensajes de error (si existen) -->
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
                 {% endfor %}
               </div>
             {% endfor %}
-
+            <!-- Botón de envío -->
             <div class="field mt-5">
               <div class="control">
                 <button type="submit" class="button is-link is-fullwidth is-rounded">
@@ -34,14 +42,13 @@
               </div>
             </div>
           </form>
-
+          <!-- Enlace para volver al listado de equipos -->
           <a href="{% url 'listar_equipos' %}" class="button is-light is-fullwidth mt-4">
             ← Volver al listado
           </a>
-        </div>
-
-      </div>
-    </div>
-  </div>
+        </div> 
+      </div> 
+    </div> 
+  </div> 
 </section>
 {% endblock %}

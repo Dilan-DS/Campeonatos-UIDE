@@ -4,16 +4,23 @@
 {% block title %}Estadísticas Tenis - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- VISTA DE ESTADÍSTICAS DE TENIS -->
 <section class="section">
   <div class="container">
 
+    <!-- Contenedor estilizado con fondo claro y esquinas redondeadas -->
     <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+
+      <!-- Título de la sección centrado con ícono representativo -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
         🎾 Estadísticas de Tenis
       </h2>
 
+      <!-- Tabla responsive que muestra las estadísticas de los jugadores -->
       <div class="table-container">
         <table class="table is-striped is-hoverable is-bordered is-fullwidth">
+
+          <!-- Cabecera con fondo amarillo claro y texto centrado -->
           <thead class="has-background-warning-light has-text-centered">
             <tr>
               <th>Jugador</th>
@@ -22,15 +29,18 @@
               <th>Sets Perdidos</th>
             </tr>
           </thead>
+
+          <!-- Cuerpo de la tabla: filas por jugador -->
           <tbody>
             {% for stat in estadisticas %}
             <tr class="has-text-centered">
-              <td>{{ stat.jugador.usuario.username }}</td>
-              <td>{{ stat.partidos_jugados }}</td>
-              <td>{{ stat.sets_ganados }}</td>
-              <td>{{ stat.sets_perdidos }}</td>
+              <td>{{ stat.jugador.usuario.username }}</td>         <!-- 👤 Usuario del jugador -->
+              <td>{{ stat.partidos_jugados }}</td>                 <!-- 🎾 Partidos jugados -->
+              <td>{{ stat.sets_ganados }}</td>                     <!-- ✅ Sets ganados -->
+              <td>{{ stat.sets_perdidos }}</td>                    <!-- ❌ Sets perdidos -->
             </tr>
             {% empty %}
+            <!-- Fila alternativa si no hay datos registrados -->
             <tr>
               <td colspan="4" class="has-text-centered has-text-grey-light">
                 No hay estadísticas registradas.
@@ -41,14 +51,13 @@
         </table>
       </div>
 
+      <!-- Botón de retorno al menú principal -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
           ← Volver al inicio
         </a>
       </div>
-
-    </div>
-
-  </div>
+    </div> 
+  </div> 
 </section>
 {% endblock %}

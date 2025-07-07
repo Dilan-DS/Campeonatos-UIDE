@@ -4,16 +4,23 @@
 {% block title %}Estadísticas Básquet - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- VISTA DE ESTADÍSTICAS DE BÁSQUET -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja visual con fondo claro y bordes redondeados -->
     <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+      
+      <!-- Título centrado con ícono representativo del deporte -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
         🏀 Estadísticas de Básquet
       </h2>
 
+      <!-- Contenedor responsivo para la tabla -->
       <div class="table-container">
         <table class="table is-fullwidth is-hoverable is-striped is-bordered">
+          
+          <!-- Cabecera con colores de categoría -->
           <thead class="has-background-warning-light">
             <tr class="has-text-centered">
               <th>Jugador</th>
@@ -23,6 +30,8 @@
               <th>Asistencias</th>
             </tr>
           </thead>
+
+          <!-- Cuerpo de la tabla: muestra una fila por jugador -->
           <tbody>
             {% for stat in estadisticas %}
             <tr class="has-text-centered">
@@ -33,6 +42,7 @@
               <td>{{ stat.asistencias }}</td>
             </tr>
             {% empty %}
+            <!-- Fila alternativa si no hay estadísticas -->
             <tr>
               <td colspan="5" class="has-text-centered has-text-grey-light">
                 No hay estadísticas registradas.
@@ -43,13 +53,13 @@
         </table>
       </div>
 
+      <!-- Enlace de retorno al menú principal -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
           ← Volver al inicio
         </a>
       </div>
     </div>
-
-  </div>
+  </div> 
 </section>
 {% endblock %}

@@ -4,16 +4,23 @@
 {% block title %}Estadísticas Ecuaboly - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- VISTA DE ESTADÍSTICAS DE ECUABOLY -->
 <section class="section">
   <div class="container">
 
+    <!-- Contenedor principal con fondo claro y diseño visual agradable -->
     <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+
+      <!-- Título principal con ícono temático y centrado -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
         🏐 Estadísticas de Ecuaboly
       </h2>
 
+      <!-- Tabla de estadísticas: scrollable en pantallas pequeñas -->
       <div class="table-container">
         <table class="table is-fullwidth is-hoverable is-striped is-bordered">
+
+          <!-- Encabezado con color de fondo suave y centrado -->
           <thead class="has-background-warning-light">
             <tr class="has-text-centered">
               <th>Jugador</th>
@@ -22,6 +29,8 @@
               <th>Sets Perdidos</th>
             </tr>
           </thead>
+
+          <!-- Itera sobre las estadísticas individuales -->
           <tbody>
             {% for stat in estadisticas %}
             <tr class="has-text-centered">
@@ -31,6 +40,7 @@
               <td>{{ stat.sets_perdidos }}</td>
             </tr>
             {% empty %}
+            <!-- Mensaje si no hay estadísticas cargadas -->
             <tr>
               <td colspan="4" class="has-text-centered has-text-grey-light">
                 No hay estadísticas registradas.
@@ -41,13 +51,13 @@
         </table>
       </div>
 
+      <!-- Botón de retorno al menú de inicio -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
           ← Volver al inicio
         </a>
       </div>
     </div>
-
-  </div>
+  </div> 
 </section>
 {% endblock %}

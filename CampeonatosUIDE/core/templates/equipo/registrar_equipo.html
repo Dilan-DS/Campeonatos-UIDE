@@ -3,27 +3,41 @@
 {% block title %}Registrar Nuevo Equipo - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- FORMULARIO PARA REGISTRAR NUEVO EQUIPO -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja visual con fondo claro y diseño estilizado -->
     <div class="box has-background-light" style="border-radius: 20px; padding: 2rem;">
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">Registrar Nuevo Equipo</h2>
+      
+      <!-- Título principal centrado -->
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">
+        Registrar Nuevo Equipo
+      </h2>
 
+      <!-- Formulario POST que permite carga de archivos (logo, documentación, etc.) -->
       <form method="post" enctype="multipart/form-data" class="mt-4">
-        {% csrf_token %}
+        {% csrf_token %}  <!-- 🔐 Protección contra ataques CSRF -->
 
+        <!-- Recorre todos los campos del formulario -->
         {% for field in form %}
           <div class="field">
+            <!-- Etiqueta con color oscuro -->
             <label class="label has-text-dark">{{ field.label }}</label>
+
+            <!-- Campo de entrada estilizado con clases Bulma -->
             <div class="control">
               {{ field|add_class:"input is-rounded is-medium" }}
             </div>
+
+            <!-- ⚠️ Mensaje de error si hay problemas de validación -->
             {% if field.errors %}
               <p class="help is-danger">{{ field.errors }}</p>
             {% endif %}
           </div>
         {% endfor %}
 
+        <!-- Botón para enviar el formulario -->
         <div class="field mt-5">
           <div class="control">
             <button type="submit" class="button is-link is-fullwidth is-rounded is-medium">
@@ -33,6 +47,7 @@
         </div>
       </form>
 
+      <!-- Botón para volver al listado de equipos -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded">
           ← Volver al listado

@@ -4,22 +4,33 @@
 {% block title %}Registrar Deporte{% endblock %}
 
 {% block content %}
+
+<!-- FORMULARIO PARA REGISTRAR NUEVO DEPORTE -->
 <section class="section">
   <div class="container">
+
+    <!-- Contenedor del formulario con estilos personalizados -->
     <div class="box" style="background-color: #fffdf8; border-radius: 1rem; padding: 2.5rem;">
+      
+      <!-- Título de la vista -->
       <h2 class="title has-text-centered has-text-danger">⚽ Registrar Deporte</h2>
 
+      <!-- Formulario con metodo POST -->
       <form method="POST">
-        {% csrf_token %}
+        {% csrf_token %} <!-- 🔐 Protección CSRF -->
+
+        <!-- 🔁 Renderiza todos los campos del formulario en columnas responsivas -->
         <div class="columns is-multiline">
           {% for field in form %}
-          <div class="column is-12-mobile is-6-tablet">
+          <div class="column is-12-mobile is-6-tablet"> <!-- 📱 Columnas adaptables por tamaño de pantalla -->
             <div class="field">
               <label class="label has-text-grey-dark">{{ field.label }}</label>
               <div class="control">
+                <!-- Campo estilizado con clases Bulma -->
                 {{ field|add_class:"input is-rounded is-light" }}
               </div>
               {% for error in field.errors %}
+                <!-- Mensajes de error por campo -->
                 <p class="help is-danger">{{ error }}</p>
               {% endfor %}
             </div>
@@ -27,6 +38,7 @@
           {% endfor %}
         </div>
 
+        <!-- Boton para enviar el formulario -->
         <div class="field mt-5">
           <button class="button is-warning is-fullwidth is-rounded is-medium">
             Guardar Deporte
@@ -34,12 +46,14 @@
         </div>
       </form>
 
+      <!-- Boton para volver al listado de deportes -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded">
           ← Volver al listado
         </a>
       </div>
     </div>
+
   </div>
 </section>
 {% endblock %}
