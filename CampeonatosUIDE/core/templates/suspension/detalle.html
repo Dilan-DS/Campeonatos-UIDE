@@ -1,16 +1,34 @@
 {% extends "comun/base.html" %}
 {% block content %}
+<!-- Sección principal para mostrar el detalle de una suspensión -->
 <section class="section">
+  <!-- Contenedor central para organizar el contenido -->
   <div class="container">
+
+    <!-- Título principal de la página -->
     <h1 class="title">Detalle de Suspensión</h1>
+
+    <!-- Caja con borde y relleno para agrupar la información -->
     <div class="box">
+      <!-- Nombre de usuario del jugador suspendido -->
       <p><strong>Jugador:</strong> {{ suspension.jugador.usuario.username }}</p>
+      
+      <!-- Nombre del equipo al que pertenece el jugador -->
       <p><strong>Equipo:</strong> {{ suspension.jugador.equipo.nombre }}</p>
+      
+      <!-- Fecha en que comienza la suspensión -->
       <p><strong>Fecha Inicio:</strong> {{ suspension.fecha_inicio }}</p>
+      
+      <!-- Fecha en que termina la suspensión -->
       <p><strong>Fecha Fin:</strong> {{ suspension.fecha_fin }}</p>
+      
+      <!-- Motivo o razón de la suspensión -->
       <p><strong>Motivo:</strong> {{ suspension.motivo }}</p>
     </div>
+
+    <!-- Botón para regresar a la lista de suspensiones -->
     <a href="{% url 'listar_suspensiones' %}" class="button is-link">Volver</a>
   </div>
 </section>
+
 {% endblock %}

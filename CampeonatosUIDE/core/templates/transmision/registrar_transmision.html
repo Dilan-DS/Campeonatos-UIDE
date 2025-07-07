@@ -4,22 +4,31 @@
 {% block content %}
 <section class="section">
   <div class="container">
+
+    <!-- Título de la página para registrar una nueva transmisión -->
     <h1 class="title is-4 has-text-primary">🎥 Registrar Nueva Transmisión</h1>
 
+    <!-- Formulario para crear una nueva transmisión, con protección CSRF -->
     <form method="POST" class="box">
       {% csrf_token %}
-      
+
+      <!-- Contenedor de columnas para organizar los campos del formulario -->
       <div class="columns is-multiline">
+        <!-- Itera sobre cada campo del formulario -->
         {% for field in form %}
         <div class="column is-half">
           <div class="field">
+            <!-- Etiqueta del campo -->
             <label class="label">{{ field.label }}</label>
             <div class="control">
+              <!-- Renderiza el campo de formulario -->
               {{ field }}
             </div>
+            <!-- Texto de ayuda opcional para el campo -->
             {% if field.help_text %}
               <p class="help">{{ field.help_text }}</p>
             {% endif %}
+            <!-- Mensajes de error para el campo -->
             {% for error in field.errors %}
               <p class="help is-danger">{{ error }}</p>
             {% endfor %}
@@ -28,6 +37,7 @@
         {% endfor %}
       </div>
 
+      <!-- Botones para enviar el formulario o cancelar y volver al listado -->
       <div class="field is-grouped is-justify-content-center">
         <div class="control">
           <button type="submit" class="button is-success is-light">💾 Guardar Transmisión</button>
@@ -37,6 +47,8 @@
         </div>
       </div>
     </form>
+
   </div>
 </section>
+
 {% endblock %}

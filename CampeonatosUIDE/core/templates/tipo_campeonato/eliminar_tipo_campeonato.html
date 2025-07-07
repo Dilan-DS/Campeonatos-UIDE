@@ -4,17 +4,27 @@
 {% block title %}Eliminar Tipo de Campeonato - UIDE{% endblock %}
 
 {% block content %}
+<!-- Sección principal para la confirmación de eliminación de un tipo de campeonato -->
 <section class="section">
   <div class="container">
+    <!-- Caja centrada con ancho máximo, fondo rosado claro, bordes redondeados y sombra -->
     <div class="box has-text-centered" style="max-width: 500px; margin: auto; background-color: #fff0f0; border-radius: 20px; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
       
+      <!-- Título de advertencia en rojo para confirmar acción -->
       <h2 class="title is-4 has-text-danger mb-4">¿Estás seguro que deseas eliminar este tipo de campeonato?</h2>
+      
+      <!-- Muestra el nombre del tipo de campeonato que se va a eliminar -->
       <p class="mb-5"><strong>{{ tipo.nombre }}</strong></p>
 
+      <!-- Formulario para enviar la confirmación de eliminación por POST -->
       <form method="post">
-        {% csrf_token %}
+        {% csrf_token %} <!-- Token CSRF para seguridad -->
+
+        <!-- Botones centrados: confirmar eliminación y cancelar -->
         <div class="buttons is-centered">
+          <!-- Botón rojo para confirmar eliminación -->
           <button type="submit" class="button is-danger is-rounded px-5">Sí, eliminar</button>
+          <!-- Enlace para cancelar y regresar a la lista de tipos de campeonato -->
           <a href="{% url 'listar_tipos_campeonato' %}" class="button is-light is-rounded px-5">Cancelar</a>
         </div>
       </form>
@@ -22,4 +32,5 @@
     </div>
   </div>
 </section>
+
 {% endblock %}

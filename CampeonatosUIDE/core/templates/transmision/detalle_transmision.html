@@ -4,17 +4,29 @@
 {% block content %}
 <section class="section">
   <div class="container">
+
+    <!-- Título de la sección con tamaño y color -->
     <h1 class="title is-4 has-text-primary">Detalle de Transmisión</h1>
 
+    <!-- Caja que contiene la información detallada -->
     <div class="box">
+      <!-- Muestra el nombre del campeonato con un ícono -->
       <p><strong>🎯 Campeonato:</strong> {{ transmision.campeonato.nombre }}</p>
+      
+      <!-- Muestra el partido correspondiente a la transmisión -->
       <p><strong>⚽ Partido:</strong> {{ transmision.partido }}</p>
+      
+      <!-- Enlace de la transmisión con apertura en nueva pestaña y estilo de link -->
       <p><strong>🔗 Enlace:</strong> 
         <a href="{{ transmision.enlace }}" target="_blank" class="has-text-link">
           {{ transmision.enlace }}
         </a>
       </p>
+      
+      <!-- Descripción de la transmisión -->
       <p><strong>📝 Descripción:</strong> {{ transmision.descripcion }}</p>
+      
+      <!-- Estado activo/inactivo de la transmisión con etiqueta de color -->
       <p><strong>📡 Activa:</strong> 
         <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
           {{ transmision.activa|yesno:"Sí,No" }}
@@ -22,9 +34,11 @@
       </p>
     </div>
 
+    <!-- Botón para regresar a la lista de transmisiones -->
     <a href="{% url 'listar_transmisiones' %}" class="button is-info is-light mt-2">
       ← Volver al listado
     </a>
   </div>
 </section>
+
 {% endblock %}

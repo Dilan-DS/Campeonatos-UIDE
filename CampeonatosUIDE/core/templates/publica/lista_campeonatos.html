@@ -3,27 +3,49 @@
 {% block title %}Campeonatos Públicos{% endblock %}
 
 {% block content %}
+<!-- Sección principal que contiene los campeonatos disponibles -->
 <section class="section">
+  <!-- Contenedor central para alinear y espaciar el contenido -->
   <div class="container">
+
+    <!-- Título principal centrado -->
     <h1 class="title is-3 has-text-centered">Campeonatos Disponibles</h1>
+
+    <!-- Contenedor de columnas que permite múltiples filas y centrado -->
     <div class="columns is-multiline is-centered">
 
+      <!-- Bucle que itera sobre cada campeonato en la lista -->
       {% for campeonato in campeonatos %}
+        <!-- Columna que ocupa un tercio del ancho en pantallas grandes -->
         <div class="column is-4">
+
+          <!-- Tarjeta que contiene la información del campeonato -->
           <div class="card">
+
+            <!-- Contenido dentro de la tarjeta -->
             <div class="card-content">
+
+              <!-- Nombre del campeonato como título secundario -->
               <h3 class="title is-5">{{ campeonato.nombre }}</h3>
+
+              <!-- Descripción del campeonato con margen inferior -->
               <p class="mb-3">{{ campeonato.descripcion }}</p>
 
+              <!-- Botón para ver la tabla de posiciones del campeonato -->
               <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="button is-info is-small">
                 Ver tabla de posiciones
               </a>
 
+              <!-- Verificación si el usuario está autenticado -->
               {% if user.is_authenticated %}
+
+                <!-- Mostrar mensaje según el rol del usuario -->
                 {% if user.rol == "DELEGADO" %}
                   <p class="mt-2 has-text-success">Eres delegado. Puedes registrar equipos desde el panel.</p>
+
                 {% elif user.rol == "JUGADOR" %}
                   <p class="mt-2 has-text-link">Eres jugador. Solo puedes ver las posiciones y tu equipo.</p>
+
                 {% elif user.rol == "ADMIN" %}
                   <p class="mt-2 has-text-danger">Eres administrador. Gestión completa desde el dashboard.</p>
                 {% endif %}
@@ -31,11 +53,7 @@
             </div>
           </div>
         </div>
+      <!-- Mensaje que se muestra si no hay campeonatos disponibles -->
       {% empty %}
-        <p class="has-text-centered">No hay campeonatos disponibles.</p>
-      {% endfor %}
 
-    </div>
-  </div>
-</section>
 {% endblock %}

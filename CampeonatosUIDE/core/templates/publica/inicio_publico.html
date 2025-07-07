@@ -3,41 +3,77 @@
 {% block title %}Campeonatos Activos - UIDE{% endblock %}
 
 {% block content %}
+<!-- Contenedor principal para la sección de campeonatos -->
 <div class="contenedor-campeonatos">
+
+  <!-- Título principal centrado -->
   <h1 class="title is-3 has-text-centered">Campeonatos Activos</h1>
+
+  <!-- Subtítulo centrado con descripción -->
   <p class="subtitle has-text-centered">Explora los campeonatos en curso. ¡Consulta sus estadísticas!</p>
 
+  <!-- Contenedor de columnas que permite múltiples filas y centrado -->
   <div class="columns is-multiline is-centered">
+
+    <!-- Bucle que itera sobre todos los campeonatos disponibles -->
     {% for campeonato in campeonatos %}
+
+      <!-- Columna que ocupa 1/3 del ancho en pantallas grandes -->
       <div class="column is-4">
+
+        <!-- Tarjeta para mostrar la información de cada campeonato -->
         <div class="card">
+
+          <!-- Contenido de la tarjeta -->
           <div class="card-content">
+
+            <!-- Nombre del campeonato como título -->
             <h3 class="title is-5">{{ campeonato.nombre }}</h3>
+
+            <!-- Fecha de inicio del campeonato, formateada en día/mes/año -->
             <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio|date:"d/m/Y" }}</p>
+
+            <!-- Fecha de fin del campeonato, formateada en día/mes/año -->
             <p><strong>Fin:</strong> {{ campeonato.fecha_fin|date:"d/m/Y" }}</p>
 
+            <!-- Botón que enlaza a la página de estadísticas del campeonato -->
             <a href="{% url 'tabla_estadisticas' campeonato.id %}" class="button is-link is-small mt-3">
               Ver estadísticas
             </a>
 
+            <!-- Condición: Si el usuario está autenticado y tiene rol DELEGADO -->
             {% if user.is_authenticated and user.rol == "DELEGADO" %}
+
+              <!-- Si el campeonato actual NO está en la lista de campeonatos con equipo -->
               {% if campeonato.id not in campeonatos_con_equipo %}
+
+                <!-- Formulario para registrar un equipo en el campeonato -->
                 <form method="get" action="{% url 'registrar_equipo' %}" class="mt-2">
+                  <!-- Campo oculto para enviar el ID del campeonato -->
                   <input type="hidden" name="campeonato_id" value="{{ campeonato.id }}">
+
+                  <!-- Botón para enviar el formulario y registrar equipo -->
                   <button type="submit" class="button is-success is-small">
                     Registrar equipo
                   </button>
                 </form>
+
+              <!-- Si el campeonato ya tiene equipo registrado por el delegado -->
               {% else %}
+                <!-- Mensaje indicando que ya tiene un equipo registrado -->
                 <p class="has-text-success mt-2">✅ Ya tienes un equipo en este campeonato.</p>
               {% endif %}
             {% endif %}
+
           </div>
         </div>
       </div>
+    <!-- Mensaje que se muestra si no hay campeonatos activos -->
     {% empty %}
       <p class="has-text-centered">No hay campeonatos activos en este momento.</p>
     {% endfor %}
+
   </div>
 </div>
+
 {% endblock %}

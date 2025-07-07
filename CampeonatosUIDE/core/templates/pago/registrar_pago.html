@@ -2,17 +2,30 @@
 {% block title %}Registrar Pago{% endblock %}
 
 {% block content %}
+<!-- Contenedor con padding, ancho máximo de 600px y centrado en la página -->
 <div class="box p-6" style="max-width: 600px; margin: auto;">
+
+  <!-- Título centrado de la sección de registro -->
   <h2 class="title is-4 has-text-centered">Registrar Pago</h2>
 
+  <!-- Formulario para registrar un nuevo pago -->
   <form method="POST" enctype="multipart/form-data">
+    
+    <!-- Token CSRF obligatorio para proteger el formulario contra ataques -->
     {% csrf_token %}
+    
+    <!-- Renderiza el formulario automáticamente con los campos definidos en la vista -->
     {{ form.as_p }}
+
+    <!-- Contenedor del botón de envío con margen superior -->
     <div class="field mt-5">
+      
+      <!-- Botón para enviar el formulario y guardar el pago -->
       <button class="button is-success is-fullwidth is-rounded">Guardar Pago</button>
     </div>
   </form>
 
+  <!-- Botón para volver a la lista de pagos, centrado -->
   <div class="has-text-centered mt-4">
     <a href="{% url 'listar_pagos' %}" class="button is-light">← Volver</a>
   </div>

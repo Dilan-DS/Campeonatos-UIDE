@@ -9,28 +9,39 @@
     <div class="columns is-centered">
       <div class="column is-6">
 
-        <!-- Caja de registro con sombra -->
+        <!-- Caja principal del formulario con borde redondeado y padding -->
         <div class="box" style="border-radius: 16px; padding: 2rem;">
+          <!-- Título centrado del formulario -->
           <h2 class="title is-4 has-text-centered">Registro de Usuario</h2>
 
+          <!-- Formulario con método POST -->
           <form method="post" class="has-text-centered">
-            {% csrf_token %}
+            {% csrf_token %} <!-- Token de protección CSRF -->
 
+            <!-- Bucle para mostrar cada campo del formulario -->
             {% for field in form %}
               <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
+                <!-- Etiqueta del campo -->
                 <label class="label">{{ field.label }}</label>
+
+                <!-- Control que contiene el campo, con ancho fijo -->
                 <div class="control" style="width: 80%;">
                   {{ field }}
                 </div>
+
+                <!-- Texto de ayuda opcional para el campo -->
                 {% if field.help_text %}
                   <p class="help">{{ field.help_text }}</p>
                 {% endif %}
+
+                <!-- Mostrar errores del campo, si los hay -->
                 {% for error in field.errors %}
                   <p class="help is-danger">{{ error }}</p>
                 {% endfor %}
               </div>
             {% endfor %}
 
+            <!-- Botón para enviar el formulario -->
             <div class="field mt-5">
               <div class="control">
                 <button type="submit" class="button is-primary is-fullwidth">Registrarse</button>
@@ -38,7 +49,7 @@
             </div>
           </form>
 
-          <!-- Enlace para login -->
+          <!-- Enlace para usuarios que ya tienen cuenta, para ir a la página de login -->
           <p class="has-text-centered mt-4">
             ¿Ya tienes cuenta?
             <a href="{% url 'login' %}" class="has-text-link"><strong>Inicia sesión aquí</strong></a>
@@ -49,4 +60,5 @@
     </div>
   </div>
 </section>
+
 {% endblock %}

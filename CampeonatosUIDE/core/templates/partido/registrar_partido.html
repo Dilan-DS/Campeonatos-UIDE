@@ -1,14 +1,28 @@
 {% extends 'comun/base.html' %}
 {% block title %}Registrar Partido{% endblock %}
 {% block content %}
+<!-- Sección principal que contiene el formulario -->
 <section class="section">
+
+  <!-- Contenedor central para alinear el contenido -->
   <div class="container">
+
+    <!-- Título de la página para registrar un partido -->
     <h1 class="title">Registrar Partido</h1>
+
+    <!-- Formulario para registrar un nuevo partido -->
     <form method="post">
+      
+      <!-- Token CSRF para proteger contra ataques CSRF -->
       {% csrf_token %}
+      
+      <!-- Renderizado automático del formulario con etiquetas <p> para cada campo -->
       {{ form.as_p }}
+      
+      <!-- Botón para enviar el formulario -->
       <button type="submit" class="button is-success">Guardar</button>
     </form>
   </div>
 </section>
+
 {% endblock %}

@@ -6,8 +6,10 @@
 {% block content %}
 <section class="section">
   <div class="container">
+    <!-- Caja principal con estilo de fondo claro, bordes redondeados y sombra -->
     <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
 
+      <!-- Título y botón para agregar un nuevo tipo de campeonato -->
       <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
         <h2 class="title is-3 has-text-danger">🧩 Tipos de Campeonato</h2>
         <a href="{% url 'registrar_tipo_campeonato' %}" class="button is-danger is-rounded">
@@ -15,7 +17,7 @@
         </a>
       </div>
 
-      <!-- 🧠 Barra de búsqueda -->
+      <!-- Barra de búsqueda para filtrar tipos de campeonato por nombre -->
       <div class="field mb-4">
         <div class="control has-icons-left">
           <input class="input" type="text" placeholder="Buscar por nombre..." id="busquedaInput">
@@ -25,6 +27,7 @@
         </div>
       </div>
 
+      <!-- Si existen tipos, se muestra la tabla con los datos -->
       {% if tipos %}
         <table class="table is-fullwidth is-striped is-hoverable" id="tablaTipos">
           <thead>
@@ -35,12 +38,16 @@
             </tr>
           </thead>
           <tbody>
+            <!-- Iteración sobre los tipos para mostrarlos en filas -->
             {% for tipo in tipos %}
               <tr>
                 <td>{{ tipo.nombre }}</td>
+                <!-- Se muestra la descripción o un guion si está vacía -->
                 <td>{{ tipo.descripcion|default:"—" }}</td>
                 <td class="has-text-centered">
+                  <!-- Botón para editar el tipo -->
                   <a href="{% url 'editar_tipo_campeonato' tipo.id %}" class="button is-small is-warning is-light">✏️ Editar</a>
+                  <!-- Botón para eliminar con confirmación -->
                   <a href="{% url 'eliminar_tipo_campeonato' tipo.id %}" class="button is-small is-danger is-light" onclick="return confirm('¿Estás seguro que deseas eliminar este tipo?')">🗑️ Eliminar</a>
                 </td>
               </tr>
@@ -48,6 +55,7 @@
           </tbody>
         </table>
       {% else %}
+        <!-- Mensaje si no hay tipos registrados -->
         <div class="notification is-warning is-light has-text-centered">
           No hay tipos de campeonato registrados todavía.
         </div>
@@ -56,12 +64,14 @@
   </div>
 </section>
 
-<!-- 🔍 Script de búsqueda -->
+<!-- Script para la funcionalidad de búsqueda dinámica -->
 <script>
+  // Captura el evento keyup sobre el input de búsqueda
   document.getElementById("busquedaInput").addEventListener("keyup", function() {
-    const filtro = this.value.toLowerCase();
-    const filas = document.querySelectorAll("#tablaTipos tbody tr");
+    const filtro = this.value.toLowerCase(); // Texto a buscar en minúsculas
+    const filas = document.querySelectorAll("#tablaTipos tbody tr"); // Todas las filas de la tabla
 
+    // Recorre cada fila y muestra u oculta según el filtro
     filas.forEach(fila => {
       const texto = fila.textContent.toLowerCase();
       fila.style.display = texto.includes(filtro) ? "" : "none";
