@@ -4,16 +4,23 @@
 {% block title %}Estadísticas Fútbol - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- VISTA DE ESTADÍSTICAS DE FÚTBOL -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja visual clara con bordes redondeados y padding generoso -->
     <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+
+      <!-- Título principal con emoji representativo -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
         ⚽ Estadísticas de Fútbol
       </h2>
 
+      <!-- Contenedor que permite desplazamiento horizontal en pantallas pequeñas -->
       <div class="table-container">
         <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+          
+          <!-- Cabecera con fondo amarillo suave y columnas centradas -->
           <thead class="has-background-warning-light">
             <tr class="has-text-centered">
               <th>Jugador</th>
@@ -23,6 +30,8 @@
               <th>Rojas</th>
             </tr>
           </thead>
+
+          <!-- Cuerpo de la tabla: muestra una fila por jugador -->
           <tbody>
             {% for stat in estadisticas %}
             <tr class="has-text-centered">
@@ -33,6 +42,7 @@
               <td>{{ stat.tarjetas_rojas }}</td>
             </tr>
             {% empty %}
+            <!-- Mensaje si no hay datos cargados -->
             <tr>
               <td colspan="5" class="has-text-centered has-text-grey-light">
                 No hay estadísticas registradas.
@@ -43,13 +53,13 @@
         </table>
       </div>
 
+      <!-- Botón de retorno -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
           ← Volver al inicio
         </a>
       </div>
     </div>
-
-  </div>
+  </div> 
 </section>
 {% endblock %}

@@ -2,18 +2,22 @@
 {% block title %}Jugadores{% endblock %}
 
 {% block content %}
+<!-- VISTA: LISTADO DE JUGADORES REGISTRADOS -->
 <div class="box mt-6">
+  <!--  Título de la sección -->
   <h2 class="title is-4">Jugadores Registrados</h2>
-
-  <a href="{% url 'registrar_jugador' %}" class="button is-link is-rounded mb-4">+ Agregar Jugador</a>
-
+  <!-- Botón para agregar un nuevo jugador -->
+  <a href="{% url 'registrar_jugador' %}" class="button is-link is-rounded mb-4">
+    + Agregar Jugador
+  </a>
+  <!-- Tabla que muestra información resumida de cada jugador -->
   <table class="table is-fullwidth is-striped">
     <thead>
       <tr>
-        <th>Nombre</th>
-        <th>Edad</th>
-        <th>N° Camiseta</th>
-        <th>Acciones</th>
+        <th>Nombre</th>             
+        <th>Edad</th>               
+        <th>N° Camiseta</th>         
+        <th>Acciones</th>            
       </tr>
     </thead>
     <tbody>
@@ -23,11 +27,14 @@
         <td>{{ jugador.edad }}</td>
         <td>{{ jugador.numero_camiseta }}</td>
         <td>
+          <!-- Enlace para ver detalles del jugador -->
           <a class="button is-small is-info" href="{% url 'detalle_jugador' jugador.id %}">Ver</a>
+          <!-- Enlace para editar información del jugador -->
           <a class="button is-small is-warning" href="{% url 'editar_jugador' jugador.id %}">Editar</a>
         </td>
       </tr>
       {% empty %}
+      <!-- Fila alternativa si no hay jugadores registrados -->
       <tr>
         <td colspan="4">No hay jugadores registrados.</td>
       </tr>

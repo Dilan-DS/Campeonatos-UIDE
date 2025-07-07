@@ -4,25 +4,32 @@
 {% block title %}Editar Deporte - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+
+<!-- PANEL DEL EDITAR DEPORTE -->
 <section class="section">
   <div class="container">
 
+    <!-- Contenedor del formulario con estilo personalizado -->
     <div class="box" style="max-width: 600px; margin: auto; border-radius: 18px; background-color: #fffef8; padding: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+      <!-- Título principal -->
       <h2 class="title is-3 has-text-centered has-text-danger mb-5">✏️ Editar Deporte</h2>
-
+      
+      <!-- Formulario de edición con método POST -->
       <form method="post">
         {% csrf_token %}
 
+        <!-- Campo: Nombre del deporte -->
         <div class="field">
           <label class="label">Nombre</label>
           <div class="control">
             {{ form.nombre|add_class:"input" }}
-          </div>
+          </div>  
           {% if form.nombre.errors %}
             <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
           {% endif %}
         </div>
 
+        <!-- Campo: Descripción del deporte -->
         <div class="field">
           <label class="label">Descripción</label>
           <div class="control">
@@ -31,8 +38,9 @@
           {% if form.descripcion.errors %}
             <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
           {% endif %}
-        </div>
+        </div>\
 
+        <!--  Botones: Guardar y Cancelar -->
         <div class="field is-grouped is-grouped-centered mt-5">
           <div class="control">
             <button type="submit" class="button is-danger is-rounded">Guardar cambios</button>

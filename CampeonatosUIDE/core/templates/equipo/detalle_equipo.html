@@ -3,12 +3,15 @@
 {% block title %}Detalle del Equipo - {{ equipo.nombre }}{% endblock %}
 
 {% block content %}
+<!-- DETALLE DE EQUIPO: Muestra información general y jugadores de un equipo -->
 <div class="equipo-detalle">
+  <!-- Nombre del equipo -->
   <h1>{{ equipo.nombre }}</h1>
-
-  <div class="equipo-info">
-    <img src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}" class="equipo-logo">
-    
+  <!-- Sección con información del equipo (logo + datos clave) -->
+  <div class="equipo-info">   
+    <!-- Logo del equipo (imagen desde archivo cargado) -->
+    <img src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}" class="equipo-logo">   
+    <!-- Lista de datos clave -->
     <ul class="equipo-datos">
       <li><strong>Campeonato:</strong> {{ equipo.campeonato.nombre }}</li>
       <li><strong>Carrera:</strong> {{ equipo.carrera.nombre }}</li>
@@ -18,11 +21,12 @@
       <li><strong>Tarjetas Totales:</strong> {{ equipo.tarjetas_totales }}</li>
     </ul>
   </div>
-
+  <!-- Separador visual -->
   <hr>
-
+  <!-- Sección de jugadores del equipo -->
   <h2>Jugadores</h2>
   {% if equipo.jugadores.all %}
+    <!-- Tabla con lista de jugadores -->
     <table class="jugadores-tabla">
       <thead>
         <tr>
@@ -35,18 +39,27 @@
       <tbody>
         {% for jugador in equipo.jugadores.all %}
           <tr>
+            <!-- Número de fila automático -->
             <td>{{ forloop.counter }}</td>
+
+            <!-- Nombre completo del jugador -->
             <td>{{ jugador.usuario.first_name }} {{ jugador.usuario.last_name }}</td>
+
+            <!-- Edad -->
             <td>{{ jugador.edad }}</td>
+
+            <!-- Número de camiseta -->
             <td>{{ jugador.numero_camiseta }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   {% else %}
+    <!-- Mensaje si no hay jugadores -->
     <p>No hay jugadores registrados aún.</p>
   {% endif %}
 
+  <!-- Enlace para volver al listado de equipos -->
   <a href="{% url 'listar_equipos' %}" class="btn-volver">← Volver al listado</a>
 </div>
 {% endblock %}

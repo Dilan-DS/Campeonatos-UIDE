@@ -3,13 +3,18 @@
 {% block title %}Listado de Equipos - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- VISTA: LISTADO DE EQUIPOS REGISTRADOS -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja principal con fondo claro, padding y bordes redondeados -->
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+
+      <!-- Título principal centrado -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark">Equipos Registrados</h2>
 
       {% if equipos %}
+        <!-- Tabla de equipos si hay datos disponibles -->
         <table class="table is-fullwidth is-striped is-hoverable mt-5">
           <thead>
             <tr class="has-background-warning-light">
@@ -22,8 +27,13 @@
           <tbody>
             {% for equipo in equipos %}
               <tr>
+                <!-- Nombre del equipo -->
                 <td>{{ equipo.nombre }}</td>
+
+                <!-- Carrera asociada al equipo -->
                 <td>{{ equipo.carrera.nombre }}</td>
+
+                <!-- Estado de aprobación con etiquetas visuales -->
                 <td>
                   {% if equipo.aprobado %}
                     <span class="tag is-success">Aprobado</span>
@@ -31,22 +41,28 @@
                     <span class="tag is-danger">No aprobado</span>
                   {% endif %}
                 </td>
+
+                <!-- Enlace para ver los detalles del equipo -->
                 <td>
-                  <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
+                  <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">
+                    Ver
+                  </a>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
+        <!--  Mensaje si no hay equipos registrados -->
         <p class="has-text-centered has-text-grey">No hay equipos registrados.</p>
       {% endif %}
-
+      <!-- Botón para regresar al inicio -->
       <div class="has-text-centered mt-4">
-        <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">← Volver al inicio</a>
+        <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
+          ← Volver al inicio
+        </a>
       </div>
     </div>
-
   </div>
 </section>
 {% endblock %}

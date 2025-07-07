@@ -4,16 +4,23 @@
 {% block title %}Estadísticas Ajedrez - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- TABLA DE ESTADÍSTICAS DE AJEDREZ -->
 <section class="section">
   <div class="container">
-    
+
+    <!-- Caja estilizada para el contenido -->
     <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
+      
+      <!-- Título principal centrado con color personalizado -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
         ♟️ Estadísticas de Ajedrez
       </h2>
 
+      <!-- Contenedor de tabla para permitir desplazamiento horizontal en pantallas pequeñas -->
       <div class="table-container">
         <table class="table is-striped is-hoverable is-fullwidth is-bordered">
+          
+          <!-- Encabezado de la tabla con fondo distintivo -->
           <thead class="has-background-danger-light">
             <tr class="has-text-centered">
               <th>Jugador</th>
@@ -23,6 +30,8 @@
               <th>Perdidas</th>
             </tr>
           </thead>
+
+          <!-- Datos de cada jugador -->
           <tbody>
             {% for stat in estadisticas %}
               <tr class="has-text-centered">
@@ -33,6 +42,7 @@
                 <td>{{ stat.partidas_perdidas }}</td>
               </tr>
             {% empty %}
+              <!-- Fila alternativa si no hay datos -->
               <tr>
                 <td colspan="5" class="has-text-centered has-text-grey-light">
                   No hay estadísticas registradas.
@@ -43,6 +53,7 @@
         </table>
       </div>
 
+      <!-- Botón para volver al inicio -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-light is-rounded">
           ← Volver al inicio

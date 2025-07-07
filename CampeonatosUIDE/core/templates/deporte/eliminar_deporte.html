@@ -4,19 +4,27 @@
 {% block title %}Eliminar Deporte - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- SECCION DE CONFIRMACIÓN PARA ELIMINAR DEPORTE -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja central estilizada con fondo de advertencia suave -->
     <div class="box has-background-warning-light" style="max-width: 600px; margin: auto; border-radius: 18px; padding: 2rem;">
+      <!-- Titulo de la acción (Eliminar) con estilo visual llamativo -->
       <h2 class="title is-3 has-text-centered has-text-danger mb-4">🗑️ Eliminar Deporte</h2>
 
+      <!-- Mensaje de confirmación al usuario -->
       <p class="has-text-centered mb-4">
         ¿Estás seguro que deseas eliminar el deporte <strong>{{ deporte.nombre }}</strong>?
       </p>
 
+      <!-- Formulario de confirmación con botón "Sí, eliminar" -->
       <form method="post" class="has-text-centered">
         {% csrf_token %}
+
+        <!-- Boton para confirmar la eliminación -->
         <button type="submit" class="button is-danger is-rounded">Sí, eliminar</button>
+        <!-- Boton para cancelar y volver al listado -->
         <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded ml-3">Cancelar</a>
       </form>
     </div>

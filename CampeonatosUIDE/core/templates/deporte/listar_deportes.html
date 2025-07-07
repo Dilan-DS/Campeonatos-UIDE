@@ -4,21 +4,27 @@
 {% block title %}Listado de Deportes - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+
+<!-- LISTADO DE DEPORTES REGISTRADOS -->
 <section class="section">
   <div class="container">
 
+    <!-- Caja principal con estilo limpio y sombra suave -->
     <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+
+      <!-- Encabezado: Titulo + boton de "Agregar Deporte" (solo para ADMIN) -->
       <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
         <h2 class="title is-3 has-text-danger">🏅 Deportes Registrados</h2>
 
         {% if user.rol == "ADMIN" %}
+        <!-- Boton para registrar nuevo deporte -->
         <a href="{% url 'registrar_deporte' %}" class="button is-warning is-rounded">
           <strong>+ Agregar Deporte</strong>
         </a>
         {% endif %}
       </div>
 
-      <!-- Barra de búsqueda -->
+      <!-- Barra de busqueda por nombre -->
       <div class="field mb-4">
         <div class="control has-icons-left">
           <input class="input" type="text" placeholder="Buscar por nombre..." id="busquedaInput">
@@ -29,6 +35,7 @@
       </div>
 
       {% if deportes %}
+      <!-- Tabla con los deportes listados -->
         <table class="table is-fullwidth is-hoverable is-striped" id="tablaDeportes">
           <thead>
             <tr class="has-background-warning-light">
@@ -46,7 +53,9 @@
                 <td>{{ deporte.descripcion|default:"Sin descripción" }}</td>
                 {% if user.rol == "ADMIN" %}
                 <td class="has-text-centered">
+                  <!-- Boton para editar -->
                   <a href="{% url 'editar_deporte' deporte.id %}" class="button is-small is-info is-light">✏️ Editar</a>
+                  <!-- Boton para eliminar con confirmacion -->
                   <a href="{% url 'eliminar_deporte' deporte.id %}" class="button is-small is-danger is-light" onclick="return confirm('¿Estás seguro de eliminar este deporte?')">🗑️ Eliminar</a>
                 </td>
                 {% endif %}
@@ -55,6 +64,7 @@
           </tbody>
         </table>
       {% else %}
+      <!-- Mensaje si no hay deportes registrados -->
         <div class="notification is-warning is-light has-text-centered">
           No hay deportes registrados todavía.
         </div>
@@ -64,7 +74,7 @@
   </div>
 </section>
 
-<!-- Script para búsqueda -->
+<!-- Script para busqueda -->
 <script>
   document.getElementById("busquedaInput").addEventListener("keyup", function() {
     const filtro = this.value.toLowerCase();

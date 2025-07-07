@@ -3,13 +3,15 @@
 {% block title %}Jugadores del Equipo - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<!-- LISTADO DE JUGADORES DEL EQUIPO -->
 <section class="section">
   <div class="container">
-
+    <!-- Caja contenedora con fondo claro y bordes redondeados -->
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+      <!-- Título principal centrado -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark">Jugadores del Equipo</h2>
-
       {% if jugadores %}
+        <!-- Tabla de jugadores si hay elementos en la lista -->
         <table class="table is-striped is-hoverable is-fullwidth mt-4">
           <thead>
             <tr>
@@ -22,9 +24,13 @@
           <tbody>
             {% for jugador in jugadores %}
               <tr>
+                <!-- Nombre del jugador (username) -->
                 <td>{{ jugador.usuario.username }}</td>
+                <!-- Número de camiseta con prefijo "#" -->
                 <td>#{{ jugador.numero_camiseta }}</td>
+                <!--  Edad del jugador con sufijo "años" -->
                 <td>{{ jugador.edad }} años</td>
+                <!-- Estadísticas según el tipo de deporte -->
                 <td>
                   {% if jugador.goles %}
                     ⚽ Goles: {{ jugador.goles }}
@@ -41,16 +47,17 @@
           </tbody>
         </table>
       {% else %}
+        <!-- Mensaje alternativo si no hay jugadores -->
         <p class="has-text-centered has-text-grey">No hay jugadores registrados.</p>
       {% endif %}
-
+      <!-- Botón de regreso al listado de equipos -->
       <div class="has-text-centered mt-5">
         <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded">
           ← Volver a Equipos
         </a>
       </div>
-    </div>
 
-  </div>
+    </div>
+  </div> 
 </section>
 {% endblock %}
