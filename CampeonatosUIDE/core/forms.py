@@ -200,3 +200,40 @@ class CrearUsuarioAdminForm(UserCreationForm):
             'rol': forms.Select(attrs={'class': 'select'}),
             'carrera': forms.TextInput(attrs={'class': 'input'}),
         }
+
+class CrearUsuarioDelegadoForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = Usuario
+        fields = ['username', 'first_name', 'last_name', 'email', 'password']
+
+class CodigoQRForm(forms.ModelForm):
+    class Meta:
+        model = CodigoQR
+        fields = ['banco', 'imagen_qr', 'descripcion']
+        widgets = {
+            'banco': forms.TextInput(attrs={
+                'class': 'input',
+                'placeholder': 'Nombre del banco o método'
+            }),
+            'imagen_qr': forms.ClearableFileInput(attrs={
+                'class': 'file-input',
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'textarea',
+                'placeholder': 'Descripción (opcional)',
+                'rows': 3
+            }),
+        }
+
+class UsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['username', 'email', 'cedula', 'rol']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'input'}),
+            'email': forms.EmailInput(attrs={'class': 'input'}),
+            'cedula': forms.TextInput(attrs={'class': 'input'}),
+            'rol': forms.Select(attrs={'class': 'input'}),
+        }

@@ -50,11 +50,17 @@
           <!-- Si el usuario ha iniciado sesión -->
           {% if user.rol == 'ADMIN' %}
             <!-- Opciones exclusivas para el administrador -->
+            <a class="navbar-item" href="{% url 'admin_dashboard' %}">Panel Admin</a>
+            <a class="navbar-item" href="{% url 'listar_usuarios' %}">Usuarios</a>
             <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
             <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
             <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
             <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
             <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
+            <a class="navbar-item" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
+            <a class="navbar-item" href="{% url 'listar_deportes' %}">Deportes</a>
+            <a class="navbar-item" href="{% url 'listar_tipos_campeonato' %}">Tipos de Campeonato</a>
+
 
           {% elif user.rol == 'DELEGADO' %}
             <!-- Opciones para el delegado -->
