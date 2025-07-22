@@ -4,6 +4,9 @@ from django.contrib import messages
 from core.forms import *
 from core.models import *
 from django.http import HttpResponse
+from django.db.models import Q
+
+
 
 
 def es_admin(user):
@@ -16,12 +19,22 @@ def es_admin(user):
 def admin_dashboard(request):
     # Renderiza la plantilla 'admin.html' para el dashboard del administrador
     return render(request, 'dashboard/admin.html')
-
+@login_required
 @user_passes_test(es_admin)
-# Vista para el dashboard del administrador
 def listar_usuarios(request):
-    # Obtiene todos los usuarios registrados en la base de datos
-    return HttpResponse("Solo admin ve esto")
+    query = request.GET.get('buscar', '')
+    if query:
+        usuarios = Usuario.objects.filter(
+            Q(username__icontains=query) | Q(cedula__icontains=query)
+        )
+    else:
+        usuarios = Usuario.objects.all()
+
+    return render(request, 'usuario/admin_listar.html', {
+        'usuarios': usuarios,
+        'query': query
+    })
+
 
 @login_required
 @user_passes_test(es_admin)
@@ -249,3 +262,43 @@ def listar_deportes(request):
     deportes = Deporte.objects.all()
     # Renderiza la plantilla 'listar_deportes.html' con los deportes
     return render(request, 'deporte/listar_deportes.html', {'deportes': deportes})
+
+@login_required
+@user_passes_test(es_admin)
+def registrar_delegado(request):
+    if request.method == 'POST':
+        form = CrearUsuarioDelegadoForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.rol = 'DELEGADO'
+            user.set_password(form.cleaned_data['password'])  # Asegura que la contraseña se guarde hasheada
+            user.save()
+            messages.success(request, 'Delegado creado exitosamente.')
+            return redirect('admin_dashboard')
+    else:
+        form = CrearUsuarioDelegadoForm()
+    return render(request, 'admin_panel/registro_delegado.html', {'form': form})
+
+@login_required
+@user_passes_test(es_admin)
+def editar_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Usuario actualizado correctamente.")
+            return redirect('listar_usuarios')
+    else:
+        form = UsuarioForm(instance=usuario)
+    return render(request, 'usuario/editar_admin.html', {'form': form})
+
+@login_required
+@user_passes_test(es_admin)
+def eliminar_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id)
+    if request.method == 'POST':
+        usuario.delete()
+        messages.success(request, "Usuario eliminado correctamente.")
+        return redirect('listar_usuarios')
+    return render(request, 'usuario/confirmar_eliminacion_admin.html', {'usuario': usuario})

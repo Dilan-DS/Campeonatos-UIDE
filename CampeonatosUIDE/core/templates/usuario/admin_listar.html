@@ -1,0 +1,68 @@
+{% extends 'comun/base.html' %}
+<!-- Hereda la plantilla base -->
+
+{% block title %}Usuarios registrados - Admin{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <!-- 🔴 Título de la página -->
+    <h1 class="title has-text-centered has-text-danger mb-5">
+      <span class="icon-text">
+        <span class="icon has-text-danger">
+          <i class="fas fa-users"></i>
+        </span>
+        <span>Usuarios Registrados</span>
+      </span>
+    </h1>
+
+    <!-- 🔍 Barra de búsqueda -->
+    <form method="get" class="field has-addons is-justify-content-center mb-6 max-w-2xl mx-auto">
+      <div class="control is-expanded">
+        <input class="input" type="text" name="buscar" placeholder="Buscar por cédula o usuario" value="{{ query|default:'' }}">
+      </div>
+      <div class="control">
+        <button class="button is-danger" type="submit">Buscar</button>
+      </div>
+    </form>
+
+    <!-- 📋 Tabla de usuarios -->
+    <div class="table-container">
+      <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+        <thead>
+          <tr class="has-background-light">
+            <th>Nombre de Usuario</th>
+            <th>Cédula</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th class="has-text-centered">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in usuarios %}
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.cedula }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.get_rol_display }}</td>
+            <td class="has-text-centered">
+              <a class="button is-small is-info mx-1" href="{% url 'editar_usuario' user.id %}">Editar</a>
+                <a class="button is-small is-danger mx-1" href="{% url 'eliminar_usuario' user.id %}">Eliminar</a>
+
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="has-text-centered has-text-grey py-5">
+              No se encontraron usuarios con ese criterio.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

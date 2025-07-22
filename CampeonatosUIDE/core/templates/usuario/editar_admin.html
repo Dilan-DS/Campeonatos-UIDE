@@ -1,0 +1,14 @@
+{% extends 'comun/base.html' %}
+{% block title %}Editar Usuario{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">✏️ Editar Usuario</h1>
+    <form method="POST">{% csrf_token %}
+      {{ form.as_p }}
+      <button class="button is-success" type="submit">Guardar Cambios</button>
+      <a href="{% url 'listar_usuarios' %}" class="button is-light">Cancelar</a>
+    </form>
+  </div>
+</section>
+{% endblock %}

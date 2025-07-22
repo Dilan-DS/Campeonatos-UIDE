@@ -1,0 +1,19 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Registrar Delegado{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-danger">👤 Registrar Delegado</h1>
+    <form method="post">
+      {% csrf_token %}
+      <div class="box">
+        {{ form.as_p }}
+        <button type="submit" class="button is-danger">Registrar</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

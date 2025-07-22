@@ -35,5 +35,5 @@ def jugador_dashboard(request):
 
 @user_passes_test(es_jugador)
 def ver_estadisticas_jugador(request, jugador_id):
-    # Esta vista es exclusiva para jugadores
+    # Esta vista es exclusiva para jugadores        
     return HttpResponse(f"Estadísticas del jugador {jugador_id}")
