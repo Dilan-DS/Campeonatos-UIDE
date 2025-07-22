@@ -91,14 +91,11 @@
   </nav>
 
   <!-- 📦 Contenido dinámico -->
-  <main class="section pt-6 pb-6">
-    <!-- Contenido principal de cada vista -->
-    <div class="container">
-      {% block content %}
-      <!-- Aquí se inyecta el contenido específico de cada plantilla hija -->
-      {% endblock %}
-    </div>
-  </main>
+<main>
+  {% block content %}
+  {% endblock %}
+</main>
+
 
   {% include "comun/footer.html" %}
   <!-- Pie de página incluido desde un archivo común -->
