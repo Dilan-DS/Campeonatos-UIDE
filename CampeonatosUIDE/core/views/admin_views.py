@@ -5,7 +5,7 @@ from core.forms import *
 from core.models import *
 from django.http import HttpResponse
 from django.db.models import Q
-
+from datetime import datetime, timedelta
 
 
 
@@ -302,3 +302,38 @@ def eliminar_usuario(request, usuario_id):
         messages.success(request, "Usuario eliminado correctamente.")
         return redirect('listar_usuarios')
     return render(request, 'usuario/confirmar_eliminacion_admin.html', {'usuario': usuario})
+
+
+@login_required
+@user_passes_test(es_admin)
+def generar_calendario(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    equipos = Equipo.objects.filter(campeonato=campeonato)
+    
+    if equipos.count() < 2:
+        messages.warning(request, "Debe haber al menos 2 equipos para generar el calendario.")
+        return redirect('listar_campeonatos')
+
+    # Limpia partidos anteriores del campeonato
+    Partido.objects.filter(campeonato=campeonato).delete()
+
+    fecha_inicial = datetime.today().date()
+    hora_base = datetime.strptime('10:00', '%H:%M').time()
+    dia_offset = 0
+
+    partidos_creados = []
+    for i in range(len(equipos)):
+        for j in range(i + 1, len(equipos)):
+            partido = Partido.objects.create(
+                campeonato=campeonato,
+                equipo_local=equipos[i],
+                equipo_visitante=equipos[j],
+                fecha=fecha_inicial + timedelta(days=dia_offset),
+                hora=hora_base,
+                cancha='Cancha UIDE'
+            )
+            partidos_creados.append(partido)
+            dia_offset += 1
+
+    messages.success(request, f"Fixture generado con {len(partidos_creados)} partidos.")
+    return redirect('listar_partidos_campeonato', campeonato_id=campeonato.id)
