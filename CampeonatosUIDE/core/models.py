@@ -787,3 +787,36 @@ class EstadisticaJugadorFutbolin(models.Model):
 
     def __str__(self):
         return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
+
+
+
+class ImagenGaleria(models.Model):
+    titulo = models.CharField(max_length=100)
+    imagen = models.ImageField(upload_to='galeria/')
+    descripcion = models.TextField(blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.titulo
+
+
+# core/models.py
+
+class Noticia(models.Model):
+    titulo = models.CharField(max_length=200)
+    contenido = models.TextField()
+    imagen = models.ImageField(upload_to='noticias/', blank=True, null=True)
+    fecha_publicacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.titulo
+
+
+class Testimonio(models.Model):
+    autor = models.CharField(max_length=100)
+    contenido = models.TextField()
+    foto = models.ImageField(upload_to='testimonios/', blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.autor

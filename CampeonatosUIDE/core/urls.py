@@ -1,17 +1,11 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from . import views
-from django.urls import path
-from django.contrib.auth import views as auth_views
-from . import views
 from .views import *
-
 
 urlpatterns = [
     # Inicio público y dashboard general
     path('', vista_inicio_publico, name='inicio_publico'),
     path('dashboard/', vista_inicio, name='vista_inicio'),
-
 
     # Dashboards por rol
     path('panel/admin/', admin_dashboard, name='admin_dashboard'),
@@ -19,15 +13,7 @@ urlpatterns = [
     path('panel/delegado/', delegado_dashboard, name='delegado_dashboard'),
     path('panel/jugador/', jugador_dashboard, name='jugador_dashboard'),
 
-
-    path('deportes/', views.listar_deportes, name='listar_deportes'),  
-    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
-    path('tipos-campeonato/<int:id>/editar/', editar_tipo_campeonato, name='editar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/eliminar/', eliminar_tipo_campeonato, name='eliminar_tipo_campeonato'),
-
-
-
-    # Autenticación
+    # Autenticación y perfil
     path('login/', vista_login, name='login'),
     path('logout/', vista_logout, name='logout'),
     path('registro/', vista_registro, name='registro'),
@@ -48,12 +34,23 @@ urlpatterns = [
 
     # Campeonatos
     path('campeonatos/publicos/', campeonatos_publicos, name='campeonatos_publicos'),
-    path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),
+    # path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),
     path('campeonatos/', listar_campeonatos, name='listar_campeonatos'),
     path('campeonatos/nuevo/', crear_campeonato, name='crear_campeonato'),
     path('campeonatos/<int:id>/', detalle_campeonato, name='detalle_campeonato'),
     path('campeonatos/<int:id>/editar/', editar_campeonato, name='editar_campeonato'),
     path('campeonatos/<int:id>/fixture/', fixture_campeonato, name='fixture_campeonato'),
+
+    # Tipos de campeonato y deportes
+    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
+    path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/editar/', editar_tipo_campeonato, name='editar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/eliminar/', eliminar_tipo_campeonato, name='eliminar_tipo_campeonato'),
+
+    path('deportes/', listar_deportes, name='listar_deportes'),
+    path('deportes/registrar/', registrar_deporte, name='registrar_deporte'),
+    path('deportes/<int:id>/editar/', editar_deporte, name='editar_deporte'),
+    path('deportes/<int:id>/eliminar/', eliminar_deporte, name='eliminar_deporte'),
 
     # Equipos
     path('equipos/', listar_equipos, name='listar_equipos'),
@@ -62,9 +59,13 @@ urlpatterns = [
     path('equipo/<int:id>/editar/', editar_equipo, name='editar_equipo'),
     path('equipo/<int:id>/pago/', pago_equipo, name='pago_equipo'),
     path('equipo/<int:id>/jugadores/', jugadores_equipo, name='jugadores_equipo'),
-    
 
-    # Estadísticas
+    # Partidos
+    path('partidos/', listar_partidos, name='listar_partidos'),
+    path('partidos/registrar/', registrar_partido, name='registrar_partido'),
+    path('partidos/<int:partido_id>/', detalle_partido, name='detalle_partido'),
+
+    # Estadísticas por deporte
     path('estadisticas/futbol/', estadisticas_futbol, name='estadisticas_futbol'),
     path('estadisticas/basquet/', estadisticas_basquet, name='estadisticas_basquet'),
     path('estadisticas/ecuaboly/', estadisticas_ecuaboly, name='estadisticas_ecuaboly'),
@@ -81,30 +82,14 @@ urlpatterns = [
     path('transmisiones/<int:id>/editar/', editar_transmision, name='editar_transmision'),
     path('transmisiones/<int:id>/eliminar/', eliminar_transmision, name='eliminar_transmision'),
 
-    # Partidos
-    path('partidos/', listar_partidos, name='listar_partidos'),
-    path('partidos/registrar/', registrar_partido, name='registrar_partido'),
-    path('partidos/<int:partido_id>/', detalle_partido, name='detalle_partido'),
-
     # Suspensiones
     path('suspensiones/', listar_suspensiones, name='listar_suspensiones'),
-    path('suspension/<int:suspension_id>/', detalle_suspension, name='detalle_suspension'),
     path('suspension/registrar/', registrar_suspension, name='registrar_suspension'),
+    path('suspension/<int:suspension_id>/', detalle_suspension, name='detalle_suspension'),
 
-
-
-    path('deportes/', listar_deportes, name='listar_deportes'),
-    path('deportes/registrar/', registrar_deporte, name='registrar_deporte'),
-
-    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
-    path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
-    path('deportes/<int:id>/editar/', editar_deporte, name='editar_deporte'),
-    path('deportes/<int:id>/eliminar/', eliminar_deporte, name='eliminar_deporte'),
-
-    # codigo qr
+    # Códigos QR
     path('qrs/', listar_codigos_qr, name='listar_codigos_qr'),
     path('qrs/registrar/', registrar_codigo_qr, name='registrar_codigo_qr'),
     path('qrs/<int:id>/editar/', editar_codigo_qr, name='editar_codigo_qr'),
     path('qrs/<int:id>/eliminar/', eliminar_codigo_qr, name='eliminar_codigo_qr'),
-
 ]
