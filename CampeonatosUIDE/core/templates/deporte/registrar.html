@@ -17,12 +17,12 @@
 
       <!-- Formulario con metodo POST -->
       <form method="POST">
-        {% csrf_token %} <!-- 🔐 Protección CSRF -->
+        {% csrf_token %} <!-- Protección CSRF -->
 
-        <!-- 🔁 Renderiza todos los campos del formulario en columnas responsivas -->
+        <!-- Renderiza todos los campos del formulario en columnas responsivas -->
         <div class="columns is-multiline">
           {% for field in form %}
-          <div class="column is-12-mobile is-6-tablet"> <!-- 📱 Columnas adaptables por tamaño de pantalla -->
+          <div class="column is-12-mobile is-6-tablet"> <!-- Columnas adaptables por tamaño de pantalla -->
             <div class="field">
               <label class="label has-text-grey-dark">{{ field.label }}</label>
               <div class="control">

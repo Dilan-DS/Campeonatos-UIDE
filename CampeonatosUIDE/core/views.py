@@ -8,6 +8,24 @@ from django.http import HttpResponse, HttpResponseForbidden
 from .models import *
 from .forms import *
 
+def inicio_publico(request):
+    campeonatos = Campeonato.objects.all()
+    proximos_partidos = Partido.objects.filter(fecha__gte=timezone.now()).order_by('fecha')[:5]
+    transmisiones = Transmision.objects.order_by('-fecha')[:3]
+    imagenes_galeria = ImagenGaleria.objects.all()  # si tienes modelo
+    noticias = Noticia.objects.order_by('-fecha')[:3]
+    testimonios = Testimonio.objects.all()
+
+    return render(request, 'publica/inicio_publico.html', {
+        'campeonatos': campeonatos,
+        'proximos_partidos': proximos_partidos,
+        'transmisiones': transmisiones,
+        'imagenes_galeria': imagenes_galeria,
+        'noticias': noticias,
+        'testimonios': testimonios
+    })
+
+
 # ========================
 # VALIDACIONES DE ROL
 # ========================
@@ -281,6 +299,7 @@ def jugador_dashboard(request):
     # Si no se encuentra el jugador, muestra un mensaje de error y redirige al inicio público
     except Jugador.DoesNotExist:
         messages.error(request, "No se encontró tu perfil de jugador.")
+
         return redirect('inicio_publico')
 
 
