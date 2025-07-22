@@ -5,15 +5,13 @@
   <!-- Barra de navegación con fondo rojo -->
 
   <div class="navbar-brand">
-    <!-- Sección izquierda del navbar (marca y hamburguesa) -->
-
+    <!-- Logo a la izquierda -->
     <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">
-      <!-- Nombre/logo del sistema que redirige al inicio -->
       🏆 Campeonatos UIDE
     </a>
 
+    <!-- Botón hamburguesa -->
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
-      <!-- Botón hamburguesa para activar menú en móviles -->
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
@@ -21,75 +19,65 @@
   </div>
 
   <div id="menuPrincipal" class="navbar-menu">
-    <!-- Contenedor del menú desplegable -->
-
     <div class="navbar-start">
-      <!-- Menú del lado izquierdo -->
-
-      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">
-        <!-- Enlace accesible para todos: campeonatos públicos -->
-        Campeonatos
-      </a>
+      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">Campeonatos</a>
 
       {% if request.user.is_authenticated %}
-        <!-- Solo si el usuario ha iniciado sesión -->
-
         {% if request.user.rol == "ADMIN" %}
-          <!-- Opciones solo para el administrador -->
-          <a class="navbar-item has-text-white" href="{% url 'admin_dashboard' %}">Dashboard Admin</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_campeonatos' %}">Gestión Campeonatos</a>
+          <!-- ADMIN -->
+          <a class="navbar-item has-text-white" href="{% url 'admin_dashboard' %}">Panel Admin</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_usuarios' %}">Usuarios</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Equipos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_arbitros' %}">Árbitros</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_deportes' %}">Deportes</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_tipos_campeonato' %}">Tipos de Campeonato</a>
 
         {% elif request.user.rol == "DELEGADO" %}
-          <!-- Opciones solo para delegados -->
+          <!-- DELEGADO -->
           <a class="navbar-item has-text-white" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
           <a class="navbar-item has-text-white" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Mis Equipos</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_partidos' %}">Partidos</a>
+          <a class="navbar-item has-text-white" href="{% url 'ver_calendario_completo' %}">📅 Calendario</a>
 
         {% elif request.user.rol == "JUGADOR" %}
-          <!-- Opciones solo para jugadores -->
+          <!-- JUGADOR -->
           <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-
-          {# Importante: debes asegurarte que request.user.jugador esté disponible en el contexto #}
           {% with request.user.jugador as jugador %}
             {% if jugador %}
-              <!-- Muestra estadísticas y tabla si el jugador tiene datos relacionados -->
-              <a class="navbar-item has-text-white" href="{% url 'ver_estadisticas_jugador' jugador.id %}">Mis Estadísticas</a>
-              <a class="navbar-item has-text-white" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">Mi Tabla</a>
+              <a class="navbar-item has-text-white" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
+              <a class="navbar-item has-text-white" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Mi Tabla</a>
+              <a class="navbar-item has-text-white" href="{% url 'ver_mis_partidos' %}">🎮 Mis Partidos</a>
             {% endif %}
           {% endwith %}
         {% endif %}
       {% endif %}
     </div>
 
-    <!-- Área derecha del navbar: perfil, login/logout -->
     <div class="navbar-end">
       <div class="navbar-item">
         <div class="buttons">
-
           {% if request.user.is_authenticated %}
-            <!-- Si está autenticado, muestra su nombre y opciones -->
             <span class="has-text-white mr-3">
               Hola, {{ request.user.first_name|default:request.user.username }} ({{ request.user.get_rol_display }})
             </span>
             <a class="button is-info" href="{% url 'perfil_usuario' %}">Perfil</a>
             <a class="button is-warning" href="{% url 'logout' %}">Cerrar sesión</a>
           {% else %}
-            <!-- Si no está logueado, muestra botones de registro y login -->
             <a class="button is-warning" href="{% url 'registro' %}"><strong>Registrarse</strong></a>
             <a class="button is-light" href="{% url 'login' %}">Iniciar sesión</a>
           {% endif %}
-
         </div>
       </div>
     </div>
   </div>
 </nav>
 
-<!-- Script para activar menú hamburguesa en dispositivos móviles -->
+<!-- Script menú móvil -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const burger = document.querySelector('.navbar-burger');

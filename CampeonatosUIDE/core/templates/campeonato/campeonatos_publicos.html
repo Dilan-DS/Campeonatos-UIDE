@@ -1,0 +1,27 @@
+{% extends 'comun/base.html' %}
+{% block title %}Campeonatos Públicos{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-centered has-text-danger">🏟️ Campeonatos Públicos</h1>
+
+    <div class="columns is-multiline">
+      {% for campeonato in campeonatos %}
+        <div class="column is-one-third">
+          <div class="card">
+            <div class="card-content">
+              <p class="title is-5">{{ campeonato.nombre }}</p>
+              <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio }}</p>
+              <p><strong>Fin:</strong> {{ campeonato.fecha_fin }}</p>
+              <p><strong>Tipo:</strong> {{ campeonato.tipo_campeonato.nombre }}</p>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="has-text-centered has-text-grey">No hay campeonatos públicos disponibles.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

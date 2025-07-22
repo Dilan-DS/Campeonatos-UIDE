@@ -52,3 +52,10 @@ def fixture_campeonato(request, id):
 def campeonatos_publicos(request):
     campeonatos = Campeonato.objects.filter(es_publico=True)
     return render(request, 'campeonato/campeonatos_publicos.html', {'campeonatos': campeonatos})
+
+
+def campeonatos_publicos(request):
+    campeonatos = Campeonato.objects.filter(activo=True)  # o filtra como quieras
+    return render(request, 'campeonato/campeonatos_publicos.html', {
+        'campeonatos': campeonatos
+    })

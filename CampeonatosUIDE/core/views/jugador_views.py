@@ -37,3 +37,15 @@ def jugador_dashboard(request):
 def ver_estadisticas_jugador(request, jugador_id):
     # Esta vista es exclusiva para jugadores        
     return HttpResponse(f"Estadísticas del jugador {jugador_id}")
+
+
+
+@login_required
+@user_passes_test(lambda u: u.rol == 'JUGADOR')
+def ver_mis_partidos(request):
+    jugador = get_object_or_404(Jugador, usuario=request.user)
+    equipo = jugador.equipo
+    partidos = Partido.objects.filter(
+        Q(equipo_local=equipo) | Q(equipo_visitante=equipo)
+    ).order_by('fecha', 'hora')
+    return render(request, 'partido/mis_partidos_jugador.html', {'partidos': partidos})

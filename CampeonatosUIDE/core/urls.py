@@ -90,17 +90,22 @@ urlpatterns = [
     path('suspension/<int:suspension_id>/', detalle_suspension, name='detalle_suspension'),
 
     # Códigos QR
-    path('qrs/', listar_codigos_qr, name='listar_codigos_qr'),
-    path('qrs/registrar/', registrar_codigo_qr, name='registrar_codigo_qr'),
-    path('qrs/<int:id>/editar/', editar_codigo_qr, name='editar_codigo_qr'),
-    path('qrs/<int:id>/eliminar/', eliminar_codigo_qr, name='eliminar_codigo_qr'),
-
+    path('panel/admin/codigos-qr/', listar_codigos_qr, name='listar_codigos_qr'),
+    path('panel/admin/codigos-qr/registrar/', registrar_codigo_qr, name='registrar_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/editar/', editar_codigo_qr, name='editar_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/eliminar/', eliminar_codigo_qr, name='eliminar_codigo_qr'),
 
 
     path('panel/admin/registrar-delegado/', registrar_delegado, name='registrar_delegado'),
     path('panel/admin/usuarios/', listar_usuarios, name='listar_usuarios'),
     path('panel/admin/usuarios/<int:usuario_id>/editar/', editar_usuario, name='editar_usuario'),
     path('panel/admin/usuarios/<int:usuario_id>/eliminar/', eliminar_usuario, name='eliminar_usuario'),
+
+
+    path('partidos/generar/<int:campeonato_id>/', generar_calendario, name='generar_calendario'),
+    path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
+    path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
+
 
 
 ]

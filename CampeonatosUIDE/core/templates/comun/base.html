@@ -26,85 +26,17 @@
 <body class="has-background-white has-text-black">
 <!-- Cuerpo con fondo blanco y texto negro -->
 
-  <!-- 🧭 NAVBAR CON CONTROL DE ROLES -->
-  <nav class="navbar is-danger" role="navigation" aria-label="main navigation">
-    <!-- Barra de navegación principal con fondo rojo -->
-    <div class="navbar-brand">
-      <!-- Logo o nombre de marca -->
-      <a class="navbar-item" href="{% url 'inicio_publico' %}">
-        <strong>🏆 UIDE Campeonatos</strong>
-      </a>
-      <!-- Botón hamburguesa para móviles -->
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
+  <!--  NAVBAR INCLUIDO -->
+  {% include "comun/navbar.html" %}
 
-    <div id="menuPrincipal" class="navbar-menu">
-      <!-- Menú principal que se despliega -->
-      <div class="navbar-start">
-        <!-- Opciones de la izquierda del menú -->
-        {% if user.is_authenticated %}
-          <!-- Si el usuario ha iniciado sesión -->
-          {% if user.rol == 'ADMIN' %}
-            <!-- Opciones exclusivas para el administrador -->
-            <a class="navbar-item" href="{% url 'admin_dashboard' %}">Panel Admin</a>
-            <a class="navbar-item" href="{% url 'listar_usuarios' %}">Usuarios</a>
-            <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
-            <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
-            <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
-            <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
-            <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
-            <a class="navbar-item" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
-            <a class="navbar-item" href="{% url 'listar_deportes' %}">Deportes</a>
-            <a class="navbar-item" href="{% url 'listar_tipos_campeonato' %}">Tipos de Campeonato</a>
+  <!--  Contenido dinámico -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
 
-
-          {% elif user.rol == 'DELEGADO' %}
-            <!-- Opciones para el delegado -->
-            <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
-            <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
-            <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
-
-          {% elif user.rol == 'JUGADOR' %}
-            <!-- Opciones para el jugador -->
-            <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Panel</a>
-          {% endif %}
-        {% else %}
-          <!-- Opciones para usuarios no autenticados -->
-          <a class="navbar-item" href="{% url 'campeonatos_publicos' %}">Campeonatos</a>
-        {% endif %}
-      </div>
-
-      <div class="navbar-end">
-        <!-- Sección derecha del navbar -->
-        {% if user.is_authenticated %}
-          <!-- Si el usuario está logueado, muestra su nombre y rol -->
-          <div class="navbar-item">👤 {{ user.username }} ({{ user.rol }})</div>
-          <div class="navbar-item">
-            <a class="button is-light" href="{% url 'logout' %}">Cerrar sesión</a>
-          </div>
-        {% else %}
-          <!-- Si no ha iniciado sesión, muestra botón de login -->
-          <div class="navbar-item">
-            <a class="button is-light" href="{% url 'login' %}">Iniciar sesión</a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </nav>
-
-  <!-- 📦 Contenido dinámico -->
-<main>
-  {% block content %}
-  {% endblock %}
-</main>
-
-
+  <!--  Footer común -->
   {% include "comun/footer.html" %}
-  <!-- Pie de página incluido desde un archivo común -->
 
   <!-- JS para el menú hamburguesa en dispositivos móviles -->
   <script>

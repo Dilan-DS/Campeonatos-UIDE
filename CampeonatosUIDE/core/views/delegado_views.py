@@ -91,3 +91,10 @@ def jugadores_equipo(request, id):
     jugadores = equipo.jugador_set.all()
     # Renderiza la plantilla 'jugadores_equipo.html' con el equipo y los jugadores
     return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores': jugadores})
+
+
+@login_required
+@user_passes_test(lambda u: u.rol in ['ADMIN', 'DELEGADO'])
+def ver_calendario_completo(request):
+    partidos = Partido.objects.select_related('equipo_local', 'equipo_visitante', 'campeonato').order_by('fecha', 'hora')
+    return render(request, 'partido/calendario_completo.html', {'partidos': partidos})
