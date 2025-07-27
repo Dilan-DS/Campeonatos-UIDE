@@ -19,18 +19,16 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
   <!-- Fuente Roboto desde Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-  <!-- Hoja de estilos personalizada -->
-  <link rel="stylesheet" href="{% static 'styles/base.css' %}">
 </head>
 
-<body class="has-background-white has-text-black">
+<body class="has-background-white has-text-black" style="display: flex; flex-direction: column; min-height: 100vh;">
 <!-- Cuerpo con fondo blanco y texto negro -->
 
   <!--  NAVBAR INCLUIDO -->
   {% include "comun/navbar.html" %}
 
   <!--  Contenido dinámico -->
-  <main>
+  <main style="flex: 1;">
     {% block content %}
     {% endblock %}
   </main>
