@@ -1,110 +1,175 @@
 {% extends 'comun/base.html' %}
-<!-- Hereda la plantilla base general del sitio web -->
-
 {% load static %}
-<!-- Carga archivos estáticos (CSS, imágenes, JS) -->
-
 {% load widget_tweaks %}
-<!-- Permite modificar los campos del formulario con filtros como add_class -->
 
-{% block title %}Crear Campeonato - Campeonatos UIDE{% endblock %}
-<!-- Título que aparecerá en la pestaña del navegador -->
+{% block title %}
+  {% if modo == "crear" %}Crear Campeonato
+  {% elif modo == "editar" %}Editar Campeonato
+  {% elif modo == "detalle" %}Detalles del Campeonato
+  {% elif modo == "eliminar" %}Eliminar Campeonato
+  {% else %}Campeonato
+  {% endif %}
+{% endblock %}
 
 {% block content %}
-<!-- Inicio del bloque principal de contenido -->
-
-<section class="section">
-  <!-- Sección con margen vertical -->
+<section class="section" style="background-color: #f7fafc;">
   <div class="container">
-    <!-- Contenedor general centrado -->
-    <div class="box" style="border-radius: 20px; background-color: #fffaf2; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);">
-      <!-- Caja clara con bordes redondeados, sombra suave y padding -->
+    <div class="box" style="border-radius: 12px; background-color: #fff; padding: 2rem; box-shadow: 0 6px 15px rgba(0,0,0,0.1);">
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
-        <!-- Título grande, centrado y con color personalizado -->
-        🏆 Crear nuevo campeonato
+      <!-- TÍTULO PRINCIPAL -->
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #2a4365; font-weight: 700;">
+        {% if modo == "crear" %}🏆 Crear nuevo campeonato{% endif %}
+        {% if modo == "editar" %}✏️ Editar campeonato: {{ campeonato.nombre }}{% endif %}
+        {% if modo == "detalle" %}🏆 Detalles del campeonato: {{ campeonato.nombre }}{% endif %}
+        {% if modo == "eliminar" %}⚠️ Eliminar campeonato: {{ campeonato.nombre }}{% endif %}
       </h2>
 
-      <form method="POST" enctype="multipart/form-data">
-        <!-- Formulario con método POST y soporte para archivos -->
-        {% csrf_token %}
-        <!-- Token de seguridad CSRF para evitar ataques -->
+      <!-- FORMULARIO -->
+      {% if modo == "crear" or modo == "editar" %}
+        <form method="POST" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <div class="columns is-multiline">
+            {% for field in form %}
+              <div class="column is-12-mobile is-6-tablet">
+                <div class="field">
+                  <label class="label has-text-grey-dark" style="font-weight: 600;" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                  </label>
 
-        <div class="columns is-multiline">
-          <!-- Rejilla de campos (responsive en varias líneas) -->
-          {% for field in form %}
-            <!-- Itera por cada campo del formulario -->
-            <div class="column is-12-mobile is-6-tablet">
-              <!-- Cada campo ocupa toda la fila en móvil, y media en tablet -->
-              <div class="field">
-                <!-- Contenedor de un campo -->
-                <label class="label has-text-grey-dark">{{ field.label }}</label>
-                <!-- Muestra la etiqueta del campo -->
+                  <div class="control">
+                    {# Checkboxes para días de partido (MultiSelectField) #}
+                    {% if field.name == "dias_partido" %}
+                      <div class="field is-grouped is-grouped-multiline">
+                        {% for choice in field.field.choices %}
+                          <div class="control">
+                            <label class="checkbox" style="cursor: pointer;">
+                              <input type="checkbox" name="{{ field.name }}" value="{{ choice.0 }}"
+                                {% if choice.0 in field.value %}checked{% endif %}> {{ choice.1 }}
+                            </label>
+                          </div>
+                        {% endfor %}
+                      </div>
 
-                <div class="control">
-                  <!-- Contenedor del input o widget -->
-
-                  {% if field.name == "dias_partido" %}
-                    <!-- Si el campo se llama 'dias_partido', renderiza los checkboxes -->
-                    <div class="tags are-medium">
-                      <!-- Agrupa los checkboxes como etiquetas visuales -->
-                      {% for checkbox in field %}
-                        <!-- Itera por cada checkbox del campo -->
-                        <label class="tag is-rounded" style="background-color: #d8d6ff; color: #3a3a58; margin: 0.25rem;">
-                          {{ checkbox.tag }} {{ checkbox.choice_label }}
-                          <!-- Renderiza el input y su nombre -->
+                    {# Campo archivo (reglamento) #}
+                    {% elif field.name == "reglamento" %}
+                      <div class="file has-name is-fullwidth">
+                        {{ field|add_class:"file-input" }}
+                        <label class="file-label" for="{{ field.id_for_label }}">
+                          <span class="file-cta" style="background-color: #f6ad55; color: white;">
+                            <span class="file-icon">📁</span>
+                            <span class="file-label">Seleccionar archivo</span>
+                          </span>
+                          <span class="file-name" id="file-name-{{ field.id_for_label }}" style="color: #718096;">
+                            {% if field.value %}
+                              {{ field.value.name }}
+                            {% else %}
+                              No se ha seleccionado archivo
+                            {% endif %}
+                          </span>
                         </label>
-                      {% endfor %}
-                    </div>
+                      </div>
 
-                  {% elif field|widget_type == 'fileinput' %}
-                    <!-- Si es un campo de subida de archivos -->
-                    {{ field|add_class:"file-input has-background-white-ter" }}
-                    <!-- Aplica clase para estilo de input tipo archivo -->
+                    {# Campo textarea (descripción) #}
+                    {% elif field|widget_type == 'textarea' %}
+                      {{ field|add_class:"textarea is-rounded has-background-light" }}
 
-                  {% elif field|widget_type == 'textarea' %}
-                    <!-- Si es un textarea (campo de texto largo) -->
-                    {{ field|add_class:"textarea is-rounded has-background-link-light" }}
-                    <!-- Aplica clases Bulma para textarea -->
+                    {# Otros campos input/select #}
+                    {% else %}
+                      {{ field|add_class:"input is-rounded has-background-light" }}
+                    {% endif %}
+                  </div>
 
-                  {% else %}
-                    <!-- Para todos los demás tipos de campo -->
-                    {{ field|add_class:"input is-rounded has-background-link-light" }}
-                    <!-- Aplica clases de estilo al input -->
-                  {% endif %}
+                  {# Errores de validación del campo #}
+                  {% for error in field.errors %}
+                    <p class="help is-danger" style="font-weight: 600;">{{ error }}</p>
+                  {% endfor %}
                 </div>
-
-                {% for error in field.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                  <!-- Muestra mensajes de error si el campo tiene errores -->
-                {% endfor %}
               </div>
-            </div>
-          {% endfor %}
-        </div>
-
-        <div class="field mt-5">
-          <!-- Botón de envío del formulario con margen superior -->
-          <div class="control">
-            <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
-              <!-- Botón amarillo, redondeado, de tamaño medio y ancho completo -->
-              <strong>🌟 Guardar Campeonato</strong>
-              <!-- Texto del botón en negrita -->
-            </button>
+            {% endfor %}
           </div>
+
+          <!-- BOTÓN GUARDAR -->
+          <div class="field mt-5">
+            <div class="control">
+              <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium" style="background-color: #f6ad55; border-color: #dd6b20; font-weight: 700;">
+                {% if modo == "crear" %}🌟 Guardar Campeonato{% else %}💾 Guardar Cambios{% endif %}
+              </button>
+            </div>
+          </div>
+        </form>
+
+      <!-- VISTA DETALLE -->
+      {% elif modo == "detalle" %}
+        <table class="table is-bordered is-fullwidth is-striped" style="font-size: 1.1rem;">
+          <tbody>
+            <tr><th>Nombre:</th><td>{{ campeonato.nombre }}</td></tr>
+            <tr><th>Deporte:</th><td>{{ campeonato.deporte.nombre }}</td></tr>
+            <tr><th>Tipo:</th><td>{{ campeonato.tipo_campeonato.nombre }}</td></tr>
+            <tr><th>Fecha de Inicio:</th><td>{{ campeonato.fecha_inicio }}</td></tr>
+            <tr><th>Fecha de Fin:</th><td>{{ campeonato.fecha_fin }}</td></tr>
+            <tr><th>Estado:</th><td>{{ campeonato.estado }}</td></tr>
+            <tr><th>Descripción:</th><td>{{ campeonato.descripcion }}</td></tr>
+            <tr><th>Delegado:</th><td>{{ campeonato.delegado }}</td></tr>
+            <tr><th>Activo:</th><td>{{ campeonato.activo|yesno:"Sí,No" }}</td></tr>
+            <tr><th>Público:</th><td>{{ campeonato.es_publico|yesno:"Sí,No" }}</td></tr>
+            <tr><th>Días de Partido:</th><td>
+              {% if campeonato.dias_partido %}
+                {{ campeonato.dias_partido|join:", " }}
+              {% else %}
+                No asignado
+              {% endif %}
+            </td></tr>
+          </tbody>
+        </table>
+
+        {% if campeonato.reglamento %}
+          <div class="has-text-centered mt-4">
+            <a href="{{ campeonato.reglamento.url }}" target="_blank" class="button is-link is-light is-rounded" style="background-color:#4299e1; color:white;">
+              📄 Ver Reglamento
+            </a>
+          </div>
+        {% endif %}
+
+        <!-- BOTONES DETALLE -->
+        <div class="buttons is-centered mt-5">
+          <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-warning is-rounded" style="background-color:#f6ad55; border-color:#dd6b20;">✏️ Editar</a>
+          <a href="{% url 'eliminar_campeonato' campeonato.id %}" class="button is-danger is-rounded" style="background-color:#e53e3e; border-color:#9b2c2c;">🗑️ Eliminar</a>
+          <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">← Volver al listado</a>
         </div>
-      </form>
 
-      <div class="has-text-centered mt-5">
-        <!-- Sección final con botón para regresar -->
-        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
-          <!-- Botón claro y redondeado que redirige al listado de campeonatos -->
-          ← Volver al listado
-        </a>
-      </div>
-
+      <!-- CONFIRMACIÓN DE ELIMINACIÓN -->
+      {% elif modo == "eliminar" %}
+        <p class="has-text-danger is-size-5 has-text-centered" style="font-weight: 700;">
+          ¿Estás seguro que quieres eliminar el campeonato <strong>{{ campeonato.nombre }}</strong>?
+        </p>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="field mt-5">
+            <div class="control buttons is-centered">
+              <button type="submit" class="button is-danger is-rounded" style="background-color:#e53e3e; border-color:#9b2c2c;">Eliminar</button>
+              <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-light is-rounded">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      {% endif %}
     </div>
   </div>
 </section>
+
+<!-- Script para mostrar nombre del archivo cargado -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileInputs = document.querySelectorAll('.file-input');
+    fileInputs.forEach(input => {
+      input.addEventListener('change', () => {
+        const fileNameSpan = input.parentElement.querySelector('.file-name');
+        if(input.files.length > 0){
+          fileNameSpan.textContent = input.files[0].name;
+        } else {
+          fileNameSpan.textContent = 'No se ha seleccionado archivo';
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}
-<!-- Fin del bloque de contenido -->

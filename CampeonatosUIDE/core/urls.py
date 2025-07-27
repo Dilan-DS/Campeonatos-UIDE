@@ -28,21 +28,21 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuario/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='usuario/password_reset_complete.html'), name='password_reset_complete'),
 
-    # Árbitros
-    path('arbitros/', listar_arbitros, name='listar_arbitros'),
-    path('arbitros/nuevo/', registrar_arbitro, name='registrar_arbitro'),
-    path('arbitros/<int:id>/', detalle_arbitro, name='detalle_arbitro'),
-    path('arbitros/<int:id>/editar/', editar_arbitro, name='editar_arbitro'),
+path('arbitros/', listar_arbitros.as_view(), name='listar_arbitros'),
+path('arbitros/nuevo/', registrar_arbitro.as_view(), name='registrar_arbitro'),
+path('arbitros/<int:id>/', detalle_arbitro.as_view(), name='detalle_arbitro'),
+path('arbitros/<int:id>/editar/', editar_arbitro.as_view(), name='editar_arbitro'),
+path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_arbitro'),
 
-    # Campeonatos
-    path('campeonatos/publicos/', campeonatos_publicos, name='campeonatos_publicos'),
+
+    path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),
     # path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),
-    path('campeonatos/', listar_campeonatos, name='listar_campeonatos'),
-    path('campeonatos/nuevo/', crear_campeonato, name='crear_campeonato'),
-    path('campeonatos/<int:id>/', detalle_campeonato, name='detalle_campeonato'),
-    path('campeonatos/<int:id>/editar/', editar_campeonato, name='editar_campeonato'),
-    path('campeonatos/<int:id>/fixture/', fixture_campeonato, name='fixture_campeonato'),
-
+    path('campeonatos/', ListarCampeonatos.as_view(), name='listar_campeonatos'),
+    path('campeonatos/nuevo/', CrearCampeonato.as_view(), name='crear_campeonato'),
+    path('campeonatos/<int:id>/', DetalleCampeonato.as_view(), name='detalle_campeonato'),
+    path('campeonatos/<int:id>/editar/', EditarCampeonato.as_view(), name='editar_campeonato'),
+    path('campeonatos/<int:id>/fixture/', FixtureCampeonato.as_view(), name='fixture_campeonato'),
+     path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
     # Tipos de campeonato y deportes
     path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
     path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
@@ -78,12 +78,11 @@ urlpatterns = [
     path('estadisticas/videojuegos/', estadisticas_videojuegos, name='estadisticas_videojuegos'),
 
     # Transmisiones
-    path('transmisiones/', listar_transmisiones, name='listar_transmisiones'),
-    path('transmisiones/nuevo/', registrar_transmision, name='registrar_transmision'),
-    path('transmisiones/<int:id>/', detalle_transmision, name='detalle_transmision'),
-    path('transmisiones/<int:id>/editar/', editar_transmision, name='editar_transmision'),
-    path('transmisiones/<int:id>/eliminar/', eliminar_transmision, name='eliminar_transmision'),
-
+     path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
+    path('transmisiones/crear/', CrearTransmisionView.as_view(), name='crear_transmision'),
+    path('transmisiones/<int:id>/', DetalleTransmisionView.as_view(), name='detalle_transmision'),
+    path('transmisiones/<int:id>/editar/', EditarTransmisionView.as_view(), name='editar_transmision'),
+    path('transmisiones/<int:id>/eliminar/', EliminarTransmisionView.as_view(), name='eliminar_transmision'),
     # Suspensiones
     path('suspensiones/', listar_suspensiones, name='listar_suspensiones'),
     path('suspension/registrar/', registrar_suspension, name='registrar_suspension'),
