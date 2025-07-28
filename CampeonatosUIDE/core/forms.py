@@ -190,7 +190,7 @@ class EquipoForm(forms.ModelForm):
 class PagoForm(forms.ModelForm):
     class Meta:
         model = Pago
-<<<<<<< HEAD
+
         fields = '__all__'
         widgets = {
             'descripcion': forms.Textarea(attrs={'rows': 4}),
@@ -225,7 +225,7 @@ class PagoForm(forms.ModelForm):
                     f"<img src='{self.instance.codigo_qr.imagen_qr.url}' width='200' style='border:1px solid #ccc;'/>"
                 )
             )
-=======
+
         fields = ['equipo', 'metodo', 'codigo_qr', 'comprobante_pago', 'estado', 'observacion_admin']
         widgets = {
             'equipo': forms.Select(attrs={'class': 'select is-fullwidth'}),
@@ -248,7 +248,7 @@ class PagoForm(forms.ModelForm):
 
         if estado in ['APROBADO', 'RECHAZADO'] and not comprobante:
             self.add_error('comprobante_pago', "Debe subir el comprobante de pago cuando el pago está aprobado o rechazado.")
->>>>>>> 45d55da452b31521503e4e184004ee52c31a6117
+
 
 
 # =============================
@@ -483,9 +483,6 @@ class UsuarioForm(forms.ModelForm):
             'rol': forms.Select(attrs={'class': 'input'}),
         }
 
-<<<<<<< HEAD
-
-=======
 ##################################
 #jugador
 ##################################
@@ -675,4 +672,4 @@ class TestimonioForm(forms.ModelForm):
             }),
             # fecha auto generado
         }
->>>>>>> 45d55da452b31521503e4e184004ee52c31a6117
+
