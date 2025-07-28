@@ -1,0 +1,53 @@
+{% extends "comun/base.html" %}
+
+{% block title %}Noticias - Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title is-3 has-text-centered has-text-primary mb-6">Noticias</h1>
+
+    <!-- Botón de crear -->
+    <div class="has-text-right mb-5">
+      <a href="{% url 'registrar_noticia' %}" class="button is-primary">
+        <span class="icon"><i class="fas fa-plus"></i></span>
+        <span>Crear Nueva Noticia</span>
+      </a>
+    </div>
+
+    {% if noticias %}
+    <div class="columns is-multiline">
+      {% for noticia in noticias %}
+      <div class="column is-4">
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img src="{{ noticia.imagen.url }}" alt="Imagen de {{ noticia.titulo }}">
+            </figure>
+          </div>
+          <div class="card-content">
+            <p class="title is-5">{{ noticia.titulo }}</p>
+            <p class="subtitle is-6 has-text-grey">
+              Publicado el {{ noticia.fecha_publicacion|date:"d/m/Y H:i" }}
+            </p>
+          </div>
+          <footer class="card-footer">
+            <a href="{% url 'editar_noticia' noticia.id %}" class="card-footer-item has-text-info">
+              <span class="icon"><i class="fas fa-edit"></i></span>&nbsp;Editar
+            </a>
+            <a href="{% url 'eliminar_noticia' noticia.id %}" class="card-footer-item has-text-danger">
+              <span class="icon"><i class="fas fa-trash-alt"></i></span>&nbsp;Eliminar
+            </a>
+          </footer>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="notification is-light has-text-centered has-text-grey">
+      No hay noticias registradas todavía.
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

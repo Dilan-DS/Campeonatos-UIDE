@@ -4,51 +4,134 @@
 {% block content %}
 <section class="section">
   <div class="container">
+    <!-- TÍTULO DINÁMICO -->
+    <h1 class="title is-4 has-text-primary">
+      {% if modo == 'crear' %}🎥 Registrar Nueva Transmisión
+      {% elif modo == 'editar' %}✏️ Editar Transmisión
+      {% elif modo == 'detalle' %}👁️ Detalle de la Transmisión
+      {% elif modo == 'eliminar' %}🗑️ Confirmar Eliminación
+      {% endif %}
+    </h1>
 
-    <!-- Título de la página para registrar una nueva transmisión -->
-    <h1 class="title is-4 has-text-primary">🎥 Registrar Nueva Transmisión</h1>
-
-    <!-- Formulario para crear una nueva transmisión, con protección CSRF -->
     <form method="POST" class="box">
       {% csrf_token %}
-
-      <!-- Contenedor de columnas para organizar los campos del formulario -->
       <div class="columns is-multiline">
-        <!-- Itera sobre cada campo del formulario -->
-        {% for field in form %}
+
+        <!-- CAMPO: ENLACE -->
         <div class="column is-half">
           <div class="field">
-            <!-- Etiqueta del campo -->
-            <label class="label">{{ field.label }}</label>
+            <label class="label">🔗 Enlace</label>
             <div class="control">
-              <!-- Renderiza el campo de formulario -->
-              {{ field }}
+              {% if modo == 'detalle' %}
+                <p>{{ transmision.enlace }}</p>
+              {% else %}
+                <input class="input" type="url" name="enlace" required 
+                       {% if modo == 'eliminar' %}disabled{% endif %}
+                       value="{{ transmision.enlace|default:'' }}">
+              {% endif %}
             </div>
-            <!-- Texto de ayuda opcional para el campo -->
-            {% if field.help_text %}
-              <p class="help">{{ field.help_text }}</p>
-            {% endif %}
-            <!-- Mensajes de error para el campo -->
-            {% for error in field.errors %}
-              <p class="help is-danger">{{ error }}</p>
-            {% endfor %}
           </div>
         </div>
-        {% endfor %}
+
+        <!-- CAMPO: DESCRIPCIÓN -->
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">📝 Descripción</label>
+            <div class="control">
+              {% if modo == 'detalle' %}
+                <p>{{ transmision.descripcion|default:"Sin descripción" }}</p>
+              {% else %}
+                <input class="input" type="text" name="descripcion" maxlength="500"
+                       {% if modo == 'eliminar' %}disabled{% endif %}
+                       value="{{ transmision.descripcion|default:'' }}">
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMPO: CAMPEONATO -->
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">🏆 Campeonato</label>
+            <div class="control">
+              {% if modo == 'detalle' %}
+                <p>{{ transmision.campeonato.nombre }}</p>
+              {% else %}
+                <div class="select is-fullwidth">
+                  <select name="campeonato" required {% if modo == 'eliminar' %}disabled{% endif %}>
+                    <option value="">Seleccione un campeonato</option>
+                    {% for c in campeonatos %}
+                      <option value="{{ c.id }}"
+                        {% if transmision.campeonato.id == c.id %}selected{% endif %}>
+                        {{ c.nombre }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMPO: PARTIDO -->
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">⚽ Partido</label>
+            <div class="control">
+              {% if modo == 'detalle' %}
+                <p>{{ transmision.partido }}</p>
+              {% else %}
+                <div class="select is-fullwidth">
+                  <select name="partido" required {% if modo == 'eliminar' %}disabled{% endif %}>
+                    <option value="">Seleccione un partido</option>
+                    {% for p in partidos %}
+                      <option value="{{ p.id }}"
+                        {% if transmision.partido.id == p.id %}selected{% endif %}>
+                        {{ p }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- CAMPO: ACTIVA -->
+        <div class="column is-full">
+          <div class="field">
+            <label class="checkbox">
+              {% if modo == 'detalle' %}
+                {% if transmision.activa %}
+                  ✅ Transmisión Activa
+                {% else %}
+                  🚫 Transmisión Inactiva
+                {% endif %}
+              {% else %}
+                <input type="checkbox" name="activa"
+                  {% if transmision.activa %}checked{% endif %}
+                  {% if modo == 'eliminar' %}disabled{% endif %}>
+                Activa
+              {% endif %}
+            </label>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Botones para enviar el formulario o cancelar y volver al listado -->
-      <div class="field is-grouped is-justify-content-center">
-        <div class="control">
-          <button type="submit" class="button is-success is-light">💾 Guardar Transmisión</button>
-        </div>
-        <div class="control">
-          <a href="{% url 'listar_transmisiones' %}" class="button is-link is-light">↩️ Cancelar</a>
-        </div>
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="field is-grouped is-justify-content-center mt-5">
+        {% if modo == 'crear' %}
+          <button type="submit" class="button is-success is-light">💾 Registrar</button>
+        {% elif modo == 'editar' %}
+          <button type="submit" class="button is-success is-light">💾 Guardar Cambios</button>
+        {% elif modo == 'eliminar' %}
+          <button type="submit" class="button is-danger is-light">🗑️ Confirmar Eliminación</button>
+        {% endif %}
+
+        <a href="{% url 'listar_transmisiones' %}" class="button is-link is-light">↩️ Volver al Listado</a>
       </div>
     </form>
-
   </div>
 </section>
-
 {% endblock %}

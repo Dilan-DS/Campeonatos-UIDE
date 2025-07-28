@@ -5,57 +5,61 @@
 <section class="section">
   <div class="container">
 
-    <!-- Título principal de la sección con icono y estilo -->
-    <h1 class="title is-4 has-text-primary">📺 Lista de Transmisiones</h1>
+    <!-- Título + botón de nueva transmisión -->
+    <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+      <h1 class="title is-4 has-text-primary">📺 Lista de Transmisiones</h1>
+      <a href="{% url 'crear_transmision' %}" class="button is-primary is-light">
+        ➕ Nueva Transmisión
+      </a>
+    </div>
 
-    <!-- Tabla para listar las transmisiones -->
+    <!-- Tabla de transmisiones -->
     <table class="table is-striped is-hoverable is-fullwidth">
       <thead>
         <tr>
-          <!-- Encabezados de las columnas -->
           <th>🏆 Campeonato</th>
           <th>⚽ Partido</th>
           <th>🔗 Enlace</th>
+          <th>📝 Descripción</th>
           <th>📡 Activa</th>
           <th>⚙️ Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Bucle para mostrar cada transmisión -->
         {% for transmision in transmisiones %}
         <tr>
-          <!-- Nombre del campeonato -->
           <td>{{ transmision.campeonato.nombre }}</td>
-          <!-- Partido correspondiente -->
           <td>{{ transmision.partido }}</td>
-          <!-- Enlace de la transmisión, abre en nueva pestaña -->
           <td>
             <a href="{{ transmision.enlace }}" target="_blank" class="has-text-link">
               Ver Transmisión
             </a>
           </td>
-          <!-- Indicador visual de si la transmisión está activa o no -->
+          <td>{{ transmision.descripcion|default:"Sin descripción" }}</td>
           <td>
             <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
               {{ transmision.activa|yesno:"Sí,No" }}
             </span>
           </td>
-          <!-- Botón para ver detalles individuales de la transmisión -->
-          <td>
+          <td class="buttons">
             <a href="{% url 'detalle_transmision' transmision.id %}" class="button is-small is-info is-light">
-              Ver Detalles
+              👁️
+            </a>
+            <a href="{% url 'editar_transmision' transmision.id %}" class="button is-small is-warning is-light">
+              ✏️
+            </a>
+            <a href="{% url 'eliminar_transmision' transmision.id %}" class="button is-small is-danger is-light">
+              🗑️
             </a>
           </td>
         </tr>
         {% empty %}
-        <!-- Mensaje si no hay transmisiones registradas -->
         <tr>
-          <td colspan="5" class="has-text-centered">No hay transmisiones registradas.</td>
+          <td colspan="6" class="has-text-centered">No hay transmisiones registradas.</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </section>
-
 {% endblock %}

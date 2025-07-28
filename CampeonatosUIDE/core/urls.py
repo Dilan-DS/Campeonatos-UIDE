@@ -28,31 +28,32 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuario/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='usuario/password_reset_complete.html'), name='password_reset_complete'),
 
-    # Árbitros
-    path('arbitros/', listar_arbitros, name='listar_arbitros'),
-    path('arbitros/nuevo/', registrar_arbitro, name='registrar_arbitro'),
-    path('arbitros/<int:id>/', detalle_arbitro, name='detalle_arbitro'),
-    path('arbitros/<int:id>/editar/', editar_arbitro, name='editar_arbitro'),
+    path('arbitros/', listar_arbitros.as_view(), name='listar_arbitros'),
+    path('arbitros/nuevo/', registrar_arbitro.as_view(), name='registrar_arbitro'),
+    path('arbitros/<int:id>/', detalle_arbitro.as_view(), name='detalle_arbitro'),
+    path('arbitros/<int:id>/editar/', editar_arbitro.as_view(), name='editar_arbitro'),
+    path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_arbitro'),
 
-    # Campeonatos
-    path('campeonatos/publicos/', campeonatos_publicos, name='campeonatos_publicos'),
+
+    path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),
     # path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),
-    path('campeonatos/', listar_campeonatos, name='listar_campeonatos'),
-    path('campeonatos/nuevo/', crear_campeonato, name='crear_campeonato'),
-    path('campeonatos/<int:id>/', detalle_campeonato, name='detalle_campeonato'),
-    path('campeonatos/<int:id>/editar/', editar_campeonato, name='editar_campeonato'),
-    path('campeonatos/<int:id>/fixture/', fixture_campeonato, name='fixture_campeonato'),
+    path('campeonatos/', ListarCampeonatos.as_view(), name='listar_campeonatos'),
+    path('campeonatos/nuevo/', CrearCampeonato.as_view(), name='crear_campeonato'),
+    path('campeonatos/<int:id>/', DetalleCampeonato.as_view(), name='detalle_campeonato'),
+    path('campeonatos/<int:id>/editar/', EditarCampeonato.as_view(), name='editar_campeonato'),
+    path('campeonatos/<int:id>/fixture/', FixtureCampeonato.as_view(), name='fixture_campeonato'),
+    path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
+ # Rutas de deportes
+    path('deportes/', ListarDeportesView.as_view(), name='listar_deportes'),
+    path('deportes/registrar/', RegistrarDeporteView.as_view(), name='registrar_deporte'),
+    path('deportes/<int:id>/editar/', EditarDeporteView.as_view(), name='editar_deporte'),
+    path('deportes/<int:id>/eliminar/', EliminarDeporteView.as_view(), name='eliminar_deporte'),
 
-    # Tipos de campeonato y deportes
-    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
-    path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/editar/', editar_tipo_campeonato, name='editar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/eliminar/', eliminar_tipo_campeonato, name='eliminar_tipo_campeonato'),
-
-    path('deportes/', listar_deportes, name='listar_deportes'),
-    path('deportes/registrar/', registrar_deporte, name='registrar_deporte'),
-    path('deportes/<int:id>/editar/', editar_deporte, name='editar_deporte'),
-    path('deportes/<int:id>/eliminar/', eliminar_deporte, name='eliminar_deporte'),
+    # Rutas de tipos de campeonato
+    path('tipos-campeonato/', ListaTiposCampeonatoView.as_view(), name='listar_tipos_campeonato'),
+    path('tipos-campeonato/registrar/', RegistrarTipoCampeonatoView.as_view(), name='registrar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/editar/', EditarTipoCampeonatoView.as_view(), name='editar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/eliminar/', EliminarTipoCampeonatoView.as_view(), name='eliminar_tipo_campeonato'),
 
     # Equipos
     path('equipos/', listar_equipos, name='listar_equipos'),
@@ -78,23 +79,22 @@ urlpatterns = [
     path('estadisticas/videojuegos/', estadisticas_videojuegos, name='estadisticas_videojuegos'),
 
     # Transmisiones
-    path('transmisiones/', listar_transmisiones, name='listar_transmisiones'),
-    path('transmisiones/nuevo/', registrar_transmision, name='registrar_transmision'),
-    path('transmisiones/<int:id>/', detalle_transmision, name='detalle_transmision'),
-    path('transmisiones/<int:id>/editar/', editar_transmision, name='editar_transmision'),
-    path('transmisiones/<int:id>/eliminar/', eliminar_transmision, name='eliminar_transmision'),
-
+    path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
+    path('transmisiones/crear/', CrearTransmisionView.as_view(), name='crear_transmision'),
+    path('transmisiones/<int:id>/', DetalleTransmisionView.as_view(), name='detalle_transmision'),
+    path('transmisiones/<int:id>/editar/', EditarTransmisionView.as_view(), name='editar_transmision'),
+    path('transmisiones/<int:id>/eliminar/', EliminarTransmisionView.as_view(), name='eliminar_transmision'),
     # Suspensiones
     path('suspensiones/', listar_suspensiones, name='listar_suspensiones'),
     path('suspension/registrar/', registrar_suspension, name='registrar_suspension'),
     path('suspension/<int:suspension_id>/', detalle_suspension, name='detalle_suspension'),
 
     # Códigos QR
-    path('panel/admin/codigos-qr/', listar_codigos_qr, name='listar_codigos_qr'),
-    path('panel/admin/codigos-qr/registrar/', registrar_codigo_qr, name='registrar_codigo_qr'),
-    path('panel/admin/codigos-qr/<int:pk>/editar/', editar_codigo_qr, name='editar_codigo_qr'),
-    path('panel/admin/codigos-qr/<int:pk>/eliminar/', eliminar_codigo_qr, name='eliminar_codigo_qr'),
-
+    path('panel/admin/codigos-qr/', ListarCodigosQRView.as_view(), name='listar_codigos_qr'),
+    path('panel/admin/codigos-qr/registrar/', RegistrarCodigoQRView.as_view(), name='registrar_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/editar/', EditarCodigoQRView.as_view(), name='editar_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/', DetalleCodigoQRView.as_view(), name='detalle_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/eliminar/', EliminarCodigoQRView.as_view(), name='eliminar_codigo_qr'),
 
     path('panel/admin/registrar-delegado/', registrar_delegado, name='registrar_delegado'),
     path('panel/admin/usuarios/', listar_usuarios, name='listar_usuarios'),
@@ -106,12 +106,37 @@ urlpatterns = [
     path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
 
+<<<<<<< HEAD
     # Pagos
     path('pagos/', listar_pagos.as_view(), name='listar_pagos'),
     path('pagos/crear/', registrar_pago.as_view(), name='registrar_pago'),  # Cambié de crear_pago a registrar_pago
     path('pagos/<int:id>/editar/', editar_pago.as_view(), name='editar_pago'),
     path('pagos/<int:id>/', detalle_pago.as_view(), name='detalle_pago'),
     path('pagos/<int:id>/eliminar/', eliminar_pago.as_view(), name='eliminar_pago'),
+=======
+
+
+
+     # URLs para ImagenGaleria
+    path('galeria/', ListarImagenGaleria.as_view(), name='listar_imagenes_galeria'),
+    path('galeria/crear/', RegistrarImagenGaleria.as_view(), name='registrar_imagen_galeria'),
+    path('galeria/editar/<int:id>/', EditarImagenGaleria.as_view(), name='editar_imagen_galeria'),
+    path('galeria/eliminar/<int:id>/', EliminarImagenGaleria.as_view(), name='eliminar_imagen_galeria'),
+
+    # URLs para Noticias
+    path('noticias/', ListarNoticias.as_view(), name='listar_noticias'),
+    path('noticias/crear/', RegistrarNoticia.as_view(), name='registrar_noticia'),
+    path('noticias/editar/<int:id>/', EditarNoticia.as_view(), name='editar_noticia'),
+    path('noticias/eliminar/<int:id>/', EliminarNoticia.as_view(), name='eliminar_noticia'),
+
+    # URLs para Testimonios
+    path('testimonios/', ListarTestimonios.as_view(), name='listar_testimonios'),
+    path('testimonios/crear/', RegistrarTestimonio.as_view(), name='registrar_testimonio'),
+    path('testimonios/editar/<int:id>/', EditarTestimonio.as_view(), name='editar_testimonio'),
+    path('testimonios/eliminar/<int:id>/', EliminarTestimonio.as_view(), name='eliminar_testimonio'),
+
+
+>>>>>>> 45d55da452b31521503e4e184004ee52c31a6117
 ]
 
 if settings.DEBUG:

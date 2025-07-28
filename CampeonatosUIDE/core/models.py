@@ -144,6 +144,11 @@ class Campeonato(models.Model):
         ('EN_CURSO', 'En Curso'),
         ('FINALIZADO', 'Finalizado'),
     ]
+        # Opciones para activo y público
+    OPCIONES_SI_NO = [
+        ('SI', 'Sí'),
+        ('NO', 'No'),
+    ]
 
     # Nombre único del campeonato
     nombre = models.CharField(max_length=100, unique=True)
@@ -174,8 +179,9 @@ class Campeonato(models.Model):
     # Código QR del campeonato (opcional, solo si acepta transferencia)
     codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True, related_name='campeonatos')
 
-    activo = models.BooleanField(default=True)
-    es_publico = models.BooleanField(default=True)
+    activo = models.CharField(max_length=2, choices=OPCIONES_SI_NO, default='SI')
+    es_publico = models.CharField(max_length=2, choices=OPCIONES_SI_NO, default='SI')
+
 
     # Validación para que la fecha fin no sea anterior a la fecha inicio
     def clean(self):

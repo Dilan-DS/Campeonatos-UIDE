@@ -1,97 +1,146 @@
 {% extends 'comun/base.html' %}
-<!-- Hereda la plantilla base del sistema (estructura general, estilos globales, etc.) -->
+{% load static %}
 
-{% block title %}Registrar Código QR - UIDE{% endblock %}
-<!-- Título que aparece en la pestaña del navegador -->
+{% block title %}
+  {% if modo == 'crear' %} Registrar Código QR
+  {% elif modo == 'editar' %} Editar Código QR
+  {% elif modo == 'detalle' %} Detalle del Código QR
+  {% elif modo == 'eliminar' %} Eliminar Código QR
+  {% endif %}
+{% endblock %}
 
 {% block content %}
-<!-- Inicio del bloque principal de contenido de la página -->
-
 <section class="section">
-  <!-- Sección principal con espaciado vertical de Bulma -->
-
   <div class="container">
-    <!-- Contenedor general -->
+    <h1 class="title is-3 has-text-centered">
+      {% if modo == 'crear' %}Registrar Código QR
+      {% elif modo == 'editar' %}Editar Código QR
+      {% elif modo == 'detalle' %}Detalle del Código QR
+      {% elif modo == 'eliminar' %}Eliminar Código QR
+      {% endif %}
+    </h1>
 
-    <div class="box bg-white"
-         style="max-width: 900px; margin: auto; border-radius: 1.5rem; background-color: #fffef8;">
-      <!-- Caja centrada con máximo 900px, fondo claro y bordes redondeados -->
+    {% if messages %}
+      <div>
+        {% for message in messages %}
+          <div class="notification is-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
-      <h2 class="title is-3 has-text-danger has-text-centered mb-6">
-        <!-- Título con color rojo institucional, centrado -->
-        🖼 Registrar Código QR
-      </h2>
+    <form method="POST" enctype="multipart/form-data"
+          {% if modo == 'eliminar' %}onsubmit="return confirm('¿Seguro que deseas eliminar este código QR?');"{% endif %}>
+      {% csrf_token %}
 
-      <form method="POST" enctype="multipart/form-data"
-            class="space-y-6 px-6 sm:px-10 md:px-16 lg:px-20 xl:px-24">
-        <!-- Formulario con márgenes internos adaptables según el tamaño de pantalla -->
-        {% csrf_token %}
-        <!-- Token CSRF de seguridad de Django -->
+      {% if modo == 'detalle' or modo == 'eliminar' %}
+        <!-- Vista solo lectura -->
+        <div class="field">
+          <label class="label">Banco</label>
+          <input class="input" type="text" value="{{ codigo.banco }}" disabled>
+        </div>
 
         <div class="field">
-          <!-- Campo del formulario para el nombre del banco -->
-          <label class="label has-text-weight-semibold">Banco</label>
-          <!-- Etiqueta del campo -->
+          <label class="label">Descripción</label>
+          <textarea class="textarea" rows="3" disabled>{{ codigo.descripcion }}</textarea>
+        </div>
+
+        <div class="field">
+          <label class="label">Imagen QR</label>
+          <figure class="image is-128x128">
+            <img src="{{ codigo.imagen_qr.url }}" alt="Código QR">
+          </figure>
+        </div>
+
+      {% else %}
+        <!-- Formulario editable -->
+        <div class="field">
+          {{ form.banco.label_tag }}
           <div class="control">
             {{ form.banco }}
-            <!-- Campo de formulario generado por Django -->
           </div>
+          {% if form.banco.errors %}
+            <p class="help is-danger">{{ form.banco.errors }}</p>
+          {% endif %}
         </div>
 
         <div class="field">
-          <!-- Campo del formulario para imagen QR -->
-          <label class="label has-text-weight-semibold">Imagen QR</label>
-          <!-- Etiqueta del campo -->
-<div class="file is-fullwidth has-name">
-  <!-- Componente de carga de archivo con diseño Bulma responsivo -->
-
-  <label class="file-label">
-    {{ form.imagen_qr }}
-    <!-- Campo de carga generado por Django con widget personalizado -->
-
-    <span class="file-cta has-background-light px-5 py-2 is-rounded">
-      <!-- Botón visual claro y redondeado -->
-      <span class="file-icon">
-        <i class="fas fa-upload"></i>
-      </span>
-      <span class="file-label">Seleccionar imagen</span>
-    </span>
-  </label>
-</div>
-
-        </div>
-
-        <div class="field">
-          <!-- Campo del formulario para descripción opcional -->
-          <label class="label has-text-weight-semibold">Descripción (opcional)</label>
-          <!-- Etiqueta del campo -->
+          {{ form.descripcion.label_tag }}
           <div class="control">
             {{ form.descripcion }}
-            <!-- Textarea generado por Django -->
           </div>
+          {% if form.descripcion.errors %}
+            <p class="help is-danger">{{ form.descripcion.errors }}</p>
+          {% endif %}
         </div>
 
-        <div class="field is-grouped is-grouped-centered mt-6">
-          <!-- Botones agrupados y centrados con margen arriba -->
+        <div class="field">
+          {{ form.imagen_qr.label_tag }}
           <div class="control">
-            <button type="submit"
-                    class="button is-danger is-rounded has-text-weight-semibold px-6 py-2 shadow-md hover:shadow-lg transition">
-              <!-- Botón rojo con sombra y transición -->
-              Guardar
-            </button>
+            <!-- Input file bien visible con Bulma -->
+            <div class="file has-name is-boxed is-fullwidth">
+              <label class="file-label">
+                {{ form.imagen_qr }}
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fas fa-upload"></i>
+                  </span>
+                  <span class="file-label">
+                    Elegir archivo…
+                  </span>
+                </span>
+                <span class="file-name" id="file-name">
+                  {% if codigo and codigo.imagen_qr %}
+                    {{ codigo.imagen_qr.name|slice:"14:" }}
+                  {% else %}
+                    Ningún archivo seleccionado
+                  {% endif %}
+                </span>
+              </label>
+            </div>
           </div>
-          <div class="control">
-            <a href="{% url 'listar_codigos_qr' %}"
-               class="button is-light is-rounded has-text-weight-semibold px-5 py-2">
-              <!-- Botón claro para cancelar -->
-              Cancelar
-            </a>
-          </div>
+          {% if form.imagen_qr.errors %}
+            <p class="help is-danger">{{ form.imagen_qr.errors }}</p>
+          {% endif %}
         </div>
-      </form>
-    </div>
+
+        {% if codigo and codigo.imagen_qr %}
+          <div class="field">
+            <label class="label">Imagen actual</label>
+            <figure class="image is-128x128">
+              <img src="{{ codigo.imagen_qr.url }}" alt="Imagen actual QR">
+            </figure>
+          </div>
+        {% endif %}
+
+      {% endif %}
+
+      <div class="field is-grouped is-grouped-centered mt-5">
+        {% if modo == 'crear' %}
+          <button type="submit" class="button is-primary is-medium">Guardar</button>
+        {% elif modo == 'editar' %}
+          <button type="submit" class="button is-warning is-medium">Guardar Cambios</button>
+        {% elif modo == 'eliminar' %}
+          <button type="submit" class="button is-danger is-medium">Eliminar</button>
+        {% endif %}
+        <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-medium">Cancelar</a>
+      </div>
+    </form>
   </div>
 </section>
 
+<script>
+  // Mostrar nombre del archivo seleccionado
+  const fileInput = document.querySelector('input[type=file]');
+  const fileName = document.getElementById('file-name');
+
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      const name = fileInput.files.length > 0 ? fileInput.files[0].name : 'Ningún archivo seleccionado';
+      fileName.textContent = name;
+    });
+  }
+</script>
+
 {% endblock %}
-<!-- Fin del bloque de contenido -->
