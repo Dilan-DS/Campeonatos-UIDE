@@ -87,25 +87,42 @@ class EquipoForm(forms.ModelForm):
 # =============================
 class PagoForm(forms.ModelForm):
     class Meta:
-        # Definimos el modelo y los campos que queremos incluir en el formulario
         model = Pago
         fields = '__all__'
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 4}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si el pago tiene un código QR asociado, añadimos un campo para mostrarlo
+
+        # ✔ Añadir estilos Bulma a los campos
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.Textarea):
+                field.widget.attrs.update({'class': 'textarea'})
+            elif isinstance(field.widget, forms.NumberInput):
+                field.widget.attrs.update({'class': 'input', 'step': '0.01'})
+            elif isinstance(field.widget, forms.TextInput):
+                field.widget.attrs.update({'class': 'input'})
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'select'})
+
+        # ✅ Si el pago tiene código QR, mostrar vista previa
         if hasattr(self.instance, 'codigo_qr') and self.instance.codigo_qr and hasattr(self.instance.codigo_qr, 'imagen_qr'):
-            # Añadimos un campo de texto para mostrar la información del código QR
             self.fields['codigo_qr_preview'] = forms.CharField(
-                # Este campo no es obligatorio
                 required=False,
                 label='Vista previa QR',
-                widget=forms.Textarea(attrs={'readonly': 'readonly', 'rows': 6}),
+                widget=forms.Textarea(attrs={
+                    'readonly': 'readonly',
+                    'rows': 6,
+                    'class': 'textarea'
+                }),
                 initial=mark_safe(
                     f"<strong>Banco:</strong> {self.instance.codigo_qr.banco}<br>"
                     f"<img src='{self.instance.codigo_qr.imagen_qr.url}' width='200' style='border:1px solid #ccc;'/>"
                 )
             )
+
 
 # =============================
 # FORMULARIO: ÁRBITRO
@@ -237,3 +254,5 @@ class UsuarioForm(forms.ModelForm):
             'cedula': forms.TextInput(attrs={'class': 'input'}),
             'rol': forms.Select(attrs={'class': 'input'}),
         }
+
+

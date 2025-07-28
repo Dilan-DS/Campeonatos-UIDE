@@ -77,12 +77,21 @@ class Deporte(models.Model):
 # Modelo para guardar códigos QR de bancos o métodos de transferencia que sube el admin
 class CodigoQR(models.Model):
     # Nombre del banco o método (ej: Banco Pichincha)
-    banco = models.CharField(max_length=100, unique=True)
+    banco = models.CharField(
+    max_length=100,
+    unique=True,
+    verbose_name="Nombre del banco"
+    )
     # Imagen del código QR subida por admin
-    imagen_qr = models.ImageField(upload_to='codigos_qr/')
+    imagen_qr = models.ImageField(
+    upload_to='codigos_qr/',
+    verbose_name="Imagen del QR"
+    )
     # Descripción opcional para detalles extra
-    descripcion = models.TextField(blank=True, null=True)
-
+    descripcion = models.TextField(
+    blank=True, null=True,
+    verbose_name="Descripción adicional"
+    )
     # Representación en texto con el nombre del banco
     def __str__(self):
         return self.banco
@@ -822,3 +831,4 @@ class Testimonio(models.Model):
 
     def __str__(self):
         return self.autor
+

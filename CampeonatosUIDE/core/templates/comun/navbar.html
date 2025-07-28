@@ -43,6 +43,7 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Mis Equipos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_partidos' %}">Partidos</a>
           <a class="navbar-item has-text-white" href="{% url 'ver_calendario_completo' %}">📅 Calendario</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_pagos' %}">Pagos</a>
 
         {% elif request.user.rol == "JUGADOR" %}
           <!-- JUGADOR -->
