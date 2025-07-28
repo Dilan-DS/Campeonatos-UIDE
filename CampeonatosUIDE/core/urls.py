@@ -106,14 +106,13 @@ urlpatterns = [
     path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
 
-<<<<<<< HEAD
     # Pagos
     path('pagos/', listar_pagos.as_view(), name='listar_pagos'),
     path('pagos/crear/', registrar_pago.as_view(), name='registrar_pago'),  # Cambié de crear_pago a registrar_pago
     path('pagos/<int:id>/editar/', editar_pago.as_view(), name='editar_pago'),
     path('pagos/<int:id>/', detalle_pago.as_view(), name='detalle_pago'),
     path('pagos/<int:id>/eliminar/', eliminar_pago.as_view(), name='eliminar_pago'),
-=======
+
 
 
 
@@ -136,7 +135,7 @@ urlpatterns = [
     path('testimonios/eliminar/<int:id>/', EliminarTestimonio.as_view(), name='eliminar_testimonio'),
 
 
->>>>>>> 45d55da452b31521503e4e184004ee52c31a6117
+
 ]
 
 if settings.DEBUG:
