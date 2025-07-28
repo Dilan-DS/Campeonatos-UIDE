@@ -490,6 +490,41 @@
 #     else:
 #         # Si la solicitud no es POST, crea un formulario vacío
 #         form = EquipoForm()
+# @login_required  # Requiere que el usuario esté autenticado
+# @user_passes_test(es_delegado)  # Verifica que el usuario tenga el rol de delegado
+# def registrar_pago(request):
+    # Intenta obtener el equipo del delegado actual
+#    equipo = Equipo.objects.filter(delegado=request.user).first()
+
+    # Si no tiene equipo, se redirige con una advertencia
+#    if not equipo:
+#        messages.warning(request, 'Debes registrar un equipo antes de subir un pago.')
+#        return redirect('delegado_dashboard')
+
+    # Si se recibe un formulario por POST, procesa los datos
+#    if request.method == 'POST':
+        # Se extraen los datos del formulario
+#        metodo = request.POST.get('metodo')
+#         monto = request.POST.get('monto')
+
+        # Se crea el nuevo pago (esto requiere que el modelo Pago exista)
+#        nuevo_pago = Pago.objects.create(
+#            equipo=equipo,
+#            metodo=metodo,
+#            monto=monto
+            # Puedes agregar otros campos como fecha, comprobante, etc.
+#        )
+
+        # Se muestra un mensaje de éxito y redirige al dashboard del delegado
+#        messages.success(request, 'Pago registrado correctamente.')
+#        return redirect('delegado_dashboard')
+
+    # Si la solicitud es GET, se muestra el formulario vacío
+#    return render(request, 'delegado/registrar_pago.html', {
+#        'equipo': equipo  # Enviado al template para mostrar información del equipo
+#   })
+
+
 
 #     return render(request, 'equipo/registrar_equipo.html', {'form': form, 'campeonato': campeonato})
 # # función para listar equipos

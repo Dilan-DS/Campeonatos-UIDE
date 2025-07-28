@@ -11,3 +11,4 @@ from .transmision_views import *
 from .arbitro_views import *
 from .suspension_views import *
 from .equipo_views import *
+from .pago_views import *

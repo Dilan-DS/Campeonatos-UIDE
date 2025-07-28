@@ -1,0 +1,63 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Listado de Pagos{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title is-3 has-text-centered mb-5">Listado de Pagos</h1>
+
+    {% if messages %}
+      <div>
+        {% for message in messages %}
+          <div class="notification is-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="mb-4">
+      <a href="{% url 'registrar_pago' %}" class="button is-primary">Registrar Pago Nuevo</a>
+    </div>
+
+    {% if pagos %}
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Estudiante</th>
+            <th>Monto</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pago in pagos %}
+          <tr>
+            <td>{{ pago.id }}</td>
+            <td>{{ pago.estudiante }}</td>
+            <td>{{ pago.monto }}</td>
+            <td>{{ pago.descripcion|default:"-" }}</td>
+            <td>
+              <a href="{% url 'detalle_pago' pago.id %}" class="button is-small is-info" title="Detalle">
+                <span class="icon is-small"><i class="fas fa-eye"></i></span>
+              </a>
+              <a href="{% url 'editar_pago' pago.id %}" class="button is-small is-warning" title="Editar">
+                <span class="icon is-small"><i class="fas fa-edit"></i></span>
+              </a>
+              <a href="{% url 'eliminar_pago' pago.id %}" class="button is-small is-danger" title="Eliminar">
+                <span class="icon is-small"><i class="fas fa-trash"></i></span>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No hay pagos registrados aún.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
