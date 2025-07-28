@@ -106,7 +106,6 @@ urlpatterns = [
     path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
 
-
     # Pagos
     path('pagos/', listar_pagos.as_view(), name='listar_pagos'),
     path('pagos/crear/', registrar_pago.as_view(), name='registrar_pago'),  # Cambié de crear_pago a registrar_pago
@@ -114,10 +113,7 @@ urlpatterns = [
     path('pagos/<int:id>/', detalle_pago.as_view(), name='detalle_pago'),
     path('pagos/<int:id>/eliminar/', eliminar_pago.as_view(), name='eliminar_pago'),
 
-
-
-
-     # URLs para ImagenGaleria
+    # URLs para ImagenGaleria
     path('galeria/', ListarImagenGaleria.as_view(), name='listar_imagenes_galeria'),
     path('galeria/crear/', RegistrarImagenGaleria.as_view(), name='registrar_imagen_galeria'),
     path('galeria/editar/<int:id>/', EditarImagenGaleria.as_view(), name='editar_imagen_galeria'),
@@ -134,8 +130,6 @@ urlpatterns = [
     path('testimonios/crear/', RegistrarTestimonio.as_view(), name='registrar_testimonio'),
     path('testimonios/editar/<int:id>/', EditarTestimonio.as_view(), name='editar_testimonio'),
     path('testimonios/eliminar/<int:id>/', EliminarTestimonio.as_view(), name='eliminar_testimonio'),
-
-
 
 ]
 
