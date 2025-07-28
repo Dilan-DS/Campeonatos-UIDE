@@ -11,13 +11,11 @@ from .transmision_views import *
 from .arbitro_views import *
 from .suspension_views import *
 from .equipo_views import *
-<<<<<<< HEAD
 from .pago_views import *
-=======
 from .codigoqr_views import *
 from .tipo_campeonato_views import *
 from .deportes_views import *
 from .galeria_views import *
 from .testimonios_views import *
 from .noticias_views import *
->>>>>>> 45d55da452b31521503e4e184004ee52c31a6117
+
