@@ -35,6 +35,10 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_deportes' %}">Deportes</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_tipos_campeonato' %}">Tipos de Campeonato</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_imagenes_galeria' %}">Galería</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_noticias' %}">Noticias</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_testimonios' %}">Testimonios</a>
+
 
         {% elif request.user.rol == "DELEGADO" %}
           <!-- DELEGADO -->

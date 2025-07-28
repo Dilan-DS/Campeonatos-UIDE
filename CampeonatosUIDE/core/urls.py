@@ -108,6 +108,26 @@ urlpatterns = [
 
 
 
+
+     # URLs para ImagenGaleria
+    path('galeria/', ListarImagenGaleria.as_view(), name='listar_imagenes_galeria'),
+    path('galeria/crear/', RegistrarImagenGaleria.as_view(), name='registrar_imagen_galeria'),
+    path('galeria/editar/<int:id>/', EditarImagenGaleria.as_view(), name='editar_imagen_galeria'),
+    path('galeria/eliminar/<int:id>/', EliminarImagenGaleria.as_view(), name='eliminar_imagen_galeria'),
+
+    # URLs para Noticias
+    path('noticias/', ListarNoticias.as_view(), name='listar_noticias'),
+    path('noticias/crear/', RegistrarNoticia.as_view(), name='registrar_noticia'),
+    path('noticias/editar/<int:id>/', EditarNoticia.as_view(), name='editar_noticia'),
+    path('noticias/eliminar/<int:id>/', EliminarNoticia.as_view(), name='eliminar_noticia'),
+
+    # URLs para Testimonios
+    path('testimonios/', ListarTestimonios.as_view(), name='listar_testimonios'),
+    path('testimonios/crear/', RegistrarTestimonio.as_view(), name='registrar_testimonio'),
+    path('testimonios/editar/<int:id>/', EditarTestimonio.as_view(), name='editar_testimonio'),
+    path('testimonios/eliminar/<int:id>/', EliminarTestimonio.as_view(), name='eliminar_testimonio'),
+
+
 ]
 
 if settings.DEBUG:

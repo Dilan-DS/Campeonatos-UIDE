@@ -1,0 +1,123 @@
+{% extends "comun/base.html" %}
+
+{% block title %}
+  {% if modo == 'crear' %} Subir Imagen {% elif modo == 'editar' %} Editar Imagen {% elif modo == 'eliminar' %} Eliminar Imagen {% else %} Detalle Imagen {% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title is-3 has-text-centered has-text-primary">
+      {% if modo == 'crear' %} Subir Imagen {% elif modo == 'editar' %} Editar Imagen {% elif modo == 'eliminar' %} Confirmar eliminación {% else %} Detalle Imagen {% endif %}
+    </h1>
+
+    {% if modo == 'detalle' %}
+      <div class="box">
+        <h2 class="subtitle">{{ imagen.titulo }}</h2>
+        <figure class="image is-256x256 mb-4">
+          <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
+        </figure>
+        <p><strong>Descripción:</strong> {{ imagen.descripcion|default:"-" }}</p>
+        <p><strong>Fecha:</strong> {{ imagen.fecha|date:"d/m/Y H:i" }}</p>
+        <a href="{% url 'listar_imagenes_galeria' %}" class="button is-link mt-4">Volver a la galería</a>
+
+    {% elif modo == 'eliminar' %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="notification is-warning is-light">
+          ¿Estás seguro de que deseas eliminar <strong>{{ imagen.titulo }}</strong>?
+        </div>
+        <div class="buttons mt-4">
+          <button type="submit" class="button is-danger">Eliminar</button>
+          <a href="{% url 'listar_imagenes_galeria' %}" class="button is-light">Cancelar</a>
+        </div>
+      </form>
+
+    {% else %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Título -->
+        <div class="field">
+          <label class="label">Título</label>
+          <div class="control">
+            {{ form.titulo }}
+          </div>
+          {% if form.titulo.errors %}
+            <p class="help is-danger">{{ form.titulo.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Imagen -->
+        <div class="field">
+          <label class="label">Imagen
+            {% if modo == 'editar' %} (opcional) {% endif %}
+          </label>
+
+          <div class="file has-name is-boxed is-fullwidth">
+            <label class="file-label">
+              {{ form.imagen }}
+              <span class="file-cta">
+                <span class="file-icon">
+                  <i class="fas fa-upload"></i>
+                </span>
+                <span class="file-label">Elegir archivo…</span>
+              </span>
+              <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
+            </label>
+          </div>
+
+          {% if form.imagen.errors %}
+            <p class="help is-danger">{{ form.imagen.errors.0 }}</p>
+          {% endif %}
+
+          {% if modo == 'editar' and imagen.imagen %}
+            <p class="mt-3">Imagen actual:</p>
+            <figure class="image is-128x128">
+              <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
+            </figure>
+          {% endif %}
+        </div>
+
+        <!-- Descripción -->
+        <div class="field">
+          <label class="label">Descripción</label>
+          <div class="control">
+            {{ form.descripcion }}
+          </div>
+          {% if form.descripcion.errors %}
+            <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Botones -->
+        <div class="field is-grouped mt-5">
+          <div class="control">
+            <button type="submit" class="button is-primary">
+              {% if modo == 'crear' %} Subir {% elif modo == 'editar' %} Guardar {% endif %}
+            </button>
+          </div>
+          <div class="control">
+            <a href="{% url 'listar_imagenes_galeria' %}" class="button is-light">Cancelar</a>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Script para mostrar nombre del archivo -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('.file input[type=file]');
+    const fileName = document.getElementById('file-name');
+    if (input) {
+      input.addEventListener('change', function () {
+        if (input.files.length > 0) {
+          fileName.textContent = input.files[0].name;
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
