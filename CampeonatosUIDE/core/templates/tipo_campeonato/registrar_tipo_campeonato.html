@@ -1,65 +1,86 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
-{% block title %}Registrar Tipo de Campeonato - UIDE{% endblock %}
+{% block title %}
+  {% if modo == 'crear' %}
+    Registrar Tipo de Campeonato - UIDE
+  {% elif modo == 'editar' %}
+    Editar Tipo de Campeonato - UIDE
+  {% elif modo == 'eliminar' %}
+    Eliminar Tipo de Campeonato - UIDE
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
 
-    <!-- Caja principal centrada con estilo suave y sombra -->
-    <div class="box" style="max-width: 640px; margin: auto; border-radius: 20px; background-color: #fffef8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.07);">
-      
-      <!-- Título principal con ícono y estilo de color -->
-      <h2 class="title is-3 has-text-centered has-text-danger mb-5">
-        📝 Registrar Tipo de Campeonato
-      </h2>
-
-      <!-- Formulario para registrar un nuevo tipo de campeonato -->
-      <form method="post" novalidate>
-        {% csrf_token %}  <!-- Protección CSRF para seguridad -->
-
-        <!-- Campo para el nombre del tipo de campeonato -->
-        <div class="field">
-          <label class="label has-text-grey-dark">Nombre</label>
-          <div class="control has-icons-left">
-            {{ form.nombre }} <!-- Campo generado por Django forms -->
-            <span class="icon is-small is-left">
-              <i class="fas fa-medal"></i> <!-- Ícono decorativo a la izquierda -->
-            </span>
-          </div>
-          <!-- Mensaje de error para el campo nombre, si existe -->
-          {% if form.nombre.errors %}
-            <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
+    {% if modo == 'crear' or modo == 'editar' %}
+      <div class="box" style="max-width: 640px; margin: auto; border-radius: 20px; background-color: #fffef8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.07);">
+        
+        <h2 class="title is-3 has-text-centered {% if modo == 'crear' %}has-text-danger{% else %}has-text-warning{% endif %} mb-5">
+          {% if modo == 'crear' %}
+            📝 Registrar Tipo de Campeonato
+          {% else %}
+            ✏️ Editar Tipo de Campeonato
           {% endif %}
-        </div>
+        </h2>
 
-        <!-- Campo para la descripción del tipo de campeonato -->
-        <div class="field">
-          <label class="label has-text-grey-dark">Descripción</label>
-          <div class="control">
-            {{ form.descripcion }} <!-- Campo generado por Django forms -->
+        <form method="post" novalidate>
+          {% csrf_token %}
+          
+          <div class="field">
+            <label class="label has-text-grey-dark">Nombre</label>
+            <div class="control has-icons-left">
+              {{ form.nombre }}
+              <span class="icon is-small is-left">
+                <i class="fas {% if modo == 'crear' %}fa-medal{% else %}fa-trophy{% endif %}"></i>
+              </span>
+            </div>
+            {% if form.nombre.errors %}
+              <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
+            {% endif %}
           </div>
-          <!-- Mensaje de error para el campo descripción, si existe -->
-          {% if form.descripcion.errors %}
-            <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
-          {% endif %}
-        </div>
 
-        <!-- Botones para enviar o cancelar el formulario, centrados y con estilo -->
-        <div class="field is-grouped is-grouped-centered mt-5">
-          <div class="control">
-            <button type="submit" class="button is-danger is-rounded px-5">💾 Guardar</button>
+          <div class="field">
+            <label class="label has-text-grey-dark">Descripción</label>
+            <div class="control">
+              {{ form.descripcion }}
+            </div>
+            {% if form.descripcion.errors %}
+              <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
+            {% endif %}
           </div>
-          <div class="control">
+
+          <div class="field is-grouped is-grouped-centered mt-5">
+            <div class="control">
+              <button type="submit" class="button {% if modo == 'crear' %}is-danger{% else %}is-warning{% endif %} is-rounded px-5">
+                {% if modo == 'crear' %}💾 Guardar{% else %}💾 Actualizar{% endif %}
+              </button>
+            </div>
+            <div class="control">
+              <a href="{% url 'listar_tipos_campeonato' %}" class="button is-light is-rounded px-5">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    {% elif modo == 'eliminar' %}
+      <div class="box has-text-centered" style="max-width: 500px; margin: auto; background-color: #fff0f0; border-radius: 20px; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h2 class="title is-4 has-text-danger mb-4">¿Estás seguro que deseas eliminar este tipo de campeonato?</h2>
+        <p class="mb-5"><strong>{{ tipo.nombre }}</strong></p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="buttons is-centered">
+            <button type="submit" class="button is-danger is-rounded px-5">Sí, eliminar</button>
             <a href="{% url 'listar_tipos_campeonato' %}" class="button is-light is-rounded px-5">Cancelar</a>
           </div>
-        </div>
-
-      </form>
-    </div>
+        </form>
+      </div>
+    {% endif %}
 
   </div>
 </section>
-
 {% endblock %}
+  
