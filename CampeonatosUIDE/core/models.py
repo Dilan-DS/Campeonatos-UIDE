@@ -21,13 +21,6 @@ class Carrera(models.Model):
 # Modelo personalizado de usuario
 class Usuario(AbstractUser):
 
-    CARRERA_CHOICES = [
-        ("Tics", "Tics"),
-        ("Derecho", "Derecho"),
-        ("Medicina", "Medicina"),
-        ("Arquitectura", "Arquitectura"),
- 
-    ]
     # Definición de roles posibles
     ROLES = [
         ('ADMIN', 'Administrador'),
@@ -38,7 +31,7 @@ class Usuario(AbstractUser):
     # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
     rol = models.CharField(max_length=20, choices=ROLES, default='JUGADOR')
     # Carrera a la que pertenece el usuario (opcional para delegados)
-    carrera = models.CharField(max_length=100, choices=CARRERA_CHOICES)
+    carrera = models.ForeignKey(Carrera, on_delete=models.SET_NULL, null=True, blank=True)
     # Relación con grupos para permisos (ManyToMany)
     groups = models.ManyToManyField(
         Group,
