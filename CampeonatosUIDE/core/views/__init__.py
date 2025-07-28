@@ -11,3 +11,6 @@ from .transmision_views import *
 from .arbitro_views import *
 from .suspension_views import *
 from .equipo_views import *
+from .codigoqr_views import *
+from .tipo_campeonato_views import *
+from .deportes_views import *

@@ -1,72 +1,74 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
-{% block title %}Códigos QR - Campeonatos UIDE{% endblock %}
+{% block title %}Listado de Códigos QR{% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
+    <h1 class="title is-3 has-text-centered">Códigos QR Registrados</h1>
 
-    <div class="box" style="border-radius: 18px; background-color: #fffef8; padding: 2.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-
-      <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-        <h2 class="title is-3 has-text-danger">🧾 Códigos QR Registrados</h2>
-        <a href="{% url 'registrar_codigo_qr' %}" class="button is-warning is-rounded">
-          <strong>+ Agregar QR</strong>
-        </a>
+    <form method="get" class="mb-5">
+      <div class="field has-addons">
+        <div class="control is-expanded">
+          <input type="text" name="q" class="input" placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
+        </div>
+        <div class="control">
+          <button class="button is-info" type="submit">Buscar</button>
+        </div>
       </div>
+    </form>
 
-      <form method="get" class="mb-4">
-        <div class="field has-addons">
-          <div class="control is-expanded">
-            <input class="input" type="text" name="q" value="{{ request.GET.q }}" placeholder="🔍 Buscar por banco o descripción">
-          </div>
-          <div class="control">
-            <button type="submit" class="button is-info">Buscar</button>
-          </div>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="notification is-{{ message.tags }}">
+          {{ message }}
         </div>
-      </form>
+      {% endfor %}
+    {% endif %}
 
-      {% if codigos_qr %}
-        <table class="table is-fullwidth is-hoverable is-striped">
-          <thead>
-            <tr class="has-background-warning-light">
-              <th>Banco</th>
-              <th>Descripción</th>
-              <th>Imagen</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for codigo in codigos_qr %}
-              <tr>
-                <td>{{ codigo.banco }}</td>
-                <td>{{ codigo.descripcion|default:"-" }}</td>
-                <td>
-                  {% if codigo.imagen_qr %}
-                    <figure class="image is-96x96">
-                      <img src="{{ codigo.imagen_qr.url }}" alt="QR Banco" style="object-fit: contain;">
-                    </figure>
-                  {% else %}
-                    <em>Sin imagen</em>
-                  {% endif %}
-                </td>
-                <td>
-                  <a href="{% url 'editar_codigo_qr' codigo.id %}" class="button is-small is-info is-light">✏️ Editar</a>
-                  <a href="{% url 'eliminar_codigo_qr' codigo.id %}" class="button is-small is-danger is-light" onclick="return confirm('¿Estás seguro de eliminar este código QR?');">🗑️ Eliminar</a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div class="notification is-warning is-light has-text-centered">
-          No hay códigos QR registrados todavía.
-        </div>
-      {% endif %}
-
+    <div class="mb-4">
+      <a href="{% url 'registrar_codigo_qr' %}" class="button is-primary">
+        <i class="fas fa-plus mr-2"></i> Nuevo Código QR
+      </a>
     </div>
 
+    {% if codigos_qr %}
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>Banco</th>
+            <th>Imagen</th>
+            <th>Descripción</th>
+            <th class="has-text-centered">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for codigo in codigos_qr %}
+            <tr>
+              <td>{{ codigo.banco }}</td>
+             <td>
+                {% if codigo.imagen_qr %}
+                  <figure class="image is-64x64 is-square">
+                    <img src="{{ codigo.imagen_qr.url }}" alt="QR" style="object-fit: contain; width: 100%; height: 100%;">
+                  </figure>
+                {% else %}
+                  <span class="has-text-grey-light">No disponible</span>
+                {% endif %}
+              </td><
+              <td>{{ codigo.descripcion|default:"Sin descripción" }}</td>
+              <td class="has-text-centered">
+                <a href="{% url 'detalle_codigo_qr' codigo.pk %}" class="button is-small is-info">Ver</a>
+                <a href="{% url 'editar_codigo_qr' codigo.pk %}" class="button is-small is-warning">Editar</a>
+                <a href="{% url 'eliminar_codigo_qr' codigo.pk %}" class="button is-small is-danger">Eliminar</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="has-text-centered">No hay códigos QR registrados aún.</p>
+    {% endif %}
   </div>
 </section>
 {% endblock %}

@@ -1,58 +1,77 @@
 {% extends 'comun/base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Registrar Deporte{% endblock %}
+{% block title %}
+  {% if modo == 'crear' %}
+    Registrar Deporte
+  {% elif modo == 'editar' %}
+    Editar Deporte
+  {% elif modo == 'eliminar' %}
+    Eliminar Deporte
+  {% endif %}
+{% endblock %}
 
 {% block content %}
-
-<!-- FORMULARIO PARA REGISTRAR NUEVO DEPORTE -->
 <section class="section">
   <div class="container">
 
-    <!-- Contenedor del formulario con estilos personalizados -->
-    <div class="box" style="background-color: #fffdf8; border-radius: 1rem; padding: 2.5rem;">
-      
-      <!-- Título de la vista -->
-      <h2 class="title has-text-centered has-text-danger">⚽ Registrar Deporte</h2>
+    {% if modo == 'crear' or modo == 'editar' %}
+      <div class="box" style="max-width: 600px; margin: auto; border-radius: 18px; background-color: #fffef8; padding: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h2 class="title is-3 has-text-centered has-text-danger mb-5">
+          {% if modo == 'crear' %}⚽ Registrar Deporte{% else %}✏️ Editar Deporte{% endif %}
+        </h2>
 
-      <!-- Formulario con metodo POST -->
-      <form method="POST">
-        {% csrf_token %} <!-- Protección CSRF -->
+        <form method="post">
+          {% csrf_token %}
 
-        <!-- Renderiza todos los campos del formulario en columnas responsivas -->
-        <div class="columns is-multiline">
-          {% for field in form %}
-          <div class="column is-12-mobile is-6-tablet"> <!-- Columnas adaptables por tamaño de pantalla -->
-            <div class="field">
-              <label class="label has-text-grey-dark">{{ field.label }}</label>
-              <div class="control">
-                <!-- Campo estilizado con clases Bulma -->
-                {{ field|add_class:"input is-rounded is-light" }}
-              </div>
-              {% for error in field.errors %}
-                <!-- Mensajes de error por campo -->
-                <p class="help is-danger">{{ error }}</p>
-              {% endfor %}
+          <div class="field">
+            <label class="label">Nombre</label>
+            <div class="control">
+              {{ form.nombre|add_class:"input" }}
+            </div>
+            {% if form.nombre.errors %}
+              <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="field">
+            <label class="label">Descripción</label>
+            <div class="control">
+              {{ form.descripcion|add_class:"textarea" }}
+            </div>
+            {% if form.descripcion.errors %}
+              <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="field is-grouped is-grouped-centered mt-5">
+            <div class="control">
+              <button type="submit" class="button {% if modo == 'crear' %}is-warning{% else %}is-danger{% endif %} is-rounded">
+                {% if modo == 'crear' %}Guardar Deporte{% else %}Guardar cambios{% endif %}
+              </button>
+            </div>
+            <div class="control">
+              <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded">Cancelar</a>
             </div>
           </div>
-          {% endfor %}
-        </div>
-
-        <!-- Boton para enviar el formulario -->
-        <div class="field mt-5">
-          <button class="button is-warning is-fullwidth is-rounded is-medium">
-            Guardar Deporte
-          </button>
-        </div>
-      </form>
-
-      <!-- Boton para volver al listado de deportes -->
-      <div class="has-text-centered mt-4">
-        <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded">
-          ← Volver al listado
-        </a>
+        </form>
       </div>
-    </div>
+
+    {% elif modo == 'eliminar' %}
+      <div class="box has-background-warning-light" style="max-width: 600px; margin: auto; border-radius: 18px; padding: 2rem;">
+        <h2 class="title is-3 has-text-centered has-text-danger mb-4">🗑️ Eliminar Deporte</h2>
+
+        <p class="has-text-centered mb-4">
+          ¿Estás seguro que deseas eliminar el deporte <strong>{{ deporte.nombre }}</strong>?
+        </p>
+
+        <form method="post" class="has-text-centered">
+          {% csrf_token %}
+          <button type="submit" class="button is-danger is-rounded">Sí, eliminar</button>
+          <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded ml-3">Cancelar</a>
+        </form>
+      </div>
+    {% endif %}
 
   </div>
 </section>

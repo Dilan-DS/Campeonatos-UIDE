@@ -28,11 +28,11 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuario/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='usuario/password_reset_complete.html'), name='password_reset_complete'),
 
-path('arbitros/', listar_arbitros.as_view(), name='listar_arbitros'),
-path('arbitros/nuevo/', registrar_arbitro.as_view(), name='registrar_arbitro'),
-path('arbitros/<int:id>/', detalle_arbitro.as_view(), name='detalle_arbitro'),
-path('arbitros/<int:id>/editar/', editar_arbitro.as_view(), name='editar_arbitro'),
-path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_arbitro'),
+    path('arbitros/', listar_arbitros.as_view(), name='listar_arbitros'),
+    path('arbitros/nuevo/', registrar_arbitro.as_view(), name='registrar_arbitro'),
+    path('arbitros/<int:id>/', detalle_arbitro.as_view(), name='detalle_arbitro'),
+    path('arbitros/<int:id>/editar/', editar_arbitro.as_view(), name='editar_arbitro'),
+    path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_arbitro'),
 
 
     path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),
@@ -42,17 +42,18 @@ path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_a
     path('campeonatos/<int:id>/', DetalleCampeonato.as_view(), name='detalle_campeonato'),
     path('campeonatos/<int:id>/editar/', EditarCampeonato.as_view(), name='editar_campeonato'),
     path('campeonatos/<int:id>/fixture/', FixtureCampeonato.as_view(), name='fixture_campeonato'),
-     path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
-    # Tipos de campeonato y deportes
-    path('tipos-campeonato/', listar_tipos_campeonato, name='listar_tipos_campeonato'),
-    path('tipos-campeonato/registrar/', registrar_tipo_campeonato, name='registrar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/editar/', editar_tipo_campeonato, name='editar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/eliminar/', eliminar_tipo_campeonato, name='eliminar_tipo_campeonato'),
+    path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
+ # Rutas de deportes
+    path('deportes/', ListarDeportesView.as_view(), name='listar_deportes'),
+    path('deportes/registrar/', RegistrarDeporteView.as_view(), name='registrar_deporte'),
+    path('deportes/<int:id>/editar/', EditarDeporteView.as_view(), name='editar_deporte'),
+    path('deportes/<int:id>/eliminar/', EliminarDeporteView.as_view(), name='eliminar_deporte'),
 
-    path('deportes/', listar_deportes, name='listar_deportes'),
-    path('deportes/registrar/', registrar_deporte, name='registrar_deporte'),
-    path('deportes/<int:id>/editar/', editar_deporte, name='editar_deporte'),
-    path('deportes/<int:id>/eliminar/', eliminar_deporte, name='eliminar_deporte'),
+    # Rutas de tipos de campeonato
+    path('tipos-campeonato/', ListaTiposCampeonatoView.as_view(), name='listar_tipos_campeonato'),
+    path('tipos-campeonato/registrar/', RegistrarTipoCampeonatoView.as_view(), name='registrar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/editar/', EditarTipoCampeonatoView.as_view(), name='editar_tipo_campeonato'),
+    path('tipos-campeonato/<int:id>/eliminar/', EliminarTipoCampeonatoView.as_view(), name='eliminar_tipo_campeonato'),
 
     # Equipos
     path('equipos/', listar_equipos, name='listar_equipos'),
@@ -78,7 +79,7 @@ path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_a
     path('estadisticas/videojuegos/', estadisticas_videojuegos, name='estadisticas_videojuegos'),
 
     # Transmisiones
-     path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
+    path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
     path('transmisiones/crear/', CrearTransmisionView.as_view(), name='crear_transmision'),
     path('transmisiones/<int:id>/', DetalleTransmisionView.as_view(), name='detalle_transmision'),
     path('transmisiones/<int:id>/editar/', EditarTransmisionView.as_view(), name='editar_transmision'),
@@ -89,11 +90,11 @@ path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_a
     path('suspension/<int:suspension_id>/', detalle_suspension, name='detalle_suspension'),
 
     # Códigos QR
-    path('panel/admin/codigos-qr/', listar_codigos_qr, name='listar_codigos_qr'),
-    path('panel/admin/codigos-qr/registrar/', registrar_codigo_qr, name='registrar_codigo_qr'),
-    path('panel/admin/codigos-qr/<int:pk>/editar/', editar_codigo_qr, name='editar_codigo_qr'),
-    path('panel/admin/codigos-qr/<int:pk>/eliminar/', eliminar_codigo_qr, name='eliminar_codigo_qr'),
-
+    path('panel/admin/codigos-qr/', ListarCodigosQRView.as_view(), name='listar_codigos_qr'),
+    path('panel/admin/codigos-qr/registrar/', RegistrarCodigoQRView.as_view(), name='registrar_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/editar/', EditarCodigoQRView.as_view(), name='editar_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/', DetalleCodigoQRView.as_view(), name='detalle_codigo_qr'),
+    path('panel/admin/codigos-qr/<int:pk>/eliminar/', EliminarCodigoQRView.as_view(), name='eliminar_codigo_qr'),
 
     path('panel/admin/registrar-delegado/', registrar_delegado, name='registrar_delegado'),
     path('panel/admin/usuarios/', listar_usuarios, name='listar_usuarios'),
