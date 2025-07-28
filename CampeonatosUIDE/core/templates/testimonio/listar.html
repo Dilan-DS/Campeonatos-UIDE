@@ -1,0 +1,63 @@
+{% extends "comun/base.html" %}
+
+{% block title %}Listado de Testimonios{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title is-3 has-text-centered mb-5">Testimonios</h1>
+
+    <div class="mb-5 has-text-right">
+      <a href="{% url 'registrar_testimonio' %}" class="button is-primary is-medium">
+        <span class="icon"><i class="fas fa-plus"></i></span>
+        <span>Agregar Testimonio</span>
+      </a>
+    </div>
+
+    {% if testimonios %}
+      <div class="columns is-multiline">
+        {% for testimonio in testimonios %}
+          <div class="column is-4">
+            <div class="card">
+              <div class="card-image has-text-centered pt-4">
+                {% if testimonio.foto %}
+                  <figure class="image is-128x128 is-inline-block" style="border-radius: 50%; overflow: hidden;">
+                    <img src="{{ testimonio.foto.url }}" alt="{{ testimonio.autor }}">
+                  </figure>
+                {% else %}
+                  <figure class="image is-128x128 is-inline-block" style="border-radius: 50%; overflow: hidden; background: #f0f0f0;">
+                    <span class="icon is-large has-text-grey-light" style="font-size: 5rem;">
+                      <i class="fas fa-user"></i>
+                    </span>
+                  </figure>
+                {% endif %}
+              </div>
+              <div class="card-content">
+                <p class="title is-5 has-text-centered">{{ testimonio.autor }}</p>
+                <div class="content" style="min-height: 100px;">
+                  {{ testimonio.contenido|truncatewords:30 }}
+                </div>
+              </div>
+              <footer class="card-footer">
+                <p class="card-footer-item has-text-grey is-size-7">
+                  {{ testimonio.fecha|date:"d/m/Y H:i" }}
+                </p>
+                <p class="card-footer-item">
+                  <a href="{% url 'editar_testimonio' testimonio.id %}" class="button is-small is-info mr-2" title="Editar">
+                    <span class="icon is-small"><i class="fas fa-edit"></i></span>
+                  </a>
+                  <a href="{% url 'eliminar_testimonio' testimonio.id %}" class="button is-small is-danger" title="Eliminar">
+                    <span class="icon is-small"><i class="fas fa-trash"></i></span>
+                  </a>
+                </p>
+              </footer>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="has-text-centered has-text-grey">No hay testimonios registrados.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -14,3 +14,6 @@ from .equipo_views import *
 from .codigoqr_views import *
 from .tipo_campeonato_views import *
 from .deportes_views import *
+from .galeria_views import *
+from .testimonios_views import *
+from .noticias_views import *
