@@ -14,6 +14,10 @@ urlpatterns = [
     path('panel/admin/crear-usuario/', crear_usuario_admin, name='crear_usuario_admin'),
     path('panel/delegado/', delegado_dashboard, name='delegado_dashboard'),
     path('panel/jugador/', jugador_dashboard, name='jugador_dashboard'),
+    path('jugador/estadisticas/<int:jugador_id>/', ver_estadisticas_jugador, name='ver_estadisticas_jugador'),
+    path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
+    path('campeonato/<int:campeonato_id>/tabla-estadisticas/', tabla_estadisticas, name='tabla_estadisticas'),
+    path('equipo/<int:id>/detalle/', detalle_equipo, name='detalle_equipo'),
 
     # Autenticación y perfil
     path('login/', vista_login, name='login'),
@@ -130,6 +134,11 @@ urlpatterns = [
     path('testimonios/crear/', RegistrarTestimonio.as_view(), name='registrar_testimonio'),
     path('testimonios/editar/<int:id>/', EditarTestimonio.as_view(), name='editar_testimonio'),
     path('testimonios/eliminar/<int:id>/', EliminarTestimonio.as_view(), name='eliminar_testimonio'),
+
+
+    path('equipos/eliminar/<int:equipo_id>/', eliminar_equipo, name='eliminar_equipo'),
+    path('equipos/registrar/', equipo_views.registrar_equipo, name='registrar_equipo'),
+
 
 ]
 
