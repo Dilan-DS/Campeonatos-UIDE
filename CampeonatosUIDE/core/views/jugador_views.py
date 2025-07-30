@@ -1,51 +1,89 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from core.models import Jugador
-from django.http import HttpResponse
+from core.models import Jugador, Partido, Equipo, Campeonato
+from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def es_jugador(user):
-    # Verifica si el usuario es un jugador
-    return user.rol == 'JUGADOR'
+    return hasattr(user, 'rol') and user.rol == 'JUGADOR'
 
 
 @login_required
 @user_passes_test(es_jugador)
-# función para el dashboard del jugador
 def jugador_dashboard(request):
-    # Intenta obtener el jugador asociado al usuario actual
     try:
-        # Utiliza select_related para optimizar la consulta y evitar consultas adicionales
         jugador = Jugador.objects.select_related('equipo__campeonato').get(usuario=request.user)
-        # Si el jugador tiene un equipo y un campeonato, los incluye en el contexto
         equipo = jugador.equipo
-        # Si el equipo tiene un campeonato, lo incluye en el contexto
         campeonato = equipo.campeonato
-        # Renderiza la plantilla 'jugador.html' con el jugador, equipo y campeonato
         return render(request, 'dashboard/jugador.html', {
             'jugador': jugador,
             'equipo': equipo,
             'campeonato': campeonato
         })
-    # Si no se encuentra el jugador, muestra un mensaje de error y redirige al inicio público
     except Jugador.DoesNotExist:
         messages.error(request, "No se encontró tu perfil de jugador.")
-
         return redirect('inicio_publico')
+
 
 @user_passes_test(es_jugador)
 def ver_estadisticas_jugador(request, jugador_id):
-    # Esta vista es exclusiva para jugadores        
-    return HttpResponse(f"Estadísticas del jugador {jugador_id}")
-
+    jugador = get_object_or_404(Jugador, id=jugador_id, usuario=request.user)
+    estadisticas = {
+        'partidos_jugados': 10,
+        'goles': 5,
+        'asistencias': 3,
+    }
+    return render(request, 'jugador/estadisticas.html', {
+        'jugador': jugador,
+        'estadisticas': estadisticas,
+    })
 
 
 @login_required
-@user_passes_test(lambda u: u.rol == 'JUGADOR')
+@user_passes_test(es_jugador)
 def ver_mis_partidos(request):
-    jugador = get_object_or_404(Jugador, usuario=request.user)
+    try:
+        jugador = Jugador.objects.get(usuario=request.user)
+    except ObjectDoesNotExist:
+        messages.error(request, "No tienes un perfil de jugador asociado.")
+        return redirect('inicio_publico')
+
     equipo = jugador.equipo
     partidos = Partido.objects.filter(
         Q(equipo_local=equipo) | Q(equipo_visitante=equipo)
     ).order_by('fecha', 'hora')
+
     return render(request, 'partido/mis_partidos_jugador.html', {'partidos': partidos})
+
+
+@login_required
+@user_passes_test(es_jugador)
+def tabla_estadisticas(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    equipos = campeonato.equipo_set.all().order_by('-puntos', '-goles_favor')
+
+    return render(request, 'campeonato/tabla_estadisticas.html', {
+        'campeonato': campeonato,
+        'equipos': equipos,
+    })
+
+
+@login_required
+@user_passes_test(es_jugador)
+def detalle_equipo(request, id):
+    jugador = get_object_or_404(Jugador, usuario=request.user)
+    equipo = get_object_or_404(Equipo, id=id)
+
+    if jugador.equipo != equipo:
+        messages.error(request, "No tienes permiso para ver ese equipo.")
+        return redirect('jugador_dashboard')
+
+    jugadores = equipo.jugadores.all()  # Cambia 'jugadores' si tu related_name es otro
+
+    context = {
+        'equipo': equipo,
+        'jugadores': jugadores,
+    }
+    return render(request, 'equipo/detalle_equipo.html', context)

@@ -1,38 +1,32 @@
 {% extends 'comun/base.html' %}
 
-{% block title %}Registro{% endblock %}
+{% block title %}Perfil de Usuario{% endblock %}
 
 {% block content %}
-<div class="container">
-  <!-- Título principal de la página para crear una cuenta -->
-  <h1 class="title">Crear cuenta</h1>
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-centered mb-6">Perfil de {{ user.username }}</h1>
 
-  <!-- Formulario con método POST para enviar datos -->
-  <form method="POST">
-    {% csrf_token %} <!-- Token CSRF para proteger contra ataques CSRF -->
-
-    <!-- Mostrar errores generales no asociados a un campo específico -->
-    {{ form.non_field_errors }}
-
-    <!-- Bucle para mostrar cada campo del formulario -->
-    {% for field in form %}
-      <div class="field">
-        <!-- Etiqueta del campo -->
-        <label class="label">{{ field.label }}</label>
-        <div class="control">
-          <!-- Campo de entrada -->
-          {{ field }}
+    <div class="columns is-centered">
+      <div class="column is-full-mobile is-half-tablet is-one-third-desktop">
+        <div class="box has-shadow p-5" style="border-radius: 12px;">
+          <h2 class="subtitle has-text-weight-semibold mb-4 has-text-primary">Información Personal</h2>
+          <div class="content">
+            <p><strong>Nombre:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+            <p><strong>Correo:</strong> {{ user.email }}</p>
+            <p><strong>Cédula:</strong> {{ user.cedula|default:"No registrado" }}</p>
+            <p><strong>Carrera:</strong> {{ user.carrera|default:"No asignada" }}</p>
+            <p><strong>Rol:</strong> {{ user.get_rol_display }}</p>
+          </div>
         </div>
-        <!-- Mostrar errores específicos del campo si existen -->
-        {% if field.errors %}
-          <p class="help is-danger">{{ field.errors|join:", " }}</p>
-        {% endif %}
+
+        <div class="has-text-centered mt-5">
+          <a href="{% url 'editar_perfil' %}" class="button is-primary is-rounded is-fullwidth">
+            ✏️ Editar Perfil
+          </a>
+        </div>
       </div>
-    {% endfor %}
-
-    <!-- Botón para enviar el formulario -->
-    <button class="button is-primary" type="submit">Registrarse</button>
-  </form>
-</div>
-
+    </div>
+  </div>
+</section>
 {% endblock %}
