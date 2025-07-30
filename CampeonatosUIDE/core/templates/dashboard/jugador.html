@@ -1,25 +1,17 @@
 {% extends "comun/base.html" %}
-{% load static %}
-
-{% block title %}Dashboard Jugador | Campeonatos UIDE{% endblock %}
+{% block title %}Dashboard Jugador{% endblock %}
 
 {% block content %}
-
-<!-- 🎮 PANEL DEL JUGADOR -->
 <section class="section">
   <div class="container">
-
-    <!-- Título personalizado -->
     <h1 class="title has-text-danger">🎮 Panel del Jugador</h1>
     <p class="subtitle">
       Hola, {{ user.first_name|default:user.username }}.
       Estás participando en el campeonato <strong>{{ campeonato.nombre }}</strong> como jugador del equipo <strong>{{ equipo.nombre }}</strong>.
     </p>
 
-    <!-- 📦 Tarjetas de navegación -->
     <div class="columns is-multiline mt-5">
 
-      <!-- 👕 MI EQUIPO -->
       <div class="column is-4">
         <a href="{% url 'detalle_equipo' id=equipo.id %}">
           <div class="box has-background-light has-text-centered">
@@ -29,7 +21,6 @@
         </a>
       </div>
 
-      <!-- 📊 TABLA DE POSICIONES -->
       <div class="column is-4">
         <a href="{% url 'tabla_estadisticas' campeonato_id=campeonato.id %}">
           <div class="box has-background-light has-text-centered">
@@ -39,7 +30,6 @@
         </a>
       </div>
 
-      <!-- 📈 MIS ESTADÍSTICAS -->
       <div class="column is-4">
         <a href="{% url 'ver_estadisticas_jugador' jugador_id=jugador.id %}">
           <div class="box has-background-light has-text-centered">
@@ -49,9 +39,16 @@
         </a>
       </div>
 
-    </div>
+      <div class="column is-4 mt-5">
+        <a href="{% url 'ver_mis_partidos' %}">
+          <div class="box has-background-light has-text-centered">
+            <p class="title is-5">🎮 Mis Partidos</p>
+            <p class="subtitle is-6">Ver tus próximos partidos</p>
+          </div>
+        </a>
+      </div>
 
+    </div>
   </div>
 </section>
-
 {% endblock %}
