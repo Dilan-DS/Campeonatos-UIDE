@@ -194,7 +194,7 @@ class Equipo(models.Model):
     # Carrera a la que pertenece el equipo (FK obligatorio)
     carrera = models.ForeignKey('Carrera', on_delete=models.PROTECT, related_name='equipos')
     # Logo del equipo (imagen opcional)
-    logo = models.ImageField(upload_to='logos_equipos/')
+    logo = models.ImageField(upload_to='logos_equipos/', null=True, blank=True)
     # Indicador si el equipo está aprobado para participar
     aprobado = models.BooleanField(default=False)
     # Delegado que registró el equipo (debe ser rol DELEGADO)

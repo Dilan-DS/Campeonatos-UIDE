@@ -3,37 +3,54 @@
 {% block title %}Listado de Equipos - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<!-- VISTA: LISTADO DE EQUIPOS REGISTRADOS -->
 <section class="section">
   <div class="container">
 
-    <!-- Caja principal con fondo claro, padding y bordes redondeados -->
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+      <!-- ✅ Título dinámico del campeonato -->
+      {% if campeonato %}
+        <h2 class="title is-4 has-text-centered has-text-danger-dark">
+          Equipos del Campeonato: {{ campeonato.nombre }}
+        </h2>
 
-      <!-- Título principal centrado -->
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">Equipos Registrados</h2>
+        <!-- 🧾 Info extra del campeonato -->
+        <div class="notification is-warning is-light has-text-centered mt-3 mb-2">
+          <strong>Fecha:</strong> {{ campeonato.fecha|date:"d/m/Y" }} &nbsp;|&nbsp;
+          <strong>Ubicación:</strong> {{ campeonato.ubicacion }}
+        </div>
+      {% else %}
+        <h2 class="title is-4 has-text-centered has-text-danger-dark">
+          Equipos Registrados
+        </h2>
+      {% endif %}
 
+      <!-- 🔘 Botón para registrar nuevo equipo con campeonato_id -->
+      <div class="has-text-right mb-4">
+        <a href="{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}" class="button is-success is-rounded">
+          ➕ Registrar Nuevo Equipo
+        </a>
+      </div>
+
+      <!-- 📊 Conteo de equipos -->
       {% if equipos %}
-        <!-- Tabla de equipos si hay datos disponibles -->
-        <table class="table is-fullwidth is-striped is-hoverable mt-5">
+        <p class="has-text-right has-text-grey">
+          Total de equipos inscritos: {{ equipos|length }}
+        </p>
+
+        <table class="table is-fullwidth is-striped is-hoverable mt-3">
           <thead>
             <tr class="has-background-warning-light">
               <th>Nombre</th>
               <th>Carrera</th>
               <th>Estado</th>
-              <th>Acciones</th>
+              <th class="has-text-centered">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for equipo in equipos %}
               <tr>
-                <!-- Nombre del equipo -->
                 <td>{{ equipo.nombre }}</td>
-
-                <!-- Carrera asociada al equipo -->
                 <td>{{ equipo.carrera.nombre }}</td>
-
-                <!-- Estado de aprobación con etiquetas visuales -->
                 <td>
                   {% if equipo.aprobado %}
                     <span class="tag is-success">Aprobado</span>
@@ -41,22 +58,23 @@
                     <span class="tag is-danger">No aprobado</span>
                   {% endif %}
                 </td>
-
-                <!-- Enlace para ver los detalles del equipo -->
-                <td>
-                  <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">
-                    Ver
-                  </a>
+                <!-- 🎯 Botones de acción -->
+                <td class="has-text-centered">
+                  <div class="buttons is-centered">
+                    <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
+                    <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
+                    <a href="{% url 'eliminar_equipo' equipo.id %}" class="button is-small is-danger is-light is-rounded" onclick="return confirm('¿Estás seguro de eliminar este equipo?');">Eliminar</a>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <!--  Mensaje si no hay equipos registrados -->
-        <p class="has-text-centered has-text-grey">No hay equipos registrados.</p>
+        <p class="has-text-centered has-text-grey mt-5">No hay equipos registrados en este campeonato.</p>
       {% endif %}
-      <!-- Botón para regresar al inicio -->
+
+      <!-- 🔙 Botón para regresar -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
           ← Volver al inicio

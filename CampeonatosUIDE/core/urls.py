@@ -62,6 +62,7 @@ urlpatterns = [
     path('equipo/<int:id>/editar/', editar_equipo, name='editar_equipo'),
     path('equipo/<int:id>/pago/', pago_equipo, name='pago_equipo'),
     path('equipo/<int:id>/jugadores/', jugadores_equipo, name='jugadores_equipo'),
+    path('equipo/<int:id>/eliminar/', eliminar_equipo, name='eliminar_equipo'),
 
     # Partidos
     path('partidos/', listar_partidos, name='listar_partidos'),
