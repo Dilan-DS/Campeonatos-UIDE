@@ -404,7 +404,7 @@ class RegistroJugadorForm(UserCreationForm):
             'first_name': forms.TextInput(attrs={'class': 'input'}),
             'last_name': forms.TextInput(attrs={'class': 'input'}),
             'email': forms.EmailInput(attrs={'class': 'input'}),
-            'carrera': forms.TextInput(attrs={'class': 'input'}),
+            'carrera': forms.Select(attrs={'class': 'input'}),
         }
 
     def save(self, commit=True):
