@@ -48,18 +48,22 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_partidos' %}">Partidos</a>
           <a class="navbar-item has-text-white" href="{% url 'ver_calendario_completo' %}">📅 Calendario</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_pagos' %}">Pagos</a>
+          {% elif request.user.rol == "JUGADOR" %}
+  <!-- JUGADOR -->
+  {% with request.user.jugador as jugador %}
+    {% if jugador %}
+      <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
+      <a class="navbar-item has-text-white" href="{% url 'ver_mis_partidos' %}">Mis Partidos</a>
+      <a class="navbar-item has-text-white" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
+      <a class="navbar-item has-text-white" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Mi Tabla</a>
+    {% else %}
+      <!-- Opcional: mostrar algo si no tiene jugador asignado -->
+      <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
+    {% endif %}
+  {% endwith %}
+{% endif %}
 
-        {% elif request.user.rol == "JUGADOR" %}
-          <!-- JUGADOR -->
-          <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-          {% with request.user.jugador as jugador %}
-            {% if jugador %}
-              <a class="navbar-item has-text-white" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
-              <a class="navbar-item has-text-white" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Mi Tabla</a>
-              <a class="navbar-item has-text-white" href="{% url 'ver_mis_partidos' %}">🎮 Mis Partidos</a>
-            {% endif %}
-          {% endwith %}
-        {% endif %}
+
       {% endif %}
     </div>
 

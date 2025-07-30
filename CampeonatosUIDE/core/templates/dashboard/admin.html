@@ -5,116 +5,139 @@
 
 {% block content %}
 
-<!-- 🎯 SECCIÓN PRINCIPAL DEL PANEL DE ADMINISTRADOR -->
 <section class="section">
   <div class="container">
 
-    <!-- Título de bienvenida -->
     <h1 class="title has-text-danger">📊 Panel de Administración</h1>
     <p class="subtitle">Bienvenido, {{ user.first_name|default:user.username }}. Aquí puedes gestionar todo el sistema.</p>
 
-    <!-- 📦 Tarjetas de acceso rápido -->
     <div class="columns is-multiline mt-5">
+
+      <!-- 👥 USUARIOS -->
+      <div class="column is-4">
+        <div class="box has-background-primary-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-primary">👥 Usuarios</p>
+          <p class="subtitle is-6">Administrar todos los usuarios del sistema</p>
+          <a href="{% url 'listar_usuarios' %}" class="button is-primary is-rounded mt-4">👁 Ver Usuarios</a>
+        </div>
+      </div>
 
       <!-- 🏆 CAMPEONATOS -->
       <div class="column is-4">
-        <a href="{% url 'listar_campeonatos' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">🏆 Campeonatos</p>
-            <p class="subtitle is-6">Ver y administrar campeonatos</p>
-          </div>
-        </a>
+        <div class="box has-background-info-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-info">🏆 Campeonatos</p>
+          <p class="subtitle is-6">Ver y administrar campeonatos</p>
+          <a href="{% url 'listar_campeonatos' %}" class="button is-info is-rounded mt-4">👁 Ver Campeonatos</a>
+        </div>
       </div>
 
       <!-- 👥 EQUIPOS -->
       <div class="column is-4">
-        <a href="{% url 'listar_equipos' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">👥 Equipos</p>
-            <p class="subtitle is-6">Listar y editar equipos inscritos</p>
-          </div>
-        </a>
+        <div class="box has-background-link-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-link">👥 Equipos</p>
+          <p class="subtitle is-6">Listar y editar equipos inscritos</p>
+          <a href="{% url 'listar_equipos' %}" class="button is-link is-rounded mt-4">👁 Ver Equipos</a>
+        </div>
       </div>
 
       <!-- ⚖️ ÁRBITROS -->
       <div class="column is-4">
-        <a href="{% url 'listar_arbitros' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">⚖️ Árbitros</p>
-            <p class="subtitle is-6">Gestionar árbitros registrados</p>
-          </div>
-        </a>
+        <div class="box has-background-warning-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-warning">⚖️ Árbitros</p>
+          <p class="subtitle is-6">Gestionar árbitros registrados</p>
+          <a href="{% url 'listar_arbitros' %}" class="button is-warning is-rounded mt-4">👁 Ver Árbitros</a>
+        </div>
       </div>
 
       <!-- 📺 TRANSMISIONES -->
       <div class="column is-4">
-        <a href="{% url 'listar_transmisiones' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">📺 Transmisiones</p>
-            <p class="subtitle is-6">Ver y editar enlaces en vivo</p>
-          </div>
-        </a>
+        <div class="box has-background-danger-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-danger">📺 Transmisiones</p>
+          <p class="subtitle is-6">Ver y editar enlaces en vivo</p>
+          <a href="{% url 'listar_transmisiones' %}" class="button is-danger is-rounded mt-4">👁 Ver Transmisiones</a>
+        </div>
       </div>
 
       <!-- 🚫 SUSPENSIONES -->
       <div class="column is-4">
-        <a href="{% url 'listar_suspensiones' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">🚫 Suspensiones</p>
-            <p class="subtitle is-6">Ver historial y sanciones</p>
-          </div>
-        </a>
+        <div class="box has-background-success-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-success">🚫 Suspensiones</p>
+          <p class="subtitle is-6">Ver historial y sanciones</p>
+          <a href="{% url 'listar_suspensiones' %}" class="button is-success is-rounded mt-4">👁 Ver Suspensiones</a>
+        </div>
       </div>
 
       <!-- 📈 ESTADÍSTICAS -->
       <div class="column is-4">
-        <a href="{% url 'estadisticas_futbol' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">📈 Estadísticas</p>
-            <p class="subtitle is-6">Resumen general por deporte</p>
-          </div>
-        </a>
+        <div class="box has-background-link-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-link">📈 Estadísticas</p>
+          <p class="subtitle is-6">Resumen general por deporte</p>
+          <a href="{% url 'estadisticas_futbol' %}" class="button is-link is-rounded mt-4">👁 Ver Estadísticas</a>
+        </div>
       </div>
 
       <!-- 🏅 DEPORTES -->
       <div class="column is-4">
-        <a href="{% url 'listar_deportes' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">🏅 Deportes</p>
-            <p class="subtitle is-6">Gestionar tipos de deporte</p>
-          </div>
-        </a>
+        <div class="box has-background-primary-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-primary">🏅 Deportes</p>
+          <p class="subtitle is-6">Gestionar tipos de deporte</p>
+          <a href="{% url 'listar_deportes' %}" class="button is-primary is-rounded mt-4">👁 Ver Deportes</a>
+        </div>
       </div>
 
       <!-- 🧩 TIPOS DE CAMPEONATO -->
       <div class="column is-4">
-        <a href="{% url 'listar_tipos_campeonato' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">🧩 Tipos de Campeonato</p>
-            <p class="subtitle is-6">Agregar y modificar formatos</p>
-          </div>
-        </a>
+        <div class="box has-background-info-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-info">🧩 Tipos de Campeonato</p>
+          <p class="subtitle is-6">Agregar y modificar formatos</p>
+          <a href="{% url 'listar_tipos_campeonato' %}" class="button is-info is-rounded mt-4">👁 Ver Tipos</a>
+        </div>
       </div>
+
       <!-- 🧾 CÓDIGOS QR -->
       <div class="column is-4">
-        <a href="{% url 'listar_codigos_qr' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">🧾 Códigos QR</p>
-            <p class="subtitle is-6">Ver, agregar y editar códigos bancarios</p>
-          </div>
-        </a>
+        <div class="box has-background-warning-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-warning">🧾 Códigos QR</p>
+          <p class="subtitle is-6">Ver, agregar y editar códigos bancarios</p>
+          <a href="{% url 'listar_codigos_qr' %}" class="button is-warning is-rounded mt-4">👁 Ver Códigos</a>
+        </div>
       </div>
 
-      <!-- 👤 Registrar Delegado -->
+      <!-- 👤 DELEGADOS -->
       <div class="column is-4">
-        <a href="{% url 'registrar_delegado' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">👤 Delegados</p>
-            <p class="subtitle is-6">Registrar nuevos delegados</p>
-          </div>
-        </a>
+        <div class="box has-background-danger-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-danger">👤 Delegados</p>
+          <p class="subtitle is-6">Registrar nuevos delegados</p>
+          <a href="{% url 'registrar_delegado' %}" class="button is-danger is-rounded mt-4">👁 Ver Delegados</a>
+        </div>
       </div>
 
+      <!-- 📰 NOTICIAS -->
+      <div class="column is-4">
+        <div class="box has-background-success-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-success">📰 Noticias</p>
+          <p class="subtitle is-6">Publicar, editar y eliminar noticias</p>
+          <a href="{% url 'listar_noticias' %}" class="button is-success is-rounded mt-4">👁 Ver Noticias</a>
+        </div>
+      </div>
+
+      <!-- 💬 TESTIMONIOS -->
+      <div class="column is-4">
+        <div class="box has-background-primary-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-primary">💬 Testimonios</p>
+          <p class="subtitle is-6">Aprobar o rechazar comentarios</p>
+          <a href="{% url 'listar_testimonios' %}" class="button is-primary is-rounded mt-4">👁 Ver Testimonios</a>
+        </div>
+      </div>
+
+      <!-- 🖼 GALERÍA -->
+      <div class="column is-4">
+        <div class="box has-background-info-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-info">🖼 Galería</p>
+          <p class="subtitle is-6">Subir y administrar imágenes</p>
+          <a href="{% url 'listar_imagenes_galeria' %}" class="button is-info is-rounded mt-4">👁 Ver Galería</a>
+        </div>
+      </div>
 
     </div>
   </div>

@@ -1,5 +1,4 @@
 {% extends 'comun/base.html' %}
-
 {% block title %}Mis Partidos{% endblock %}
 
 {% block content %}
@@ -22,8 +21,6 @@
         <tr>
           <td>{{ partido.fecha }}</td>
           <td>{{ partido.hora }}</td>
-
-          <!-- Detectar el equipo rival -->
           <td>
             {% if partido.equipo_local == request.user.jugador.equipo %}
               {{ partido.equipo_visitante.nombre }}
@@ -31,7 +28,6 @@
               {{ partido.equipo_local.nombre }}
             {% endif %}
           </td>
-
           <td>{{ partido.cancha }}</td>
           <td>{{ partido.estado }}</td>
         </tr>
