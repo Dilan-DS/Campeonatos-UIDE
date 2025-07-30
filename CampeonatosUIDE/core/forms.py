@@ -184,6 +184,23 @@ class EquipoForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si el formulario es para una instancia existente de un equipo
+        if self.instance and self.instance.pk:
+            # Verificar si el equipo tiene un pago asociado y si está aprobado
+            pago_aprobado = hasattr(self.instance, 'pago') and self.instance.pago.estado == 'APROBADO'
+            
+            # Si el pago no está aprobado, deshabilitar el campo 'aprobado'
+            if not pago_aprobado:
+                self.fields['aprobado'].widget.attrs['disabled'] = True
+                self.fields['aprobado'].help_text = 'Para aprobar el equipo, primero debe registrar y ser aprobado el pago correspondiente.'
+        else:
+            # Si es un equipo nuevo, el campo 'aprobado' siempre debe estar deshabilitado
+            self.fields['aprobado'].widget.attrs['disabled'] = True
+            self.fields['aprobado'].help_text = 'No se puede aprobar un equipo hasta que se haya registrado y aprobado su pago.'
+
+
 # =============================
 # FORMULARIO: PAGO
 # =============================
