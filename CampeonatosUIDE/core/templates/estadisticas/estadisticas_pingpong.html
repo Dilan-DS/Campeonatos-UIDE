@@ -1,58 +1,65 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
-{% block title %}Estadísticas Ping Pong - Campeonatos UIDE{% endblock %}
+
 
 {% block content %}
-<!-- VISTA DE ESTADÍSTICAS DE PING PONG -->
-<section class="section">
-  <div class="container">
-    <!-- Caja visual principal con fondo claro y esquinas redondeadas -->
-    <div class="box has-background-light" style="border-radius: 16px; padding: 2rem;">
-      <!-- Título de sección centrado, con emoji temático -->
-      <h2 class="title is-4 has-text-centered has-text-danger-dark mb-5">
-        🏓 Estadísticas de Ping Pong
-      </h2>
-      <!-- Contenedor responsivo para la tabla -->
-      <div class="table-container">
-        <table class="table is-striped is-hoverable is-bordered is-fullwidth">
-          <!-- Encabezado con color temático y centrado -->
-          <thead class="has-background-warning-light has-text-centered">
-            <tr>
-              <th>Jugador</th>
-              <th>Partidos</th>
-              <th>Ganados</th>
-              <th>Perdidos</th>
-            </tr>
-          </thead>
-          <!-- Cuerpo de la tabla que lista una fila por jugador -->
-          <tbody>
-            {% for stat in estadisticas %}
-            <tr class="has-text-centered">
-              <td>{{ stat.jugador.usuario.username }}</td>             
-              <td>{{ stat.partidos_jugados }}</td>                     
-              <td>{{ stat.partidos_ganados }}</td>                     
-              <td>{{ stat.partidos_perdidos }}</td>                    
-            </tr>
-            {% empty %}
-            <!-- Fila alternativa si no hay estadísticas -->
-            <tr>
-              <td colspan="4" class="has-text-centered has-text-grey-light">
-                No hay estadísticas registradas.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Estadísticas de Ping Pong</h2>
 
-      <!-- Botón de retorno al menú principal -->
-      <div class="has-text-centered mt-4">
-        <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
-          ← Volver al inicio
-        </a>
-      </div>
-    </div> 
-  </div> 
-</section>
+    <div class="row mb-3">
+        <div class="col-md-6 offset-md-3">
+            <form method="GET" action="{% url 'estadisticas_pingpong' %}" class="d-flex">
+                <select name="campeonato_id" class="form-select me-2" onchange="this.form.submit()">
+                    <option value="">Todos los Campeonatos</option>
+                    {% for camp in campeonatos %}
+                        <option value="{{ camp.id }}" {% if camp.id == selected_campeonato_id %}selected{% endif %}>
+                            {{ camp.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12 text-center">
+            <a href="{% url 'export_estadisticas_pingpong_pdf' %}{% if selected_campeonato_id %}?campeonato_id={{ selected_campeonato_id }}{% endif %}" class="button is-danger is-rounded mr-2">Exportar a PDF</a>
+            <a href="{% url 'export_estadisticas_pingpong_excel' %}{% if selected_campeonato_id %}?campeonato_id={{ selected_campeonato_id }}{% endif %}" class="button is-success is-rounded">Exportar a Excel</a>
+        </div>
+    </div>
+
+    {% if estadisticas %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Jugador</th>
+                    <th>Equipo</th>
+                    <th>Campeonato</th>
+                    <th>Partidos Jugados</th>
+                    <th>Partidos Ganados</th>
+                    <th>Partidos Perdidos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in estadisticas %}
+                <tr>
+                    <td>{{ stat.jugador.usuario.username }}</td>
+                    <td>{{ stat.jugador.equipo.nombre }}</td>
+                    <td>{{ stat.campeonato.nombre }}</td>
+                    <td>{{ stat.partidos_jugados }}</td>
+                    <td>{{ stat.partidos_ganados }}</td>
+                    <td>{{ stat.partidos_perdidos }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center" role="alert">
+        No hay estadísticas de ping pong disponibles.
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

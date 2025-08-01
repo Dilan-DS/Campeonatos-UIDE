@@ -1,12 +1,12 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
-{% block title %}Detalle de Pago - Admin{% endblock %}
+{% block title %}Mi Pago - Delegado{% endblock %}
 
 {% block content %}
 <section class="section">
     <div class="container">
-        <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">Detalle de Pago</h2>
+        <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">Mi Pago de Equipo</h2>
 
         {% if messages %}
             {% for message in messages %}
@@ -40,50 +40,18 @@
                 <p><strong>Observaciones del Administrador:</strong> {{ pago.observacion_admin|default:"N/A" }}</p>
             </div>
 
-            {% if pago.estado == 'PENDIENTE' %}
-                <hr>
-                <h4 class="title is-5">Acciones de Administración</h4>
-                <form method="POST" action="{% url 'aprobar_pago_admin' pago.pk %}" class="mb-3">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label class="label">Observaciones (Opcional):</label>
-                        <div class="control">
-                            <textarea class="textarea" name="observacion_admin" placeholder="Añadir observaciones al aprobar"></textarea>
-                        </div>
-                    </div>
-                    <div class="control">
-                        <button type="submit" class="button is-success is-fullwidth is-rounded">Aprobar Pago</button>
-                    </div>
-                </form>
-
-                <form method="POST" action="{% url 'rechazar_pago_admin' pago.pk %}">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label class="label">Observaciones (Opcional):</label>
-                        <div class="control">
-                            <textarea class="textarea" name="observacion_admin" placeholder="Añadir observaciones al rechazar"></textarea>
-                        </div>
-                    </div>
-                    <div class="control">
-                        <button type="submit" class="button is-danger is-fullwidth is-rounded">Rechazar Pago</button>
-                    </div>
-                </form>
-            {% endif %}
-
-            {% if request.user.rol == 'ADMIN' %}
             <hr>
             <div class="buttons is-centered">
-                <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-info is-rounded">Editar Pago</a>
-                <form method="POST" action="{% url 'eliminar_pago_admin' pago.pk %}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago? Esta acción no se puede deshacer.');">
+                <a href="{% url 'registrar_pago_delegado' %}" class="button is-info is-rounded">Editar Pago</a>
+                <form method="POST" action="{% url 'eliminar_pago_delegado' pago.pk %}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago? Esta acción no se puede deshacer.');">
                     {% csrf_token %}
                     <button type="submit" class="button is-danger is-rounded">Eliminar Pago</button>
                 </form>
             </div>
-            {% endif %}
 
             <div class="has-text-centered mt-5">
-                <a href="{% url 'listar_pagos_admin' %}" class="button is-light is-rounded">
-                    ← Volver a Pagos
+                <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">
+                    ← Volver al Dashboard
                 </a>
             </div>
         </div>

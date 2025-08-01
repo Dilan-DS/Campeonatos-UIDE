@@ -5,9 +5,11 @@ from django.views import View
 # Importa el sistema de mensajes para mostrar alertas al usuario
 from django.contrib import messages
 # Importa el modelo Arbitro de la aplicación core
-from core.models import Arbitro
+from core.models import Arbitro, Partido
 # Importa el formulario ArbitroForm para manipular datos de árbitros
-from core.forms import ArbitroForm
+from core.forms import ArbitroForm, CrearUsuarioArbitroForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 # ========================
 # CLASES BASADAS EN VISTAS (CBV) - ÁRBITROS
@@ -30,7 +32,7 @@ class registrar_arbitro(View):
     # Método GET que muestra el formulario vacío para registrar árbitro
     def get(self, request):
         # Crea una instancia vacía del formulario ArbitroForm
-        form = ArbitroForm()
+        form = CrearUsuarioArbitroForm()
         # Renderiza el template con el formulario y un modo para identificar la acción
         return render(request, 'arbitro/registrar.html', {
             'form': form,
@@ -40,7 +42,7 @@ class registrar_arbitro(View):
     # Método POST que procesa el formulario enviado para crear árbitro
     def post(self, request):
         # Crea una instancia del formulario con los datos enviados
-        form = ArbitroForm(request.POST)
+        form = CrearUsuarioArbitroForm(request.POST)
         # Verifica que el formulario sea válido
         if form.is_valid():
             # Guarda el nuevo árbitro en la base de datos
@@ -76,19 +78,10 @@ class editar_arbitro(View):
         # Obtiene el árbitro a editar o error 404
         arbitro = get_object_or_404(Arbitro, id=id)
         # Crea el formulario con los datos enviados, pero no pasa la instancia para evitar errores
-        form = ArbitroForm(request.POST)
+        form = ArbitroForm(request.POST, instance=arbitro)
         # Valida el formulario
         if form.is_valid():
-            # Actualiza manualmente los campos del árbitro con los datos limpios del formulario
-            arbitro.nombre = form.cleaned_data['nombre']
-            arbitro.apellido = form.cleaned_data['apellido']
-            arbitro.experiencia = form.cleaned_data['experiencia']
-            arbitro.contacto = form.cleaned_data['contacto']
-            arbitro.estado = form.cleaned_data['estado']
-            # Guarda los cambios en la base de datos
-            arbitro.save()
-            # Actualiza la relación M2M de deportes asignados al árbitro
-            arbitro.deportes.set(form.cleaned_data['deportes'])
+            form.save()
 
             # Mensaje de éxito al usuario
             messages.success(request, 'Árbitro actualizado correctamente')
@@ -135,3 +128,21 @@ class eliminar_arbitro(View):
         messages.success(request, 'Árbitro eliminado correctamente')
         # Redirige al listado de árbitros
         return redirect('listar_arbitros')
+
+
+@method_decorator(login_required, name='dispatch')
+class HistorialArbitrosView(View):
+    def get(self, request):
+        if not request.user.rol == 'ADMIN':
+            messages.error(request, "No tienes permiso para acceder a esta página.")
+            return redirect('inicio')  # Redirect to a safe page
+
+        arbitros = Arbitro.objects.all()
+        arbitros_con_partidos = []
+        for arbitro in arbitros:
+            partidos_arbitrados = Partido.objects.filter(arbitro=arbitro).order_by('-fecha', '-hora')
+            arbitros_con_partidos.append({
+                'arbitro': arbitro,
+                'partidos': partidos_arbitrados
+            })
+        return render(request, 'arbitro/historial_arbitros.html', {'arbitros_con_partidos': arbitros_con_partidos})

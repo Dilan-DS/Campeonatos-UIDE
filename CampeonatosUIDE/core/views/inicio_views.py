@@ -26,3 +26,7 @@ def vista_inicio_publico(request):
 def vista_inicio(request):
     # Si el usuario ya está autenticado, redirige al dashboard correspondiente
     return render(request, 'publica/inicio_publico.html')
+
+def resultados_publicos(request):
+    partidos_finalizados = Partido.objects.filter(estado='FINALIZADO').order_by('-fecha', '-hora')
+    return render(request, 'publico/resultados_publicos.html', {'partidos_finalizados': partidos_finalizados})

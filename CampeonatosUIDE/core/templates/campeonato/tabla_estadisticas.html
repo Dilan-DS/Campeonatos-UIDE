@@ -4,34 +4,40 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <h1 class="title has-text-info">Tabla de Posiciones: {{ campeonato.nombre }}</h1>
+    <div class="box">
+      <h1 class="title is-2 has-text-centered mb-5">Tabla de Posiciones: {{ campeonato.nombre }}</h1>
 
-    <table class="table is-fullwidth is-striped is-hoverable">
-      <thead>
-        <tr>
-          <th>Equipo</th>
-          <th>Puntos</th>
-          <th>Goles a Favor</th>
-          <th>Goles en Contra</th>
-          <th>Diferencia</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for equipo in equipos %}
-        <tr>
-          <td>{{ equipo.nombre }}</td>
-          <td>{{ equipo.puntos }}</td>
-          <td>{{ equipo.goles_favor }}</td>
-          <td>{{ equipo.goles_contra }}</td>
-          <td>{{ equipo.goles_favor|add:"-"|add:equipo.goles_contra }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5" class="has-text-centered has-text-grey">No hay equipos registrados.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Puntos</th>
+            <th>Goles a Favor</th>
+            <th>Goles en Contra</th>
+            <th>Diferencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for equipo in equipos %}
+          <tr>
+            <td>{{ equipo.nombre }}</td>
+            <td>{{ equipo.puntos }}</td>
+            <td>{{ equipo.goles_favor }}</td>
+            <td>{{ equipo.goles_contra }}</td>
+            <td>{{ equipo.goles_favor|add:"-"|add:equipo.goles_contra }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="notification is-info is-light has-text-centered">
+                No hay equipos registrados.
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 {% endblock %}

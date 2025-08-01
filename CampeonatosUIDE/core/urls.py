@@ -1,6 +1,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import *
+
+from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -12,7 +14,11 @@ urlpatterns = [
     # Dashboards por rol
     path('panel/admin/', admin_dashboard, name='admin_dashboard'),
     path('panel/admin/crear-usuario/', crear_usuario_admin, name='crear_usuario_admin'),
-    path('panel/delegado/', delegado_dashboard, name='delegado_dashboard'),
+
+    # Delegados
+    path('delegados/', ListarDelegadosView.as_view(), name='listar_delegados'),
+    path('delegados/registrar/', RegistrarDelegadoAdminView.as_view(), name='registrar_delegado'),
+    path('panel/delegado/', DelegadoDashboardView.as_view(), name='delegado_dashboard'),
     path('panel/jugador/', jugador_dashboard, name='jugador_dashboard'),
     path('jugador/estadisticas/<int:jugador_id>/', ver_estadisticas_jugador, name='ver_estadisticas_jugador'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
@@ -37,9 +43,11 @@ urlpatterns = [
     path('arbitros/<int:id>/', detalle_arbitro.as_view(), name='detalle_arbitro'),
     path('arbitros/<int:id>/editar/', editar_arbitro.as_view(), name='editar_arbitro'),
     path('arbitros/<int:id>/eliminar/', eliminar_arbitro.as_view(), name='eliminar_arbitro'),
+    path('arbitros/historial/', HistorialArbitrosView.as_view(), name='historial_arbitros'),
 
 
     path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),
+    path('resultados-publicos/', resultados_publicos, name='resultados_publicos'),
     # path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),
     path('campeonatos/', ListarCampeonatos.as_view(), name='listar_campeonatos'),
     path('campeonatos/nuevo/', CrearCampeonato.as_view(), name='crear_campeonato'),
@@ -47,6 +55,10 @@ urlpatterns = [
     path('campeonatos/<int:id>/editar/', EditarCampeonato.as_view(), name='editar_campeonato'),
     path('campeonatos/<int:id>/fixture/', FixtureCampeonato.as_view(), name='fixture_campeonato'),
     path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
+    path('campeonatos/<int:campeonato_id>/tabla-posiciones/', TablaPosiciones.as_view(), name='tabla_posiciones'),
+    path('campeonatos/<int:campeonato_id>/generar-fixture/', GenerarFixtureCampeonato.as_view(), name='generar_fixture_campeonato'),
+    path('campeonatos/<int:campeonato_id>/tabla-posiciones/exportar/pdf/', export_tabla_posiciones_pdf, name='export_tabla_posiciones_pdf'),
+    path('campeonatos/<int:campeonato_id>/tabla-posiciones/exportar/excel/', export_tabla_posiciones_excel, name='export_tabla_posiciones_excel'),
  # Rutas de deportes
     path('deportes/', ListarDeportesView.as_view(), name='listar_deportes'),
     path('deportes/registrar/', RegistrarDeporteView.as_view(), name='registrar_deporte'),
@@ -82,6 +94,23 @@ urlpatterns = [
     path('estadisticas/pingpong/', estadisticas_pingpong, name='estadisticas_pingpong'),
     path('estadisticas/futbolin/', estadisticas_futbolin, name='estadisticas_futbolin'),
     path('estadisticas/videojuegos/', estadisticas_videojuegos, name='estadisticas_videojuegos'),
+    path('mis-estadisticas/', mis_estadisticas, name='mis_estadisticas'),
+    path('estadisticas/futbol/exportar/pdf/', export_estadisticas_futbol_pdf, name='export_estadisticas_futbol_pdf'),
+    path('estadisticas/futbol/exportar/excel/', export_estadisticas_futbol_excel, name='export_estadisticas_futbol_excel'),
+    path('estadisticas/basquet/exportar/pdf/', export_estadisticas_basquet_pdf, name='export_estadisticas_basquet_pdf'),
+    path('estadisticas/basquet/exportar/excel/', export_estadisticas_basquet_excel, name='export_estadisticas_basquet_excel'),
+    path('estadisticas/ajedrez/exportar/pdf/', export_estadisticas_ajedrez_pdf, name='export_estadisticas_ajedrez_pdf'),
+    path('estadisticas/ajedrez/exportar/excel/', export_estadisticas_ajedrez_excel, name='export_estadisticas_ajedrez_excel'),
+    path('estadisticas/ecuaboly/exportar/pdf/', export_estadisticas_ecuaboly_pdf, name='export_estadisticas_ecuaboly_pdf'),
+    path('estadisticas/ecuaboly/exportar/excel/', export_estadisticas_ecuaboly_excel, name='export_estadisticas_ecuaboly_excel'),
+    path('estadisticas/futbolin/exportar/pdf/', export_estadisticas_futbolin_pdf, name='export_estadisticas_futbolin_pdf'),
+    path('estadisticas/futbolin/exportar/excel/', export_estadisticas_futbolin_excel, name='export_estadisticas_futbolin_excel'),
+    path('estadisticas/pingpong/exportar/pdf/', export_estadisticas_pingpong_pdf, name='export_estadisticas_pingpong_pdf'),
+    path('estadisticas/pingpong/exportar/excel/', export_estadisticas_pingpong_excel, name='export_estadisticas_pingpong_excel'),
+    path('estadisticas/tenis/exportar/pdf/', export_estadisticas_tenis_pdf, name='export_estadisticas_tenis_pdf'),
+    path('estadisticas/tenis/exportar/excel/', export_estadisticas_tenis_excel, name='export_estadisticas_tenis_excel'),
+    path('estadisticas/videojuegos/exportar/pdf/', export_estadisticas_videojuegos_pdf, name='export_estadisticas_videojuegos_pdf'),
+    path('estadisticas/videojuegos/exportar/excel/', export_estadisticas_videojuegos_excel, name='export_estadisticas_videojuegos_excel'),
 
     # Transmisiones
     path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
@@ -101,22 +130,32 @@ urlpatterns = [
     path('panel/admin/codigos-qr/<int:pk>/', DetalleCodigoQRView.as_view(), name='detalle_codigo_qr'),
     path('panel/admin/codigos-qr/<int:pk>/eliminar/', EliminarCodigoQRView.as_view(), name='eliminar_codigo_qr'),
 
-    path('panel/admin/registrar-delegado/', registrar_delegado, name='registrar_delegado'),
+    path('panel/admin/registrar-delegado/', RegistrarDelegadoAdminView.as_view(), name='registrar_delegado'),
     path('panel/admin/usuarios/', listar_usuarios, name='listar_usuarios'),
     path('panel/admin/usuarios/<int:usuario_id>/editar/', editar_usuario, name='editar_usuario'),
     path('panel/admin/usuarios/<int:usuario_id>/eliminar/', eliminar_usuario, name='eliminar_usuario'),
+
+    path('admin/exportar/pdf/', exportar_estadisticas_pdf, name='exportar_estadisticas_pdf'),
+    path('admin/exportar/excel/', exportar_estadisticas_excel, name='exportar_estadisticas_excel'),
 
 
     path('partidos/generar/<int:campeonato_id>/', generar_calendario, name='generar_calendario'),
     path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
 
-    # Pagos
-    path('pagos/', listar_pagos.as_view(), name='listar_pagos'),
-    path('pagos/crear/', registrar_pago.as_view(), name='registrar_pago'),  # Cambié de crear_pago a registrar_pago
-    path('pagos/<int:id>/editar/', editar_pago.as_view(), name='editar_pago'),
-    path('pagos/<int:id>/', detalle_pago.as_view(), name='detalle_pago'),
-    path('pagos/<int:id>/eliminar/', eliminar_pago.as_view(), name='eliminar_pago'),
+    # Pagos Admin
+    path('panel/admin/pagos/', pago_views.ListarPagosAdminView.as_view(), name='listar_pagos_admin'),
+    path('panel/admin/pagos/registrar/', pago_views.RegistrarPagoAdminView.as_view(), name='registrar_pago_admin'),
+    path('panel/admin/pagos/<int:pk>/editar/', pago_views.EditarPagoAdminView.as_view(), name='editar_pago_admin'),
+    path('panel/admin/pagos/<int:pk>/eliminar/', pago_views.EliminarPagoAdminView.as_view(), name='eliminar_pago_admin'),
+    path('panel/admin/pagos/<int:pk>/', pago_views.DetallePagoAdminView.as_view(), name='detalle_pago_admin'),
+    path('panel/admin/pagos/<int:pk>/aprobar/', pago_views.AprobarPagoAdminView.as_view(), name='aprobar_pago_admin'),
+    path('panel/admin/pagos/<int:pk>/rechazar/', pago_views.RechazarPagoAdminView.as_view(), name='rechazar_pago_admin'),
+
+    # Pagos Delegado
+    path('delegado/pagos/registrar/', pago_views.RegistrarPagoDelegadoView.as_view(), name='registrar_pago_delegado'),
+    path('delegado/pagos/detalle/', pago_views.DetallePagoDelegadoView.as_view(), name='detalle_pago_delegado'),
+    path('delegado/pagos/<int:pk>/eliminar/', pago_views.EliminarPagoDelegadoView.as_view(), name='eliminar_pago_delegado'),
 
     # URLs para ImagenGaleria
     path('galeria/', ListarImagenGaleria.as_view(), name='listar_imagenes_galeria'),

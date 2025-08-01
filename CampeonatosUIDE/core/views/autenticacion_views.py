@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from core.forms import RegistroJugadorForm
+from core.forms import RegistroUsuarioPublicoForm
 
 
 def vista_login(request):
@@ -41,15 +41,19 @@ def vista_registro(request):
         # Redirige al dashboard del jugador si es un jugador
         return redirect('vista_inicio')
     # Crea una instancia del formulario de registro de jugador
-    form = RegistroJugadorForm(request.POST or None)
+    form = RegistroUsuarioPublicoForm(request.POST or None)
     # Si el formulario es válido, guarda el nuevo usuario y lo autentica
     if form.is_valid():
         # Guarda el formulario, lo que crea un nuevo usuario
         user = form.save()
         # Asigna el rol de 'JUGADOR' al nuevo usuario
         login(request, user)
-        # Redirige al dashboard del jugador después de registrarse
-        return redirect('jugador_dashboard')  
+
+        # Redirige según el rol del usuario
+        if user.rol == 'DELEGADO':
+            return redirect('delegado_dashboard')
+        else:
+            return redirect('jugador_dashboard')  
 
     return render(request, 'usuario/registro.html', {'form': form})
 

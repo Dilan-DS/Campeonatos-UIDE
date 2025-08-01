@@ -1,12 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from core.forms import *
 from core.models import *
 from django.http import HttpResponse
+from openpyxl import Workbook
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
 from django.db.models import Q
 from datetime import datetime, timedelta
-
+from core.models import EstadisticaJugadorFutbol
 
 
 def es_admin(user):
@@ -19,6 +25,7 @@ def es_admin(user):
 def admin_dashboard(request):
     # Renderiza la plantilla 'admin.html' para el dashboard del administrador
     return render(request, 'dashboard/admin.html')
+
 @login_required
 @user_passes_test(es_admin)
 def listar_usuarios(request):
@@ -57,21 +64,38 @@ def crear_usuario_admin(request):
     # Renderiza la plantilla 'crear_usuario_admin.html' con el formulario
     return render(request, 'admin_panel/registro_usuario.html', {'form': form})
 
-@login_required
-@user_passes_test(es_admin)
-def registrar_delegado(request):
-    if request.method == 'POST':
+class RegistrarDelegadoAdminView(LoginRequiredMixin, View):
+    def get(self, request):
+        if not request.user.rol == 'ADMIN':
+            messages.error(request, "No tienes permiso para acceder a esta página.")
+            return redirect('inicio')
+        form = CrearUsuarioDelegadoForm()
+        return render(request, 'delegado/registrar.html', {'form': form})
+
+    def post(self, request):
+        if not request.user.rol == 'ADMIN':
+            messages.error(request, "No tienes permiso para realizar esta acción.")
+            return redirect('inicio')
         form = CrearUsuarioDelegadoForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.rol = 'DELEGADO'
-            user.set_password(form.cleaned_data['password'])  # Asegura que la contraseña se guarde hasheada
-            user.save()
+            form.save()
             messages.success(request, 'Delegado creado exitosamente.')
+            return redirect('listar_delegados')
+        messages.error(request, "Error al crear el delegado. Por favor, revisa los campos.")
+        return render(request, 'delegado/registrar.html', {'form': form})
+
+@login_required
+@user_passes_test(es_admin)
+def registrar_arbitro(request):
+    if request.method == 'POST':
+        form = CrearUsuarioArbitroForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Árbitro creado exitosamente.')
             return redirect('admin_dashboard')
     else:
-        form = CrearUsuarioDelegadoForm()
-    return render(request, 'admin_panel/registro_delegado.html', {'form': form})
+        form = CrearUsuarioArbitroForm()
+    return render(request, 'arbitro/registrar.html', {'form': form})
 
 @login_required
 @user_passes_test(es_admin)
@@ -131,3 +155,50 @@ def generar_calendario(request, campeonato_id):
 
     messages.success(request, f"Fixture generado con {len(partidos_creados)} partidos.")
     return redirect('listar_partidos_campeonato', campeonato_id=campeonato.id)
+
+@login_required
+@user_passes_test(es_admin)
+def exportar_estadisticas_pdf(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="estadisticas.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=A4)
+    elements = []
+
+    data = [['Jugador', 'Goles', 'Asistencias']]
+    for stat in EstadisticaFutbol.objects.all():
+        data.append([str(stat.jugador), stat.goles, stat.asistencias])
+
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BOX', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    elements.append(table)
+
+    doc.build(elements)
+    return response
+
+@login_required
+@user_passes_test(es_admin)
+def exportar_estadisticas_excel(request):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Estadísticas de Fútbol"
+
+    sheet.append(['Jugador', 'Goles', 'Asistencias'])
+
+    for stat in EstadisticaFutbol.objects.all():
+        sheet.append([str(stat.jugador), stat.goles, stat.asistencias])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="estadisticas.xlsx"'
+    workbook.save(response)
+    return response

@@ -8,21 +8,38 @@
 <!-- Inicio del bloque de contenido principal que será renderizado en base.html -->
 
 <section class="section">
-  <!-- Sección visual con margen vertical según Bulma -->
   <div class="container">
-    <!-- Contenedor central con márgenes automáticos -->
+    <h1 class="title is-2 mb-4">Tipos de Campeonato</h1>
 
-    <h1 class="title">Tipos de Campeonato</h1>
-    <!-- Título principal de la sección -->
+    <a href="{% url 'registrar_tipo_campeonato' %}" class="button is-primary mb-4">Registrar Nuevo Tipo</a>
 
-    <ul>
-      <!-- Lista simple sin estilos -->
-      {% for tipo in tipos %}
-        <!-- Itera sobre todos los objetos 'tipo' pasados desde la vista -->
-        <li>{{ tipo.nombre }} - {{ tipo.descripcion }}</li>
-        <!-- Muestra el nombre y la descripción de cada tipo de campeonato -->
-      {% endfor %}
-    </ul>
+    {% if tipos %}
+      <table class="table is-striped is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th class="has-text-centered">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tipo in tipos %}
+            <tr>
+              <td>{{ tipo.nombre }}</td>
+              <td>{{ tipo.descripcion }}</td>
+              <td class="has-text-centered">
+                <a href="{% url 'editar_tipo_campeonato' tipo.id %}" class="button is-info is-small">Editar</a>
+                <a href="{% url 'eliminar_tipo_campeonato' tipo.id %}" class="button is-danger is-small">Eliminar</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="notification is-info is-light">
+        No hay tipos de campeonato registrados.
+      </div>
+    {% endif %}
 
   </div>
 </section>

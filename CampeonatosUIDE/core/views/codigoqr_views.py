@@ -12,10 +12,16 @@ from django.core.exceptions import ValidationError
 from core.models import CodigoQR
 # Importa el formulario CodigoQRForm para manejar los datos de códigos QR
 from core.forms import CodigoQRForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+def es_admin(user):
+    return user.rol == 'ADMIN'
 
 
 # Vista para listar códigos QR con opción de búsqueda
-class ListarCodigosQRView(View):
+class ListarCodigosQRView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin(self.request.user)
     # Método GET que recibe posibles parámetros de búsqueda
     def get(self, request):
         # Obtiene el parámetro 'q' de la URL, valor vacío si no existe
@@ -35,7 +41,9 @@ class ListarCodigosQRView(View):
 
 
 # Vista para registrar un nuevo código QR
-class RegistrarCodigoQRView(View):
+class RegistrarCodigoQRView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin(self.request.user)
     # Método GET que muestra un formulario vacío
     def get(self, request):
         # Instancia vacía del formulario
@@ -66,7 +74,9 @@ class RegistrarCodigoQRView(View):
 
 
 # Vista para editar un código QR existente con actualización manual
-class EditarCodigoQRView(View):
+class EditarCodigoQRView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin(self.request.user)
     # Método GET que muestra formulario con datos del código QR
     def get(self, request, pk):
         # Obtiene el código QR o 404 si no existe
@@ -122,7 +132,9 @@ class EditarCodigoQRView(View):
 
 
 # Vista para mostrar detalle de un código QR
-class DetalleCodigoQRView(View):
+class DetalleCodigoQRView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin(self.request.user)
     # Método GET que muestra la información del código QR en modo detalle
     def get(self, request, pk):
         # Obtiene el código QR o 404
@@ -135,7 +147,9 @@ class DetalleCodigoQRView(View):
 
 
 # Vista para eliminar un código QR con confirmación
-class EliminarCodigoQRView(View):
+class EliminarCodigoQRView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin(self.request.user)
     # Método GET que muestra confirmación de eliminación
     def get(self, request, pk):
         # Obtiene el código QR o 404

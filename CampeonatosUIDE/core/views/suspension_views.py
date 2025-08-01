@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from core.models import Suspension
 from core.forms import SuspensionForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from core.views.campeonato_views import es_admin_o_delegado
 
 
 
@@ -21,6 +23,8 @@ def detalle_suspension(request, suspension_id):
     # Renderiza la plantilla 'detalle.html' con la suspensión
     return render(request, 'suspension/detalle.html', {'suspension': suspension})
 
+@login_required
+@user_passes_test(es_admin_o_delegado)
 def registrar_suspension(request):
     # Verifica si la solicitud es POST (envío de formulario)
     if request.method == 'POST':

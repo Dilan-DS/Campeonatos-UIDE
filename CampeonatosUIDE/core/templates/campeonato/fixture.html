@@ -6,24 +6,23 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+    <h2 class="title is-3 has-text-centered mb-5">
       🗓️ Fixture del Campeonato: {{ campeonato.nombre }}
     </h2>
 
-    <div class="box has-background-white-ter" style="border-radius: 15px;">
+    <div class="box">
       <p class="subtitle is-5 has-text-centered">
         Aquí se mostrarán los partidos programados para este campeonato.
       </p>
 
-      <!-- Aquí puedes mostrar partidos si los tienes -->
       {% if campeonato.partido_set.all %}
         <table class="table is-fullwidth is-hoverable is-striped">
           <thead>
             <tr>
               <th class="has-text-centered">Fecha</th>
               <th class="has-text-centered">Hora</th>
-              <th class="has-text-centered">Equipo A</th>
-              <th class="has-text-centered">Equipo B</th>
+              <th class="has-text-centered">Equipo Local</th>
+              <th class="has-text-centered">Equipo Visitante</th>
               <th class="has-text-centered">Lugar</th>
             </tr>
           </thead>
@@ -32,15 +31,15 @@
               <tr>
                 <td class="has-text-centered">{{ partido.fecha }}</td>
                 <td class="has-text-centered">{{ partido.hora }}</td>
-                <td class="has-text-centered">{{ partido.equipo_a }}</td>
-                <td class="has-text-centered">{{ partido.equipo_b }}</td>
+                <td class="has-text-centered">{{ partido.equipo_local.nombre }}</td>
+                <td class="has-text-centered">{{ partido.equipo_visitante.nombre }}</td>
                 <td class="has-text-centered">{{ partido.lugar }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <div class="notification is-warning has-text-centered">
+        <div class="notification is-info is-light has-text-centered">
           Aún no se han programado partidos para este campeonato.
         </div>
       {% endif %}

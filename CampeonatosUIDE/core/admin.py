@@ -94,16 +94,16 @@ class JugadorAdmin(admin.ModelAdmin):
 
 class ArbitroAdmin(admin.ModelAdmin):
     # Qué campos se muestran en la lista del admin
-    list_display = ('nombre', 'apellido', 'contacto', 'mostrar_deportes', 'estado')
+    list_display = ('usuario__first_name', 'usuario__last_name', 'contacto', 'mostrar_deportes', 'estado')
 
     # Campos por los que se puede buscar
-    search_fields = ('nombre', 'apellido', 'contacto')
+    search_fields = ('usuario__first_name', 'usuario__last_name', 'contacto')
 
     # Filtros laterales
     list_filter = ('estado', 'deportes')
 
     # Orden por apellido
-    ordering = ('apellido',)
+    ordering = ('usuario__last_name',)
 
     def mostrar_deportes(self, obj):
         return ", ".join([d.nombre for d in obj.deportes.all()])
