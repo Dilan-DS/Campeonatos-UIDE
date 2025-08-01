@@ -1,44 +1,27 @@
 {% extends 'comun/base.html' %}
-{% load static %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
+<div class="container mt-4">
+    <h2 class="mb-4">Detalle de Transmisión</h2>
 
-    <!-- Título de la sección con tamaño y color -->
-    <h1 class="title is-4 has-text-primary">Detalle de Transmisión</h1>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{ transmision.campeonato.nombre }} - {{ transmision.partido.equipo_local.nombre }} vs {{ transmision.partido.equipo_visitante.nombre }}</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Descripción:</strong> {{ transmision.descripcion }}</p>
+            <p><strong>Estado:</strong> {% if transmision.activa %}Activa{% else %}Inactiva{% endif %}</p>
 
-    <!-- Caja que contiene la información detallada -->
-    <div class="box">
-      <!-- Muestra el nombre del campeonato con un ícono -->
-      <p><strong>🎯 Campeonato:</strong> {{ transmision.campeonato.nombre }}</p>
-      
-      <!-- Muestra el partido correspondiente a la transmisión -->
-      <p><strong>⚽ Partido:</strong> {{ transmision.partido }}</p>
-      
-      <!-- Enlace de la transmisión con apertura en nueva pestaña y estilo de link -->
-      <p><strong>🔗 Enlace:</strong> 
-        <a href="{{ transmision.enlace }}" target="_blank" class="has-text-link">
-          {{ transmision.enlace }}
-        </a>
-      </p>
-      
-      <!-- Descripción de la transmisión -->
-      <p><strong>📝 Descripción:</strong> {{ transmision.descripcion }}</p>
-      
-      <!-- Estado activo/inactivo de la transmisión con etiqueta de color -->
-      <p><strong>📡 Activa:</strong> 
-        <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
-          {{ transmision.activa|yesno:"Sí,No" }}
-        </span>
-      </p>
+            {% if transmision.enlace %}
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="{{ transmision.enlace }}" allowfullscreen></iframe>
+                </div>
+            {% else %}
+                <p>No hay enlace de transmisión disponible.</p>
+            {% endif %}
+
+            <a href="{% url 'listar_transmisiones' %}" class="btn btn-secondary mt-3">Volver a la lista</a>
+        </div>
     </div>
-
-    <!-- Botón para regresar a la lista de transmisiones -->
-    <a href="{% url 'listar_transmisiones' %}" class="button is-info is-light mt-2">
-      ← Volver al listado
-    </a>
-  </div>
-</section>
-
+</div>
 {% endblock %}

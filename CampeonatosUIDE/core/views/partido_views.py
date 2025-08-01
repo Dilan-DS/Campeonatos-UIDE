@@ -3,11 +3,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models import Partido
 from core.forms import PartidoForm
+from core.views.admin_views import es_admin
 
 # Función para validar que sea admin
 def es_admin(user):
     return user.rol == 'ADMIN'
 
+@login_required
+@user_passes_test(es_admin)
 def listar_partidos(request):
     # Obtiene todos los partidos registrados en la base de datos y los ordena por fecha y hora
     partidos = Partido.objects.all().order_by('-fecha', '-hora')
@@ -92,3 +95,9 @@ def aplazar_partido(request, partido_id):
         form = PartidoForm(instance=partido)
 
     return render(request, 'partido/aplazar_partido.html', {'form': form, 'partido': partido})
+
+@login_required
+@user_passes_test(es_admin)
+def ver_calendario_completo(request):
+    # Placeholder function for now
+    return render(request, 'partido/calendario_completo.html', {})

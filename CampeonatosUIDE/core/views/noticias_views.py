@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from core.models import Noticia
 from core.forms import NoticiaForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from core.views.campeonato_views import es_admin_o_delegado
 
 class ListarNoticias(View):
     def get(self, request):
@@ -37,7 +39,9 @@ class EditarNoticia(View):
             return redirect('listar_noticias')
         return render(request, 'noticia/form.html', {'form': form, 'modo': 'editar', 'noticia': noticia})
 
-class EliminarNoticia(View):
+class EliminarNoticia(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
     def get(self, request, id):
         noticia = get_object_or_404(Noticia, id=id)
         return render(request, 'noticia/form.html', {'noticia': noticia})

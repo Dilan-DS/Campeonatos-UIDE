@@ -11,69 +11,64 @@
 <!-- Inicio del bloque principal de contenido -->
 
 <section class="section">
-  <!-- Sección con espaciado vertical -->
   <div class="container">
-    <!-- Contenedor central para todo el contenido -->
 
-    <div class="box" style="background-color: #fdf7f0; border-radius: 18px; padding: 2.5rem;">
-      <!-- Caja visual clara con fondo crema, bordes redondeados y padding -->
+    <div class="box">
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
-        <!-- Título grande, centrado, con margen inferior y color personalizado -->
+      <h2 class="title is-3 has-text-centered mb-5">
         🏆 Campeonatos Registrados
       </h2>
 
       <div class="has-text-right mb-4">
-        <!-- Botón alineado a la derecha con margen inferior -->
-        <a href="{% url 'crear_campeonato' %}" class="button is-link is-rounded is-small">
-          <!-- Botón azul claro, redondeado y pequeño para crear campeonato -->
+        <a href="{% url 'crear_campeonato' %}" class="button is-primary is-rounded">
           ➕ Crear nuevo campeonato
         </a>
       </div>
 
       {% if campeonatos %}
-        <!-- Si existen campeonatos, se listan -->
-        <div class="content">
-          <ul>
-            <!-- Lista desordenada de campeonatos -->
+        <table class="table is-striped is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Deporte</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Estado</th>
+              <th class="has-text-centered">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
             {% for campeonato in campeonatos %}
-              <!-- Itera sobre cada campeonato -->
-              <li class="box mb-3" style="background-color: #fffbea; border-left: 6px solid #b30059;">
-                <!-- Cada campeonato se muestra en una caja con borde lateral fucsia -->
-
-                <strong>{{ campeonato.nombre }}</strong> — {{ campeonato.deporte.nombre }}
-                <!-- Nombre del campeonato y su deporte -->
-
-                <br>
-                <span class="is-size-7 has-text-grey">
-                  <!-- Fecha de inicio y fin del campeonato con estilo gris y tamaño pequeño -->
-                  Desde {{ campeonato.fecha_inicio }} hasta {{ campeonato.fecha_fin }}
-                </span>
-
-                <div class="mt-2">
-                  <!-- Botones con acciones para el campeonato -->
+              <tr>
+                <td>{{ campeonato.nombre }}</td>
+                <td>{{ campeonato.deporte.nombre }}</td>
+                <td>{{ campeonato.fecha_inicio }}</td>
+                <td>{{ campeonato.fecha_fin }}</td>
+                <td>
+                  <span class="tag {% if campeonato.estado == 'activo' %}is-success{% else %}is-danger{% endif %}">
+                    {{ campeonato.get_estado_display }}
+                  </span>
+                </td>
+                <td class="has-text-centered">
                   <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-small is-info is-light is-rounded">
                     👁️ Ver
                   </a>
-                  <!-- Botón para ver detalles del campeonato -->
-
                   <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light is-rounded">
                     ✏️ Editar
                   </a>
-                  <!-- Botón para editar el campeonato -->
-
                   <a href="{% url 'fixture_campeonato' campeonato.id %}" class="button is-small is-danger is-light is-rounded">
                     📅 Fixture
                   </a>
-                  <!-- Botón para ver el fixture del campeonato -->
-                </div>
-              </li>
+                  <a href="{% url 'listar_equipos' %}?campeonato_id={{ campeonato.id }}" class="button is-small is-link is-light is-rounded">
+                    👥 Ver Equipos
+                  </a>
+                </td>
+              </tr>
             {% endfor %}
-          </ul>
-        </div>
+          </tbody>
+        </table>
       {% else %}
-        <!-- Si no hay campeonatos registrados -->
-        <p class="notification is-warning is-light has-text-centered">
+        <p class="notification is-info is-light has-text-centered">
           No hay campeonatos registrados todavía.
         </p>
       {% endif %}

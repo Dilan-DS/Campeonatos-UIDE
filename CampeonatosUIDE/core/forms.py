@@ -207,17 +207,19 @@ class EquipoForm(forms.ModelForm):
 class PagoForm(forms.ModelForm):
     class Meta:
         model = Pago
-
-        fields = '__all__'
+        fields = ['equipo', 'metodo', 'codigo_qr', 'comprobante_pago', 'estado', 'observacion_admin']
         widgets = {
-            'descripcion': forms.Textarea(attrs={'rows': 4}),
+            'equipo': forms.Select(attrs={'class': 'select is-fullwidth'}),
+            'metodo': forms.Select(attrs={'class': 'select is-fullwidth'}),
+            'codigo_qr': forms.Select(attrs={'class': 'select is-fullwidth'}),
+            'comprobante_pago': forms.ClearableFileInput(attrs={'class': 'file-input'}),
+            'estado': forms.Select(attrs={'class': 'select is-fullwidth'}),
+            'observacion_admin': forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Observaciones del administrador (opcional)'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # ✔ Añadir estilos Bulma a los campos
-        for field in self.fields.values():
+        for field_name, field in self.fields.items():
             if isinstance(field.widget, forms.Textarea):
                 field.widget.attrs.update({'class': 'textarea'})
             elif isinstance(field.widget, forms.NumberInput):
@@ -227,7 +229,6 @@ class PagoForm(forms.ModelForm):
             elif isinstance(field.widget, forms.Select):
                 field.widget.attrs.update({'class': 'select'})
 
-        # ✅ Si el pago tiene código QR, mostrar vista previa
         if hasattr(self.instance, 'codigo_qr') and self.instance.codigo_qr and hasattr(self.instance.codigo_qr, 'imagen_qr'):
             self.fields['codigo_qr_preview'] = forms.CharField(
                 required=False,
@@ -243,15 +244,42 @@ class PagoForm(forms.ModelForm):
                 )
             )
 
-        fields = ['equipo', 'metodo', 'codigo_qr', 'comprobante_pago', 'estado', 'observacion_admin']
+class PagoDelegadoForm(forms.ModelForm):
+    class Meta:
+        model = Pago
+        fields = ['metodo', 'codigo_qr', 'comprobante_pago']
         widgets = {
-            'equipo': forms.Select(attrs={'class': 'select is-fullwidth'}),
             'metodo': forms.Select(attrs={'class': 'select is-fullwidth'}),
             'codigo_qr': forms.Select(attrs={'class': 'select is-fullwidth'}),
             'comprobante_pago': forms.ClearableFileInput(attrs={'class': 'file-input'}),
-            'estado': forms.Select(attrs={'class': 'select is-fullwidth'}),
-            'observacion_admin': forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Observaciones del administrador (opcional)'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, forms.Textarea):
+                field.widget.attrs.update({'class': 'textarea'})
+            elif isinstance(field.widget, forms.NumberInput):
+                field.widget.attrs.update({'class': 'input', 'step': '0.01'})
+            elif isinstance(field.widget, forms.TextInput):
+                field.widget.attrs.update({'class': 'input'})
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'select'})
+
+        if hasattr(self.instance, 'codigo_qr') and self.instance.codigo_qr and hasattr(self.instance.codigo_qr, 'imagen_qr'):
+            self.fields['codigo_qr_preview'] = forms.CharField(
+                required=False,
+                label='Vista previa QR',
+                widget=forms.Textarea(attrs={
+                    'readonly': 'readonly',
+                    'rows': 6,
+                    'class': 'textarea'
+                }),
+                initial=mark_safe(
+                    f"<strong>Banco:</strong> {self.instance.codigo_qr.banco}<br>"
+                    f"<img src='{self.instance.codigo_qr.imagen_qr.url}' width='200' style='border:1px solid #ccc;'/>"
+                )
+            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -268,42 +296,7 @@ class PagoForm(forms.ModelForm):
 
 
 
-# =============================
-# FORMULARIO: ÁRBITRO
-# =============================
-class ArbitroForm(forms.ModelForm):
-    """
-    Formulario para registrar o editar un árbitro
-    """
 
-    class Meta:
-        model = Arbitro
-        fields = '__all__'
-        widgets = {
-            'nombre': forms.TextInput(attrs={
-                'placeholder': 'Nombres del árbitro',
-                'class': 'input'
-            }),
-            'apellido': forms.TextInput(attrs={
-                'placeholder': 'Apellidos del árbitro',
-                'class': 'input'
-            }),
-            'experiencia': forms.Textarea(attrs={
-                'placeholder': 'Resumen de experiencia (años, torneos, etc.)',
-                'class': 'textarea',
-                'rows': 3
-            }),
-            'contacto': forms.TextInput(attrs={
-                'placeholder': 'Número de teléfono o email de contacto',
-                'class': 'input'
-            }),
-            'estado': forms.CheckboxInput(attrs={
-                'class': 'checkbox'
-            }),
-            'deportes': forms.SelectMultiple(attrs={
-                'class': 'select is-multiple is-fullwidth'
-            }),
-        }
 
 # =============================
 # FORMULARIO: CAMPEONATO
@@ -400,11 +393,16 @@ class TransmisionForm(forms.ModelForm):
         return descripcion
 
 # =============================
-# FORMULARIO DE REGISTRO PÚBLICO — Solo jugadores
+# FORMULARIO DE REGISTRO PÚBLICO — Jugadores y Delegados
 # =============================
-class RegistroJugadorForm(UserCreationForm):
+class RegistroUsuarioPublicoForm(UserCreationForm):
+    ROL_CHOICES = [
+        ('JUGADOR', 'Jugador'),
+        ('DELEGADO', 'Delegado'),
+    ]
+    rol = forms.ChoiceField(choices=ROL_CHOICES, widget=forms.RadioSelect)
+
     class Meta:
-        # Definimos el modelo y los campos que queremos incluir en el formulario
         model = Usuario
         fields = (
             'username',
@@ -412,10 +410,10 @@ class RegistroJugadorForm(UserCreationForm):
             'last_name',
             'email',
             'carrera',
-            'password1',
+            'rol',
+            'password',
             'password2',
         )
-
         widgets = {
             'username': forms.TextInput(attrs={'class': 'input'}),
             'first_name': forms.TextInput(attrs={'class': 'input'}),
@@ -426,11 +424,9 @@ class RegistroJugadorForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.rol = 'JUGADOR'  # Por defecto va jugador
+        user.rol = self.cleaned_data['rol']
         if commit:
-            # Guardamos el usuario en la base de datos
             user.save()
-        # Retornamos el usuario creado
         return user
 
 # =============================
@@ -464,7 +460,75 @@ class CrearUsuarioDelegadoForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
+        fields = ['username', 'first_name', 'last_name', 'email', 'carrera', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'input'}),
+            'first_name': forms.TextInput(attrs={'class': 'input'}),
+            'last_name': forms.TextInput(attrs={'class': 'input'}),
+            'email': forms.EmailInput(attrs={'class': 'input'}),
+            'carrera': forms.Select(attrs={'class': 'select'}),
+            'password': forms.PasswordInput(attrs={'class': 'input'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        user.rol = 'DELEGADO'
+        if commit:
+            user.save()
+        return user
+
+class ArbitroForm(forms.ModelForm):
+    estado = forms.ChoiceField(
+        choices=[(True, 'Activo'), (False, 'Inactivo')],
+        widget=forms.Select(attrs={'class': 'select is-fullwidth'})
+    )
+    class Meta:
+        model = Arbitro
+        fields = '__all__'
+        widgets = {
+            'usuario': forms.Select(attrs={'class': 'select is-fullwidth'}),
+            'experiencia': forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Resumen de experiencia (años, torneos, etc.)'}),
+            'deportes': forms.SelectMultiple(attrs={'class': 'select is-multiple is-fullwidth'}),
+            'contacto': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Número de teléfono o email de contacto'}),
+        }
+
+
+class CrearUsuarioArbitroForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    experiencia = forms.CharField(widget=forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Resumen de experiencia (años, torneos, etc.)'}))
+    deportes = forms.ModelMultipleChoiceField(queryset=Deporte.objects.all(), widget=forms.SelectMultiple(attrs={'class': 'select is-multiple is-fullwidth'}))
+    contacto = forms.CharField(widget=forms.TextInput(attrs={'class': 'input', 'placeholder': 'Número de teléfono o email de contacto'}))
+    estado = forms.ChoiceField(
+        choices=[(True, 'Activo'), (False, 'Inactivo')],
+        widget=forms.Select(attrs={'class': 'select is-fullwidth'})
+    )
+
+    class Meta:
+        model = Usuario
         fields = ['username', 'first_name', 'last_name', 'email', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'input'}),
+            'first_name': forms.TextInput(attrs={'class': 'input'}),
+            'last_name': forms.TextInput(attrs={'class': 'input'}),
+            'email': forms.EmailInput(attrs={'class': 'input'}),
+            'password': forms.PasswordInput(attrs={'class': 'input'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        user.rol = 'ARBITRO'
+        if commit:
+            user.save()
+            arbitro = Arbitro.objects.create(
+                usuario=user,
+                experiencia=self.cleaned_data['experiencia'],
+                contacto=self.cleaned_data['contacto'],
+                estado=self.cleaned_data['estado']
+            )
+            arbitro.deportes.set(self.cleaned_data['deportes'])
+        return user
 
 class CodigoQRForm(forms.ModelForm):
     """

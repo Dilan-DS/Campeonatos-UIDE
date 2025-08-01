@@ -6,20 +6,32 @@
   <div class="container">
     <h1 class="title has-text-centered has-text-danger">🏟️ Campeonatos Públicos</h1>
 
-    <div class="columns is-multiline">
+    <div class="columns is-multiline is-centered">
       {% for campeonato in campeonatos %}
-        <div class="column is-one-third">
-          <div class="card">
+        {% if campeonato.es_publico %}
+        <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+          <div class="card has-background-light has-text-dark" style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
             <div class="card-content">
-              <p class="title is-5">{{ campeonato.nombre }}</p>
-              <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio }}</p>
-              <p><strong>Fin:</strong> {{ campeonato.fecha_fin }}</p>
-              <p><strong>Tipo:</strong> {{ campeonato.tipo_campeonato.nombre }}</p>
+              <p class="title is-4 has-text-info">{{ campeonato.nombre }}</p>
+              <p class="subtitle is-6 has-text-grey-dark">{{ campeonato.descripcion }}</p>
+              <div class="content">
+                <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio }}</p>
+                <p><strong>Fin:</strong> {{ campeonato.fecha_fin }}</p>
+                <p><strong>Tipo:</strong> {{ campeonato.tipo_campeonato.nombre }}</p>
+                <p><strong>Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
+                <p><strong>Estado:</strong> <span class="tag is-info is-light">{{ campeonato.get_estado_display }}</span></p>
+              </div>
+              <div class="has-text-centered">
+                <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-primary is-rounded mt-3">Ver Detalles</a>
+              </div>
             </div>
           </div>
         </div>
+        {% endif %}
       {% empty %}
-        <p class="has-text-centered has-text-grey">No hay campeonatos públicos disponibles.</p>
+        <div class="column is-full">
+          <p class="notification is-info has-text-centered">No hay campeonatos públicos disponibles en este momento.</p>
+        </div>
       {% endfor %}
     </div>
   </div>

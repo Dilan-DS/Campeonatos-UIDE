@@ -50,7 +50,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Opcional 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / "core" / "static",
 ]
 
 MIDDLEWARE = [

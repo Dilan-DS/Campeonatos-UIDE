@@ -58,17 +58,17 @@
         </a>
       </div>
 
-      <!-- 💰 Subir pago -->
+      <!-- 💰 Pagos -->
       <div class="column is-4">
         {% if equipo %}
-        <a href="{% url 'pago_equipo' id=equipo.id %}">
+        <a href="{% url 'registrar_pago_delegado' %}">
         {% else %}
         <a href="#">
         {% endif %}
           <div class="box has-background-light has-text-centered">
-            <p class="title is-5">💰 Subir Pago</p>
+            <p class="title is-5">💰 Pagos</p>
             <p class="subtitle is-6">
-              {% if equipo %}Registrar comprobante de pago{% else %}Registra un equipo primero{% endif %}
+              {% if equipo %}Gestionar pagos de tu equipo{% else %}Registra un equipo primero{% endif %}
             </p>
           </div>
         </a>

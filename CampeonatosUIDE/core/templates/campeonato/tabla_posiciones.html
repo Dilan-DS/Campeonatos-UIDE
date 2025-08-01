@@ -1,0 +1,61 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box">
+      <h2 class="title is-3 has-text-centered mb-5">Tabla de Posiciones - {{ campeonato.nombre }}</h2>
+
+      {% if tabla %}
+      <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th class="has-text-centered">Posición</th>
+                    <th class="has-text-centered">Equipo</th>
+                    <th class="has-text-centered">PJ</th>
+                    <th class="has-text-centered">PG</th>
+                    <th class="has-text-centered">PE</th>
+                    <th class="has-text-centered">PP</th>
+                    <th class="has-text-centered">GF</th>
+                    <th class="has-text-centered">GC</th>
+                    <th class="has-text-centered">GD</th>
+                    <th class="has-text-centered">Puntos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tabla %}
+                <tr>
+                    <td class="has-text-centered">{{ forloop.counter }}</td>
+                    <td class="has-text-centered">{{ row.equipo.nombre }}</td>
+                    <td class="has-text-centered">{{ row.pj }}</td>
+                    <td class="has-text-centered">{{ row.pg }}</td>
+                    <td class="has-text-centered">{{ row.pe }}</td>
+                    <td class="has-text-centered">{{ row.pp }}</td>
+                    <td class="has-text-centered">{{ row.gf }}</td>
+                    <td class="has-text-centered">{{ row.gc }}</td>
+                    <td class="has-text-centered">{{ row.gd }}</td>
+                    <td class="has-text-centered">{{ row.puntos }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    {% else %}
+    <div class="notification is-info is-light has-text-centered">
+        No hay datos para la tabla de posiciones de este campeonato.
+    </div>
+    {% endif %}
+
+    <div class="has-text-centered mt-4">
+        <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
+          ← Volver al listado
+        </a>
+        <a href="{% url 'export_tabla_posiciones_pdf' campeonato.id %}" class="button is-danger is-rounded ml-3">Exportar a PDF</a>
+        <a href="{% url 'export_tabla_posiciones_excel' campeonato.id %}" class="button is-success is-rounded ml-3">Exportar a Excel</a>
+    </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

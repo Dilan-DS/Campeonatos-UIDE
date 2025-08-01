@@ -1,0 +1,43 @@
+{% extends 'comun/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="title has-text-centered">Listado de Delegados</h1>
+    <div class="has-text-centered mb-4">
+        <a href="{% url 'registrar_delegado' %}" class="button is-primary">Agregar Delegado</a>
+    </div>
+    <div class="box">
+        <table class="table is-striped is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Nombre de Usuario</th>
+                    <th>Cédula</th>
+                    <th>Email</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for delegado in delegados %}
+                <tr>
+                    <td>{{ delegado.username }}</td>
+                    <td>{{ delegado.cedula }}</td>
+                    <td>{{ delegado.email }}</td>
+                    <td>
+                        <a href="{% url 'detalle_delegado' delegado.id %}" class="button is-info is-small">Ver</a>
+                        <a href="{% url 'editar_delegado' delegado.id %}" class="button is-warning is-small">Editar</a>
+                        <form action="{% url 'eliminar_delegado' delegado.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="button is-danger is-small">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="has-text-centered">No hay delegados registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

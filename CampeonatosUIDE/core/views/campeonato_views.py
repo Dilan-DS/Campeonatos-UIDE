@@ -1,19 +1,36 @@
-# Importa funciones para renderizar templates, redireccionar y obtener objeto o error 404
 from django.shortcuts import render, redirect, get_object_or_404
-# Importa el sistema de mensajes para mostrar alertas al usuario
 from django.contrib import messages
-# Importa reverse_lazy para usar nombres de rutas en redirecciones
 from django.urls import reverse_lazy
-# Importa la clase base para vistas basadas en clases (CBV)
 from django.views import View
-# Importa el modelo Campeonato de la aplicación core
-from core.models import Campeonato
-# Importa el formulario CampeonatoForm para manipular datos de campeonatos
+from core.models import Campeonato, Equipo, Partido
 from core.forms import CampeonatoForm
+from django.db.models import Q
+from core.utils.fixture import generate_round_robin_fixture
+from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+
+class EsAdminODelegadoMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.rol in ['ADMIN', 'DELEGADO']
+
+def es_admin_o_delegado(user):
+    return user.rol in ['ADMIN', 'DELEGADO']
+
+import io
+from openpyxl import Workbook
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from django.http import HttpResponse
+import pandas as pd
 
 
 # Clase para listar todos los campeonatos ordenados por fecha de inicio descendente
-class ListarCampeonatos(View):
+class ListarCampeonatos(LoginRequiredMixin, View):
     # Método GET para mostrar la lista de campeonatos
     def get(self, request):
         # Obtiene todos los campeonatos ordenados por fecha de inicio descendente
@@ -25,7 +42,7 @@ class ListarCampeonatos(View):
 
 
 # Clase para crear un nuevo campeonato
-class CrearCampeonato(View):
+class CrearCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
     # Método GET que muestra un formulario vacío para crear campeonato
     def get(self, request):
         # Instancia vacía del formulario CampeonatoForm
@@ -51,7 +68,7 @@ class CrearCampeonato(View):
 
 
 # Clase para editar un campeonato existente
-class EditarCampeonato(View):
+class EditarCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
     # Método GET que muestra formulario con datos actuales para editar
     def get(self, request, id):
         # Obtiene el campeonato por su id o lanza 404 si no existe
@@ -110,7 +127,7 @@ class EditarCampeonato(View):
 
 
 # Clase para mostrar detalles de un campeonato
-class DetalleCampeonato(View):
+class DetalleCampeonato(LoginRequiredMixin, View):
     # Método GET que muestra información del campeonato en modo detalle
     def get(self, request, id):
         # Obtiene el campeonato o 404
@@ -120,7 +137,7 @@ class DetalleCampeonato(View):
 
 
 # Clase para mostrar el fixture (calendario de partidos) de un campeonato
-class FixtureCampeonato(View):
+class FixtureCampeonato(LoginRequiredMixin, View):
     # Método GET para mostrar el fixture
     def get(self, request, id):
         # Obtiene el campeonato o 404
@@ -150,7 +167,7 @@ def campeonatos_publicos(request):
 
 
 # Clase para eliminar un campeonato
-class EliminarCampeonato(View):
+class EliminarCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
     # Método GET que muestra confirmación para eliminar
     def get(self, request, id):
         # Obtiene el campeonato o 404
@@ -171,3 +188,379 @@ class EliminarCampeonato(View):
         messages.success(request, 'Campeonato eliminado correctamente')
         # Redirige a la lista de campeonatos
         return redirect(reverse_lazy('listar_campeonatos'))
+
+
+class TablaPosiciones(LoginRequiredMixin, View):
+    def get(self, request, campeonato_id):
+        campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+        equipos = Equipo.objects.filter(campeonato=campeonato, aprobado=True)
+
+        tabla = []
+        for equipo in equipos:
+            pj = 0  # Partidos Jugados
+            pg = 0  # Partidos Ganados
+            pe = 0  # Partidos Empatados
+            pp = 0  # Partidos Perdidos
+            gf = 0  # Goles a Favor
+            gc = 0  # Goles en Contra
+            puntos = 0
+
+            # Partidos como local
+            partidos_local = Partido.objects.filter(
+                campeonato=campeonato,
+                equipo_local=equipo,
+                estado='FINALIZADO'
+            )
+            for p in partidos_local:
+                pj += 1
+                gf += p.resultado_local
+                gc += p.resultado_visitante
+                if p.resultado_local > p.resultado_visitante:
+                    pg += 1
+                    puntos += 3
+                elif p.resultado_local == p.resultado_visitante:
+                    pe += 1
+                    puntos += 1
+                else:
+                    pp += 1
+
+            # Partidos como visitante
+            partidos_visitante = Partido.objects.filter(
+                campeonato=campeonato,
+                equipo_visitante=equipo,
+                estado='FINALIZADO'
+            )
+            for p in partidos_visitante:
+                pj += 1
+                gf += p.resultado_visitante
+                gc += p.resultado_local
+                if p.resultado_visitante > p.resultado_local:
+                    pg += 1
+                    puntos += 3
+                elif p.resultado_visitante == p.resultado_local:
+                    pe += 1
+                    puntos += 1
+                else:
+                    pp += 1
+            
+            gd = gf - gc # Diferencia de Goles
+
+            tabla.append({
+                'equipo': equipo,
+                'pj': pj,
+                'pg': pg,
+                'pe': pe,
+                'pp': pp,
+                'gf': gf,
+                'gc': gc,
+                'gd': gd,
+                'puntos': puntos
+            })
+        
+        # Ordenar la tabla: 1. Puntos, 2. Diferencia de Goles, 3. Goles a Favor
+        tabla_ordenada = sorted(tabla, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
+
+        context = {
+            'campeonato': campeonato,
+            'tabla': tabla_ordenada
+        }
+        return render(request, 'campeonato/tabla_posiciones.html', context)
+
+
+class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
+    def post(self, request, campeonato_id):
+        campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+        equipos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True))
+
+        if len(equipos) < 2:
+            messages.error(request, "Se necesitan al menos 2 equipos aprobados para generar el fixture.")
+            return redirect('detalle_campeonato', id=campeonato.id)
+
+        # Eliminar partidos existentes para este campeonato antes de generar nuevos
+        Partido.objects.filter(campeonato=campeonato).delete()
+
+        fixture = generate_round_robin_fixture(equipos)
+
+        # Asignar fechas y horas a los partidos (ejemplo simple, se puede mejorar)
+        # Asumimos que los partidos se juegan en los dias_partido del campeonato
+        # y que hay un lugar predefinido o se asigna aleatoriamente.
+        # Para simplificar, usaremos la fecha de inicio del campeonato y una hora fija.
+        
+        current_date = campeonato.fecha_inicio
+        # Convertir MultiSelectField a una lista de strings
+        dias_partido_list = list(campeonato.dias_partido)
+        dias_semana_map = {
+            'LUNES': 0, 'MARTES': 1, 'MIERCOLES': 2, 'JUEVES': 3,
+            'VIERNES': 4, 'SABADO': 5, 'DOMINGO': 6
+        }
+        dias_validos_indices = [dias_semana_map[d] for d in dias_partido_list]
+
+        partido_hora = timezone.datetime(2000, 1, 1, 19, 0, 0).time() # Ejemplo: 7 PM
+
+        for round_matches in fixture:
+            # Avanzar la fecha hasta el próximo día de partido válido
+            while current_date.weekday() not in dias_validos_indices:
+                current_date += timezone.timedelta(days=1)
+
+            for match in round_matches:
+                equipo_local, equipo_visitante = match
+                Partido.objects.create(
+                    campeonato=campeonato,
+                    equipo_local=equipo_local,
+                    equipo_visitante=equipo_visitante,
+                    fecha=current_date,
+                    hora=partido_hora,
+                    lugar="Cancha Principal", # Esto debería ser dinámico
+                    estado='PROGRAMADO'
+                )
+            current_date += timezone.timedelta(days=1) # Avanzar al siguiente día para el próximo round
+
+        messages.success(request, "Fixture generado exitosamente.")
+        return redirect('detalle_campeonato', id=campeonato.id)
+
+
+@login_required
+@user_passes_test(es_admin_o_delegado)
+def export_tabla_posiciones_pdf(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    equipos = Equipo.objects.filter(campeonato=campeonato, aprobado=True)
+
+    tabla = []
+    for equipo in equipos:
+        pj = 0  # Partidos Jugados
+        pg = 0  # Partidos Ganados
+        pe = 0  # Partidos Empatados
+        pp = 0  # Partidos Perdidos
+        gf = 0  # Goles a Favor
+        gc = 0  # Goles en Contra
+        puntos = 0
+
+        # Partidos como local
+        partidos_local = Partido.objects.filter(
+            campeonato=campeonato,
+            equipo_local=equipo,
+            estado='FINALIZADO'
+        )
+        for p in partidos_local:
+            pj += 1
+            gf += p.resultado_local
+            gc += p.resultado_visitante
+            if p.resultado_local > p.resultado_visitante:
+                pg += 1
+                puntos += 3
+            elif p.resultado_local == p.resultado_visitante:
+                pe += 1
+                puntos += 1
+            else:
+                pp += 1
+
+        # Partidos como visitante
+        partidos_visitante = Partido.objects.filter(
+            campeonato=campeonato,
+            equipo_visitante=equipo,
+            estado='FINALIZADO'
+        )
+        for p in partidos_visitante:
+            pj += 1
+            gf += p.resultado_visitante
+            gc += p.resultado_local
+            if p.resultado_visitante > p.resultado_local:
+                pg += 1
+                puntos += 3
+            elif p.resultado_visitante == p.resultado_local:
+                pe += 1
+                puntos += 1
+            else:
+                pp += 1
+        
+        gd = gf - gc # Diferencia de Goles
+
+        tabla.append({
+            'equipo': equipo,
+            'pj': pj,
+            'pg': pg,
+            'pe': pe,
+            'pp': pp,
+            'gf': gf,
+            'gc': gc,
+            'gd': gd,
+            'puntos': puntos
+        })
+    
+    tabla_ordenada = sorted(tabla, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['h2'],
+        alignment=1, # CENTER
+        spaceAfter=14
+    )
+
+    header_style = ParagraphStyle(
+        'HeaderStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        alignment=1, # CENTER
+        spaceAfter=6
+    )
+
+    content_style = ParagraphStyle(
+        'ContentStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        alignment=1, # CENTER
+        spaceAfter=2
+    )
+
+    elements = []
+    elements.append(Paragraph(f"Tabla de Posiciones - {campeonato.nombre}", title_style))
+    elements.append(Spacer(1, 0.2 * inch))
+
+    data = [
+        [
+            Paragraph("Posición", header_style),
+            Paragraph("Equipo", header_style),
+            Paragraph("PJ", header_style),
+            Paragraph("PG", header_style),
+            Paragraph("PE", header_style),
+            Paragraph("PP", header_style),
+            Paragraph("GF", header_style),
+            Paragraph("GC", header_style),
+            Paragraph("GD", header_style),
+            Paragraph("Puntos", header_style)
+        ]
+    ]
+    for i, row in enumerate(tabla_ordenada):
+        data.append([
+            Paragraph(str(i + 1), content_style),
+            Paragraph(row['equipo'].nombre, content_style),
+            Paragraph(str(row['pj']), content_style),
+            Paragraph(str(row['pg']), content_style),
+            Paragraph(str(row['pe']), content_style),
+            Paragraph(str(row['pp']), content_style),
+            Paragraph(str(row['gf']), content_style),
+            Paragraph(str(row['gc']), content_style),
+            Paragraph(str(row['gd']), content_style),
+            Paragraph(str(row['puntos']), content_style)
+        ])
+
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#343a40')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f8f9fa')),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    elements.append(table)
+
+    doc.build(elements)
+    buffer.seek(0)
+    return HttpResponse(buffer, content_type='application/pdf')
+
+
+@login_required
+@user_passes_test(es_admin_o_delegado)
+def export_tabla_posiciones_excel(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    equipos = Equipo.objects.filter(campeonato=campeonato, aprobado=True)
+
+    tabla = []
+    for equipo in equipos:
+        pj = 0  # Partidos Jugados
+        pg = 0  # Partidos Ganados
+        pe = 0  # Partidos Empatados
+        pp = 0  # Partidos Perdidos
+        gf = 0  # Goles a Favor
+        gc = 0  # Goles en Contra
+        puntos = 0
+
+        # Partidos como local
+        partidos_local = Partido.objects.filter(
+            campeonato=campeonato,
+            equipo_local=equipo,
+            estado='FINALIZADO'
+        )
+        for p in partidos_local:
+            pj += 1
+            gf += p.resultado_local
+            gc += p.resultado_visitante
+            if p.resultado_local > p.resultado_visitante:
+                pg += 1
+                puntos += 3
+            elif p.resultado_local == p.resultado_visitante:
+                pe += 1
+                puntos += 1
+            else:
+                pp += 1
+
+        # Partidos como visitante
+        partidos_visitante = Partido.objects.filter(
+            campeonato=campeonato,
+            equipo_visitante=equipo,
+            estado='FINALIZADO'
+        )
+        for p in partidos_visitante:
+            pj += 1
+            gf += p.resultado_visitante
+            gc += p.resultado_local
+            if p.resultado_visitante > p.resultado_local:
+                pg += 1
+                puntos += 3
+            elif p.resultado_visitante == p.resultado_local:
+                pe += 1
+                puntos += 1
+            else:
+                pp += 1
+        
+        gd = gf - gc # Diferencia de Goles
+
+        tabla.append({
+            'equipo': equipo,
+            'pj': pj,
+            'pg': pg,
+            'pe': pe,
+            'pp': pp,
+            'gf': gf,
+            'gc': gc,
+            'gd': gd,
+            'puntos': puntos
+        })
+    
+    tabla_ordenada = sorted(tabla, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
+
+    data = []
+    for i, row in enumerate(tabla_ordenada):
+        data.append({
+            'Posición': i + 1,
+            'Equipo': row['equipo'].nombre,
+            'PJ': row['pj'],
+            'PG': row['pg'],
+            'PE': row['pe'],
+            'PP': row['pp'],
+            'GF': row['gf'],
+            'GC': row['gc'],
+            'GD': row['gd'],
+            'Puntos': row['puntos'],
+        })
+
+    df = pd.DataFrame(data)
+    
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Tabla de Posiciones')
+    output.seek(0)
+
+    response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=tabla_posiciones_{campeonato.nombre.replace(" ", "_")}.xlsx'
+    return response

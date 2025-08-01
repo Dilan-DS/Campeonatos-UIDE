@@ -129,7 +129,6 @@ class EliminarTransmisionView(LoginRequiredMixin, EsAdminODelegadoMixin, View):
 class DetalleTransmisionView(LoginRequiredMixin, View):
     def get(self, request, id):
         transmision = get_object_or_404(Transmision, id=id)
-        return render(request, 'transmision/registrar_transmision.html', {
+        return render(request, 'transmision/detalle_transmision.html', {
             'transmision': transmision,
-            'modo': 'detalle',
         })

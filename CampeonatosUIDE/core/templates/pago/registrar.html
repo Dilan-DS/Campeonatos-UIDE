@@ -1,155 +1,86 @@
 {% extends 'comun/base.html' %}
 {% load static %}
-{# Hereda la estructura base y carga recursos estáticos #}
+{% load widget_tweaks %}
 
 {% block title %}
-  {# Define el título de la página según el modo de operación #}
-  {% if modo == 'crear' %} Registrar Pago
-  {% elif modo == 'editar' %} Editar Pago
-  {% elif modo == 'detalle' %} Detalle Pago
-  {% elif modo == 'eliminar' %} Eliminar Pago
-  {% endif %}
+  {% if pago_existente %}Editar Pago{% else %}Registrar Pago{% endif %} - Campeonatos UIDE
 {% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
+    <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
 
-    <h1 class="title is-3 has-text-centered mb-5">
-      <!-- Título principal visible en la interfaz -->
-      {% if modo == 'crear' %}Registrar Pago
-      {% elif modo == 'editar' %}Editar Pago
-      {% elif modo == 'detalle' %}Detalle Pago
-      {% elif modo == 'eliminar' %}Eliminar Pago
-      {% endif %}
-    </h1>
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+        {% if pago_existente %}✏️ Editar Pago de {{ equipo.nombre }}{% else %}💳 Registrar Pago para {{ equipo.nombre }}{% endif %}
+      </h2>
 
-    {% if messages %}
-      <!-- Muestra mensajes enviados desde la vista (éxito, error, info) -->
-      {% for message in messages %}
-        <div class="notification is-{{ message.tags }}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    {% endif %}
-
-    {% if form.errors %}
-      <!-- Muestra errores por campo en un bloque rojo -->
-      <div class="notification is-danger">
-        <strong>Revise los campos marcados en rojo:</strong>
-        <ul>
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-            {% endfor %}
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-
-    {% if modo == 'detalle' or modo == 'eliminar' %}
-      <!-- Vista de solo lectura para Detalle o Eliminar -->
-      <div class="field">
-        <label class="label">Estudiante</label>
-        <input class="input" type="text" value="{{ pago.estudiante }}" disabled>
-      </div>
-      <div class="field">
-        <label class="label">Monto</label>
-        <input class="input" type="number" value="{{ pago.monto }}" disabled>
-      </div>
-      <div class="field">
-        <label class="label">Descripción</label>
-        <textarea class="textarea" disabled>{{ pago.descripcion }}</textarea>
-      </div>
-    {% endif %}
-
-    {% if modo == 'eliminar' %}
-      <!-- Formulario con confirmación de eliminación -->
-      <form method="POST" onsubmit="return confirm('¿Estás seguro que deseas eliminar este pago?');">
-        {% csrf_token %}
-        <div class="field is-grouped is-grouped-centered mt-5">
-          <button class="button is-danger" type="submit">Eliminar Pago</button>
-          <a href="{% url 'listar_pagos' %}" class="button is-light">Cancelar</a>
-        </div>
-      </form>
-    {% elif modo == 'detalle' %}
-      <!-- Botón de regreso en modo Detalle -->
-      <div class="field is-grouped is-grouped-centered mt-5">
-        <a href="{% url 'listar_pagos' %}" class="button is-info">Volver</a>
-      </div>
-    {% else %}
-      <!--Formulario para Crear o Editar-->
-      <form method="POST">
-        {% csrf_token %}
-        {% for field in form %}
-        <div class="field">
-          {{ field.label_tag }}
-          <div class="control">
-            {{ field }}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="notification is-{{ message.tags }}">
+            {{ message }}
           </div>
-          {% if field.errors %}
-            <p class="help is-danger">{{ field.errors }}</p>
-          {% endif %}
+        {% endfor %}
+      {% endif %}
 
-          <!-- Lógica especial para campo 'metodo' (Transferencia vs Efectivo) -->
-          {% if field.name == 'metodo' %}
-            {% if form.data.metodo == 'TRANSFERENCIA' or modo == 'crear' %}
-              <div class="field mt-4">
-                <label class="label">Códigos QR disponibles para transferencia</label>
-                <div class="columns is-multiline">
-                  {% for qr in codigos_qr %}
-                    <div class="column is-half has-text-centered">
-                      <div class="box">
-                        <p><strong>{{ qr.banco }}</strong></p>
-                        <figure class="image is-128x128 is-inline-block" style="cursor: zoom-in;"
-                          onclick="document.getElementById('qr-modal-{{ qr.id }}').classList.add('is-active');">
-                          <img src="{{ qr.imagen_qr.url }}" alt="QR de {{ qr.banco }}">
-                        </figure>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="columns is-multiline">
+          {% for field in form %}
+            {% if field.name != 'equipo' %}
+              <div class="column is-12-mobile is-6-tablet mb-4">
+                <div class="field">
+                  <label class="label has-text-grey-dark">{{ field.label }}</label>
+                  <div class="control">
+                    {% if field|widget_type == 'textarea' %}
+                      {{ field|add_class:"textarea is-rounded is-medium is-light" }}
+                    {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
+                      <div class="select is-rounded is-medium is-fullwidth">
+                        {{ field }}
                       </div>
-                    </div>
-
-                    <!-- Modal ampliado del código QR -->
-                    <div class="modal" id="qr-modal-{{ qr.id }}">
-                      <div class="modal-background"
-                        onclick="document.getElementById('qr-modal-{{ qr.id }}').classList.remove('is-active');"></div>
-                      <div class="modal-content has-text-centered">
-                        <figure class="image is-256x256 is-inline-block">
-                          <img src="{{ qr.imagen_qr.url }}" alt="Código QR Ampliado - {{ qr.banco }}">
-                        </figure>
+                    {% elif field|widget_type == 'clearablefileinput' %}
+                      <div class="file has-name is-fullwidth">
+                        <label class="file-label">
+                          {{ field|add_class:"file-input" }}
+                          <span class="file-cta">
+                            <span class="file-icon"><i class="fas fa-upload"></i></span>
+                            <span class="file-label">Elegir archivo...</span>
+                          </span>
+                          <span class="file-name">{{ field.value.name|default:"Ningún archivo seleccionado" }}</span>
+                        </label>
                       </div>
-                      <button class="modal-close is-large" aria-label="close"
-                        onclick="document.getElementById('qr-modal-{{ qr.id }}').classList.remove('is-active');"></button>
-                    </div>
+                      {% if field.value %}
+                        <p class="help">Archivo actual: <a href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a></p>
+                      {% endif %}
+                    {% else %}
+                      {{ field|add_class:"input is-rounded is-medium is-light" }}
+                    {% endif %}
+                  </div>
+                  {% for error in field.errors %}
+                    <p class="help is-danger">{{ error }}</p>
                   {% endfor %}
                 </div>
               </div>
-            {% elif form.data.metodo == 'EFECTIVO' %}
-              <div class="field mt-4">
-                <label class="label">Información para pago en efectivo</label>
-                <div class="box">
-                  <ul>
-                    <li><strong>Banco Loja:</strong> Cuenta 12345678, a nombre de Universidad X</li>
-                    <li><strong>Banco Pichincha:</strong> Cuenta 98765432, a nombre de Universidad X</li>
-                    <li><em>Presentar comprobante físico al momento del registro</em></li>
-                  </ul>
-                </div>
-              </div>
             {% endif %}
-          {% endif %}
+          {% endfor %}
         </div>
-        {% endfor %}
 
-        <!-- Botones finales según modo -->
-        <div class="field is-grouped is-grouped-centered mt-5">
-          {% if modo == 'crear' %}
-            <button class="button is-primary" type="submit">Registrar Pago</button>
-          {% elif modo == 'editar' %}
-            <button class="button is-warning" type="submit">Guardar Cambios</button>
-          {% endif %}
-          <a href="{% url 'listar_pagos' %}" class="button is-light">Cancelar</a>
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
+              <strong>{% if pago_existente %}Actualizar Pago{% else %}Registrar Pago{% endif %}</strong>
+            </button>
+          </div>
         </div>
       </form>
-    {% endif %}
+
+      <div class="has-text-centered mt-5">
+        <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">
+          ← Volver al Dashboard
+        </a>
+      </div>
+
+    </div>
   </div>
 </section>
 {% endblock %}

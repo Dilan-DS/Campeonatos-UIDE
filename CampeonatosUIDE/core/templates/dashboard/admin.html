@@ -40,6 +40,15 @@
         </div>
       </div>
 
+      <!-- 💰 PAGOS -->
+      <div class="column is-4">
+        <div class="box has-background-success-light has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-success">💰 Pagos</p>
+          <p class="subtitle is-6">Gestionar pagos de equipos</p>
+          <a href="{% url 'listar_pagos_admin' %}" class="button is-success is-rounded mt-4">👁 Ver Pagos</a>
+        </div>
+      </div>
+
       <!-- ⚖️ ÁRBITROS -->
       <div class="column is-4">
         <div class="box has-background-warning-light has-text-centered" style="border-radius: 12px;">
@@ -73,6 +82,8 @@
           <p class="title is-4 has-text-link">📈 Estadísticas</p>
           <p class="subtitle is-6">Resumen general por deporte</p>
           <a href="{% url 'estadisticas_futbol' %}" class="button is-link is-rounded mt-4">👁 Ver Estadísticas</a>
+          <a href="{% url 'exportar_estadisticas_pdf' %}" class="button is-danger"> Exportar PDF</a>
+          <a href="{% url 'exportar_estadisticas_excel' %}" class="button is-success"> Exportar Excel</a>
         </div>
       </div>
 

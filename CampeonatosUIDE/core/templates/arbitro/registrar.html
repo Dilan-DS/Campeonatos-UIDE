@@ -2,110 +2,137 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %}
-  {% if modo == "crear" %}Registrar Árbitro - Campeonatos UIDE
-  {% elif modo == "editar" %}Editar Árbitro - Campeonatos UIDE
-  {% elif modo == "detalle" %}Detalle del Árbitro - Campeonatos UIDE
-  {% elif modo == "eliminar" %}Eliminar Árbitro - Campeonatos UIDE
-  {% endif %}
-{% endblock %}
+{% block title %}Registrar Árbitro - Campeonatos UIDE{% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
     <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
-        {% if modo == "crear" %}🧑‍⚖️ Registrar Árbitro
-        {% elif modo == "editar" %}📝 Editar Árbitro
-        {% elif modo == "detalle" %}🧑‍⚖️ Detalle del Árbitro
-        {% elif modo == "eliminar" %}⚠️ Confirmar eliminación
-        {% endif %}
-      </h2>
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">🧑‍⚖️ Registrar Árbitro</h2>
 
-      {% if modo == "detalle" %}
-        <div class="content is-size-5">
-          <p><strong class="has-text-link">👤 Nombre:</strong> {{ arbitro.nombre }} {{ arbitro.apellido }}</p>
-          <p><strong class="has-text-link">📜 Experiencia:</strong> {{ arbitro.experiencia }}</p>
-          <p><strong class="has-text-link">📞 Contacto:</strong> {{ arbitro.contacto }}</p>
-          <p><strong class="has-text-link">📶 Estado:</strong>
-            {% if arbitro.estado %}
-              <span class="tag is-success is-light is-medium">Activo</span>
-            {% else %}
-              <span class="tag is-danger is-light is-medium">Inactivo</span>
-            {% endif %}
-          </p>
-          <p><strong class="has-text-link">🏅 Deportes:</strong>
-            {% for d in arbitro.deportes.all %}
-              <span class="tag is-info is-light is-rounded mb-1">{{ d.nombre }}</span>
-            {% empty %}
-              <span class="tag is-light">Sin deportes asignados</span>
-            {% endfor %}
-          </p>
-        </div>
-        <div class="has-text-centered mt-5">
-          <a href="{% url 'listar_arbitros' %}" class="button is-warning is-light is-rounded">
-            ← Volver al listado
-          </a>
-        </div>
-
-      {% elif modo == "eliminar" %}
-        <div class="content is-size-5 has-text-centered">
-          <p>¿Quieres eliminar al árbitro <strong>{{ arbitro.nombre }} {{ arbitro.apellido }}</strong>?</p>
-        </div>
-
-        <form method="POST">
-          {% csrf_token %}
-          <div class="buttons is-centered mt-5">
-            <button type="submit" class="button is-danger is-rounded is-medium mr-3">
-              Eliminar
-            </button>
-            <a href="{% url 'listar_arbitros' %}" class="button is-light is-rounded is-medium">
-              Cancelar
-            </a>
-          </div>
-        </form>
-
-      {% else %}
-        <form method="POST">
-          {% csrf_token %}
-          <div class="columns is-multiline">
-            {% for field in form %}
-              <div class="column is-12-mobile is-6-tablet">
-                <div class="field">
-                  <label class="label has-text-grey-dark">{{ field.label }}</label>
-                  <div class="control">
-                    {% if field|widget_type == 'textarea' %}
-                      {{ field|add_class:"textarea is-rounded is-medium is-light" }}
-                    {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
-                      {{ field|add_class:"is-rounded is-medium is-light" }}
-                    {% else %}
-                      {{ field|add_class:"input is-rounded is-medium is-light" }}
-                    {% endif %}
-                  </div>
-                  {% for error in field.errors %}
-                    <p class="help is-danger">{{ error }}</p>
-                  {% endfor %}
-                </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="columns is-multiline">
+          <div class="column is-12-mobile is-6-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.username.label }}</label>
+              <div class="control">
+                {{ form.username|add_class:"input is-rounded is-medium is-light" }}
               </div>
-            {% endfor %}
-          </div>
-
-          <div class="field mt-5">
-            <div class="control">
-              <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
-                <strong>{% if modo == "crear" %}Guardar Árbitro{% else %}Actualizar{% endif %}</strong>
-              </button>
+              {% for error in form.username.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
             </div>
           </div>
-        </form>
-
-        <div class="has-text-centered mt-5">
-          <a href="{% url 'listar_arbitros' %}" class="button is-light is-rounded">
-            ← Volver al listado
-          </a>
+          <div class="column is-12-mobile is-6-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.first_name.label }}</label>
+              <div class="control">
+                {{ form.first_name|add_class:"input is-rounded is-medium is-light" }}
+              </div>
+              {% for error in form.first_name.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-6-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.last_name.label }}</label>
+              <div class="control">
+                {{ form.last_name|add_class:"input is-rounded is-medium is-light" }}
+              </div>
+              {% for error in form.last_name.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-6-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.email.label }}</label>
+              <div class="control">
+                {{ form.email|add_class:"input is-rounded is-medium is-light" }}
+              </div>
+              {% for error in form.email.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-6-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.password.label }}</label>
+              <div class="control">
+                {{ form.password|add_class:"input is-rounded is-medium is-light" }}
+              </div>
+              {% for error in form.password.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-6-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.contacto.label }}</label>
+              <div class="control">
+                {{ form.contacto|add_class:"input is-rounded is-medium is-light" }}
+              </div>
+              {% for error in form.contacto.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-12-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.experiencia.label }}</label>
+              <div class="control">
+                {{ form.experiencia|add_class:"textarea is-rounded is-medium is-light" }}
+              </div>
+              {% for error in form.experiencia.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-12-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.deportes.label }}</label>
+              <div class="control">
+                <div class="select is-rounded is-medium is-fullwidth is-multiple">
+                  {{ form.deportes }}
+                </div>
+              </div>
+              {% for error in form.deportes.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="column is-12-mobile is-12-tablet mb-4">
+            <div class="field">
+              <label class="label has-text-grey-dark">{{ form.estado.label }}</label>
+              <div class="control">
+                <div class="select is-rounded is-medium is-fullwidth">
+                  {{ form.estado }}
+                </div>
+              </div>
+              {% for error in form.estado.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
         </div>
-      {% endif %}
+
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
+              <strong>Guardar Árbitro</strong>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="has-text-centered mt-5">
+        <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">
+          ← Volver al Dashboard
+        </a>
+      </div>
 
     </div>
   </div>

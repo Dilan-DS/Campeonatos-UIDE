@@ -27,6 +27,7 @@
           <!-- ADMIN -->
           <a class="navbar-item has-text-white" href="{% url 'admin_dashboard' %}">Panel Admin</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_usuarios' %}">Usuarios</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_delegados' %}">Delegados</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Equipos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_arbitros' %}">Árbitros</a>
@@ -38,6 +39,7 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_imagenes_galeria' %}">Galería</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_noticias' %}">Noticias</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_testimonios' %}">Testimonios</a>
+          <a class="navbar-item has-text-white" href="{% url 'listar_pagos_admin' %}">Pagos</a>
 
 
         {% elif request.user.rol == "DELEGADO" %}
@@ -47,7 +49,7 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Mis Equipos</a>
           <a class="navbar-item has-text-white" href="{% url 'listar_partidos' %}">Partidos</a>
           <a class="navbar-item has-text-white" href="{% url 'ver_calendario_completo' %}">📅 Calendario</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_pagos' %}">Pagos</a>
+          <a class="navbar-item has-text-white" href="{% url 'registrar_pago_delegado' %}">Pagos</a>
           {% elif request.user.rol == "JUGADOR" %}
   <!-- JUGADOR -->
   {% with request.user.jugador as jugador %}

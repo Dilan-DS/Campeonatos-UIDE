@@ -9,13 +9,13 @@
   <div class="container">
     <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">👥 Registrar Delegado</h2>
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">👤 Registrar Delegado</h2>
 
       <form method="POST">
         {% csrf_token %}
         <div class="columns is-multiline">
           {% for field in form %}
-            <div class="column is-12-mobile is-6-tablet">
+            <div class="column is-12-mobile is-6-tablet mb-4">
               <div class="field">
                 <label class="label has-text-grey-dark">{{ field.label }}</label>
                 <div class="control">

@@ -25,7 +25,7 @@ class Usuario(AbstractUser):
     ROLES = [
         ('ADMIN', 'Administrador'),
         ('DELEGADO', 'Delegado de Carrera'),
-        ('JUGADOR', 'Jugador'),
+        ('ARBITRO', 'Árbitro'),
     ]
     cedula = models.CharField(max_length=10, unique=True, null=True, blank=True)
     # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
@@ -66,6 +66,17 @@ class Deporte(models.Model):
     # Representación en texto del deporte
     def __str__(self):
         return self.nombre
+
+# Modelo árbitro
+class Arbitro(models.Model):
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, limit_choices_to={'rol': 'ARBITRO'})
+    experiencia = models.TextField()
+    deportes = models.ManyToManyField(Deporte, related_name='arbitros')
+    contacto = models.CharField(max_length=100)
+    estado = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} ({self.usuario.get_rol_display()})"
 
 # Modelo para guardar códigos QR de bancos o métodos de transferencia que sube el admin
 class CodigoQR(models.Model):
@@ -300,7 +311,6 @@ class Equipo(models.Model):
             puntos = 0
             # Sumar puntos por cada estadística
             for stat in stats:
-            # Sumar puntos por cada estadística
                 puntos += stat.partidas_ganadas * 1
                 # Sumar puntos por partidas empatadas
                 puntos += stat.partidas_empatadas * 0.5
@@ -349,7 +359,6 @@ class Equipo(models.Model):
         return 0  
 
 
-
 # Modelo jugador
 class Jugador(models.Model):
     # Equipo al que pertenece el jugador (FK)
@@ -387,40 +396,8 @@ class Jugador(models.Model):
 
         # Validar si al agregar/mover este jugador se excede el límite
         if cantidad_actual >= campeonato.max_jugadores_por_equipo:
-            raise ValidationError(f"Este equipo ya tiene el máximo permitido de {campeonato.max_jugadores_por_equipo} jugadores.")
+            raise ValidationError(f"El equipo ya tiene el máximo de jugadores permitidos ({campeonato.max_jugadores_por_equipo}) para este campeonato.")
 
-
-    # Representación en texto del jugador
-    def __str__(self):
-        return f"{self.usuario.username} ({self.equipo.nombre})"
-
-    #   Verificar si el jugador está suspendido
-    def esta_suspendido(self):
-         # Verifica si el jugador tiene suspensiones activas
-        return self.suspensiones.filter(
-            # La suspensión debe estar activa
-            fecha_inicio__lte=timezone.now().date(),
-            # La fecha de fin debe ser mayor o igual a hoy
-            fecha_fin__gte=timezone.now().date()
-       ).exists()
-
-# Modelo árbitro
-class Arbitro(models.Model):
-    # Nombre y apellido
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    # Experiencia en texto
-    experiencia = models.TextField()
-    # Deportes que arbitra (ManyToMany)
-    deportes = models.ManyToManyField(Deporte, related_name='arbitros')
-    # Información de contacto
-    contacto = models.CharField(max_length=100)
-    # Estado activo/inactivo
-    estado = models.BooleanField(default=True)
-
-    # Representación en texto del árbitro
-    def __str__(self):
-        return f"{self.nombre} {self.apellido}"
 
 # Modelo partido
 class Partido(models.Model):
@@ -780,7 +757,7 @@ class EstadisticaJugadorVideojuegos(models.Model):
         return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
 
 class EstadisticaJugadorFutbolin(models.Model):
-      # Relación con el campeonato
+    # Relación con el campeonato
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
     # Relación con el jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
@@ -797,8 +774,6 @@ class EstadisticaJugadorFutbolin(models.Model):
 
     def __str__(self):
         return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-
 
 class ImagenGaleria(models.Model):
     titulo = models.CharField(max_length=100)

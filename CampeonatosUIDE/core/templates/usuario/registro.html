@@ -26,7 +26,17 @@
 
                 <!-- Control que contiene el campo, con ancho fijo -->
                 <div class="control" style="width: 80%;">
-                  {{ field }}
+                  {% if field.name == 'rol' %}
+                    <div class="control">
+                      {% for radio in field %}
+                        <label class="radio">
+                          {{ radio.tag }} {{ radio.choice_label }}
+                        </label>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    {{ field }}
+                  {% endif %}
                 </div>
 
                 <!-- Texto de ayuda opcional para el campo -->
