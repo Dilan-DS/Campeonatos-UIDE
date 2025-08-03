@@ -1,0 +1,14 @@
+{% extends 'comun/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="box">
+            <h1 class="title">¡Pago Registrado Exitosamente!</h1>
+            <p>Tu pago ha sido registrado y se encuentra en estado <strong>pendiente</strong>. El administrador lo revisará pronto.</p>
+            <p>Puedes ver el estado de tu pago en esta misma sección.</p>
+            <a href="{% url 'dashboard' %}" class="button is-primary">Volver al Dashboard</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

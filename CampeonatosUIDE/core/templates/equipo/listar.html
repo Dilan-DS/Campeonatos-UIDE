@@ -1,0 +1,9 @@
+{% extends 'comun/base.html' %}
+{% block content %}
+<h1>Equipos</h1>
+<ul>
+    {% for equipo in equipos %}
+    <li>{{ equipo.nombre }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

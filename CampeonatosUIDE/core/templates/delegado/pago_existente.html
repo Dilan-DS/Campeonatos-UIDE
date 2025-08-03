@@ -1,0 +1,33 @@
+{% extends 'comun/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="box">
+            <h1 class="title">Estado de tu Pago</h1>
+            {% if pago %}
+                <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
+                <p><strong>Monto:</strong> ${{ pago.monto }}</p>
+                <p><strong>Método de Pago:</strong> {{ pago.get_metodo_display }}</p>
+                <p><strong>Fecha de Pago:</strong> {{ pago.fecha_pago|date:"d/m/Y H:i" }}</p>
+                {% if pago.metodo == 'TRANSFERENCIA' %}
+                    <p><strong>Banco:</strong> {{ pago.codigo_qr.banco }}</p>
+                    <p><strong>Nombre del Titular:</strong> {{ pago.nombre_titular }}</p>
+                    {% if pago.comprobante_pago %}
+                        <p><strong>Comprobante:</strong> <a href="{{ pago.comprobante_pago.url }}" target="_blank">Ver Comprobante</a></p>
+                    {% endif %}
+                {% endif %}
+                <p class="is-size-4"><strong>Estado:</strong> <span class="tag is-large {% if pago.estado == 'PENDIENTE' %}is-warning{% elif pago.estado == 'APROBADO' %}is-success{% else %}is-danger{% endif %}">{{ pago.get_estado_display }}</span></p>
+                {% if pago.observacion_admin %}
+                    <p><strong>Observaciones del Administrador:</strong> {{ pago.observacion_admin }}</p>
+                {% endif %}
+            {% else %}
+                <div class="notification is-info">
+                    No se ha encontrado ningún pago registrado para tu equipo.
+                </div>
+            {% endif %}
+            <a href="{% url 'delegado_dashboard' %}" class="button is-primary mt-4">Volver al Dashboard</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
