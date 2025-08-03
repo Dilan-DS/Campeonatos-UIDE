@@ -1,0 +1,68 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container is-fluid mt-5">
+    <h1 class="title has-text-centered">Mis Partidos (Delegado)</h1>
+
+    {% if messages %}
+        <div class="notification is-light is-info">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if equipo_delegado %}
+        <div class="box">
+            <h2 class="subtitle">Equipo: {{ equipo_delegado.nombre }}</h2>
+            <p><strong>Campeonato:</strong> {{ equipo_delegado.campeonato.nombre }}</p>
+            <p><strong>Carrera:</strong> {{ equipo_delegado.carrera.nombre }}</p>
+        </div>
+
+        <div class="box mt-5">
+            <h2 class="subtitle">Partidos de mi Equipo</h2>
+            {% if partidos_delegado %}
+                <div class="table-container">
+                    <table class="table is-striped is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>Campeonato</th>
+                                <th>Equipo Local</th>
+                                <th>Equipo Visitante</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Cancha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for partido in partidos_delegado %}
+                                <tr>
+                                    <td>{{ partido.campeonato.nombre }}</td>
+                                    <td>{{ partido.equipo_local.nombre }}</td>
+                                    <td>{{ partido.equipo_visitante.nombre }}</td>
+                                    <td>{{ partido.fecha }}</td>
+                                    <td>{{ partido.hora }}</td>
+                                    <td>{{ partido.lugar }}</td>
+                                    <td>{{ partido.get_estado_display }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Tu equipo no tiene partidos programados.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="notification is-warning">
+            <p>No tienes un equipo asociado como delegado. Por favor, registra un equipo para ver tus partidos.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

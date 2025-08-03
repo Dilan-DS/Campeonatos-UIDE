@@ -1,0 +1,30 @@
+{% extends 'comun/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Rechazar Pago</h1>
+        <div class="box">
+            <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
+            <p><strong>Monto:</strong> ${{ pago.monto }}</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label">Observación (Motivo del rechazo)</label>
+                    <div class="control">
+                        <textarea class="textarea" name="observacion" placeholder="Ej: Comprobante ilegible"></textarea>
+                    </div>
+                </div>
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-danger">Confirmar Rechazo</button>
+                    </div>
+                    <div class="control">
+                        <a href="{% url 'listar_pagos_admin' %}" class="button is-light">Cancelar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Registrar Pago de Inscripción</h1>
+        <div class="box">
+            <p><strong>Equipo:</strong> {{ equipo.nombre }}</p>
+            <p><strong>Campeonato:</strong> {{ equipo.campeonato.nombre }}</p>
+            <hr>
+            <form method="post" enctype="multipart/form-data" id="pago-form">
+                {% csrf_token %}
+                
+                <div class="field">
+                    <label class="label">{{ form.metodo.label }}</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            {{ form.metodo }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">{{ form.monto.label }}</p>
+                    <div class="control">
+                        {{ form.monto }}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">{{ form.fecha_pago.label }}</p>
+                    <div class="control">
+                        {{ form.fecha_pago }}
+                    </div>
+                </div>
+
+                <div id="transferencia-fields" style="display: none;">
+                    <div class="field">
+                        <label class="label">{{ form.codigo_qr.label }}</label>
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                {{ form.codigo_qr }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field" id="qr-code-container" style="display: none;">
+                        <label class="label">Código QR para el Pago</label>
+                        <div class="box">
+                            <img id="qr-code-image" src="" alt="Código QR para pago" style="max-width: 200px;">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">{{ form.nombre_titular.label }}</label>
+                        <div class="control">
+                            {{ form.nombre_titular }}
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">{{ form.comprobante_pago.label }}</label>
+                        <div class="control">
+                            <div class="file has-name is-fullwidth">
+                                <label class="file-label">
+                                    {{ form.comprobante_pago }}
+                                    <span class="file-cta">
+                                        <span class="file-icon"><i class="fas fa-upload"></i></span>
+                                        <span class="file-label">Elegir archivo…</span>
+                                    </span>
+                                    <span class="file-name">No se ha seleccionado un archivo</span>
+                                </label>
+                            </div>
+                            {% if form.comprobante_pago.errors %}
+                                <p class="help is-danger">{{ form.comprobante_pago.errors.as_text }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">Enviar Pago</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const metodoPagoSelect = document.querySelector('#id_metodo');
+    const transferenciaFields = document.getElementById('transferencia-fields');
+    const bancoSelect = document.getElementById('id_codigo_qr');
+    const qrCodeContainer = document.getElementById('qr-code-container');
+    const qrCodeImage = document.getElementById('qr-code-image');
+    const qrData = JSON.parse('{{ qr_data|safe|escapejs }}');
+
+    function toggleTransferenciaFields() {
+        if (metodoPagoSelect.value === 'TRANSFERENCIA') {
+            transferenciaFields.style.display = 'block';
+        } else {
+            transferenciaFields.style.display = 'none';
+            qrCodeContainer.style.display = 'none';
+        }
+    }
+
+    function updateQrCode() {
+        const selectedBancoId = bancoSelect.value;
+        if (selectedBancoId && qrData[selectedBancoId]) {
+            qrCodeImage.src = qrData[selectedBancoId];
+            qrCodeContainer.style.display = 'block';
+        } else {
+            qrCodeContainer.style.display = 'none';
+        }
+    }
+
+    metodoPagoSelect.addEventListener('change', toggleTransferenciaFields);
+    bancoSelect.addEventListener('change', updateQrCode);
+
+    const fileInput = document.querySelector('.file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', () => {
+            const fileName = document.querySelector('.file-name');
+            if (fileInput.files.length > 0) {
+                fileName.textContent = fileInput.files[0].name;
+            } else {
+                fileName.textContent = 'No se ha seleccionado un archivo';
+            }
+        });
+    }
+
+    // Initial checks
+    toggleTransferenciaFields();
+    updateQrCode();
+});
+</script>
+{% endblock %}

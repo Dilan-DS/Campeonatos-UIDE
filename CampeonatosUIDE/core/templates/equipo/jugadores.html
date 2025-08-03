@@ -1,0 +1,9 @@
+{% extends 'comun/base.html' %}
+{% block content %}
+<h1>Jugadores del Equipo</h1>
+<ul>
+    {% for jugador in equipo.jugadores.all %}
+    <li>{{ jugador.usuario.username }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
