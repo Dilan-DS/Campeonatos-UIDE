@@ -302,17 +302,27 @@ class PagoDelegadoForm(forms.ModelForm):
 # FORMULARIO: CAMPEONATO
 # =============================
 class CampeonatoForm(forms.ModelForm):
-    reglamento = forms.FileField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'file-input'})
-    )
-
-
-    
     class Meta:
         model = Campeonato
-        fields = '__all__'
+        fields = [
+            'nombre', 
+            'deporte', 
+            'tipo_campeonato', 
+            'descripcion', 
+            'fecha_inicio', 
+            'fecha_fin', 
+            'dias_partido', 
+            'max_jugadores_por_equipo', 
+            'reglamento', 
+            'precio_inscripcion', 
+            'codigo_qr', 
+            'delegado', 
+            'estado', 
+            'es_publico', 
+            'activo'
+        ]
         widgets = {
+            'reglamento': forms.ClearableFileInput(attrs={'class': 'file-input'}),
             'nombre': forms.TextInput(attrs={
                 'placeholder': 'Nombre único del campeonato',
                 'class': 'input'
