@@ -1,9 +1,0 @@
-{% extends 'comun/base.html' %}
-{% block content %}
-<h1>Eliminar Árbitro</h1>
-<p>¿Estás seguro de que quieres eliminar a {{ arbitro.usuario.username }}?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Eliminar</button>
-</form>
-{% endblock %}

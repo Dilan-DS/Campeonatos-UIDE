@@ -146,3 +146,14 @@ class HistorialArbitrosView(View):
                 'partidos': partidos_arbitrados
             })
         return render(request, 'arbitro/historial_arbitros.html', {'arbitros_con_partidos': arbitros_con_partidos})
+
+
+@login_required
+def mis_partidos_arbitro(request):
+    try:
+        arbitro = request.user.arbitro
+        partidos = Partido.objects.filter(arbitro=arbitro).order_by('fecha', 'hora')
+        return render(request, 'arbitro/mis_partidos.html', {'partidos': partidos})
+    except Arbitro.DoesNotExist:
+        messages.error(request, "No estás registrado como árbitro.")
+        return redirect('vista_inicio')
