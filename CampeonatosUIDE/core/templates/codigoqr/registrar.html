@@ -20,6 +20,10 @@
       {% endif %}
     </h1>
 
+    {% if modo == 'eliminar' %}
+      <p class="subtitle is-5 has-text-centered">¿Estás seguro de que deseas eliminar el código QR del banco <strong>{{ codigo.banco }}</strong>?</p>
+    {% endif %}
+
     {% if messages %}
       <div>
         {% for message in messages %}
@@ -123,6 +127,13 @@
           <button type="submit" class="button is-warning is-medium">Guardar Cambios</button>
         {% elif modo == 'eliminar' %}
           <button type="submit" class="button is-danger is-medium">Eliminar</button>
+        {% elif modo == 'detalle' %}
+          <div class="control">
+            <a href="{% url 'editar_codigo_qr' codigo.pk %}" class="button is-warning">Editar</a>
+          </div>
+          <div class="control">
+            <a href="{% url 'eliminar_codigo_qr' codigo.pk %}" class="button is-danger">Eliminar</a>
+          </div>
         {% endif %}
         <a href="{% url 'listar_codigos_qr' %}" class="button is-light is-medium">Cancelar</a>
       </div>

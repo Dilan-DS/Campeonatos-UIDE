@@ -59,7 +59,6 @@
                 </td>
                 <td>{{ codigo.descripcion|default:"Sin descripción" }}</td>
                 <td class="has-text-centered">
-                  <a href="{% url 'detalle_codigo_qr' codigo.pk %}" class="button is-small is-info">Ver</a>
                   <a href="{% url 'editar_codigo_qr' codigo.pk %}" class="button is-small is-warning">Editar</a>
                   <a href="{% url 'eliminar_codigo_qr' codigo.pk %}" class="button is-small is-danger">Eliminar</a>
                 </td>
