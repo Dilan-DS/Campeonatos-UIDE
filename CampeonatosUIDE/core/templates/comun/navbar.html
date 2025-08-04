@@ -1,71 +1,93 @@
 {% load static %}
-<!-- Carga archivos estáticos como imágenes o estilos -->
-
 <nav class="navbar has-background-danger" role="navigation" aria-label="main navigation">
-  <!-- Barra de navegación con fondo rojo -->
-
   <div class="navbar-brand">
-    <!-- Logo a la izquierda -->
-    <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">
-      🏆 Campeonatos UIDE
-    </a>
-
-    <!-- Botón hamburguesa -->
+    <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">🏆 Campeonatos UIDE</a>
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
     </a>
   </div>
 
   <div id="menuPrincipal" class="navbar-menu">
     <div class="navbar-start">
-      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">Campeonatos</a>
+      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">Inicio</a>
 
       {% if request.user.is_authenticated %}
         {% if request.user.rol == "ADMIN" %}
           <!-- ADMIN -->
-          <a class="navbar-item has-text-white" href="{% url 'admin_dashboard' %}">Panel Admin</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_usuarios' %}">Usuarios</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_delegados' %}">Delegados</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Equipos</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_arbitros' %}">Árbitros</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_deportes' %}">Deportes</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_tipos_campeonato' %}">Tipos de Campeonato</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_imagenes_galeria' %}">Galería</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_noticias' %}">Noticias</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_testimonios' %}">Testimonios</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_pagos_admin' %}">Pagos</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">⚙️ Gestión</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'admin_dashboard' %}">Panel Admin</a>
+              <a class="navbar-item" href="{% url 'listar_usuarios' %}">Usuarios</a>
+              <a class="navbar-item" href="{% url 'listar_delegados' %}">Delegados</a>
+              <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
+            </div>
+          </div>
 
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">🏆 Campeonatos</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
+              <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
+              <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
+              <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
+            </div>
+          </div>
+
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">📌 Información</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'listar_deportes' %}">Deportes</a>
+              <a class="navbar-item" href="{% url 'listar_tipos_campeonato' %}">Tipos de Campeonato</a>
+              <a class="navbar-item" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
+            </div>
+          </div>
+
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">🖼️ Multimedia</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'listar_imagenes_galeria' %}">Galería</a>
+              <a class="navbar-item" href="{% url 'listar_noticias' %}">Noticias</a>
+              <a class="navbar-item" href="{% url 'listar_testimonios' %}">Testimonios</a>
+            </div>
+          </div>
+
+          <a class="navbar-item has-text-white" href="{% url 'listar_pagos_admin' %}">💰 Pagos</a>
 
         {% elif request.user.rol == "DELEGADO" %}
           <!-- DELEGADO -->
-          <a class="navbar-item has-text-white" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
-          <a class="navbar-item has-text-white" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_equipos' %}">Mis Equipos</a>
-          <a class="navbar-item has-text-white" href="{% url 'listar_partidos' %}">Partidos</a>
-          <a class="navbar-item has-text-white" href="{% url 'ver_calendario_completo' %}">📅 Calendario</a>
-          <a class="navbar-item has-text-white" href="{% url 'registrar_pago_delegado' %}">Pagos</a>
-          {% elif request.user.rol == "JUGADOR" %}
-  <!-- JUGADOR -->
-  {% with request.user.jugador as jugador %}
-    {% if jugador %}
-      <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-      <a class="navbar-item has-text-white" href="{% url 'ver_mis_partidos' %}">Mis Partidos</a>
-      <a class="navbar-item has-text-white" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
-      <a class="navbar-item has-text-white" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Mi Tabla</a>
-    {% else %}
-      <!-- Opcional: mostrar algo si no tiene jugador asignado -->
-      <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-    {% endif %}
-  {% endwith %}
-{% endif %}
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">🎯 Delegado</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
+              <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
+              <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
+              <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
+              {% if request.user.equipo and request.user.equipo.campeonato %}
+                <a class="navbar-item" href="{% url 'ver_calendario_completo' request.user.equipo.campeonato.id %}">📅 Calendario</a>
+              {% endif %}
+              <a class="navbar-item" href="{% url 'registrar_pago_delegado' %}">💰 Pagos</a>
+            </div>
+          </div>
 
-
+        {% elif request.user.rol == "JUGADOR" %}
+          <!-- JUGADOR -->
+          {% with request.user.jugador as jugador %}
+            {% if jugador %}
+              <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link has-text-white">🎮 Jugador</a>
+                <div class="navbar-dropdown">
+                  <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
+                  <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">Mis Partidos</a>
+                  <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
+                  <a class="navbar-item" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Mi Tabla</a>
+                </div>
+              </div>
+            {% else %}
+              <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
       {% endif %}
     </div>
 
@@ -88,7 +110,7 @@
   </div>
 </nav>
 
-<!-- Script menú móvil -->
+<!-- Script para menú móvil -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const burger = document.querySelector('.navbar-burger');
