@@ -19,7 +19,6 @@
             <div class="navbar-dropdown">
               <a class="navbar-item" href="{% url 'admin_dashboard' %}">Panel Admin</a>
               <a class="navbar-item" href="{% url 'listar_usuarios' %}">Usuarios</a>
-              <a class="navbar-item" href="{% url 'listar_delegados' %}">Delegados</a>
               <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
             </div>
           </div>
@@ -78,9 +77,14 @@
                 <a class="navbar-link has-text-white">🎮 Jugador</a>
                 <div class="navbar-dropdown">
                   <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-                  <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">Mis Partidos</a>
+                  <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">📅 Mis Partidos</a>
                   <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
-                  <a class="navbar-item" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Mi Tabla</a>
+                  {% if jugador.equipo %}
+                    <a class="navbar-item" href="{% url 'ver_equipo_jugador' jugador.equipo.id %}">⚽ Mi Equipo</a>
+                    {% if jugador.equipo.campeonato %}
+                      <a class="navbar-item" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Tabla de Posiciones</a>
+                    {% endif %}
+                  {% endif %}
                 </div>
               </div>
             {% else %}

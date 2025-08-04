@@ -26,6 +26,7 @@ class Usuario(AbstractUser):
         ('ADMIN', 'Administrador'),
         ('DELEGADO', 'Delegado de Carrera'),
         ('ARBITRO', 'Árbitro'),
+        ('JUGADOR', 'Jugador'),
     ]
     cedula = models.CharField(max_length=10, unique=True, null=True, blank=True)
     # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
