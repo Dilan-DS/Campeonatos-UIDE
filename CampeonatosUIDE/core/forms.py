@@ -489,7 +489,7 @@ class ArbitroForm(forms.ModelForm):
         widgets = {
             'usuario': forms.Select(attrs={'class': 'select is-fullwidth'}),
             'experiencia': forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Resumen de experiencia (años, torneos, etc.)'}),
-            'deportes': forms.SelectMultiple(attrs={'class': 'select is-multiple is-fullwidth'}),
+            'deportes': forms.CheckboxSelectMultiple(),
             'contacto': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Número de teléfono o email de contacto'}),
         }
 
@@ -497,7 +497,7 @@ class ArbitroForm(forms.ModelForm):
 class CrearUsuarioArbitroForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     experiencia = forms.CharField(widget=forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Resumen de experiencia (años, torneos, etc.)'}))
-    deportes = forms.ModelMultipleChoiceField(queryset=Deporte.objects.all(), widget=forms.SelectMultiple(attrs={'class': 'select is-multiple is-fullwidth'}))
+    deportes = forms.ModelMultipleChoiceField(queryset=Deporte.objects.all(), widget=forms.CheckboxSelectMultiple)
     contacto = forms.CharField(widget=forms.TextInput(attrs={'class': 'input', 'placeholder': 'Número de teléfono o email de contacto'}))
     estado = forms.ChoiceField(
         choices=[(True, 'Activo'), (False, 'Inactivo')],

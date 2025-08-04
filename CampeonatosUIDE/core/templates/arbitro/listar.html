@@ -33,7 +33,7 @@
             <tbody>
               {% for arbitro in arbitros %}
                 <tr>
-                  <td class="has-text-centered">{{ arbitro.nombre }} {{ arbitro.apellido }}</td>
+                  <td class="has-text-centered">{{ arbitro.usuario.first_name }} {{ arbitro.usuario.last_name }}</td>
                   <td class="has-text-centered">{{ arbitro.experiencia }}</td>
                   <td class="has-text-centered">{{ arbitro.contacto }}</td>
                   <td class="has-text-centered">
