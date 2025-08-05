@@ -10,27 +10,37 @@
       <table class="table is-fullwidth is-striped is-hoverable">
         <thead>
           <tr>
+            <th>Posición</th>
             <th>Equipo</th>
+            <th>PJ</th>
+            <th>PG</th>
+            <th>PE</th>
+            <th>PP</th>
+            <th>GF</th>
+            <th>GC</th>
+            <th>GD</th>
             <th>Puntos</th>
-            <th>Goles a Favor</th>
-            <th>Goles en Contra</th>
-            <th>Diferencia</th>
           </tr>
         </thead>
         <tbody>
-          {% for equipo in equipos %}
-          <tr>
-            <td>{{ equipo.nombre }}</td>
-            <td>{{ equipo.puntos }}</td>
-            <td>{{ equipo.goles_favor }}</td>
-            <td>{{ equipo.goles_contra }}</td>
-            <td>{{ equipo.goles_favor|add:"-"|add:equipo.goles_contra }}</td>
+          {% for row in tabla %}
+          <tr {% if equipo_jugador and row.equipo == equipo_jugador %}class="is-selected has-background-info-light"{% endif %}>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ row.equipo.nombre }}</td>
+            <td>{{ row.pj }}</td>
+            <td>{{ row.pg }}</td>
+            <td>{{ row.pe }}</td>
+            <td>{{ row.pp }}</td>
+            <td>{{ row.gf }}</td>
+            <td>{{ row.gc }}</td>
+            <td>{{ row.gd }}</td>
+            <td>{{ row.puntos }}</td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5">
+            <td colspan="10">
               <div class="notification is-info is-light has-text-centered">
-                No hay equipos registrados.
+                No hay equipos registrados o partidos finalizados para generar la tabla.
               </div>
             </td>
           </tr>

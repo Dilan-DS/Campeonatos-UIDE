@@ -1,4 +1,81 @@
 {% extends 'comun/base.html' %}
+{% block title %}Estadísticas de {{ jugador.usuario.username }}{% endblock %}
+
 {% block content %}
-<h1>Estadísticas del Jugador</h1>
+<section class="section">
+    <div class="container">
+        <h1 class="title has-text-danger">Estadísticas de {{ jugador.usuario.username }}</h1>
+        <p class="subtitle">Equipo: {{ jugador.equipo.nombre }} | Campeonato: {{ jugador.equipo.campeonato.nombre }}</p>
+
+        <div class="box">
+            <h2 class="title is-5">Estadísticas de {{ deporte_nombre }}</h2>
+            {% if estadisticas %}
+                <table class="table is-striped is-hoverable is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Partidos Jugados</th>
+                            {% if deporte_nombre == 'FUTBOL' %}
+                                <th>Goles</th>
+                                <th>Tarjetas Amarillas</th>
+                                <th>Tarjetas Rojas</th>
+                            {% elif deporte_nombre == 'BASQUET' %}
+                                <th>Canastas</th>
+                                <th>Rebotes</th>
+                                <th>Asistencias</th>
+                            {% elif deporte_nombre == 'AJEDREZ' %}
+                                <th>Partidas Ganadas</th>
+                                <th>Partidas Empatadas</th>
+                                <th>Partidas Perdidas</th>
+                            {% elif deporte_nombre == 'ECUABOLY' or deporte_nombre == 'TENIS' %}
+                                <th>Sets Ganados</th>
+                                <th>Sets Perdidos</th>
+                            {% elif deporte_nombre == 'PING PONG' or deporte_nombre == 'FUTBOLIN' or deporte_nombre == 'VIDEOJUEGOS' %}
+                                <th>Partidos Ganados</th>
+                                <th>Partidos Perdidos</th>
+                                {% if deporte_nombre == 'FUTBOLIN' %}
+                                    <th>Goles</th>
+                                {% endif %}
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ estadisticas.partidos_jugados }}</td>
+                            {% if deporte_nombre == 'FUTBOL' %}
+                                <td>{{ estadisticas.goles }}</td>
+                                <td>{{ estadisticas.tarjetas_amarillas }}</td>
+                                <td>{{ estadisticas.tarjetas_rojas }}</td>
+                            {% elif deporte_nombre == 'BASQUET' %}
+                                <td>{{ estadisticas.canastas }}</td>
+                                <td>{{ estadisticas.rebotes }}</td>
+                                <td>{{ estadisticas.asistencias }}</td>
+                            {% elif deporte_nombre == 'AJEDREZ' %}
+                                <td>{{ estadisticas.partidas_ganadas }}</td>
+                                <td>{{ estadisticas.partidas_empatadas }}</td>
+                                <td>{{ estadisticas.partidas_perdidas }}</td>
+                            {% elif deporte_nombre == 'ECUABOLY' or deporte_nombre == 'TENIS' %}
+                                <td>{{ estadisticas.sets_ganados }}</td>
+                                <td>{{ estadisticas.sets_perdidos }}</td>
+                            {% elif deporte_nombre == 'PING PONG' or deporte_nombre == 'FUTBOLIN' or deporte_nombre == 'VIDEOJUEGOS' %}
+                                <td>{{ estadisticas.partidos_ganados }}</td>
+                                <td>{{ estadisticas.partidos_perdidos }}</td>
+                                {% if deporte_nombre == 'FUTBOLIN' %}
+                                    <td>{{ estadisticas.goles }}</td>
+                                {% endif %}
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No hay estadísticas disponibles para este jugador en este campeonato.</p>
+            {% endif %}
+        </div>
+
+        <div class="has-text-centered mt-5">
+            <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded">
+                ← Volver al Dashboard
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}

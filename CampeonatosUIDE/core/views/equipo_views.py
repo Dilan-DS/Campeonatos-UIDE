@@ -22,14 +22,35 @@ def registrar_equipo(request):
     if request.method == 'POST':
         form = EquipoForm(request.POST, request.FILES)
         if form.is_valid():
-            equipo = form.save()
+            # Obtener el campeonato del formulario
+            campeonato_seleccionado = form.cleaned_data.get('campeonato')
+
+            # Verificar el estado del campeonato antes de guardar el equipo
+            if campeonato_seleccionado and campeonato_seleccionado.estado != 'INSCRIPCION':
+                messages.error(request, f"El campeonato '{campeonato_seleccionado.nombre}' no está en estado de inscripción.")
+                return render(request, 'equipo/registrar_equipo.html', {
+                    'form': form,
+                    'campeonato': campeonato_seleccionado # Pass the selected championship back to the template
+                })
+
+            equipo = form.save(commit=False)
+            # Asignar el delegado actual al equipo
+            equipo.delegado = request.user
+            equipo.save()
             messages.success(request, 'Equipo registrado correctamente.')
-            
-            # Redirección robusta usando el nombre de la URL
-            redirect_url = reverse('listar_equipos') + f'?campeonato_id={equipo.campeonato.id}'
-            if request.user.rol == 'ADMIN':
+
+            # Redirección para el delegado después de registrar el equipo
+            if request.user.rol == 'DELEGADO':
+                # Redirigir al delegado a la página de registro de pago para su equipo
+                return redirect('registrar_pago_delegado')
+            elif request.user.rol == 'ADMIN':
+                # Redirección para el admin (si aplica, mantener la lógica existente o ajustar)
+                # Assuming 'registrar_pago_para_equipo_admin' is the correct URL name for admin to register payment for an team
                 return redirect('registrar_pago_para_equipo_admin', equipo_id=equipo.id)
-            return redirect(redirect_url)
+            else:
+                # Redirección por defecto si no es admin ni delegado (aunque el test_func lo impide)
+                redirect_url = reverse('listar_equipos') + f'?campeonato_id={equipo.campeonato.id}'
+                return redirect(redirect_url)
     else:
         initial_data = {}
         if campeonato:
@@ -100,6 +121,12 @@ def pago_equipo(request, id):
 @user_passes_test(es_admin_o_delegado)
 def jugadores_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
+
+    # Verificar si el equipo está aprobado para registrar jugadores
+    if not equipo.aprobado:
+        messages.error(request, "El equipo no está aprobado. No puedes registrar jugadores hasta que el pago sea aprobado.")
+        return redirect('detalle_equipo', id=equipo.id) # Redirigir al detalle del equipo o a donde sea apropiado
+
     jugadores = equipo.jugador_set.all()
     return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores': jugadores})
 
