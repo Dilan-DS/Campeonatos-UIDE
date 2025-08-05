@@ -14,8 +14,51 @@ from core.forms import EquipoForm, PagoForm
 @login_required
 def ver_equipo_jugador(request, equipo_id):
     equipo = get_object_or_404(Equipo, id=equipo_id)
-    jugadores = Jugador.objects.filter(equipo=equipo)
-    return render(request, 'equipo/mi_equipo.html', {'equipo': equipo, 'jugadores': jugadores})
+    
+    # Si el usuario es un jugador, obtenemos su equipo
+    if request.user.rol == 'JUGADOR':
+        try:
+            jugador = Jugador.objects.get(usuario=request.user)
+            equipo = jugador.equipo
+        except Jugador.DoesNotExist:
+            messages.error(request, "No estás registrado en ningún equipo.")
+            return redirect('jugador_dashboard')
+
+    jugadores_data = []
+    campeonato = equipo.campeonato
+    for jugador_item in equipo.jugadores.all():
+        player_stats = None
+        deporte_nombre = campeonato.deporte.nombre.upper()
+
+        if deporte_nombre == 'FUTBOL':
+            player_stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'BASQUET':
+            player_stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'AJEDREZ':
+            player_stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'ECUABOLY':
+            player_stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'PING PONG':
+            player_stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'TENIS':
+            player_stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'VIDEOJUEGOS':
+            player_stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+        elif deporte_nombre == 'FUTBOLIN':
+            player_stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
+
+        jugadores_data.append({
+            'jugador': jugador_item,
+            'stats': player_stats,
+            'deporte_nombre': deporte_nombre,
+            'posicion': jugador_item.posicion,
+        })
+
+    return render(request, 'equipo/jugadores_equipo.html', {
+        'equipo': equipo, 
+        'jugadores_data': jugadores_data,
+        'is_jugador_view': True,
+    })
 
 # ========================
 # EQUIPOS
