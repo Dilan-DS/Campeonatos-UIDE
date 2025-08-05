@@ -62,8 +62,14 @@
                 <td class="has-text-centered">
                   <div class="buttons is-centered">
                     <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
-                    <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
-                    <a href="{% url 'eliminar_equipo' equipo.id %}" class="button is-small is-danger is-light is-rounded" onclick="return confirm('¿Estás seguro de eliminar este equipo?');">Eliminar</a>
+                    {% if request.user.rol == "DELEGADO" %}
+                      {% if equipo.delegado == request.user %}
+                        <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
+                        <a href="{% url 'eliminar_equipo' equipo.id %}" class="button is-small is-danger is-light is-rounded" onclick="return confirm('¿Estás seguro de eliminar este equipo?');">Eliminar</a>
+                      {% endif %}
+                    {% else %}
+                      <!-- Para otros roles, o si no es el delegado del equipo, solo se muestra el botón Ver -->
+                    {% endif %}
                   </div>
                 </td>
               </tr>

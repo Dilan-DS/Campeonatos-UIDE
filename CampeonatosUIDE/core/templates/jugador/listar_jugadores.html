@@ -1,45 +1,108 @@
 {% extends 'comun/base.html' %}
-{% block title %}Jugadores{% endblock %}
+{% load static %}
 
 {% block content %}
-<!-- VISTA: LISTADO DE JUGADORES REGISTRADOS -->
-<div class="box mt-6">
-  <!--  Título de la sección -->
-  <h2 class="title is-4">Jugadores Registrados</h2>
-  <!-- Botón para agregar un nuevo jugador -->
-  <a href="{% url 'registrar_jugador' %}" class="button is-link is-rounded mb-4">
-    + Agregar Jugador
-  </a>
-  <!-- Tabla que muestra información resumida de cada jugador -->
-  <table class="table is-fullwidth is-striped">
-    <thead>
-      <tr>
-        <th>Nombre</th>             
-        <th>Edad</th>               
-        <th>N° Camiseta</th>         
-        <th>Acciones</th>            
-      </tr>
-    </thead>
-    <tbody>
-      {% for jugador in jugadores %}
-      <tr>
-        <td>{{ jugador.usuario.first_name }} {{ jugador.usuario.last_name }}</td>
-        <td>{{ jugador.edad }}</td>
-        <td>{{ jugador.numero_camiseta }}</td>
-        <td>
-          <!-- Enlace para ver detalles del jugador -->
-          <a class="button is-small is-info" href="{% url 'detalle_jugador' jugador.id %}">Ver</a>
-          <!-- Enlace para editar información del jugador -->
-          <a class="button is-small is-warning" href="{% url 'editar_jugador' jugador.id %}">Editar</a>
-        </td>
-      </tr>
-      {% empty %}
-      <!-- Fila alternativa si no hay jugadores registrados -->
-      <tr>
-        <td colspan="4">No hay jugadores registrados.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="container mt-5">
+    <h1 class="title has-text-centered">Gestión de Jugadores para {{ equipo_delegado.nombre }}</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="notification is-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if not pago_aprobado %}
+        <div class="notification is-warning">
+            Tu equipo debe tener el pago aprobado para gestionar jugadores.
+        </div>
+    {% else %}
+        <div class="box">
+            <div class="field">
+                <p class="control has-icons-left">
+                    <input class="input" type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar jugador...">
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </p>
+            </div>
+
+            <div class="buttons is-right">
+                <a href="{% url 'registrar_jugador' %}" class="button is-primary">
+                    <span class="icon"><i class="fas fa-plus"></i></span>
+                    <span>Registrar Nuevo Jugador</span>
+                </a>
+            </div>
+
+            <div class="table-container">
+                <table class="table is-fullwidth is-striped is-hoverable" id="jugadoresTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre de Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jugador_data in jugadores_data %}
+                        <tr>
+                            <td>{{ jugador_data.usuario.username }}</td>
+                            <td>{{ jugador_data.usuario.first_name }} {{ jugador_data.usuario.last_name }}</td>
+                            <td>
+                                {% if jugador_data.ya_inscrito %}
+                                    <span class="tag is-info">{{ jugador_data.estado_inscripcion }}</span>
+                                {% else %}
+                                    <span class="tag is-success">Disponible</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not jugador_data.ya_inscrito %}
+                                    <form action="{% url 'agregar_jugador_a_equipo' jugador_data.usuario.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="button is-small is-success">
+                                            <span class="icon is-small"><i class="fas fa-user-plus"></i></span>
+                                            <span>Agregar al Equipo</span>
+                                        </button>
+                                    </form>
+                                {% elif jugador_data.es_mi_jugador %}
+                                    <span class="tag is-primary">Ya en tu equipo</span>
+                                {% else %}
+                                    <button class="button is-small is-light" disabled>
+                                        <span class="icon is-small"><i class="fas fa-ban"></i></span>
+                                        <span>No disponible</span>
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+    function filterTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("jugadoresTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
+            td = tr[i].getElementsByTagName("td")[0]; // Search by username column
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
 {% endblock %}
