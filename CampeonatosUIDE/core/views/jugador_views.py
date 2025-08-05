@@ -2,21 +2,69 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 from core.models import (
     Jugador,
     Partido,
     Equipo,
     Campeonato,
+    Usuario,
+    EstadisticaJugadorFutbol,
+    EstadisticaJugadorBasquet,
+    EstadisticaJugadorAjedrez,
+    EstadisticaJugadorEcuaboly,
+    EstadisticaJugadorPingPong,
+    EstadisticaJugadorTenis,
+    EstadisticaJugadorVideojuegos,
+    EstadisticaJugadorFutbolin
 )
-
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
+from core.models import (
+    Jugador,
+    Partido,
+    Equipo,
+    Campeonato,
+    Usuario,
+    EstadisticaJugadorFutbol,
+    EstadisticaJugadorBasquet,
+    EstadisticaJugadorAjedrez,
+    EstadisticaJugadorEcuaboly,
+    EstadisticaJugadorPingPong,
+    EstadisticaJugadorTenis,
+    EstadisticaJugadorVideojuegos,
+    EstadisticaJugadorFutbolin
+)
+from core.forms import JugadorForm, UsuarioForm
+
+
+def es_delegado(user):
+    return hasattr(user, 'rol') and user.rol == 'DELEGADO'
 
 def es_jugador(user):
     return hasattr(user, 'rol') and user.rol == 'JUGADOR'
+
+
+@login_required
+@user_passes_test(es_delegado)
+def registrar_jugador(request):
+    if request.method == 'POST':
+        form = JugadorForm(request.POST)
+        if form.is_valid():
+            jugador = form.save(commit=False)
+            # Assuming the delegate is registering a player for their own team
+            # You might need to adjust this logic based on how you want to assign players to teams
+            # For now, let's assume the form handles team selection or it's implicitly handled.
+            jugador.save()
+            messages.success(request, 'Jugador registrado correctamente.')
+            return redirect('listar_jugadores_para_equipo') # Redirect to the list of players for the delegate's team
+    else:
+        form = JugadorForm()
+    return render(request, 'jugador/registrar_jugador.html', {'form': form})
 
 
 @login_required
@@ -125,17 +173,6 @@ def jugador_dashboard(request):
         messages.error(request, "No se encontró tu perfil de jugador.")
         return redirect('inicio_publico')
 
-
-from core.models import (
-    EstadisticaJugadorFutbol,
-    EstadisticaJugadorBasquet,
-    EstadisticaJugadorAjedrez,
-    EstadisticaJugadorEcuaboly,
-    EstadisticaJugadorPingPong,
-    EstadisticaJugadorTenis,
-    EstadisticaJugadorVideojuegos,
-    EstadisticaJugadorFutbolin
-)
 
 @user_passes_test(es_jugador)
 def ver_estadisticas_jugador(request, jugador_id):
@@ -248,30 +285,21 @@ def tabla_estadisticas(request, campeonato_id):
                 puntos += 1
             else:
                 pp += 1
+            
+            gd = gf - gc
+
+            team_stats_for_ranking.append({
+                'equipo': t,
+                'pj': pj, 'pg': pg, 'pe': pe, 'pp': pp,
+                'gf': gf, 'gc': gc, 'gd': gd, 'puntos': puntos
+            })
         
-        gd = gf - gc # Diferencia de Goles
+        sorted_teams_for_ranking = sorted(team_stats_for_ranking, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
 
-        tabla.append({
-            'equipo': equipo,
-            'pj': pj,
-            'pg': pg,
-            'pe': pe,
-            'pp': pp,
-            'gf': gf,
-            'gc': gc,
-            'gd': gd,
-            'puntos': puntos
-        })
-    
-    # Ordenar la tabla: 1. Puntos, 2. Diferencia de Goles, 3. Goles a Favor
-    tabla_ordenada = sorted(tabla, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
-
-    # Encontrar la posición del equipo del jugador
-    posicion_equipo_jugador = None
-    if equipo_jugador:
-        for i, row in enumerate(tabla_ordenada):
-            if row['equipo'] == equipo_jugador:
-                posicion_equipo_jugador = i + 1
+        team_rank = None
+        for i, team_data in enumerate(sorted_teams_for_ranking):
+            if team_data['equipo'] == equipo:
+                team_rank = i + 1
                 break
 
     context = {
@@ -300,3 +328,4 @@ def detalle_equipo(request, id):
         'jugadores': jugadores,
     }
     return render(request, 'equipo/detalle_equipo.html', context)
+

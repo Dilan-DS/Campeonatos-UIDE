@@ -133,22 +133,21 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
             messages.error(request, "No tienes permiso para acceder a esta página.")
             return redirect('inicio')
         
-        # Obtener el equipo del delegado logueado
         try:
             equipo = Equipo.objects.get(delegado=request.user)
         except Equipo.DoesNotExist:
             messages.warning(request, "Debes tener un equipo registrado para poder registrar un pago.")
-            return redirect('delegado_dashboard') # Redirigir a donde sea apropiado
+            return redirect('delegado_dashboard')
         
-        # Verificar si ya existe un pago para este equipo
         pago_existente = Pago.objects.filter(equipo=equipo).first()
-        if pago_existente:
-            messages.info(request, "Ya existe un pago registrado para tu equipo. Puedes editarlo si es necesario.")
-            form = PagoForm(instance=pago_existente)
-        else:
-            form = PagoForm(initial={'equipo': equipo}) # Pre-seleccionar el equipo
         
-        return render(request, 'pago/registrar.html', {'form': form, 'equipo': equipo, 'pago_existente': pago_existente})
+        if pago_existente and not request.GET.get('edit_mode'):
+            # Si existe un pago y no se ha solicitado el modo edición, mostrar resumen
+            return render(request, 'pago/pago_existente.html', {'pago': pago_existente, 'equipo': equipo})
+        else:
+            # Si no existe pago, o si se solicitó el modo edición, mostrar el formulario
+            form = PagoDelegadoForm(instance=pago_existente) if pago_existente else PagoDelegadoForm(initial={'equipo': equipo})
+            return render(request, 'pago/registrar.html', {'form': form, 'equipo': equipo, 'pago_existente': pago_existente})
 
     def post(self, request):
         if not request.user.rol == 'DELEGADO':
@@ -170,10 +169,10 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
         
         if form.is_valid():
             pago = form.save(commit=False)
-            pago.equipo = equipo # Asegurarse de que el pago se asocie al equipo del delegado
+            pago.equipo = equipo
             pago.save()
             messages.success(request, 'Pago registrado/actualizado correctamente.')
-            return redirect('detalle_pago_delegado') # Redirigir a una vista de detalle de pago para el delegado
+            return redirect('detalle_pago_delegado')
         else:
             messages.error(request, "Error al registrar/actualizar el pago. Por favor, revisa los campos.")
             return render(request, 'pago/registrar.html', {'form': form, 'equipo': equipo, 'pago_existente': pago_existente})

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from core.forms import *
-from core.models import *
+from core.models import Usuario, Equipo, Jugador, Campeonato, Partido, EstadisticaJugadorFutbol
 from django.http import HttpResponse
 from openpyxl import Workbook
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
@@ -12,7 +12,6 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from django.db.models import Q
 from datetime import datetime, timedelta
-from core.models import EstadisticaJugadorFutbol
 
 
 def es_admin(user):
@@ -42,6 +41,37 @@ def listar_usuarios(request):
         'query': query
     })
 
+class ListarJugadoresAdminView(LoginRequiredMixin, View):
+    def get(self, request):
+        if not request.user.rol == 'ADMIN':
+            messages.error(request, "No tienes permiso para acceder a esta página.")
+            return redirect('inicio')
+
+        # Obtener todos los usuarios con rol JUGADOR
+        jugadores_disponibles = Usuario.objects.filter(rol='JUGADOR').order_by('username')
+
+        # Para cada jugador, verificar si ya está en un equipo
+        jugadores_data = []
+        for jugador_usuario in jugadores_disponibles:
+            jugador_obj = Jugador.objects.filter(usuario=jugador_usuario).first()
+            
+            estado_inscripcion = ""
+            ya_inscrito = False
+            if jugador_obj:
+                estado_inscripcion = f"Ya inscrito en: {jugador_obj.equipo.nombre}"
+                ya_inscrito = True
+            
+            jugadores_data.append({
+                'usuario': jugador_usuario,
+                'ya_inscrito': ya_inscrito,
+                'estado_inscripcion': estado_inscripcion,
+            })
+        
+        context = {
+            'jugadores_data': jugadores_data,
+            'is_admin_view': True, # Para controlar la visibilidad de botones en el template
+        }
+        return render(request, 'jugador/listar_jugadores.html', context)
 
 @login_required
 @user_passes_test(es_admin)
@@ -166,7 +196,7 @@ def exportar_estadisticas_pdf(request):
     elements = []
 
     data = [['Jugador', 'Goles', 'Asistencias']]
-    for stat in EstadisticaFutbol.objects.all():
+    for stat in EstadisticaJugadorFutbol.objects.all():
         data.append([str(stat.jugador), stat.goles, stat.asistencias])
 
     table = Table(data)
@@ -195,7 +225,7 @@ def exportar_estadisticas_excel(request):
 
     sheet.append(['Jugador', 'Goles', 'Asistencias'])
 
-    for stat in EstadisticaFutbol.objects.all():
+    for stat in EstadisticaJugadorFutbol.objects.all():
         sheet.append([str(stat.jugador), stat.goles, stat.asistencias])
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

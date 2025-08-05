@@ -24,7 +24,7 @@ urlpatterns = [
     path('panel/jugador/', jugador_dashboard, name='jugador_dashboard'),
     path('jugador/estadisticas/<int:jugador_id>/', ver_estadisticas_jugador, name='ver_estadisticas_jugador'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
-    path('campeonato/<int:campeonato_id>/tabla-estadisticas/', tabla_estadisticas, name='tabla_estadisticas'),
+    path('jugador/registrar/', registrar_jugador, name='registrar_jugador'),
     path('equipo/<int:id>/detalle/', detalle_equipo, name='detalle_equipo'),
 
     # Autenticación y perfil
@@ -136,6 +136,7 @@ urlpatterns = [
     path('panel/admin/usuarios/', listar_usuarios, name='listar_usuarios'),
     path('panel/admin/usuarios/<int:usuario_id>/editar/', editar_usuario, name='editar_usuario'),
     path('panel/admin/usuarios/<int:usuario_id>/eliminar/', eliminar_usuario, name='eliminar_usuario'),
+    path('panel/admin/jugadores/', ListarJugadoresAdminView.as_view(), name='listar_jugadores_admin'),
 
     path('admin/exportar/pdf/', exportar_estadisticas_pdf, name='exportar_estadisticas_pdf'),
     path('admin/exportar/excel/', exportar_estadisticas_excel, name='exportar_estadisticas_excel'),
