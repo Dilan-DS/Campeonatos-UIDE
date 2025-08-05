@@ -83,25 +83,29 @@ def listar_equipos(request):
 @user_passes_test(es_admin_o_delegado)
 def detalle_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
+    form = EquipoForm(instance=equipo)
     return render(request, 'equipo/registrar_equipo.html', {
+        'form': form,
         'equipo': equipo,
-        'form': EquipoForm(instance=equipo),
-        'ver': True
+        'view_mode': True  # Indica que es modo solo lectura
     })
 
 @login_required
 @user_passes_test(es_admin_o_delegado)
 def editar_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
-    form = EquipoForm(request.POST or None, request.FILES or None, instance=equipo)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Equipo actualizado correctamente.')
-        return redirect('detalle_equipo', id=equipo.id)
+    if request.method == 'POST':
+        form = EquipoForm(request.POST, request.FILES, instance=equipo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Equipo actualizado correctamente.')
+            return redirect('detalle_equipo', id=equipo.id)
+    else:
+        form = EquipoForm(instance=equipo)
     return render(request, 'equipo/registrar_equipo.html', {
         'form': form,
         'equipo': equipo,
-        'editar': True
+        'edit_mode': True  # Indica que es modo edición
     })
 
 @login_required
@@ -138,4 +142,7 @@ def eliminar_equipo(request, id):
         equipo.delete()
         messages.success(request, 'Equipo eliminado correctamente.')
         return redirect('listar_equipos')
-    return render(request, 'equipo/confirmar_eliminacion.html', {'equipo': equipo})
+    # If it's a GET request, we don't render a confirmation page anymore.
+    # The confirmation is handled by the onclick in listar_equipos.html
+    return redirect('listar_equipos') # Redirect back to the list after deletion attempt
+
