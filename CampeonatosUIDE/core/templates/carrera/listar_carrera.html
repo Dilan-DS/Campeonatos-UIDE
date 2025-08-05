@@ -1,0 +1,55 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Listado de Carreras{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+      <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
+        <h2 class="title is-4 has-text-danger-dark">Lista de Carreras</h2>
+        <a href="{% url 'registrar_carrera' %}" class="button is-primary is-rounded">
+          <span class="icon"><i class="fas fa-plus"></i></span>
+          <span>Registrar Nueva Carrera</span>
+        </a>
+      </div>
+
+      {% if messages %}
+        <div class="notification is-info">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if carreras %}
+        <div class="table-container">
+          <table class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th class="has-text-centered">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for carrera in carreras %}
+                <tr>
+                  <td>{{ carrera.nombre }}</td>
+                  <td class="has-text-centered">
+                    <a href="{% url 'detalle_carrera' id=carrera.id %}" class="button is-small is-info is-light is-rounded mr-2">Ver</a>
+                    <a href="{% url 'editar_carrera' id=carrera.id %}" class="button is-small is-warning is-light is-rounded mr-2">Editar</a>
+                    <a href="{% url 'eliminar_carrera' id=carrera.id %}" class="button is-small is-danger is-light is-rounded">Eliminar</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="has-text-centered has-text-grey">No hay carreras registradas.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

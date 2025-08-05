@@ -3,6 +3,17 @@ from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import UserCreationForm
 from .models import *
 
+class CarreraForm(forms.ModelForm):
+    class Meta:
+        model = Carrera
+        fields = '__all__'
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'placeholder': 'Nombre de la carrera',
+                'class': 'input'
+            }),
+        }
+
 class TipoCampeonatoForm(forms.ModelForm):
     """
     Formulario para registrar o editar un tipo de campeonato
