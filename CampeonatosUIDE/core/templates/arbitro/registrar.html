@@ -39,7 +39,7 @@
               <div class="field">
                 <label class="label has-text-grey-dark">{{ form.username.label }}</label>
                 <div class="control">
-                  {{ form.username|add_class:"input is-rounded is-medium is-light" }}
+                  {{ form.username|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
                 </div>
                 {% for error in form.username.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -50,7 +50,7 @@
               <div class="field">
                 <label class="label has-text-grey-dark">{{ form.first_name.label }}</label>
                 <div class="control">
-                  {{ form.first_name|add_class:"input is-rounded is-medium is-light" }}
+                  {{ form.first_name|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
                 </div>
                 {% for error in form.first_name.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -61,7 +61,7 @@
               <div class="field">
                 <label class="label has-text-grey-dark">{{ form.last_name.label }}</label>
                 <div class="control">
-                  {{ form.last_name|add_class:"input is-rounded is-medium is-light" }}
+                  {{ form.last_name|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
                 </div>
                 {% for error in form.last_name.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -72,7 +72,7 @@
               <div class="field">
                 <label class="label has-text-grey-dark">{{ form.email.label }}</label>
                 <div class="control">
-                  {{ form.email|add_class:"input is-rounded is-medium is-light" }}
+                  {{ form.email|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
                 </div>
                 {% for error in form.email.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -96,7 +96,7 @@
               <div class="field">
                 <label class="label has-text-grey-dark">{{ form.contacto.label }}</label>
                 <div class="control">
-                  {{ form.contacto|add_class:"input is-rounded is-medium is-light" }}
+                  {{ form.contacto|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
                 </div>
                 {% for error in form.contacto.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -107,7 +107,7 @@
               <div class="field">
                 <label class="label has-text-grey-dark">{{ form.experiencia.label }}</label>
                 <div class="control">
-                  {{ form.experiencia|add_class:"textarea is-rounded is-medium is-light" }}
+                  {{ form.experiencia|add_class:"textarea is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
                 </div>
                 {% for error in form.experiencia.errors %}
                   <p class="help is-danger">{{ error }}</p>
@@ -119,7 +119,7 @@
                 <label class="label has-text-grey-dark">{{ form.deportes.label }}</label>
                 <div class="control">
                   <div class="select is-rounded is-medium is-fullwidth is-multiple">
-                    {{ form.deportes }}
+                    {{ form.deportes }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:disabled{% endif %}
                   </div>
                 </div>
                 {% for error in form.deportes.errors %}
@@ -132,7 +132,7 @@
                 <label class="label has-text-grey-dark">{{ form.estado.label }}</label>
                 <div class="control">
                   <div class="select is-rounded is-medium is-fullwidth">
-                    {{ form.estado }}
+                    {{ form.estado }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:disabled{% endif %}
                   </div>
                 </div>
                 {% for error in form.estado.errors %}
