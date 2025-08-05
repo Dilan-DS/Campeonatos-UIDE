@@ -518,19 +518,44 @@ class CrearUsuarioDelegadoForm(forms.ModelForm):
         return user
 
 class ArbitroForm(forms.ModelForm):
+    username = forms.CharField(max_length=150, required=True, label="Nombre de Usuario")
+    first_name = forms.CharField(max_length=30, required=False, label="Nombres")
+    last_name = forms.CharField(max_length=150, required=False, label="Apellidos")
+    email = forms.EmailField(required=True, label="Correo Electrónico")
     estado = forms.ChoiceField(
         choices=[(True, 'Activo'), (False, 'Inactivo')],
         widget=forms.Select(attrs={'class': 'select is-fullwidth'})
     )
+
     class Meta:
         model = Arbitro
-        fields = '__all__'
+        fields = ['username', 'first_name', 'last_name', 'email', 'experiencia', 'deportes', 'contacto', 'estado']
         widgets = {
-            'usuario': forms.Select(attrs={'class': 'select is-fullwidth'}),
             'experiencia': forms.Textarea(attrs={'class': 'textarea', 'rows': 3, 'placeholder': 'Resumen de experiencia (años, torneos, etc.)'}),
             'deportes': forms.CheckboxSelectMultiple(),
             'contacto': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Número de teléfono o email de contacto'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.usuario:
+            self.fields['username'].initial = self.instance.usuario.username
+            self.fields['first_name'].initial = self.instance.usuario.first_name
+            self.fields['last_name'].initial = self.instance.usuario.last_name
+            self.fields['email'].initial = self.instance.usuario.email
+
+    def save(self, commit=True):
+        arbitro = super().save(commit=False)
+        user = arbitro.usuario
+        user.username = self.cleaned_data['username']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+            arbitro.save()
+            self.save_m2m() # Save ManyToMany relationships (like 'deportes')
+        return arbitro
 
 
 class CrearUsuarioArbitroForm(forms.ModelForm):
