@@ -80,6 +80,7 @@ urlpatterns = [
     path('equipo/<int:id>/editar/', editar_equipo, name='editar_equipo'),
     path('equipo/<int:id>/pago/', pago_equipo, name='pago_equipo'),
     path('equipo/<int:id>/jugadores/', jugadores_equipo, name='jugadores_equipo'),
+    path('delegado/mis-jugadores/', mis_jugadores_delegado, name='mis_jugadores_delegado'),
     path('equipo/<int:equipo_id>/mi-equipo/', ver_equipo_jugador, name='ver_equipo_jugador'),
     path('equipo/<int:id>/eliminar/', eliminar_equipo, name='eliminar_equipo'),
 

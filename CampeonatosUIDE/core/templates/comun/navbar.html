@@ -65,6 +65,7 @@
               <a class="navbar-item" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
               <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
               <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
+              <a class="navbar-item" href="{% url 'mis_jugadores_delegado' %}">Mis Jugadores</a>
               <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
               {% if request.user.equipo and request.user.equipo.campeonato %}
                 <a class="navbar-item" href="{% url 'ver_calendario_completo' request.user.equipo.campeonato.id %}">📅 Calendario</a>
