@@ -113,8 +113,9 @@ class AgregarJugadorAEquipoView(LoginRequiredMixin, View):
             Jugador.objects.create(
                 usuario=jugador_usuario,
                 equipo=equipo_delegado,
-                numero_camiseta=next_camiseta_number,
-                edad=18 # Asumiendo una edad por defecto o que se pedirá en otro formulario
+                numero_camiseta=jugador_usuario.numero_camiseta, # Use numero_camiseta from Usuario
+                posicion=jugador_usuario.posicion, # Use posicion from Usuario
+                edad=18 # Assuming a default age or that it's set elsewhere
             )
             messages.success(request, f"{jugador_usuario.username} ha sido agregado a tu equipo.")
             return redirect('listar_jugadores_para_equipo')

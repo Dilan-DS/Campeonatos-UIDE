@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from core.forms import *
-from core.models import Usuario, Equipo, Jugador, Campeonato, Partido, EstadisticaJugadorFutbol
+from core.models import Usuario, Equipo, Jugador, Campeonato, Partido
 from django.http import HttpResponse
 from openpyxl import Workbook
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle

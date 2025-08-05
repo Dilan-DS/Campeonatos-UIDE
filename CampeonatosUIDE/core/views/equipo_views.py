@@ -3,7 +3,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 
-from core.models import Equipo, Campeonato, Jugador
+from core.models import (
+    Equipo, Campeonato, Jugador, 
+    EstadisticaJugadorFutbol, EstadisticaJugadorBasquet, EstadisticaJugadorAjedrez,
+    EstadisticaJugadorEcuaboly, EstadisticaJugadorPingPong, EstadisticaJugadorTenis,
+    EstadisticaJugadorVideojuegos, EstadisticaJugadorFutbolin
+)
 from core.forms import EquipoForm, PagoForm
 
 @login_required
@@ -137,20 +142,83 @@ def jugadores_equipo(request, id):
         messages.error(request, "El equipo no está aprobado. No puedes registrar jugadores hasta que el pago sea aprobado.")
         return redirect('detalle_equipo', id=equipo.id) # Redirigir al detalle del equipo o a donde sea apropiado
 
-    jugadores = equipo.jugador_set.all()
-    return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores': jugadores})
+    jugadores_data = []
+    campeonato = equipo.campeonato
+    for jugador in equipo.jugadores.all():
+        player_stats = None
+        deporte_nombre = campeonato.deporte.nombre.upper()
+
+        if deporte_nombre == 'FUTBOL':
+            player_stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'BASQUET':
+            player_stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'AJEDREZ':
+            player_stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'ECUABOLY':
+            player_stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'PING PONG':
+            player_stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'TENIS':
+            player_stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'VIDEOJUEGOS':
+            player_stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'FUTBOLIN':
+            player_stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
+
+        jugadores_data.append({
+            'jugador': jugador,
+            'stats': player_stats,
+            'deporte_nombre': deporte_nombre,
+            'posicion': jugador.posicion,
+        })
+
+    return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores_data': jugadores_data})
 
 @login_required
 @user_passes_test(es_admin_o_delegado)
 def mis_jugadores_delegado(request):
     try:
         equipo = Equipo.objects.get(delegado=request.user)
+        campeonato = equipo.campeonato
     except Equipo.DoesNotExist:
         messages.error(request, "No tienes un equipo registrado.")
         return redirect('delegado_dashboard')
     
-    jugadores = equipo.jugadores.all()
-    return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores': jugadores, 'is_delegado_view': True})
+    jugadores_data = []
+    for jugador in equipo.jugadores.all():
+        player_stats = None
+        deporte_nombre = campeonato.deporte.nombre.upper()
+
+        if deporte_nombre == 'FUTBOL':
+            player_stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'BASQUET':
+            player_stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'AJEDREZ':
+            player_stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'ECUABOLY':
+            player_stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'PING PONG':
+            player_stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'TENIS':
+            player_stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'VIDEOJUEGOS':
+            player_stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador, campeonato=campeonato).first()
+        elif deporte_nombre == 'FUTBOLIN':
+            player_stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
+
+        jugadores_data.append({
+            'jugador': jugador,
+            'stats': player_stats,
+            'deporte_nombre': deporte_nombre,
+            'posicion': jugador.posicion, # Add posicion here
+        })
+
+    return render(request, 'equipo/jugadores_equipo.html', {
+        'equipo': equipo,
+        'jugadores_data': jugadores_data,
+        'is_delegado_view': True,
+        'campeonato': campeonato, # Pass campeonato to the template
+    })
 
 @login_required
 @user_passes_test(es_admin_o_delegado)

@@ -12,11 +12,90 @@ import pandas as pd
 from ..models import (
     EstadisticaJugadorFutbol, EstadisticaJugadorBasquet, EstadisticaJugadorAjedrez,
     EstadisticaJugadorEcuaboly, EstadisticaJugadorPingPong, EstadisticaJugadorTenis,
-    EstadisticaJugadorVideojuegos, EstadisticaJugadorFutbolin, Jugador, Campeonato
+    EstadisticaJugadorVideojuegos, EstadisticaJugadorFutbolin, Jugador, Campeonato, Equipo, Partido
 )
+
 
 def es_admin_o_delegado(user):
     return user.rol in ['ADMIN', 'DELEGADO']
+
+
+@login_required
+def tabla_estadisticas(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    
+    equipos = Equipo.objects.filter(campeonato=campeonato, aprobado=True)
+
+    tabla = []
+    for equipo in equipos:
+        pj = 0  # Partidos Jugados
+        pg = 0  # Partidos Ganados
+        pe = 0  # Partidos Empatados
+        pp = 0  # Partidos Perdidos
+        gf = 0  # Goles a Favor
+        gc = 0  # Goles en Contra
+        puntos = 0
+
+        # Partidos como local
+        partidos_local = Partido.objects.filter(
+            campeonato=campeonato,
+            equipo_local=equipo,
+            estado='FINALIZADO'
+        )
+        for p in partidos_local:
+            pj += 1
+            gf += p.resultado_local
+            gc += p.resultado_visitante
+            if p.resultado_local > p.resultado_visitante:
+                pg += 1
+                puntos += 3
+            elif p.resultado_local == p.resultado_visitante:
+                pe += 1
+                puntos += 1
+            else:
+                pp += 1
+
+        # Partidos como visitante
+        partidos_visitante = Partido.objects.filter(
+            campeonato=campeonato,
+            equipo_visitante=equipo,
+            estado='FINALIZADO'
+        )
+        for p in partidos_visitante:
+            pj += 1
+            gf += p.resultado_visitante
+            gc += p.resultado_local
+            if p.resultado_visitante > p.resultado_local:
+                pg += 1
+                puntos += 3
+            elif p.resultado_visitante == p.resultado_local:
+                pe += 1
+                puntos += 1
+            else:
+                pp += 1
+        
+        gd = gf - gc # Diferencia de Goles
+
+        tabla.append({
+            'equipo': equipo,
+            'pj': pj,
+            'pg': pg,
+            'pe': pe,
+            'pp': pp,
+            'gf': gf,
+            'gc': gc,
+            'gd': gd,
+            'puntos': puntos
+        })
+    
+    # Ordenar la tabla: 1. Puntos, 2. Diferencia de Goles, 3. Goles a Favor
+    tabla_ordenada = sorted(tabla, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
+
+    context = {
+        'campeonato': campeonato,
+        'tabla': tabla_ordenada,
+    }
+    return render(request, 'estadisticas/tabla_estadisticas.html', context)
 
 # ========================
 # ESTADÍSTICAS

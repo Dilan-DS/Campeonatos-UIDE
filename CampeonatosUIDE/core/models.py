@@ -367,7 +367,9 @@ class Jugador(models.Model):
     # Usuario que representa al jugador (rol JUGADOR)
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, limit_choices_to={'rol': 'JUGADOR'})
     # Número de camiseta (único en equipo)
-    numero_camiseta = models.PositiveIntegerField()
+    numero_camiseta = models.PositiveIntegerField(null=True, blank=True)
+    # Posición del jugador
+    posicion = models.CharField(max_length=50, null=True, blank=True)
     # Edad del jugador
     edad = models.PositiveIntegerField()
 

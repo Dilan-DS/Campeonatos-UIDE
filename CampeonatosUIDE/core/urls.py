@@ -116,6 +116,8 @@ urlpatterns = [
     path('estadisticas/videojuegos/exportar/pdf/', export_estadisticas_videojuegos_pdf, name='export_estadisticas_videojuegos_pdf'),
     path('estadisticas/videojuegos/exportar/excel/', export_estadisticas_videojuegos_excel, name='export_estadisticas_videojuegos_excel'),
 
+    path('estadisticas/tabla-posiciones/<int:campeonato_id>/', tabla_estadisticas, name='tabla_estadisticas'),
+
     # Transmisiones
     path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
     path('transmisiones/crear/', CrearTransmisionView.as_view(), name='crear_transmision'),
@@ -146,8 +148,6 @@ urlpatterns = [
 
     path('partidos/generar/<int:campeonato_id>/', generar_calendario, name='generar_calendario'),
     path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
-    path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
-
     # Pagos Admin
     path('panel/admin/pagos/', pago_views.ListarPagosAdminView.as_view(), name='listar_pagos_admin'),
     path('panel/admin/pagos/registrar/', pago_views.RegistrarPagoAdminView.as_view(), name='registrar_pago_admin'),
