@@ -10,6 +10,13 @@
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
       <!-- Título principal centrado -->
       <h2 class="title is-4 has-text-centered has-text-danger-dark">Jugadores del Equipo</h2>
+
+      {% if not equipo.aprobado %}
+        <div class="notification is-warning is-light">
+          <p class="has-text-centered">Tu equipo no está aprobado. No puedes registrar jugadores hasta que el pago sea aprobado.</p>
+        </div>
+      {% endif %}
+
       {% if jugadores %}
         <!-- Tabla de jugadores si hay elementos en la lista -->
         <table class="table is-striped is-hoverable is-fullwidth mt-4">

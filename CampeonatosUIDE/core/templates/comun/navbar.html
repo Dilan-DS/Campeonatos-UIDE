@@ -2,8 +2,12 @@
 <nav class="navbar has-background-danger" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">🏆 Campeonatos UIDE</a>
+
+    <!-- BOTÓN HAMBURGUESA -->
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
-      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
     </a>
   </div>
 
@@ -114,14 +118,16 @@
   </div>
 </nav>
 
-<!-- Script para menú móvil -->
+<!-- Script para activar menú hamburguesa -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const burger = document.querySelector('.navbar-burger');
     const menu = document.getElementById(burger.dataset.target);
-    burger.addEventListener('click', () => {
-      burger.classList.toggle('is-active');
-      menu.classList.toggle('is-active');
-    });
+    if (burger && menu) {
+      burger.addEventListener('click', () => {
+        burger.classList.toggle('is-active');
+        menu.classList.toggle('is-active');
+      });
+    }
   });
 </script>
