@@ -8,16 +8,16 @@
   <div class="container">
     <!-- Caja contenedora con fondo claro y bordes redondeados -->
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
-      <!-- Título principal centrado -->
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">
+      <!-- Imagen circular y nombre del equipo centrado -->
+      <div class="has-text-centered mb-4">
         {% if equipo.logo %}
-          <figure class="image is-96x96 is-inline-block mr-3">
-            <img src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}" style="border-radius: 8px;">
-          </figure>
+          <img src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}"
+              style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;">
         {% endif %}
-        Equipo: {{ equipo.nombre }}
-      </h2>
-
+        <h2 class="title is-4 has-text-danger-dark">
+          Equipo: {{ equipo.nombre }}
+        </h2>
+      </div>
       {% if not equipo.aprobado %}
         <div class="notification is-warning is-light">
           <p class="has-text-centered">Tu equipo no está aprobado. No puedes registrar jugadores hasta que el pago sea aprobado.</p>
