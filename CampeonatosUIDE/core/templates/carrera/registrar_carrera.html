@@ -1,0 +1,79 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+  {% if modo == 'crear' %}Registrar Carrera
+  {% elif modo == 'editar' %}Editar Carrera
+  {% elif modo == 'eliminar' %}Eliminar Carrera
+  {% else %}Detalle de Carrera
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">
+        {% if modo == 'crear' %}Registrar Nueva Carrera
+        {% elif modo == 'editar' %}Editar Carrera
+        {% elif modo == 'eliminar' %}Confirmar Eliminación de Carrera
+        {% else %}Detalle de Carrera
+        {% endif %}
+      </h2>
+
+      {% if messages %}
+        <div class="notification is-info">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if modo == 'crear' or modo == 'editar' %}
+        <form method="post" action="{% if modo == 'editar' %}{% url 'editar_carrera' id=carrera.id %}{% else %}{% url 'registrar_carrera' %}{% endif %}">
+          {% csrf_token %}
+          <div class="field">
+            <label class="label">{{ form.nombre.label }}</label>
+            <div class="control">
+              {{ form.nombre|add_class:"input" }}
+            </div>
+            {% for error in form.nombre.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="field is-grouped is-grouped-centered">
+            <div class="control">
+              <button type="submit" class="button is-primary is-rounded">
+                {% if modo == 'crear' %}Registrar
+                {% else %}Actualizar
+                {% endif %}
+              </button>
+            </div>
+            <div class="control">
+              <a href="{% url 'listar_carreras' %}" class="button is-link is-light is-rounded">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      {% elif modo == 'eliminar' %}
+        <p class="has-text-centered has-text-danger is-size-5">¿Estás seguro de que quieres eliminar la carrera <strong>{{ carrera.nombre }}</strong>?</p>
+        <form method="post" action="{% url 'eliminar_carrera' id=carrera.id %}" class="has-text-centered mt-4">
+          {% csrf_token %}
+          <button type="submit" class="button is-danger is-rounded mr-2">Confirmar Eliminación</button>
+          <a href="{% url 'listar_carreras' %}" class="button is-link is-light is-rounded">Cancelar</a>
+        </form>
+      {% else %} {# modo == 'ver' #}
+        <div class="content has-text-centered">
+          <p class="title is-5">Nombre de la Carrera: <strong>{{ carrera.nombre }}</strong></p>
+        </div>
+        <div class="has-text-centered mt-4">
+          <a href="{% url 'editar_carrera' id=carrera.id %}" class="button is-info is-rounded mr-2">Editar</a>
+          <a href="{% url 'eliminar_carrera' id=carrera.id %}" class="button is-danger is-rounded mr-2">Eliminar</a>
+          <a href="{% url 'listar_carreras' %}" class="button is-link is-light is-rounded">Volver a la lista</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

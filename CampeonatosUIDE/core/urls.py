@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import *
+from .views.carrera_views import ListarCarrerasView, GestionCarreraView
 
 from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
@@ -180,6 +181,13 @@ urlpatterns = [
     path('testimonios/crear/', RegistrarTestimonio.as_view(), name='registrar_testimonio'),
     path('testimonios/editar/<int:id>/', EditarTestimonio.as_view(), name='editar_testimonio'),
     path('testimonios/eliminar/<int:id>/', EliminarTestimonio.as_view(), name='eliminar_testimonio'),
+
+    # URLs para Carreras
+    path('carreras/', ListarCarrerasView.as_view(), name='listar_carreras'),
+    path('carreras/registrar/', GestionCarreraView.as_view(), name='registrar_carrera'),
+    path('carreras/<int:id>/', GestionCarreraView.as_view(), name='detalle_carrera'),
+    path('carreras/<int:id>/editar/', GestionCarreraView.as_view(), {'action': 'editar'}, name='editar_carrera'),
+    path('carreras/<int:id>/eliminar/', GestionCarreraView.as_view(), {'action': 'eliminar'}, name='eliminar_carrera'),
 
 
     path('equipos/eliminar/<int:equipo_id>/', eliminar_equipo, name='eliminar_equipo'),
