@@ -9,7 +9,14 @@
     <!-- Caja contenedora con fondo claro y bordes redondeados -->
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
       <!-- Título principal centrado -->
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">Jugadores del Equipo {{ equipo.nombre }}</h2>
+      <h2 class="title is-4 has-text-centered has-text-danger-dark">
+        {% if equipo.logo %}
+          <figure class="image is-96x96 is-inline-block mr-3">
+            <img src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}" style="border-radius: 8px;">
+          </figure>
+        {% endif %}
+        Equipo: {{ equipo.nombre }}
+      </h2>
 
       {% if not equipo.aprobado %}
         <div class="notification is-warning is-light">
@@ -71,9 +78,15 @@
       {% endif %}
       <!-- Botón de regreso al listado de equipos -->
       <div class="has-text-centered mt-5">
-        <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">
-          ← Volver al Dashboard
-        </a>
+        {% if is_jugador_view %}
+          <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded">
+            ← Volver al Dashboard del Jugador
+          </a>
+        {% else %}
+          <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">
+            ← Volver al Dashboard del Delegado
+          </a>
+        {% endif %}
       </div>
 
     </div>
