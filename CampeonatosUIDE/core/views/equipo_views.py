@@ -3,8 +3,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 
-from core.models import Equipo, Campeonato
+from core.models import Equipo, Campeonato, Jugador
 from core.forms import EquipoForm, PagoForm
+
+@login_required
+def ver_equipo_jugador(request, equipo_id):
+    equipo = get_object_or_404(Equipo, id=equipo_id)
+    jugadores = Jugador.objects.filter(equipo=equipo)
+    return render(request, 'equipo/mi_equipo.html', {'equipo': equipo, 'jugadores': jugadores})
 
 # ========================
 # EQUIPOS

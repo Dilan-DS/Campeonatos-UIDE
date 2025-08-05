@@ -3,7 +3,13 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="title has-text-centered">Gestión de Jugadores para {{ equipo_delegado.nombre }}</h1>
+    <h1 class="title has-text-centered">
+        {% if is_admin_view %}
+            Listado de Jugadores (Administrador)
+        {% else %}
+            Gestión de Jugadores para {{ equipo_delegado.nombre }}
+        {% endif %}
+    </h1>
 
     {% if messages %}
         {% for message in messages %}
@@ -13,7 +19,7 @@
         {% endfor %}
     {% endif %}
 
-    {% if not pago_aprobado %}
+    {% if not is_admin_view and not pago_aprobado %}
         <div class="notification is-warning">
             Tu equipo debe tener el pago aprobado para gestionar jugadores.
         </div>
@@ -21,19 +27,21 @@
         <div class="box">
             <div class="field">
                 <p class="control has-icons-left">
-                    <input class="input" type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar jugador...">
+                    <input class="input" type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar jugador por nombre o cédula...">
                     <span class="icon is-small is-left">
                         <i class="fas fa-search"></i>
                     </span>
                 </p>
             </div>
 
-            <div class="buttons is-right">
-                <a href="{% url 'registrar_jugador' %}" class="button is-primary">
-                    <span class="icon"><i class="fas fa-plus"></i></span>
-                    <span>Registrar Nuevo Jugador</span>
-                </a>
-            </div>
+            {% if not is_admin_view %}
+                <div class="buttons is-right">
+                    <a href="{% url 'registrar_jugador' %}" class="button is-primary">
+                        <span class="icon"><i class="fas fa-plus"></i></span>
+                        <span>Registrar Nuevo Jugador</span>
+                    </a>
+                </div>
+            {% endif %}
 
             <div class="table-container">
                 <table class="table is-fullwidth is-striped is-hoverable" id="jugadoresTable">
@@ -41,8 +49,11 @@
                         <tr>
                             <th>Nombre de Usuario</th>
                             <th>Nombre Completo</th>
+                            <th>Cédula</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            {% if not is_admin_view %}
+                                <th>Acciones</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -50,6 +61,7 @@
                         <tr>
                             <td>{{ jugador_data.usuario.username }}</td>
                             <td>{{ jugador_data.usuario.first_name }} {{ jugador_data.usuario.last_name }}</td>
+                            <td>{{ jugador_data.usuario.cedula|default:"N/A" }}</td>
                             <td>
                                 {% if jugador_data.ya_inscrito %}
                                     <span class="tag is-info">{{ jugador_data.estado_inscripcion }}</span>
@@ -57,24 +69,26 @@
                                     <span class="tag is-success">Disponible</span>
                                 {% endif %}
                             </td>
-                            <td>
-                                {% if not jugador_data.ya_inscrito %}
-                                    <form action="{% url 'agregar_jugador_a_equipo' jugador_data.usuario.id %}" method="post">
-                                        {% csrf_token %}
-                                        <button type="submit" class="button is-small is-success">
-                                            <span class="icon is-small"><i class="fas fa-user-plus"></i></span>
-                                            <span>Agregar al Equipo</span>
+                            {% if not is_admin_view %}
+                                <td>
+                                    {% if not jugador_data.ya_inscrito %}
+                                        <form action="{% url 'agregar_jugador_a_equipo' jugador_data.usuario.id %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="button is-small is-success">
+                                                <span class="icon is-small"><i class="fas fa-user-plus"></i></span>
+                                                <span>Agregar al Equipo</span>
+                                            </button>
+                                        </form>
+                                    {% elif jugador_data.es_mi_jugador %}
+                                        <span class="tag is-primary">Ya en tu equipo</span>
+                                    {% else %}
+                                        <button class="button is-small is-light" disabled>
+                                            <span class="icon is-small"><i class="fas fa-ban"></i></span>
+                                            <span>No disponible</span>
                                         </button>
-                                    </form>
-                                {% elif jugador_data.es_mi_jugador %}
-                                    <span class="tag is-primary">Ya en tu equipo</span>
-                                {% else %}
-                                    <button class="button is-small is-light" disabled>
-                                        <span class="icon is-small"><i class="fas fa-ban"></i></span>
-                                        <span>No disponible</span>
-                                    </button>
-                                {% endif %}
-                            </td>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -83,6 +97,32 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+    function filterTable() {
+        var input, filter, table, tr, td, i, txtValueUsername, txtValueCedula;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("jugadoresTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
+            tdUsername = tr[i].getElementsByTagName("td")[0]; // Username column
+            tdCedula = tr[i].getElementsByTagName("td")[2]; // Cedula column
+
+            if (tdUsername || tdCedula) {
+                txtValueUsername = tdUsername ? (tdUsername.textContent || tdUsername.innerText) : '';
+                txtValueCedula = tdCedula ? (tdCedula.textContent || tdCedula.innerText) : '';
+
+                if (txtValueUsername.toUpperCase().indexOf(filter) > -1 || txtValueCedula.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
 
 <script>
     function filterTable() {

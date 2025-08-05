@@ -62,6 +62,11 @@
                 <td class="has-text-centered">
                   <div class="buttons is-centered">
                     <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
+                    {% if request.user.rol == "DELEGADO" and equipo.delegado == request.user %}
+                        <a href="{% url 'listar_jugadores_para_equipo' %}" class="button is-small is-primary is-light is-rounded">Registrar Jugadores</a>
+                    {% elif request.user.rol == "ADMIN" %}
+                        <a href="{% url 'listar_jugadores_admin' %}" class="button is-small is-primary is-light is-rounded">Ver Jugadores</a>
+                    {% endif %}
                     {% if request.user.rol == "DELEGADO" %}
                       {% if equipo.delegado == request.user %}
                         <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
