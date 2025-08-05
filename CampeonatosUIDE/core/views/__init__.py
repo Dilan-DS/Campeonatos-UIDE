@@ -2,7 +2,7 @@ from .admin_views import *
 from .admin_views import RegistrarDelegadoAdminView
 from .autenticacion_views import *
 from .campeonato_views import *
-from .delegado_views import ListarDelegadosView, DelegadoDashboardView
+from .delegado_views import ListarDelegadosView, DelegadoDashboardView, ListarJugadoresParaEquipoView, AgregarJugadorAEquipoView
 from .estadisticas_views import *
 from .inicio_views import *
 from .jugador_views import *
