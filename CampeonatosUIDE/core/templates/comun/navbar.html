@@ -85,7 +85,7 @@
                   <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">📅 Mis Partidos</a>
                   <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
                   {% if jugador.equipo %}
-                    <a class="navbar-item" href="{% url 'ver_equipo_jugador' jugador.equipo.id %}">⚽ Mi Equipo</a>
+                    <a class="navbar-item" href="{% url 'ver_equipo_jugador' equipo_id=jugador.equipo.id %}">⚽ Mi Equipo</a>
                     {% if jugador.equipo.campeonato %}
                       <a class="navbar-item" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Tabla de Posiciones</a>
                     {% endif %}

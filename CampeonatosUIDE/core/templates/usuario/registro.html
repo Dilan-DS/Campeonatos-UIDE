@@ -18,38 +18,111 @@
           <form method="post" class="has-text-centered">
             {% csrf_token %} <!-- Token de protección CSRF -->
 
-            <!-- Bucle para mostrar cada campo del formulario -->
+            <!-- Campos comunes del formulario -->
             {% for field in form %}
-              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
-                <!-- Etiqueta del campo -->
-                <label class="label">{{ field.label }}</label>
+              {% if field.name != 'numero_camiseta' and field.name != 'posicion' %}
+                <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
+                  <!-- Etiqueta del campo -->
+                  <label class="label">{{ field.label }}</label>
 
-                <!-- Control que contiene el campo, con ancho fijo -->
-                <div class="control" style="width: 80%;">
-                  {% if field.name == 'rol' %}
-                    <div class="control">
-                      {% for radio in field %}
-                        <label class="radio">
-                          {{ radio.tag }} {{ radio.choice_label }}
-                        </label>
-                      {% endfor %}
-                    </div>
-                  {% else %}
-                    {{ field }}
+                  <!-- Control que contiene el campo, con ancho fijo -->
+                  <div class="control" style="width: 80%;">
+                    {% if field.name == 'rol' %}
+                      <div class="control">
+                        {% for radio in field %}
+                          <label class="radio">
+                            {{ radio.tag }} {{ radio.choice_label }}
+                          </label>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      {{ field }}
+                    {% endif %}
+                  </div>
+
+                  <!-- Texto de ayuda opcional para el campo -->
+                  {% if field.help_text %}
+                    <p class="help">{{ field.help_text }}</p>
                   {% endif %}
+
+                  <!-- Mostrar errores del campo, si los hay -->
+                  {% for error in field.errors %}
+                    <p class="help is-danger">{{ error }}</p>
+                  {% endfor %}
                 </div>
-
-                <!-- Texto de ayuda opcional para el campo -->
-                {% if field.help_text %}
-                  <p class="help">{{ field.help_text }}</p>
-                {% endif %}
-
-                <!-- Mostrar errores del campo, si los hay -->
-                {% for error in field.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
+              {% endif %}
             {% endfor %}
+
+            <!-- Campos específicos para Jugador, ocultos por defecto -->
+            <div class="field is-flex is-flex-direction-column is-align-items-center mb-4 player-fields is-hidden">
+              <label class="label">{{ form.numero_camiseta.label }}</label>
+              <div class="control" style="width: 80%;">
+                {{ form.numero_camiseta }}
+              </div>
+              {% if form.numero_camiseta.help_text %}
+                <p class="help">{{ form.numero_camiseta.help_text }}</p>
+              {% endif %}
+              {% for error in form.numero_camiseta.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+
+            <div class="field is-flex is-flex-direction-column is-align-items-center mb-4 player-fields is-hidden">
+              <label class="label">{{ form.posicion.label }}</label>
+              <div class="control" style="width: 80%;">
+                {{ form.posicion }}
+              </div>
+              {% if form.posicion.help_text %}
+                <p class="help">{{ form.posicion.help_text }}</p>
+              {% endif %}
+              {% for error in form.posicion.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            </div>
+
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const rolRadios = document.querySelectorAll('input[name="rol"]');
+                const numeroCamisetaField = document.getElementById('id_numero_camiseta').closest('.field');
+                const posicionField = document.getElementById('id_posicion').closest('.field');
+
+                function togglePlayerFields() {
+                  let isPlayer = false;
+                  rolRadios.forEach(radio => {
+                    if (radio.checked && radio.value === 'JUGADOR') {
+                      isPlayer = true;
+                    }
+                  });
+
+                  if (numeroCamisetaField) {
+                    if (isPlayer) {
+                      numeroCamisetaField.classList.remove('is-hidden');
+                      document.getElementById('id_numero_camiseta').setAttribute('required', 'required');
+                    } else {
+                      numeroCamisetaField.classList.add('is-hidden');
+                      document.getElementById('id_numero_camiseta').removeAttribute('required');
+                    }
+                  }
+
+                  if (posicionField) {
+                    if (isPlayer) {
+                      posicionField.classList.remove('is-hidden');
+                      document.getElementById('id_posicion').setAttribute('required', 'required');
+                    } else {
+                      posicionField.classList.add('is-hidden');
+                      document.getElementById('id_posicion').removeAttribute('required');
+                    }
+                  }
+                }
+
+                rolRadios.forEach(radio => {
+                  radio.addEventListener('change', togglePlayerFields);
+                });
+
+                // Initial call to set visibility and required status based on default selected role
+                togglePlayerFields();
+              });
+            </script>
 
             <!-- Botón para enviar el formulario -->
             <div class="field mt-5">

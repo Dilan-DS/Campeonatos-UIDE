@@ -1,5 +1,4 @@
 from .admin_views import *
-from .admin_views import RegistrarDelegadoAdminView
 from .autenticacion_views import *
 from .campeonato_views import *
 from .delegado_views import ListarDelegadosView, DelegadoDashboardView, ListarJugadoresParaEquipoView, AgregarJugadorAEquipoView

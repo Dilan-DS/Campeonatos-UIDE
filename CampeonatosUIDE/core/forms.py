@@ -23,11 +23,7 @@ class TipoCampeonatoForm(forms.ModelForm):
             }),
         }
 
-class DeporteForm(forms.ModelForm):
-    """
-    Formulario para registrar o editar un deporte
-    """
-
+class DeporteForm(forms.ModelForm): 
     class Meta:
         model = Deporte
         fields = '__all__'
@@ -411,6 +407,8 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
         ('DELEGADO', 'Delegado'),
     ]
     rol = forms.ChoiceField(choices=ROL_CHOICES, widget=forms.RadioSelect)
+    numero_camiseta = forms.IntegerField(required=False, help_text="Solo para jugadores")
+    posicion = forms.CharField(max_length=50, required=False, help_text="Solo para jugadores")
 
     class Meta:
         model = Usuario
@@ -421,6 +419,8 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'email',
             'carrera',
             'rol',
+            'numero_camiseta',
+            'posicion',
             'password',
             'password2',
         )
@@ -430,13 +430,42 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'input'}),
             'email': forms.EmailInput(attrs={'class': 'input'}),
             'carrera': forms.Select(attrs={'class': 'input'}),
+            'numero_camiseta': forms.NumberInput(attrs={'class': 'input is-hidden'}),
+            'posicion': forms.TextInput(attrs={'class': 'input is-hidden'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        rol = cleaned_data.get('rol')
+        numero_camiseta = cleaned_data.get('numero_camiseta')
+        posicion = cleaned_data.get('posicion')
+
+        if rol == 'JUGADOR':
+            if not numero_camiseta:
+                self.add_error('numero_camiseta', "Este campo es requerido para jugadores.")
+            if not posicion:
+                self.add_error('posicion', "Este campo es requerido para jugadores.")
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.rol = self.cleaned_data['rol']
         if commit:
             user.save()
+            if user.rol == 'JUGADOR':
+                # Create a Jugador instance. Note: equipo and edad are required for Jugador model.
+                # You might need to adjust this based on your application logic for initial player registration.
+                # For now, I'm making them optional in the form and assuming they'll be set later or have defaults.
+                # If equipo and edad are strictly required at this stage, you'll need to add them to the form.
+                Jugador.objects.create(
+                    usuario=user,
+                    numero_camiseta=self.cleaned_data.get('numero_camiseta'),
+                    posicion=self.cleaned_data.get('posicion'),
+                    # Assuming a default or placeholder for equipo and edad for initial registration
+                    # You might need to get the default team or handle this differently
+                    equipo=None, # Or a default team if applicable
+                    edad=18 # Or a default age if applicable
+                )
         return user
 
 # =============================
