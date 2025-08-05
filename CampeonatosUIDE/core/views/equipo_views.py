@@ -142,6 +142,18 @@ def jugadores_equipo(request, id):
 
 @login_required
 @user_passes_test(es_admin_o_delegado)
+def mis_jugadores_delegado(request):
+    try:
+        equipo = Equipo.objects.get(delegado=request.user)
+    except Equipo.DoesNotExist:
+        messages.error(request, "No tienes un equipo registrado.")
+        return redirect('delegado_dashboard')
+    
+    jugadores = equipo.jugadores.all()
+    return render(request, 'equipo/jugadores_equipo.html', {'equipo': equipo, 'jugadores': jugadores, 'is_delegado_view': True})
+
+@login_required
+@user_passes_test(es_admin_o_delegado)
 def eliminar_equipo(request, id):
     equipo = get_object_or_404(Equipo, id=id)
     if request.method == 'POST':
