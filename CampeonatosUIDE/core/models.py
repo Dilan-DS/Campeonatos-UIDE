@@ -53,6 +53,12 @@ class Usuario(AbstractUser):
         related_query_name='usuario_custom',
     )
 
+    GENERO_CHOICES = (
+        ('masculino', 'Masculino'),
+        ('femenino', 'Femenino'),
+    )
+    genero = models.CharField(max_length=20, choices=GENERO_CHOICES)
+
     # Representación en texto del usuario
     def __str__(self):
         return f"{self.username} ({self.rol})"
