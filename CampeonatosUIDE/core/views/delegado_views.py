@@ -44,8 +44,11 @@ class ListarJugadoresParaEquipoView(LoginRequiredMixin, View):
                 messages.warning(request, "Tu equipo debe tener el pago aprobado para gestionar jugadores.")
                 return redirect('delegado_dashboard') # Redirigir a un lugar seguro, o mostrar un mensaje en la misma página
             
-            # Obtener todos los usuarios con rol JUGADOR
-            jugadores_disponibles = Usuario.objects.filter(rol='JUGADOR').order_by('username')
+            # Obtener todos los usuarios con rol JUGADOR que coincidan con el género del equipo
+            jugadores_disponibles = Usuario.objects.filter(
+                rol='JUGADOR',
+                genero=equipo_delegado.genero
+            ).order_by('username')
 
             # Para cada jugador, verificar si ya está en un equipo
             jugadores_data = []
