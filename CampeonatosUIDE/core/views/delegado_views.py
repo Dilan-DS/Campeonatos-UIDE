@@ -95,31 +95,28 @@ class AgregarJugadorAEquipoView(LoginRequiredMixin, View):
 
             jugador_usuario = get_object_or_404(Usuario, id=jugador_usuario_id, rol='JUGADOR')
 
-            # Verificar si el jugador ya está en algún equipo
-            if Jugador.objects.filter(usuario=jugador_usuario).exists():
-                messages.warning(request, f"{jugador_usuario.username} ya está inscrito en otro equipo.")
+            # Intentar encontrar el objeto Jugador para el Usuario seleccionado
+            jugador_existente = Jugador.objects.filter(usuario=jugador_usuario).first()
+
+            # Si el objeto Jugador no existe, significa que el usuario no completó el registro como jugador
+            if not jugador_existente:
+                messages.error(request, f"El usuario {jugador_usuario.username} no tiene un registro de jugador completo y no puede ser agregado a un equipo.")
                 return redirect('listar_jugadores_para_equipo')
-            
+
+            # Verificar si el jugador ya está en otro equipo
+            if jugador_existente.equipo:
+                messages.warning(request, f"{jugador_usuario.username} ya está inscrito en el equipo {jugador_existente.equipo.nombre}.")
+                return redirect('listar_jugadores_para_equipo')
+
             # Verificar si el equipo ya alcanzó el máximo de jugadores
             if equipo_delegado.jugadores.count() >= equipo_delegado.campeonato.max_jugadores_por_equipo:
                 messages.error(request, f"Tu equipo ya tiene el máximo de jugadores permitidos ({equipo_delegado.campeonato.max_jugadores_por_equipo}).")
                 return redirect('listar_jugadores_para_equipo')
 
-            # Crear el objeto Jugador y asignarlo al equipo
-            # Asignar un número de camiseta. Podrías tener una lógica más sofisticada aquí.
-            # Por ahora, asignaremos el siguiente número disponible o 1 si no hay jugadores.
-            next_camiseta_number = 1
-            if equipo_delegado.jugadores.exists():
-                last_player = equipo_delegado.jugadores.order_by('-numero_camiseta').first()
-                next_camiseta_number = last_player.numero_camiseta + 1
-
-            Jugador.objects.create(
-                usuario=jugador_usuario,
-                equipo=equipo_delegado,
-                numero_camiseta=jugador_usuario.numero_camiseta, # Use numero_camiseta from Usuario
-                posicion=jugador_usuario.posicion, # Use posicion from Usuario
-                edad=18 # Assuming a default age or that it's set elsewhere
-            )
+            # Asignar el equipo al jugador existente y guardar
+            jugador_existente.equipo = equipo_delegado
+            jugador_existente.save()
+            messages.success(request, f"{jugador_usuario.username} ha sido agregado a tu equipo.")
             messages.success(request, f"{jugador_usuario.username} ha sido agregado a tu equipo.")
             return redirect('listar_jugadores_para_equipo')
 

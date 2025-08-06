@@ -423,6 +423,7 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
     rol = forms.ChoiceField(choices=ROL_CHOICES, widget=forms.RadioSelect)
     numero_camiseta = forms.IntegerField(required=False, help_text="Solo para jugadores")
     posicion = forms.CharField(max_length=50, required=False, help_text="Solo para jugadores")
+    edad = forms.IntegerField(required=False, help_text="Solo para jugadores")
 
     class Meta:
         model = Usuario
@@ -436,6 +437,7 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'rol',
             'numero_camiseta',
             'posicion',
+            'edad',
             'password',
             'password2',
         )
@@ -448,6 +450,7 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'genero': forms.Select(attrs={'class': 'select'}),
             'numero_camiseta': forms.NumberInput(attrs={'class': 'input is-hidden'}),
             'posicion': forms.TextInput(attrs={'class': 'input is-hidden'}),
+            'edad': forms.NumberInput(attrs={'class': 'input is-hidden'}),
         }
 
     def clean(self):
@@ -455,12 +458,15 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
         rol = cleaned_data.get('rol')
         numero_camiseta = cleaned_data.get('numero_camiseta')
         posicion = cleaned_data.get('posicion')
+        edad = cleaned_data.get('edad')
 
         if rol == 'JUGADOR':
             if not numero_camiseta:
                 self.add_error('numero_camiseta', "Este campo es requerido para jugadores.")
             if not posicion:
                 self.add_error('posicion', "Este campo es requerido para jugadores.")
+            if not edad:
+                self.add_error('edad', "Este campo es requerido para jugadores.")
         return cleaned_data
 
     def save(self, commit=True):
@@ -468,6 +474,13 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
         user.rol = self.cleaned_data['rol']
         if commit:
             user.save()
+            if user.rol == 'JUGADOR':
+                Jugador.objects.create(
+                    usuario=user,
+                    numero_camiseta=self.cleaned_data.get('numero_camiseta'),
+                    posicion=self.cleaned_data.get('posicion'),
+                    edad=self.cleaned_data.get('edad')
+                )
         return user
 
 # =============================
