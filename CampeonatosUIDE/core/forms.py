@@ -432,6 +432,7 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'last_name',
             'email',
             'carrera',
+            'genero',
             'rol',
             'numero_camiseta',
             'posicion',
@@ -444,6 +445,7 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'input'}),
             'email': forms.EmailInput(attrs={'class': 'input'}),
             'carrera': forms.Select(attrs={'class': 'input'}),
+            'genero': forms.Select(attrs={'class': 'select'}),
             'numero_camiseta': forms.NumberInput(attrs={'class': 'input is-hidden'}),
             'posicion': forms.TextInput(attrs={'class': 'input is-hidden'}),
         }
@@ -495,7 +497,8 @@ class CrearUsuarioAdminForm(UserCreationForm):
             'email',
             'rol',
             'carrera',
-            'password1',
+            'genero',
+            'password',
             'password2',
         )
 
@@ -506,6 +509,7 @@ class CrearUsuarioAdminForm(UserCreationForm):
             'email': forms.EmailInput(attrs={'class': 'input'}),
             'rol': forms.Select(attrs={'class': 'select'}),
             'carrera': forms.TextInput(attrs={'class': 'input'}),
+            'genero': forms.Select(attrs={'class': 'select'}),
         }
 
 class CrearUsuarioDelegadoForm(forms.ModelForm):
