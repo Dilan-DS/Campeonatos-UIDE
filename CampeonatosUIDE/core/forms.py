@@ -468,20 +468,6 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
         user.rol = self.cleaned_data['rol']
         if commit:
             user.save()
-            if user.rol == 'JUGADOR':
-                # Create a Jugador instance. Note: equipo and edad are required for Jugador model.
-                # You might need to adjust this based on your application logic for initial player registration.
-                # For now, I'm making them optional in the form and assuming they'll be set later or have defaults.
-                # If equipo and edad are strictly required at this stage, you'll need to add them to the form.
-                Jugador.objects.create(
-                    usuario=user,
-                    numero_camiseta=self.cleaned_data.get('numero_camiseta'),
-                    posicion=self.cleaned_data.get('posicion'),
-                    # Assuming a default or placeholder for equipo and edad for initial registration
-                    # You might need to get the default team or handle this differently
-                    equipo=None, # Or a default team if applicable
-                    edad=18 # Or a default age if applicable
-                )
         return user
 
 # =============================
