@@ -54,39 +54,40 @@
             {% endfor %}
 
             <!-- Campos específicos para Jugador, ocultos por defecto -->
-            <div class="field is-flex is-flex-direction-column is-align-items-center mb-4 player-fields is-hidden">
-              <label class="label">{{ form.numero_camiseta.label }}</label>
-              <div class="control" style="width: 80%;">
-                {{ form.numero_camiseta }}
-              </div>
-              {% if form.numero_camiseta.help_text %}
-                {% if from.rol.value == 'JUGADOR' %}
+            <div id="player-fields-wrapper">
+              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
+                <label class="label">{{ form.numero_camiseta.label }}</label>
+                <div class="control" style="width: 80%;">
+                  {{ form.numero_camiseta }} 
+                </div>
+                {% if form.numero_camiseta.help_text %}
                   <p class="help">{{ form.numero_camiseta.help_text }}</p>
                 {% endif %}
-              {% endif %}
-              {% for error in form.numero_camiseta.errors %}
-                <p class="help is-danger">{{ error }}</p>
-              {% endfor %}
-            </div>
-
-            <div class="field is-flex is-flex-direction-column is-align-items-center mb-4 player-fields is-hidden">
-              <label class="label">{{ form.posicion.label }}</label>
-              <div class="control" style="width: 80%;">
-                {{ form.posicion }}
+                {% for error in form.numero_camiseta.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
               </div>
-              {% if form.posicion.help_text %}
-                <p class="help">{{ form.posicion.help_text }}</p>
-              {% endif %}
-              {% for error in form.posicion.errors %}
-                <p class="help is-danger">{{ error }}</p>
-              {% endfor %}
+
+              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
+                <label class="label">{{ form.posicion.label }}</label>
+                <div class="control" style="width: 80%;">
+                  {{ form.posicion }}
+                </div>
+                {% if form.posicion.help_text %}
+                  <p class="help">{{ form.posicion.help_text }}</p>
+                {% endif %}
+                {% for error in form.posicion.errors %}
+                  <p class="help is-danger">{{ error }}</p>
+                {% endfor %}
+              </div>
             </div>
 
             <script>
               document.addEventListener('DOMContentLoaded', function() {
                 const rolRadios = document.querySelectorAll('input[name="rol"]');
-                const numeroCamisetaField = document.getElementById('id_numero_camiseta').closest('.field');
-                const posicionField = document.getElementById('id_posicion').closest('.field');
+                const playerFieldsWrapper = document.getElementById('player-fields-wrapper');
+                const numeroCamisetaInput = document.getElementById('id_numero_camiseta');
+                const posicionInput = document.getElementById('id_posicion');
 
                 function togglePlayerFields() {
                   let isPlayer = false;
@@ -96,24 +97,14 @@
                     }
                   });
 
-                  if (numeroCamisetaField) {
-                    if (isPlayer) {
-                      numeroCamisetaField.classList.remove('is-hidden');
-                      document.getElementById('id_numero_camiseta').setAttribute('required', 'required');
-                    } else {
-                      numeroCamisetaField.classList.add('is-hidden');
-                      document.getElementById('id_numero_camiseta').removeAttribute('required');
-                    }
-                  }
-
-                  if (posicionField) {
-                    if (isPlayer) {
-                      posicionField.classList.remove('is-hidden');
-                      document.getElementById('id_posicion').setAttribute('required', 'required');
-                    } else {
-                      posicionField.classList.add('is-hidden');
-                      document.getElementById('id_posicion').removeAttribute('required');
-                    }
+                  if (isPlayer) {
+                    playerFieldsWrapper.classList.remove('is-hidden');
+                    numeroCamisetaInput.required = true;
+                    posicionInput.required = true;
+                  } else {
+                    playerFieldsWrapper.classList.add('is-hidden');
+                    numeroCamisetaInput.required = false;
+                    posicionInput.required = false;
                   }
                 }
 
