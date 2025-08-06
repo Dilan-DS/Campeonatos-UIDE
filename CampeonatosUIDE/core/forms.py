@@ -14,25 +14,7 @@ class CarreraForm(forms.ModelForm):
             }),
         }
 
-class TipoCampeonatoForm(forms.ModelForm):
-    """
-    Formulario para registrar o editar un tipo de campeonato
-    """
 
-    class Meta:
-        model = TipoCampeonato
-        fields = '__all__'
-        widgets = {
-            'nombre': forms.TextInput(attrs={
-                'placeholder': 'Ej: Eliminatorias, Fase de Grupos, Torneo Rápido...',
-                'class': 'input'
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'placeholder': 'Descripción opcional del tipo de campeonato',
-                'class': 'textarea',
-                'rows': 3
-            }),
-        }
 
 class DeporteForm(forms.ModelForm): 
     class Meta:
@@ -337,7 +319,7 @@ class CampeonatoForm(forms.ModelForm):
                 'placeholder': 'Nombre único del campeonato',
                 'class': 'input'
             }),
-            'tipo_campeonato': forms.Select(attrs={
+            'tipo_campeonato': forms.Select(choices=Campeonato.TIPO_CAMPEONATO_CHOICES, attrs={
                 'class': 'select is-fullwidth'
             }),
             'descripcion': forms.Textarea(attrs={
