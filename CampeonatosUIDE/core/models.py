@@ -375,7 +375,7 @@ class Equipo(models.Model):
 # Modelo jugador
 class Jugador(models.Model):
     # Equipo al que pertenece el jugador (FK)
-    equipo = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='jugadores')
+    equipo = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='jugadores')
     # Usuario que representa al jugador (rol JUGADOR)
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, limit_choices_to={'rol': 'JUGADOR'})
     # Número de camiseta (único en equipo)
@@ -387,31 +387,29 @@ class Jugador(models.Model):
 
     # Restricción de número único en el equipo
     class Meta:
-        unique_together = ('equipo', 'numero_camiseta')
+        unique_together = (('equipo', 'numero_camiseta'),)
 
     # Validación edad mínima 17 años y equipo aprobado
     def clean(self):
         if self.edad < 17:
             raise ValidationError("La edad mínima para un jugador es 17 años.")
-        if self.equipo and not self.equipo.aprobado:
-            raise ValidationError("No se pueden añadir jugadores a un equipo no aprobado.")
+        
+        if self.equipo:
+            if not self.equipo.aprobado:
+                raise ValidationError("No se pueden añadir jugadores a un equipo no aprobado.")
             
-        # VALIDACIÓN MEJORADA: no sobrepasar el número máximo permitido de jugadores.
-        # El conteo de jugadores debería excluir el jugador actual si está editando.
-        campeonato = self.equipo.campeonato
-        
-        # Iniciar el queryset para contar jugadores
-        jugadores_en_equipo = self.equipo.jugadores.all()
-        
-        # Si el jugador está siendo editado (ya tiene un PK), excluirlo del conteo para no contarlo doble
-        if self.pk:
-            jugadores_en_equipo = jugadores_en_equipo.exclude(pk=self.pk)
+            # VALIDACIÓN MEJORADA: no sobrepasar el número máximo permitido de jugadores.
+            campeonato = self.equipo.campeonato
+            
+            jugadores_en_equipo = self.equipo.jugadores.all()
+            
+            if self.pk:
+                jugadores_en_equipo = jugadores_en_equipo.exclude(pk=self.pk)
 
-        cantidad_actual = jugadores_en_equipo.count()
+            cantidad_actual = jugadores_en_equipo.count()
 
-        # Validar si al agregar/mover este jugador se excede el límite
-        if cantidad_actual >= campeonato.max_jugadores_por_equipo:
-            raise ValidationError(f"El equipo ya tiene el máximo de jugadores permitidos ({campeonato.max_jugadores_por_equipo}) para este campeonato.")
+            if cantidad_actual >= campeonato.max_jugadores_por_equipo:
+                raise ValidationError(f"El equipo ya tiene el máximo de jugadores permitidos ({campeonato.max_jugadores_por_equipo}) para este campeonato.")
 
 
 # Modelo partido
