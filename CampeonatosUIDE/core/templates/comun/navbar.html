@@ -77,13 +77,13 @@
 
         {% elif request.user.rol == "JUGADOR" %}
           <!-- JUGADOR -->
-          {% with request.user.jugador as jugador %}
-            {% if jugador %}
-              <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link has-text-white">🎮 Jugador</a>
-                <div class="navbar-dropdown">
-                  <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-                  <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">📅 Mis Partidos</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">🎮 Jugador</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
+              <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">📅 Mis Partidos</a>
+              {% with request.user.jugador as jugador %}
+                {% if jugador %}
                   <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
                   {% if jugador.equipo %}
                     <a class="navbar-item" href="{% url 'ver_equipo_jugador' equipo_id=jugador.equipo.id %}">⚽ Mi Equipo</a>
@@ -91,12 +91,10 @@
                       <a class="navbar-item" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Tabla de Posiciones</a>
                     {% endif %}
                   {% endif %}
-                </div>
-              </div>
-            {% else %}
-              <a class="navbar-item has-text-white" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-            {% endif %}
-          {% endwith %}
+                {% endif %}
+              {% endwith %}
+            </div>
+          </div>
         {% endif %}
       {% endif %}
     </div>

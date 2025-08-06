@@ -104,7 +104,9 @@
       </form>
 
       <div class="has-text-centered mt-4">
-        <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-rounded">Ver mis compañeros</a>
+        {% if equipo.id %}
+          <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-rounded">Ver mis compañeros</a>
+        {% endif %}
         <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded">
           ← Volver al listado
         </a>
