@@ -199,6 +199,10 @@ class Campeonato(models.Model):
 
 # Modelo equipo
 class Equipo(models.Model):
+    GENERO_CHOICES = (
+        ('masculino', 'Masculino'),
+        ('femenino', 'Femenino'),
+    )
     # Campeonato al que pertenece el equipo (FK)
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='equipos')
     # Nombre del equipo
@@ -211,6 +215,8 @@ class Equipo(models.Model):
     aprobado = models.BooleanField(default=False)
     # Delegado que registró el equipo (debe ser rol DELEGADO)
     delegado = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, limit_choices_to={'rol': 'DELEGADO'})
+    # Género del equipo
+    genero = models.CharField(max_length=20, choices=GENERO_CHOICES, default='masculino')
 
     def clean(self):
         # Validar que el nombre del equipo no esté vacío
