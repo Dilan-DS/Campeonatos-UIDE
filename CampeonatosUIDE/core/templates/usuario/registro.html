@@ -30,7 +30,7 @@
                     {% if field.name == 'rol' %}
                       <div class="control">
                         {% for radio in field %}
-                          <label class="radio">
+                          <label class="radio" >
                             {{ radio.tag }} {{ radio.choice_label }}
                           </label>
                         {% endfor %}
@@ -60,7 +60,9 @@
                 {{ form.numero_camiseta }}
               </div>
               {% if form.numero_camiseta.help_text %}
-                <p class="help">{{ form.numero_camiseta.help_text }}</p>
+                {% if from.rol.value == 'JUGADOR' %}
+                  <p class="help">{{ form.numero_camiseta.help_text }}</p>
+                {% endif %}
               {% endif %}
               {% for error in form.numero_camiseta.errors %}
                 <p class="help is-danger">{{ error }}</p>

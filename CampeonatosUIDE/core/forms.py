@@ -189,6 +189,9 @@ class EquipoForm(forms.ModelForm):
             'delegado': forms.Select(attrs={
                 'class': 'select is-fullwidth'
             }),
+            'genero': forms.Select(attrs={
+                'class': 'select is-fullwidth'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
