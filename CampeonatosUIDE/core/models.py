@@ -122,20 +122,6 @@ class CodigoQR(models.Model):
         verbose_name_plural = "Códigos QR"
     
 
-# Modelo para tipos de campeonatos
-# aqui eligen q tipo quieren si eliminatorias si fase de grupos etc y eligen en capeonato 
-class TipoCampeonato(models.Model):
-    # Nombre único del tipo de campeonato ( Fútbol, Básquet, etc.)
-    nombre = models.CharField(max_length=30, unique=True)
-    # Descripción opcional del tipo de campeonato
-    descripcion = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre
-
-    class Meta:
-        verbose_name = "Tipo de Campeonato"
-        verbose_name_plural = "Tipos de Campeonato"
 # Modelo campeonato
 class Campeonato(models.Model):
     # Opciones para días de la semana donde se juega
@@ -155,16 +141,23 @@ class Campeonato(models.Model):
         ('EN_CURSO', 'En Curso'),
         ('FINALIZADO', 'Finalizado'),
     ]
-        # Opciones para activo y público
+    # Opciones para activo y público
     OPCIONES_SI_NO = [
         ('SI', 'Sí'),
         ('NO', 'No'),
     ]
 
+    # Opciones para el tipo de campeonato
+    TIPO_CAMPEONATO_CHOICES = [
+        ('FASE_GRUPOS', 'Fase de Grupos'),
+        ('ELIMINATORIA', 'Eliminatoria Simple'),
+        ('LIGA', 'Todos contra todos'),
+    ]
+
     # Nombre único del campeonato
     nombre = models.CharField(max_length=100, unique=True)
-    # Tipo de campeonato (FK a TipoCampeonato)
-    tipo_campeonato = models.ForeignKey(TipoCampeonato, on_delete=models.SET_NULL, null=True, blank=True, related_name='campeonatos')
+    # Tipo de campeonato (CharField con choices)
+    tipo_campeonato = models.CharField(max_length=20, choices=TIPO_CAMPEONATO_CHOICES)
 
     # Descripción del campeonato
     descripcion = models.TextField()

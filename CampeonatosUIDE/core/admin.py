@@ -208,13 +208,7 @@ class SuspensionAdmin(admin.ModelAdmin):
         return "Sí" if obj.esta_activa() else "No"
     esta_activa_display.short_description = '¿Activa?'
 
-class TipoCampeonatoAdmin(admin.ModelAdmin):
-    # Campos que se mostrarán en la tabla del admin
-    list_display = ('nombre', 'descripcion')
-    # Permite buscar por nombre
-    search_fields = ('nombre',)
-    # Ordena por nombre alfabéticamente
-    ordering = ('nombre',)
+
 
 
 class EstadisticaJugadorFutbolAdmin(admin.ModelAdmin):
@@ -281,8 +275,7 @@ admin.site.register(CodigoQR, CodigoQRAdmin)
 admin.site.register(Transmision, TransmisionAdmin)
 # Registra el modelo Pago para gestionar los pagos de los usuarios
 admin.site.register(Pago, PagoAdmin)
-# Registra el modelo TipoCampeonato 
-admin.site.register(TipoCampeonato, TipoCampeonatoAdmin)
+
 admin.site.register(Usuario, UsuarioAdmin)
 # Estadísticas por jugador - Futbol
 admin.site.register(EstadisticaJugadorFutbol, EstadisticaJugadorFutbolAdmin)

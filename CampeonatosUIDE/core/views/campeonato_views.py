@@ -94,7 +94,7 @@ class EditarCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
             # Obtiene datos limpios para actualizar manualmente
             cleaned = form.cleaned_data
             campeonato.nombre = cleaned.get('nombre', campeonato.nombre)
-            campeonato.tipo_campeonato = cleaned.get('tipo_campeonato', campeonato.tipo_campeonato)
+            campeonato.tipo_campeonato = cleaned.get('tipo_campeonato')
             campeonato.descripcion = cleaned.get('descripcion', campeonato.descripcion)
             campeonato.fecha_inicio = cleaned.get('fecha_inicio', campeonato.fecha_inicio)
             campeonato.fecha_fin = cleaned.get('fecha_fin', campeonato.fecha_fin)

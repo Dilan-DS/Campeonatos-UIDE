@@ -69,11 +69,8 @@ urlpatterns = [
     path('deportes/<int:id>/editar/', EditarDeporteView.as_view(), name='editar_deporte'),
     path('deportes/<int:id>/eliminar/', EliminarDeporteView.as_view(), name='eliminar_deporte'),
 
-    # Rutas de tipos de campeonato
-    path('tipos-campeonato/', ListaTiposCampeonatoView.as_view(), name='listar_tipos_campeonato'),
-    path('tipos-campeonato/registrar/', RegistrarTipoCampeonatoView.as_view(), name='registrar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/editar/', EditarTipoCampeonatoView.as_view(), name='editar_tipo_campeonato'),
-    path('tipos-campeonato/<int:id>/eliminar/', EliminarTipoCampeonatoView.as_view(), name='eliminar_tipo_campeonato'),
+    
+    
 
     # Equipos
     path('equipos/', listar_equipos, name='listar_equipos'),
