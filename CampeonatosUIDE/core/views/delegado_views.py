@@ -57,9 +57,11 @@ class ListarJugadoresParaEquipoView(LoginRequiredMixin, View):
                 
                 estado_inscripcion = ""
                 ya_inscrito = False
-                if jugador_obj:
+                if jugador_obj and jugador_obj.equipo:
                     estado_inscripcion = f"Ya inscrito en: {jugador_obj.equipo.nombre}"
                     ya_inscrito = True
+                else:
+                    estado_inscripcion = "Disponible"
                 
                 jugadores_data.append({
                     'usuario': jugador_usuario,

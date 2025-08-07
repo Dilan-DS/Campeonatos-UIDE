@@ -403,10 +403,6 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
         ('DELEGADO', 'Delegado'),
     ]
     rol = forms.ChoiceField(choices=ROL_CHOICES, widget=forms.RadioSelect)
-    numero_camiseta = forms.IntegerField(required=False, help_text="Solo para jugadores")
-    posicion = forms.CharField(max_length=50, required=False, help_text="Solo para jugadores")
-    edad = forms.IntegerField(required=False, help_text="Solo para jugadores")
-
     class Meta:
         model = Usuario
         fields = (
@@ -417,11 +413,6 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'carrera',
             'genero',
             'rol',
-            'numero_camiseta',
-            'posicion',
-            'edad',
-            'password',
-            'password2',
         )
         widgets = {
             'username': forms.TextInput(attrs={'class': 'input'}),
@@ -430,39 +421,13 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
             'email': forms.EmailInput(attrs={'class': 'input'}),
             'carrera': forms.Select(attrs={'class': 'input'}),
             'genero': forms.Select(attrs={'class': 'select'}),
-            'numero_camiseta': forms.NumberInput(attrs={'class': 'input is-hidden'}),
-            'posicion': forms.TextInput(attrs={'class': 'input is-hidden'}),
-            'edad': forms.NumberInput(attrs={'class': 'input is-hidden'}),
         }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        rol = cleaned_data.get('rol')
-        numero_camiseta = cleaned_data.get('numero_camiseta')
-        posicion = cleaned_data.get('posicion')
-        edad = cleaned_data.get('edad')
-
-        if rol == 'JUGADOR':
-            if not numero_camiseta:
-                self.add_error('numero_camiseta', "Este campo es requerido para jugadores.")
-            if not posicion:
-                self.add_error('posicion', "Este campo es requerido para jugadores.")
-            if not edad:
-                self.add_error('edad', "Este campo es requerido para jugadores.")
-        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.rol = self.cleaned_data['rol']
         if commit:
             user.save()
-            if user.rol == 'JUGADOR':
-                Jugador.objects.create(
-                    usuario=user,
-                    numero_camiseta=self.cleaned_data.get('numero_camiseta'),
-                    posicion=self.cleaned_data.get('posicion'),
-                    edad=self.cleaned_data.get('edad')
-                )
         return user
 
 # =============================
@@ -632,28 +597,35 @@ class UsuarioForm(forms.ModelForm):
 ##################################
 class JugadorForm(forms.ModelForm):
     """
-    Formulario para registrar o editar un jugador en un equipo
+    Formulario para que el jugador complete su perfil inicial.
     """
+    posicion = forms.CharField(max_length=50, required=False, help_text="Posición principal en el campo (ej: Delantero, Defensa)")
 
     class Meta:
         model = Jugador
-        fields = '__all__'
+        fields = ['numero_camiseta', 'edad', 'posicion']
         widgets = {
-            'equipo': forms.Select(attrs={
-                'class': 'select is-fullwidth'
-            }),
-            'usuario': forms.Select(attrs={
-                'class': 'select is-fullwidth'
-            }),
             'numero_camiseta': forms.NumberInput(attrs={
                 'class': 'input',
-                'placeholder': 'Número único dentro del equipo'
+                'placeholder': 'Número de camiseta'
             }),
             'edad': forms.NumberInput(attrs={
                 'class': 'input',
-                'placeholder': 'Edad mínima 17 años'
+                'placeholder': 'Tu edad'
+            }),
+            'posicion': forms.TextInput(attrs={
+                'class': 'input',
+                'placeholder': 'Ej: Delantero, Defensa, Portero'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Asegurarse de que los campos sean requeridos para el jugador
+        self.fields['numero_camiseta'].required = True
+        self.fields['edad'].required = True
+        self.fields['posicion'].required = True
+
 
 class EstadisticaJugadorFutbolForm(forms.ModelForm):
     class Meta:
