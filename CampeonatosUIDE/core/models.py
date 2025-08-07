@@ -379,15 +379,22 @@ class Jugador(models.Model):
     edad = models.PositiveIntegerField()
 
     # Restricción de número único en el equipo
-    class Meta:
-        unique_together = (('equipo', 'numero_camiseta'),)
+    
 
     # Validación edad mínima 17 años y equipo aprobado
     def clean(self):
+        super().clean()
         if self.edad < 17:
             raise ValidationError("La edad mínima para un jugador es 17 años.")
         
         if self.equipo:
+            if self.numero_camiseta is None:
+                raise ValidationError("El número de camiseta es obligatorio cuando el jugador está en un equipo.")
+
+            # Validar que el número de camiseta sea único dentro del equipo
+            if Jugador.objects.filter(equipo=self.equipo, numero_camiseta=self.numero_camiseta).exclude(pk=self.pk).exists():
+                raise ValidationError("Ya existe un jugador con este número de camiseta en este equipo.")
+
             if not self.equipo.aprobado:
                 raise ValidationError("No se pueden añadir jugadores a un equipo no aprobado.")
             
