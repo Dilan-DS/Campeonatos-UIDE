@@ -68,6 +68,30 @@ def registrar_jugador(request):
 
 
 @login_required
+def completar_perfil_jugador(request):
+    # Asegurarse de que el usuario sea un jugador y no tenga un perfil de Jugador ya creado
+    if not hasattr(request.user, 'rol') or request.user.rol != 'JUGADOR':
+        messages.error(request, "Acceso denegado. Esta página es solo para jugadores.")
+        return redirect('vista_inicio')
+
+    if hasattr(request.user, 'jugador'):
+        messages.info(request, "Tu perfil de jugador ya está completo.")
+        return redirect('jugador_dashboard')
+
+    if request.method == 'POST':
+        form = JugadorForm(request.POST)
+        if form.is_valid():
+            jugador = form.save(commit=False)
+            jugador.usuario = request.user  # Asignar el usuario actual al jugador
+            jugador.save()
+            messages.success(request, 'Perfil de jugador completado exitosamente.')
+            return redirect('jugador_dashboard')
+    else:
+        form = JugadorForm()
+    return render(request, 'jugador/completar_perfil.html', {'form': form})
+
+
+@login_required
 @user_passes_test(es_jugador)
 def jugador_dashboard(request):
     try:

@@ -52,6 +52,8 @@ def vista_registro(request):
         # Redirige según el rol del usuario
         if user.rol == 'DELEGADO':
             return redirect('delegado_dashboard')
+        elif user.rol == 'JUGADOR':
+            return redirect('completar_perfil_jugador')
         else:
             return redirect('jugador_dashboard')  
 

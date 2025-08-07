@@ -26,6 +26,7 @@ urlpatterns = [
     path('jugador/estadisticas/<int:jugador_id>/', ver_estadisticas_jugador, name='ver_estadisticas_jugador'),
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
     path('jugador/registrar/', registrar_jugador, name='registrar_jugador'),
+    path('jugador/completar-perfil/', completar_perfil_jugador, name='completar_perfil_jugador'),
     path('equipo/<int:id>/detalle/', detalle_equipo, name='detalle_equipo'),
 
     # Autenticación y perfil
