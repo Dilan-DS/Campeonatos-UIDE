@@ -85,7 +85,7 @@ def completar_perfil_jugador(request):
             jugador.usuario = request.user  # Asignar el usuario actual al jugador
             jugador.save()
             messages.success(request, 'Perfil de jugador completado exitosamente.')
-            return redirect('jugador_dashboard')
+            return redirect('inicio_publico')
     else:
         form = JugadorForm()
     return render(request, 'jugador/completar_perfil.html', {'form': form})
@@ -96,92 +96,34 @@ def completar_perfil_jugador(request):
 def jugador_dashboard(request):
     try:
         jugador = Jugador.objects.select_related('equipo__campeonato').get(usuario=request.user)
-        equipo = jugador.equipo
-        campeonato = equipo.campeonato
 
-        # Obtener los próximos partidos del equipo del jugador
-        upcoming_matches = Partido.objects.filter(
-            Q(equipo_local=equipo) | Q(equipo_visitante=equipo),
-            fecha__gte=timezone.now().date() # Partidos desde hoy en adelante
-        ).order_by('fecha', 'hora')[:5] # Obtener los próximos 5 partidos
-
-        # Obtener las estadísticas del jugador según el deporte
-        deporte_nombre = campeonato.deporte.nombre.upper()
+        equipo = None
+        campeonato = None
+        upcoming_matches = []
         player_stats = None
-        if deporte_nombre == 'FUTBOL':
-            player_stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'BASQUET':
-            player_stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'AJEDREZ':
-            player_stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'ECUABOLY':
-            player_stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'PING PONG':
-            player_stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'TENIS':
-            player_stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'VIDEOJUEGOS':
-            player_stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == 'FUTBOLIN':
-            player_stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
-
-        # Calcular la posición del equipo del jugador en la tabla (duplicando lógica de TablaPosiciones para mostrar en dashboard)
-        all_teams = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True))
-        team_stats_for_ranking = []
-        for t in all_teams:
-            pj = 0; pg = 0; pe = 0; pp = 0; gf = 0; gc = 0; puntos = 0
-
-            partidos_local = Partido.objects.filter(
-                campeonato=campeonato,
-                equipo_local=t,
-                estado='FINALIZADO'
-            )
-            for p in partidos_local:
-                pj += 1
-                gf += p.resultado_local
-                gc += p.resultado_visitante
-                if p.resultado_local > p.resultado_visitante:
-                    pg += 1
-                    puntos += 3
-                elif p.resultado_local == p.resultado_visitante:
-                    pe += 1
-                    puntos += 1
-                else:
-                    pp += 1
-
-            partidos_visitante = Partido.objects.filter(
-                campeonato=campeonato,
-                equipo_visitante=t,
-                estado='FINALIZADO'
-            )
-            for p in partidos_visitante:
-                pj += 1
-                gf += p.resultado_visitante
-                gc += p.resultado_local
-                if p.resultado_visitante > p.resultado_local:
-                    pg += 1
-                    puntos += 3
-                elif p.resultado_visitante == p.resultado_local:
-                    pe += 1
-                    puntos += 1
-                else:
-                    pp += 1
-            
-            gd = gf - gc
-
-            team_stats_for_ranking.append({
-                'equipo': t,
-                'pj': pj, 'pg': pg, 'pe': pe, 'pp': pp,
-                'gf': gf, 'gc': gc, 'gd': gd, 'puntos': puntos
-            })
-        
-        sorted_teams_for_ranking = sorted(team_stats_for_ranking, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
-
+        deporte_nombre = None
         team_rank = None
-        for i, team_data in enumerate(sorted_teams_for_ranking):
-            if team_data['equipo'] == equipo:
-                team_rank = i + 1
-                break
+        team_points = None
+
+        if jugador.equipo:
+            equipo = jugador.equipo
+            campeonato = equipo.campeonato
+
+            # Obtener los próximos partidos del equipo del jugador
+            upcoming_matches = Partido.objects.filter(
+                Q(equipo_local=equipo) | Q(equipo_visitante=equipo),
+                fecha__gte=timezone.now().date() # Partidos desde hoy en adelante
+            ).order_by('fecha', 'hora')[:5] # Obtener los próximos 5 partidos
+
+            if campeonato: # Check if campeonato exists before accessing its attributes
+                
+                
+                if hasattr(equipo, 'puntos_totales'): # Check if puntos_totales exists
+                    team_points = equipo.puntos_totales
+
+        
+
+        
 
         return render(request, 'dashboard/jugador.html', {
             'jugador': jugador,
@@ -191,7 +133,7 @@ def jugador_dashboard(request):
             'player_stats': player_stats,
             'deporte_nombre': deporte_nombre, # Pasar el nombre del deporte para la plantilla
             'team_rank': team_rank,
-            'team_points': equipo.puntos_totales # Asumiendo que esta propiedad ya existe y es eficiente
+            'team_points': team_points # Use the potentially None team_points
         })
     except Jugador.DoesNotExist:
         messages.error(request, "No se encontró tu perfil de jugador.")
@@ -310,21 +252,7 @@ def tabla_estadisticas(request, campeonato_id):
             else:
                 pp += 1
             
-            gd = gf - gc
-
-            team_stats_for_ranking.append({
-                'equipo': t,
-                'pj': pj, 'pg': pg, 'pe': pe, 'pp': pp,
-                'gf': gf, 'gc': gc, 'gd': gd, 'puntos': puntos
-            })
-        
-        sorted_teams_for_ranking = sorted(team_stats_for_ranking, key=lambda x: (x['puntos'], x['gd'], x['gf']), reverse=True)
-
-        team_rank = None
-        for i, team_data in enumerate(sorted_teams_for_ranking):
-            if team_data['equipo'] == equipo:
-                team_rank = i + 1
-                break
+            
 
     context = {
         'campeonato': campeonato,
