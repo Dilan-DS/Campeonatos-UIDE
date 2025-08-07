@@ -608,6 +608,16 @@ def actualizar_estado_equipo(sender, instance, **kwargs):
         # Guardar el equipo
         equipo.save()
 
+from core.utils.fixture_generator_central import generar_fixture_campeonato
+
+@receiver(post_save, sender=Campeonato)
+def generar_fixture_campeonato_signal(sender, instance, created, **kwargs):
+    # Solo generar fixture si el campeonato ha sido cerrado y no es una creación inicial
+    if not created and instance.estado == 'CERRADO':
+        print(f"Detectado cambio a estado CERRADO para campeonato {instance.nombre}. Generando fixture...")
+        generar_fixture_campeonato(instance.id, instance.tipo_campeonato)
+
+
 class Suspension(models.Model):
     # Relación con el jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='suspensiones')
