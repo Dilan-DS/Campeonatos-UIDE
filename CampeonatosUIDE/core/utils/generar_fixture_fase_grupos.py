@@ -1,77 +1,84 @@
 from core.models import Campeonato, Equipo, Partido, Arbitro
-from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
 import random
+import itertools
 
-def generar_fixture_fase_grupos(campeonato_id):
+def generar_fixture_fase_grupos(campeonato_id, num_grupos=4):
     try:
         campeonato = Campeonato.objects.get(id=campeonato_id)
     except Campeonato.DoesNotExist:
         print(f"Campeonato con ID {campeonato_id} no encontrado.")
         return
 
-    equipos_aprobados = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True))
+    print(f"Generando fixture de FASE DE GRUPOS para: {campeonato.nombre}")
 
-    if len(equipos_aprobados) < 2:
-        print(f"No hay suficientes equipos aprobados para generar el fixture del campeonato {campeonato.nombre}.")
-        return
+    # 1. Separar equipos por género
+    equipos_masculinos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True, genero='masculino'))
+    equipos_femeninos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True, genero='femenino'))
 
-    equipos_masculinos = [e for e in equipos_aprobados if e.genero == 'masculino']
-    equipos_femeninos = [e for e in equipos_aprobados if e.genero == 'femenino']
+    def generar_partidos_por_genero(equipos, genero):
+        if len(equipos) < num_grupos:
+            print(f"No hay suficientes equipos de género {genero} para formar {num_grupos} grupos.")
+            return
 
-    print(f"Generando fixture de fase de grupos para el campeonato: {campeonato.nombre}")
+        random.shuffle(equipos)
+        
+        # 2. Distribuir equipos en grupos
+        grupos = [[] for _ in range(num_grupos)]
+        for i, equipo in enumerate(equipos):
+            grupos[i % num_grupos].append(equipo)
 
-    def create_matches_for_gender_group(team_list, championship, start_date, end_date, valid_days_of_week):
-        if len(team_list) < 2:
-            print(f"No hay suficientes equipos en este grupo de género para generar partidos.")
-            return 0
+        # 3. Generar partidos para cada grupo (formato liga dentro del grupo)
+        fecha_partido = campeonato.fecha_inicio
+        
+        # Mapeo explícito y robusto de días de la semana a números de weekday()
+        DIAS_MAP = {
+            'LUNES': 0, 'MARTES': 1, 'MIERCOLES': 2, 'JUEVES': 3, 
+            'VIERNES': 4, 'SABADO': 5, 'DOMINGO': 6
+        }
+        dias_permitidos_num = [DIAS_MAP[d.upper()] for d in campeonato.dias_partido]
 
-        matches_created = 0
-        current_date = start_date
+        for i, grupo in enumerate(grupos):
+            print(f"--- Generando partidos para el Grupo {i+1} ({genero}) ---")
+            if len(grupo) < 2:
+                continue
 
-        # Simple placeholder for group stage fixture generation
-        # This needs to be replaced with actual group stage logic (e.g., round-robin within groups)
-        # For now, it will just create one match between the first two teams as an example.
-        equipo1 = team_list[0]
-        equipo2 = team_list[1]
+            # Manejo de BYE si el grupo tiene número impar de equipos
+            if len(grupo) % 2 != 0:
+                grupo.append(None) # Añadir un placeholder para el BYE
 
-        # Ensure the match date is within the championship's date range
-        match_date = championship.fecha_inicio
-        if match_date > championship.fecha_fin:
-            match_date = championship.fecha_fin # Fallback if start date is already past end date
+            enfrentamientos = list(itertools.combinations(grupo, 2))
 
-        # Find a valid day for the match
-        current_date = match_date
-        while current_date.strftime('%A').upper() not in [d.upper() for d in valid_days_of_week]:
-            current_date += timedelta(days=1)
-            if current_date > championship.fecha_fin:
-                print("No hay días disponibles para programar partidos dentro del rango del campeonato.")
-                return 0
+            for equipo1, equipo2 in enfrentamientos:
+                if not equipo1 or not equipo2: # Omitir si es un BYE
+                    continue
 
-        arbitros_disponibles = Arbitro.objects.all()
-        arbitro_asignado = random.choice(arbitros_disponibles) if arbitros_disponibles.exists() else None
+                while fecha_partido.weekday() not in dias_permitidos_num:
+                    fecha_partido += timedelta(days=1)
 
-        try:
-            with transaction.atomic():
+                if fecha_partido > campeonato.fecha_fin:
+                    print("ADVERTENCIA: Se ha superado la fecha de fin del campeonato.")
+                    break
+
+                arbitros_disponibles = Arbitro.objects.filter(deportes=campeonato.deporte)
+                arbitro = random.choice(list(arbitros_disponibles)) if arbitros_disponibles else None
+
                 Partido.objects.create(
-                    campeonato=championship,
+                    campeonato=campeonato,
                     equipo_local=equipo1,
                     equipo_visitante=equipo2,
-                    fecha=current_date,
-                    hora=timezone.now().time(), # Use current time as a placeholder
-                    lugar="Cancha Principal", # Placeholder
-                    arbitro=arbitro_asignado,
+                    fecha=fecha_partido,
+                    hora=timezone.now().time(),
+                    lugar=f"Cancha Grupo {i+1}",
+                    arbitro=arbitro,
                     estado='PROGRAMADO'
                 )
-                matches_created += 1
-                print(f"Partido creado: {equipo1.nombre} vs {equipo2.nombre} el {current_date}. Árbitro: {arbitro_asignado.usuario.username if arbitro_asignado else 'No asignado'}")
-        except Exception as e:
-            print(f"Error al crear partido: {e}")
-        return matches_created
+                print(f"Partido Creado (Grupo {i+1}, {genero}): {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}")
+                
+                fecha_partido += timedelta(days=1)
 
-    total_matches_created = 0
-    total_matches_created += create_matches_for_gender_group(equipos_masculinos, campeonato, campeonato.fecha_inicio, campeonato.fecha_fin, campeonato.dias_partido)
-    total_matches_created += create_matches_for_gender_group(equipos_femeninos, campeonato, campeonato.fecha_inicio, campeonato.fecha_fin, campeonato.dias_partido)
+    generar_partidos_por_genero(equipos_masculinos, 'masculino')
+    generar_partidos_por_genero(equipos_femeninos, 'femenino')
 
-    print(f"Fixture de fase de grupos generado (ejemplo) para {campeonato.nombre}. Total de partidos creados: {total_matches_created}.")
+    print(f"Fixture de fase de grupos generado para {campeonato.nombre}.")

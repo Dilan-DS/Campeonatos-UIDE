@@ -2,75 +2,100 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="title">Calendario de Partidos: {{ campeonato.nombre }}</h1>
+    {% if campeonato %}
+        <h1 class="title">Calendario de Partidos: {{ campeonato.nombre }}</h1>
 
-    <div id="countdown" class="notification is-info"></div>
+        <!-- Notificación para el estado de las inscripciones -->
+        <div id="countdown" class="notification" data-fecha-fin="{{ campeonato.fecha_fin_inscripcion|date:'Y-m-d' }}"></div>
 
-    <div class="tabs is-centered">
-        <ul>
-            <li class="{% if genero_seleccionado == 'masculino' %}is-active{% endif %}"><a href="?genero=masculino">Partidos Masculinos</a></li>
-            <li class="{% if genero_seleccionado == 'femenino' %}is-active{% endif %}"><a href="?genero=femenino">Partidos Femeninos</a></li>
-        </ul>
-    </div>
-
-    <div class="box">
-        {% if partidos %}
-            <table class="table is-fullwidth is-striped">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Equipo Local</th>
-                        <th>Equipo Visitante</th>
-                        <th>Lugar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for partido in partidos %}
-                        <tr>
-                            <td>{{ partido.fecha|date:"d/m/Y" }}</td>
-                            <td>{{ partido.hora|time:"H:i" }}</td>
-                            <td>{{ partido.equipo_local.nombre }}</td>
-                            <td>{{ partido.equipo_visitante.nombre }}</td>
-                            <td>{{ partido.lugar }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- Mensaje si el fixture aún no se ha generado -->
+        {% if campeonato_sin_fixture %}
+            <div class="notification is-warning">
+                El fixture para este campeonato aún no ha sido generado. Por favor, vuelve más tarde.
+            </div>
         {% else %}
-            <p>No hay partidos para mostrar en la categoría {{ genero_seleccionado }}.</p>
+            <!-- Filtros por género -->
+            <div class="tabs is-centered">
+                <ul>
+                    <li class="{% if genero_seleccionado == 'masculino' %}is-active{% endif %}"><a href="?genero=masculino">Partidos Masculinos</a></li>
+                    <li class="{% if genero_seleccionado == 'femenino' %}is-active{% endif %}"><a href="?genero=femenino">Partidos Femeninos</a></li>
+                </ul>
+            </div>
+
+            <!-- Tabla de partidos -->
+            <div class="box">
+                {% if partidos %}
+                    <table class="table is-fullwidth is-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Equipo Local</th>
+                                <th>Equipo Visitante</th>
+                                <th>Lugar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for partido in partidos %}
+                                <tr>
+                                    <td>{{ partido.fecha|date:"d/m/Y" }}</td>
+                                    <td>{{ partido.hora|time:"H:i" }}</td>
+                                    <td>{{ partido.equipo_local.nombre }}</td>
+                                    <td>{{ partido.equipo_visitante.nombre }}</td>
+                                    <td>{{ partido.lugar }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="has-text-centered">No hay partidos programados para la categoría <strong>{{ genero_seleccionado }}</strong> en este momento.</p>
+                {% endif %}
+            </div>
         {% endif %}
-    </div>
+    {% else %}
+        <h1 class="title">Calendario de Partidos</h1>
+        <div class="notification is-info">
+            Actualmente no hay un campeonato activo o seleccionado.
+        </div>
+    {% endif %}
 </div>
 
 <script>
-    // Set the date we're counting down to
-    var countDownDate = new Date("{{ campeonato.fecha_fin_inscripcion|date:'Y-m-d' }}T23:59:59").getTime();
+document.addEventListener('DOMContentLoaded', function() {
+    const countdownElement = document.getElementById("countdown");
+    const fechaFin = countdownElement.getAttribute('data-fecha-fin');
 
-    // Update the count down every 1 second
-    var x = setInterval(function() {
+    if (countdownElement && fechaFin) {
+        const countDownDate = new Date(fechaFin + "T23:59:59").getTime();
+        const now = new Date().getTime();
 
-        // Get today's date and time
-        var now = new Date().getTime();
+        if (countDownDate < now) {
+            countdownElement.innerHTML = "Las inscripciones para este campeonato han finalizado.";
+            countdownElement.classList.add('is-warning');
+        } else {
+            countdownElement.classList.add('is-info');
+            
+            const x = setInterval(function() {
+                const currentNow = new Date().getTime();
+                const distance = countDownDate - currentNow;
 
-        // Find the distance between now and the count down date
-        var distance = countDownDate - now;
+                if (distance < 0) {
+                    clearInterval(x);
+                    countdownElement.innerHTML = "Las inscripciones para este campeonato han finalizado.";
+                    countdownElement.classList.remove('is-info');
+                    countdownElement.classList.add('is-warning');
+                    return;
+                }
 
-        // Time calculations for days, hours, minutes and seconds
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // Display the result in the element with id="countdown"
-        document.getElementById("countdown").innerHTML = "Tiempo restante para el cierre de inscripciones: " + days + "d " + hours + "h "
-        + minutes + "m " + seconds + "s ";
-
-        // If the count down is finished, write some text
-        if (distance < 0) {
-            clearInterval(x);
-            document.getElementById("countdown").innerHTML = "Las inscripciones han cerrado.";
+                countdownElement.innerHTML = "Cierre de inscripciones en: " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+            }, 1000);
         }
-    }, 1000);
+    }
+});
 </script>
 {% endblock %}
