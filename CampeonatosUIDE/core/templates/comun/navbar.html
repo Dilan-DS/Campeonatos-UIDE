@@ -32,7 +32,9 @@
             <div class="navbar-dropdown">
               <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
               <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
-              <a class="navbar-item" href="{% url 'calendario_global' %}">Calendario</a>
+              {% if campeonato_listo_para_ver %}
+              <a class="navbar-item" href="{% url 'calendario_campeonato' campeonato_listo_para_ver.id %}">Calendario</a>
+              {% endif %}
               <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
               <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
             </div>

@@ -12,63 +12,82 @@ def generar_fixture_liga(campeonato_id):
         print(f"Campeonato con ID {campeonato_id} no encontrado.")
         return
 
-    equipos_aprobados = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True))
+    # 1. Separar equipos por género
+    equipos_masculinos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True, genero='masculino'))
+    equipos_femeninos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True, genero='femenino'))
 
-    if len(equipos_aprobados) < 2:
-        print(f"No hay suficientes equipos aprobados para generar el fixture del campeonato {campeonato.nombre}.")
-        return
+    print(f"Generando fixture de LIGA para: {campeonato.nombre}")
+    print(f"Días de partido permitidos: {campeonato.dias_partido}")
 
-    equipos_masculinos = [e for e in equipos_aprobados if e.genero == 'masculino']
-    equipos_femeninos = [e for e in equipos_aprobados if e.genero == 'femenino']
+    # Función interna para generar partidos para un grupo de género
+    def generar_partidos_por_genero(equipos, genero):
+        if len(equipos) < 2:
+            print(f"No hay suficientes equipos de género {genero} para generar un fixture.")
+            return
 
-    print(f"Generando fixture de liga (todos contra todos) para el campeonato: {campeonato.nombre}")
+        # 2. Manejo de número impar de equipos con BYE
+        if len(equipos) % 2 != 0:
+            equipos.append(None)  # 'None' representa el BYE
 
-    def create_league_matches_for_gender_group(team_list, championship, start_date, end_date, valid_days_of_week):
-        if len(team_list) < 2:
-            print(f"No hay suficientes equipos en este grupo de género para generar partidos de liga.")
-            return 0
+        jornadas = []
+        equipos_rotando = list(equipos[1:])
+        
+        for i in range(len(equipos) - 1):
+            jornada_actual = []
+            # Emparejar el primer equipo con el último de la lista rotativa
+            if equipos[0] and equipos_rotando[-1]:
+                jornada_actual.append((equipos[0], equipos_rotando[-1]))
+            
+            # Emparejar el resto de equipos
+            for j in range(len(equipos_rotando) // 2):
+                if equipos_rotando[j] and equipos_rotando[-(j + 2)]:
+                    jornada_actual.append((equipos_rotando[j], equipos_rotando[-(j + 2)]))
+            
+            jornadas.append(jornada_actual)
+            
+            # Rotar la lista de equipos (excepto el primero)
+            equipos_rotando.insert(0, equipos_rotando.pop())
 
-        matches_created = 0
-        current_date = start_date
+        # 3. Asignar fechas y crear partidos
+        fecha_partido = campeonato.fecha_inicio
+        
+        # Mapeo explícito y robusto de días de la semana a números de weekday()
+        DIAS_MAP = {
+            'LUNES': 0, 'MARTES': 1, 'MIERCOLES': 2, 'JUEVES': 3, 
+            'VIERNES': 4, 'SABADO': 5, 'DOMINGO': 6
+        }
+        dias_permitidos_num = [DIAS_MAP[d.upper()] for d in campeonato.dias_partido]
 
-        team_pairs = list(itertools.combinations(team_list, 2))
+        for jornada in jornadas:
+            # Avanzar hasta encontrar un día de la semana permitido
+            while fecha_partido.weekday() not in dias_permitidos_num:
+                fecha_partido += timedelta(days=1)
 
-        for equipo1, equipo2 in team_pairs:
-            while current_date <= end_date and current_date.strftime('%A').upper() not in [d.upper() for d in valid_days_of_week]:
-                current_date += timedelta(days=1)
-
-            if current_date > end_date:
-                print("Advertencia: No hay suficientes días disponibles para programar todos los partidos.")
+            if fecha_partido > campeonato.fecha_fin:
+                print("ADVERTENCIA: Se ha superado la fecha de fin del campeonato. No se pueden programar más partidos.")
                 break
 
-            arbitros_disponibles = Arbitro.objects.all()
-            arbitro_asignado = random.choice(arbitros_disponibles) if arbitros_disponibles.exists() else None
-
-            try:
-                with transaction.atomic():
+            for equipo1, equipo2 in jornada:
+                if equipo1 and equipo2:  # Asegurarse de que no es un BYE
+                    arbitros_disponibles = Arbitro.objects.filter(deportes=campeonato.deporte)
+                    arbitro = random.choice(list(arbitros_disponibles)) if arbitros_disponibles else None
+                    
                     Partido.objects.create(
-                        campeonato=championship,
+                        campeonato=campeonato,
                         equipo_local=equipo1,
                         equipo_visitante=equipo2,
-                        fecha=current_date,
-                        hora=timezone.now().time(),
-                        lugar="Cancha Principal",
-                        arbitro=arbitro_asignado,
+                        fecha=fecha_partido,
+                        hora=timezone.now().time(),  # Puedes ajustar la hora
+                        lugar="Por definir",
+                        arbitro=arbitro,
                         estado='PROGRAMADO'
                     )
-                    matches_created += 1
-                    print(f"Partido creado: {equipo1.nombre} vs {equipo2.nombre} el {current_date}. Árbitro: {arbitro_asignado.usuario.username if arbitro_asignado else 'No asignado'}")
-            except Exception as e:
-                print(f"Error al crear partido: {e}")
+                    print(f"Partido Creado ({genero}): {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}")
 
-            current_date += timedelta(days=1)
-        return matches_created
+            fecha_partido += timedelta(days=1)
 
-    total_matches_created = 0
-    total_matches_created += create_league_matches_for_gender_group(equipos_masculinos, campeonato, campeonato.fecha_inicio, campeonato.fecha_fin, campeonato.dias_partido)
-    total_matches_created += create_league_matches_for_gender_group(equipos_femeninos, campeonato, campeonato.fecha_inicio, campeonato.fecha_fin, campeonato.dias_partido)
+    # Generar partidos para ambos géneros
+    generar_partidos_por_genero(equipos_masculinos, 'masculino')
+    generar_partidos_por_genero(equipos_femeninos, 'femenino')
 
-    if total_matches_created == 0:
-        print("No se pudieron crear partidos para la liga.")
-    else:
-        print(f"Fixture de liga generado para {campeonato.nombre}. Se crearon {total_matches_created} partidos.")
+    print(f"Fixture de liga generado exitosamente para {campeonato.nombre}.")
