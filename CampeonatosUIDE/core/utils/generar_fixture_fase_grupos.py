@@ -1,7 +1,8 @@
-from core.models import Campeonato, Equipo, Partido
+from core.models import Campeonato, Equipo, Partido, Arbitro
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
+import random
 
 def generar_fixture_fase_grupos(campeonato_id):
     try:
@@ -48,6 +49,9 @@ def generar_fixture_fase_grupos(campeonato_id):
                 print("No hay días disponibles para programar partidos dentro del rango del campeonato.")
                 return 0
 
+        arbitros_disponibles = Arbitro.objects.all()
+        arbitro_asignado = random.choice(arbitros_disponibles) if arbitros_disponibles.exists() else None
+
         try:
             with transaction.atomic():
                 Partido.objects.create(
@@ -57,10 +61,11 @@ def generar_fixture_fase_grupos(campeonato_id):
                     fecha=current_date,
                     hora=timezone.now().time(), # Use current time as a placeholder
                     lugar="Cancha Principal", # Placeholder
+                    arbitro=arbitro_asignado,
                     estado='PROGRAMADO'
                 )
                 matches_created += 1
-                print(f"Partido creado: {equipo1.nombre} vs {equipo2.nombre} el {current_date}")
+                print(f"Partido creado: {equipo1.nombre} vs {equipo2.nombre} el {current_date}. Árbitro: {arbitro_asignado.usuario.username if arbitro_asignado else 'No asignado'}")
         except Exception as e:
             print(f"Error al crear partido: {e}")
         return matches_created

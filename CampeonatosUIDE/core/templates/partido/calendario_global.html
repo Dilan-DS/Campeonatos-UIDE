@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'css/fixture.css' %}"> {# You might need to create this CSS file #}
+    <link rel="stylesheet" href="{% static 'css/fixture.css' %}"> {# Reusing the same CSS #}
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="text-center mb-4">Calendario de Partidos - {{ campeonato.nombre }}</h2>
+    <h2 class="text-center mb-4">Calendario Global de Partidos</h2>
 
     {% if partidos %}
         <div class="list-group">
@@ -17,6 +17,7 @@
                         <h5 class="mb-1">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</h5>
                         <small class="text-muted">{{ partido.fecha|date:"d/m/Y" }} {{ partido.hora|time:"H:i" }}</small>
                     </div>
+                    <p class="mb-1">Campeonato: {{ partido.campeonato.nombre }}</p>
                     <p class="mb-1">Lugar: {{ partido.lugar }}</p>
                     <p class="mb-1">Árbitro: {% if partido.arbitro %}{{ partido.arbitro.usuario.username }}{% else %}Por asignar{% endif %}</p>
                     <small class="text-muted">Estado: {{ partido.get_estado_display }}</small>
@@ -25,7 +26,7 @@
         </div>
     {% else %}
         <div class="alert alert-info text-center" role="alert">
-            No hay partidos programados para este campeonato o no tienes permisos para verlos.
+            No hay partidos programados o no tienes permisos para verlos.
         </div>
     {% endif %}
 </div>

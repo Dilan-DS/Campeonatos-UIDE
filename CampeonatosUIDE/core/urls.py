@@ -2,6 +2,8 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import *
 from .views.carrera_views import ListarCarrerasView, GestionCarreraView
+from .views.partido_views import listar_partidos, fixture_campeonato_view, calendario_global_view
+from .views.feachure_views import calendar_view
 
 from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
@@ -59,6 +61,7 @@ urlpatterns = [
     path('campeonatos/<int:id>/', DetalleCampeonato.as_view(), name='detalle_campeonato'),
     path('campeonatos/<int:id>/editar/', EditarCampeonato.as_view(), name='editar_campeonato'),
     path('campeonatos/<int:id>/fixture/', FixtureCampeonato.as_view(), name='fixture_campeonato'),
+    path('campeonatos/<int:campeonato_id>/fixture-detalle/', fixture_campeonato_view, name='fixture_campeonato_detalle'),
     path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
     path('campeonatos/<int:campeonato_id>/tabla-posiciones/', TablaPosiciones.as_view(), name='tabla_posiciones'),
     path('campeonatos/<int:campeonato_id>/generar-fixture/', GenerarFixtureCampeonato.as_view(), name='generar_fixture_campeonato'),
@@ -147,7 +150,7 @@ urlpatterns = [
 
 
     path('partidos/generar/<int:campeonato_id>/', generar_calendario, name='generar_calendario'),
-    path('partidos/calendario/', ver_calendario_completo, name='ver_calendario_completo'),
+    path('partidos/calendario/', calendario_global_view, name='calendario_global'),
     # Pagos Admin
     path('panel/admin/pagos/', pago_views.ListarPagosAdminView.as_view(), name='listar_pagos_admin'),
     path('panel/admin/pagos/registrar/', pago_views.RegistrarPagoAdminView.as_view(), name='registrar_pago_admin'),
@@ -190,6 +193,7 @@ urlpatterns = [
 
     path('equipos/eliminar/<int:equipo_id>/', eliminar_equipo, name='eliminar_equipo'),
     path('equipos/registrar/', equipo_views.registrar_equipo, name='registrar_equipo'),
+    path('campeonatos/<int:campeonato_id>/calendario/', calendar_view, name='calendario_campeonato'),
 
 
 ]

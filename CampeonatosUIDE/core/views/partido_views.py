@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from core.models import Partido
+from core.models import Partido, Campeonato, Usuario, Equipo
 from core.forms import PartidoForm
 from core.views.admin_views import es_admin
+from django.db.models import Q
 
 # Función para validar que sea admin
 def es_admin(user):
@@ -97,7 +98,77 @@ def aplazar_partido(request, partido_id):
     return render(request, 'partido/aplazar_partido.html', {'form': form, 'partido': partido})
 
 @login_required
-@user_passes_test(es_admin)
-def ver_calendario_completo(request):
-    # Placeholder function for now
-    return render(request, 'partido/calendario_completo.html', {})
+def fixture_campeonato_view(request, campeonato_id):
+    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+    partidos = Partido.objects.filter(campeonato=campeonato).order_by('fecha', 'hora')
+
+    user_role = request.user.rol
+
+    if user_role == 'ADMIN':
+        # Admin sees all matches for the championship
+        pass
+    elif user_role == 'DELEGADO':
+        # Delegado sees all matches for their team's championship
+        # Assuming a delegate is associated with a team, and that team is in the championship
+        delegado_equipos = Equipo.objects.filter(delegado=request.user, campeonato=campeonato)
+        if delegado_equipos.exists():
+            # Filter matches where any of the delegate's teams are involved
+            partidos = partidos.filter(Q(equipo_local__in=delegado_equipos) | Q(equipo_visitante__in=delegado_equipos))
+        else:
+            partidos = Partido.objects.none() # No teams associated, no matches to show
+    elif user_role == 'JUGADOR':
+        # Jugador sees matches where their team participates
+        jugador_equipo = None
+        if hasattr(request.user, 'jugador') and request.user.jugador.equipo:
+            jugador_equipo = request.user.jugador.equipo
+            if jugador_equipo.campeonato == campeonato:
+                partidos = partidos.filter(Q(equipo_local=jugador_equipo) | Q(equipo_visitante=jugador_equipo))
+            else:
+                partidos = Partido.objects.none() # Player's team not in this championship
+        else:
+            partidos = Partido.objects.none() # No team associated, no matches to show
+    elif user_role == 'ARBITRO':
+        # Arbitro sees matches they are assigned to
+        arbitro_obj = None
+        if hasattr(request.user, 'arbitro'):
+            arbitro_obj = request.user.arbitro
+            partidos = partidos.filter(arbitro=arbitro_obj)
+        else:
+            partidos = Partido.objects.none() # Not an arbiter, no matches to show
+    else:
+        partidos = Partido.objects.none() # Other roles see nothing
+
+    return render(request, 'campeonato/fixture_campeonato.html', {'campeonato': campeonato, 'partidos': partidos})
+
+@login_required
+def calendario_global_view(request):
+    user_role = request.user.rol
+    all_partidos = Partido.objects.all().order_by('fecha', 'hora')
+
+    if user_role == 'ADMIN':
+        # Admin sees all matches
+        pass
+    elif user_role == 'DELEGADO':
+        # Delegado sees all matches for their teams across all championships
+        delegado_equipos = Equipo.objects.filter(delegado=request.user)
+        all_partidos = all_partidos.filter(Q(equipo_local__in=delegado_equipos) | Q(equipo_visitante__in=delegado_equipos))
+    elif user_role == 'JUGADOR':
+        # Jugador sees matches where their team participates across all championships
+        jugador_equipo = None
+        if hasattr(request.user, 'jugador') and request.user.jugador.equipo:
+            jugador_equipo = request.user.jugador.equipo
+            all_partidos = all_partidos.filter(Q(equipo_local=jugador_equipo) | Q(equipo_visitante=jugador_equipo))
+        else:
+            all_partidos = Partido.objects.none()
+    elif user_role == 'ARBITRO':
+        # Arbitro sees matches they are assigned to across all championships
+        arbitro_obj = None
+        if hasattr(request.user, 'arbitro'):
+            arbitro_obj = request.user.arbitro
+            all_partidos = all_partidos.filter(arbitro=arbitro_obj)
+        else:
+            all_partidos = Partido.objects.none()
+    else:
+        all_partidos = Partido.objects.none() # Other roles see nothing
+
+    return render(request, 'partido/calendario_global.html', {'partidos': all_partidos})

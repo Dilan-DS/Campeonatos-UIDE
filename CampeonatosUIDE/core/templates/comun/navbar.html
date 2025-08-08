@@ -56,8 +56,10 @@
           </div>
 
           <a class="navbar-item has-text-white" href="{% url 'listar_pagos_admin' %}">💰 Pagos</a>
+          <a class="navbar-item has-text-white" href="{% url 'calendario_global' %}">📅 Partidos</a>
 
-        {% elif request.user.rol == "DELEGADO" %}
+        {% elif request.user.rol == "DELEGADO" or request.user.rol == "JUGADOR" or request.user.rol == "ARBITRO" %}
+          <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}">📅 Calendario</a>
           <!-- DELEGADO -->
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link has-text-white">🎯 Delegado</a>
@@ -67,9 +69,7 @@
               <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
               <a class="navbar-item" href="{% url 'mis_jugadores_delegado' %}">Mis Jugadores</a>
               <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
-              {% if request.user.equipo and request.user.equipo.campeonato %}
-                <a class="navbar-item" href="{% url 'ver_calendario_completo' request.user.equipo.campeonato.id %}">📅 Calendario</a>
-              {% endif %}
+              <a class="navbar-item" href="{% url 'calendario_global' %}">📅 Calendario Global</a>
               <a class="navbar-item" href="{% url 'registrar_pago_delegado' %}">💰 Pagos</a>
             </div>
           </div>
@@ -80,7 +80,7 @@
             <a class="navbar-link has-text-white">🎮 Jugador</a>
             <div class="navbar-dropdown">
               <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-              <a class="navbar-item" href="{% url 'ver_mis_partidos' %}">📅 Mis Partidos</a>
+              <a class="navbar-item" href="{% url 'calendario_global' %}">📅 Mis Partidos</a>
               {% with request.user.jugador as jugador %}
                 {% if jugador %}
                   <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>

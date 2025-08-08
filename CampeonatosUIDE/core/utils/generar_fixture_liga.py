@@ -1,8 +1,9 @@
-from core.models import Campeonato, Equipo, Partido
+from core.models import Campeonato, Equipo, Partido, Arbitro
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
 import itertools
+import random
 
 def generar_fixture_liga(campeonato_id):
     try:
@@ -40,6 +41,9 @@ def generar_fixture_liga(campeonato_id):
                 print("Advertencia: No hay suficientes días disponibles para programar todos los partidos.")
                 break
 
+            arbitros_disponibles = Arbitro.objects.all()
+            arbitro_asignado = random.choice(arbitros_disponibles) if arbitros_disponibles.exists() else None
+
             try:
                 with transaction.atomic():
                     Partido.objects.create(
@@ -49,10 +53,11 @@ def generar_fixture_liga(campeonato_id):
                         fecha=current_date,
                         hora=timezone.now().time(),
                         lugar="Cancha Principal",
+                        arbitro=arbitro_asignado,
                         estado='PROGRAMADO'
                     )
                     matches_created += 1
-                    print(f"Partido creado: {equipo1.nombre} vs {equipo2.nombre} el {current_date}")
+                    print(f"Partido creado: {equipo1.nombre} vs {equipo2.nombre} el {current_date}. Árbitro: {arbitro_asignado.usuario.username if arbitro_asignado else 'No asignado'}")
             except Exception as e:
                 print(f"Error al crear partido: {e}")
 

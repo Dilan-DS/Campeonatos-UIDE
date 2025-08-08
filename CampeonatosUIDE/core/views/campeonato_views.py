@@ -91,29 +91,8 @@ class EditarCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
 
         # Valida el formulario
         if form.is_valid():
-            # Obtiene datos limpios para actualizar manualmente
-            cleaned = form.cleaned_data
-            campeonato.nombre = cleaned.get('nombre', campeonato.nombre)
-            campeonato.tipo_campeonato = cleaned.get('tipo_campeonato')
-            campeonato.descripcion = cleaned.get('descripcion', campeonato.descripcion)
-            campeonato.fecha_inicio = cleaned.get('fecha_inicio', campeonato.fecha_inicio)
-            campeonato.fecha_fin = cleaned.get('fecha_fin', campeonato.fecha_fin)
-            campeonato.estado = cleaned.get('estado', campeonato.estado)
-            campeonato.deporte = cleaned.get('deporte', campeonato.deporte)
-            campeonato.delegado = cleaned.get('delegado', campeonato.delegado)
-            campeonato.dias_partido = cleaned.get('dias_partido', campeonato.dias_partido)
-            campeonato.max_jugadores_por_equipo = cleaned.get('max_jugadores_por_equipo', campeonato.max_jugadores_por_equipo)
-            campeonato.precio_inscripcion = cleaned.get('precio_inscripcion', campeonato.precio_inscripcion)
-            campeonato.codigo_qr = cleaned.get('codigo_qr', campeonato.codigo_qr)
-            campeonato.activo = cleaned.get('activo', campeonato.activo)
-            campeonato.es_publico = cleaned.get('es_publico', campeonato.es_publico)
-
-            # Si se subió un nuevo archivo reglamento, actualiza el campo
-            if request.FILES.get('reglamento'):
-                campeonato.reglamento = request.FILES['reglamento']
-
             # Guarda los cambios en la base de datos
-            campeonato.save()
+            form.save()
             # Mensaje de éxito
             messages.success(request, 'Campeonato actualizado correctamente')
             # Redirige a la lista de campeonatos
