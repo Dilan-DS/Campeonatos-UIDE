@@ -33,6 +33,7 @@
               <th>Deporte</th>
               <th>Fecha Inicio</th>
               <th>Fecha Fin</th>
+              <th>Fin Inscripción</th>
               <th>Estado</th>
               <th class="has-text-centered">Acciones</th>
             </tr>
@@ -44,6 +45,7 @@
                 <td>{{ campeonato.deporte.nombre }}</td>
                 <td>{{ campeonato.fecha_inicio }}</td>
                 <td>{{ campeonato.fecha_fin }}</td>
+                <td>{{ campeonato.fecha_fin_inscripcion|date:"M. d, Y" }}</td>
                 <td>
                   <span class="tag {% if campeonato.estado == 'activo' %}is-success{% else %}is-danger{% endif %}">
                     {{ campeonato.get_estado_display }}
