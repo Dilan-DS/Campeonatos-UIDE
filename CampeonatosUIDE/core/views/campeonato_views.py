@@ -5,7 +5,6 @@ from django.views import View
 from core.models import Campeonato, Equipo, Partido
 from core.forms import CampeonatoForm
 from django.db.models import Q
-from core.utils.fixture import generate_round_robin_fixture
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
