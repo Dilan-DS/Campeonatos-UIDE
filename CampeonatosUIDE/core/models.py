@@ -167,6 +167,8 @@ class Campeonato(models.Model):
     fecha_inicio = models.DateField()
     # Fecha de fin del campeonato
     fecha_fin = models.DateField()
+    # Fecha de fin de inscripcion
+    fecha_fin_inscripcion = models.DateField(null=True, blank=True)
     # Estado actual del campeonato
     estado = models.CharField(max_length=20, choices=ESTADOS, default='INSCRIPCION')
     # Deporte asociado al campeonato (FK)
@@ -185,12 +187,15 @@ class Campeonato(models.Model):
 
     activo = models.CharField(max_length=2, choices=OPCIONES_SI_NO, default='SI')
     es_publico = models.CharField(max_length=2, choices=OPCIONES_SI_NO, default='SI')
+    fixture_generado = models.BooleanField(default=False)
 
 
     # Validación para que la fecha fin no sea anterior a la fecha inicio
     def clean(self):
         if self.fecha_fin < self.fecha_inicio:
             raise ValidationError("La fecha de fin no puede ser anterior a la fecha de inicio.")
+        if self.fecha_fin_inscripcion and self.fecha_fin_inscripcion > self.fecha_inicio:
+            raise ValidationError("La fecha de fin de inscripción no puede ser posterior a la fecha de inicio del campeonato.")
 
     # Representación en texto del campeonato
     def __str__(self):
@@ -608,14 +613,7 @@ def actualizar_estado_equipo(sender, instance, **kwargs):
         # Guardar el equipo
         equipo.save()
 
-from core.utils.fixture_generator_central import generar_fixture_campeonato
 
-@receiver(post_save, sender=Campeonato)
-def generar_fixture_campeonato_signal(sender, instance, created, **kwargs):
-    # Solo generar fixture si el campeonato ha sido cerrado y no es una creación inicial
-    if not created and instance.estado == 'CERRADO':
-        print(f"Detectado cambio a estado CERRADO para campeonato {instance.nombre}. Generando fixture...")
-        generar_fixture_campeonato(instance.id, instance.tipo_campeonato)
 
 
 class Suspension(models.Model):

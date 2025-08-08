@@ -31,6 +31,19 @@
         </div>
       </div>
 
+      <!-- 📅 CALENDARIO DE PARTIDOS -->
+      <div class="column is-4">
+        <div class="box has-background-grey-lighter has-text-centered" style="border-radius: 12px;">
+          <p class="title is-4 has-text-grey-darker">📅 Calendario de Partidos</p>
+          <p class="subtitle is-6">Ver el fixture generado del campeonato actual.</p>
+          {% if campeonato.fixture_generado %}
+            <a href="{% url 'calendario_campeonato' campeonato.id %}" class="button is-dark is-rounded mt-4">👁 Ver Calendario</a>
+          {% else %}
+            <p class="mt-4">El calendario estará disponible cuando cierre la inscripción.</p>
+          {% endif %}
+        </div>
+      </div>
+
       <!-- 👥 EQUIPOS -->
       <div class="column is-4">
         <div class="box has-background-link-light has-text-centered" style="border-radius: 12px;">

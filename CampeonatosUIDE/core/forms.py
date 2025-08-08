@@ -303,6 +303,7 @@ class CampeonatoForm(forms.ModelForm):
             'descripcion', 
             'fecha_inicio', 
             'fecha_fin', 
+            'fecha_fin_inscripcion',
             'dias_partido', 
             'max_jugadores_por_equipo', 
             'reglamento', 
@@ -333,6 +334,10 @@ class CampeonatoForm(forms.ModelForm):
                 'class': 'input'
             }),
             'fecha_fin': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'input'
+            }),
+            'fecha_fin_inscripcion': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'input'
             }),
