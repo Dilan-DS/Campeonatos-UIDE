@@ -52,11 +52,11 @@ class Command(BaseCommand):
                     # 2) Generar y CONTAR
                     creados = 0
                     if campeonato.tipo_campeonato == 'LIGA':
-                        creados = generar_fixture_liga(campeonato.id)
+                        creados = generar_fixture_liga(campeonato.id) or 0
                     elif campeonato.tipo_campeonato == 'FASE_GRUPOS':
-                        creados = generar_fixture_fase_grupos(campeonato.id)
+                        creados = generar_fixture_fase_grupos(campeonato.id) or 0
                     elif campeonato.tipo_campeonato == 'ELIMINATORIA':
-                        creados = generar_fixture_eliminatoria(campeonato.id)
+                        creados = generar_fixture_eliminatoria(campeonato.id) or 0
 
                     self.stdout.write(self.style.SUCCESS(f'Total partidos creados: {creados}'))
 
