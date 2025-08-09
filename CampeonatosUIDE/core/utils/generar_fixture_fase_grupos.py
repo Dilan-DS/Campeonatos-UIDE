@@ -1,8 +1,9 @@
 from core.models import Campeonato, Equipo, Partido, Arbitro
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, time
 import random
 import itertools
+from django.core.exceptions import ValidationError
 
 def generar_fixture_fase_grupos(campeonato_id, num_grupos=4):
     try:
@@ -64,17 +65,27 @@ def generar_fixture_fase_grupos(campeonato_id, num_grupos=4):
                 arbitros_disponibles = Arbitro.objects.filter(deportes=campeonato.deporte)
                 arbitro = random.choice(list(arbitros_disponibles)) if arbitros_disponibles else None
 
-                Partido.objects.create(
-                    campeonato=campeonato,
-                    equipo_local=equipo1,
-                    equipo_visitante=equipo2,
-                    fecha=fecha_partido,
-                    hora=timezone.now().time(),
-                    lugar=f"Cancha Grupo {i+1}",
-                    arbitro=arbitro,
-                    estado='PROGRAMADO'
-                )
-                print(f"Partido Creado (Grupo {i+1}, {genero}): {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}")
+                try:
+                    # Usar una hora fija para los partidos, por ejemplo, las 18:00
+                    hora_partido = time(18, 0)
+                    
+                    partido = Partido(
+                        campeonato=campeonato,
+                        equipo_local=equipo1,
+                        equipo_visitante=equipo2,
+                        fecha=fecha_partido,
+                        hora=hora_partido,
+                        lugar=f"Cancha Grupo {i+1}",
+                        arbitro=arbitro,
+                        estado='PROGRAMADO'
+                    )
+                    partido.full_clean() # Ejecutar validaciones del modelo
+                    partido.save() # Guardar el partido si las validaciones pasan
+                    print(f"Partido Creado (Grupo {i+1}, {genero}): {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}")
+                except ValidationError as e:
+                    print(f"ERROR de Validación al crear partido (Grupo {i+1}, {genero}) {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}: {e.message_dict}")
+                except Exception as e:
+                    print(f"ERROR inesperado al crear partido (Grupo {i+1}, {genero}) {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}: {e}")
                 
                 fecha_partido += timedelta(days=1)
 
