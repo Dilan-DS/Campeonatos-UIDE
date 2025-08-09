@@ -1,9 +1,10 @@
 from core.models import Campeonato, Equipo, Partido, Arbitro
 from django.db import transaction
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, time
 import itertools
 import random
+from django.core.exceptions import ValidationError
 
 def generar_fixture_liga(campeonato_id):
     try:
@@ -21,9 +22,10 @@ def generar_fixture_liga(campeonato_id):
 
     # Función interna para generar partidos para un grupo de género
     def generar_partidos_por_genero(equipos, genero):
+        creados = 0 # Contador de partidos creados
         if len(equipos) < 2:
             print(f"No hay suficientes equipos de género {genero} para generar un fixture.")
-            return
+            return creados
 
         # 2. Manejo de número impar de equipos con BYE
         if len(equipos) % 2 != 0:
@@ -72,22 +74,33 @@ def generar_fixture_liga(campeonato_id):
                     arbitros_disponibles = Arbitro.objects.filter(deportes=campeonato.deporte)
                     arbitro = random.choice(list(arbitros_disponibles)) if arbitros_disponibles else None
                     
-                    Partido.objects.create(
-                        campeonato=campeonato,
-                        equipo_local=equipo1,
-                        equipo_visitante=equipo2,
-                        fecha=fecha_partido,
-                        hora=timezone.now().time(),  # Puedes ajustar la hora
-                        lugar="Por definir",
-                        arbitro=arbitro,
-                        estado='PROGRAMADO'
-                    )
-                    print(f"Partido Creado ({genero}): {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}")
+                    try:
+                        hora_partido = time(18, 0) # Usar una hora fija
+                        partido = Partido(
+                            campeonato=campeonato,
+                            equipo_local=equipo1,
+                            equipo_visitante=equipo2,
+                            fecha=fecha_partido,
+                            hora=hora_partido,
+                            lugar="Por definir",
+                            arbitro=arbitro,
+                            estado='PROGRAMADO'
+                        )
+                        partido.full_clean()
+                        partido.save()
+                        creados += 1
+                        print(f"CREADO: {equipo1.nombre} vs {equipo2.nombre} ({fecha_partido} {hora_partido})")
+                    except ValidationError as e:
+                        print(f"VALIDATION ERROR: {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}: {e.message_dict}")
+                    except Exception as e:
+                        print(f"ERROR inesperado: {equipo1.nombre} vs {equipo2.nombre} el {fecha_partido}: {e}")
 
             fecha_partido += timedelta(days=1)
+        return creados
 
-    # Generar partidos para ambos géneros
-    generar_partidos_por_genero(equipos_masculinos, 'masculino')
-    generar_partidos_por_genero(equipos_femeninos, 'femenino')
+    total_creados = 0
+    total_creados += generar_partidos_por_genero(equipos_masculinos, 'masculino')
+    total_creados += generar_partidos_por_genero(equipos_femeninos, 'femenino')
 
-    print(f"Fixture de liga generado exitosamente para {campeonato.nombre}.")
+    print(f"Fixture de liga generado exitosamente para {campeonato.nombre}. Total partidos creados: {total_creados}")
+    return total_creados
