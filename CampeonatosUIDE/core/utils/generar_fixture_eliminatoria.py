@@ -1,4 +1,5 @@
-from core.models import Campeonato, Equipo, Partido, Arbitro
+from itertools import cycle
+from core.models import Campeonato, Equipo, Partido, Arbitro, Arbitro
 from django.utils import timezone
 from datetime import timedelta, time
 import random
@@ -66,17 +67,16 @@ def generar_fixture_eliminatoria(campeonato_id):
 
             try:
                 hora_partido = time(18, 0) # Usar una hora fija
-                partido = Partido(
+                                partido = Partido(
                     campeonato=campeonato,
-                    equipo_local=equipo1,
-                    equipo_visitante=equipo2,
+                    equipo_local=local,
+                    equipo_visitante=visitante,
                     fecha=fecha_partido,
                     hora=hora_partido,
-                    lugar="Por definir",
-                    arbitro=arbitro,
-                    estado='PROGRAMADO'
+                    lugar=f'Cancha {cancha_num}'
                 )
-                partido.full_clean()
+                if arbitro_cycle:
+                    partido.arbitro = next(arbitro_cycle)
                 partido.save()
                 creados += 1
                 print(f"CREADO: {equipo1.nombre} vs {equipo2.nombre} ({fecha_partido} {hora_partido})")

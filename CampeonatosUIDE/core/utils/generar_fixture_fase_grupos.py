@@ -105,8 +105,7 @@ def generar_fixture_fase_grupos(campeonato_id):
                         fecha_partido += timedelta(days=1)
 
                 # árbitro opcional
-                arbitro_qs = Arbitro.objects.filter(deportes=campeonato.deporte)
-                arbitro = random.choice(list(arbitro_qs)) if arbitro_qs.exists() else None
+                arbitro = next(arbitro_cycle) if arbitro_cycle else None
 
                 # datos mínimos
                 hora_partido = time(18, 0)
