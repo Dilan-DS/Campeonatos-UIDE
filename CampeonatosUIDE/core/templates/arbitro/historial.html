@@ -1,0 +1,51 @@
+{% extends 'comun/base.html' %}
+
+{% block title %}Historial de Partidos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="title">Historial de Partidos</h1>
+    <hr>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="notification is-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if partidos %}
+        <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Campeonato</th>
+                        <th>Fecha y Hora</th>
+                        <th>Lugar</th>
+                        <th>Equipos</th>
+                        <th>Estado</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for partido in partidos %}
+                        <tr>
+                            <td>{{ partido.campeonato.nombre }}</td>
+                            <td>{{ partido.fecha }} - {{ partido.hora }}</td>
+                            <td>{{ partido.lugar }}</td>
+                            <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
+                            <td><span class="tag is-success">{{ partido.get_estado_display }}</span></td>
+                            <td>{{ partido.resultado_local }} - {{ partido.resultado_visitante }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="notification is-info">
+            No tienes partidos en tu historial.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

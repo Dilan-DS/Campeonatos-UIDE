@@ -50,6 +50,8 @@ urlpatterns = [
     path('arbitros/<int:id>/', GestionArbitroView.as_view(), name='detalle_arbitro'),
     path('arbitros/<int:id>/editar/', GestionArbitroView.as_view(), {'action': 'editar'}, name='editar_arbitro'),
     path('arbitros/<int:id>/eliminar/', GestionArbitroView.as_view(), {'action': 'eliminar'}, name='eliminar_arbitro'),
+    path('arbitro/mis-partidos/', mis_partidos_arbitro, name='mis_partidos_arbitro'),
+    path('arbitro/historial/', historial_arbitros, name='historial_arbitros'),
     path('arbitro/campeonato/<int:campeonato_id>/posiciones/', ver_tabla_posiciones_arbitro, name='ver_tabla_posiciones_arbitro'),
 
 
