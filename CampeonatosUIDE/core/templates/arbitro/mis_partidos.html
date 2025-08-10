@@ -1,78 +1,62 @@
 {% extends 'comun/base.html' %}
-{% load static %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-{% endblock %}
+{% block title %}Mis Partidos Asignados{% endblock %}
 
 {% block content %}
-<div class="container is-fluid mt-5">
-    <h1 class="title has-text-centered">Mis Partidos Asignados</h1>
+<div class="container mt-4">
+    <h1 class="title">Mis Partidos Asignados</h1>
+    <hr>
 
     {% if messages %}
-        <div class="notification is-light is-info">
-            {% for message in messages %}
+        {% for message in messages %}
+            <div class="notification is-{{ message.tags }}">
                 {{ message }}
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
     {% endif %}
 
-    <div class="box">
-        <h2 class="subtitle">Campeonatos Asignados</h2>
-        {% if campeonatos_asignados %}
-            <div class="columns is-multiline">
-                {% for campeonato in campeonatos_asignados %}
-                    <div class="column is-one-third">
-                        <div class="card">
-                            <div class="card-content">
-                                <p class="title is-4">{{ campeonato.nombre }}</p>
-                                <p class="subtitle is-6">{{ campeonato.deporte.nombre }}</p>
-                                <p><strong>Fecha Inicio:</strong> {{ campeonato.fecha_inicio }}</p>
-                                <p><strong>Fecha Fin:</strong> {{ campeonato.fecha_fin }}</p>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>No estás asignado a ningún campeonato.</p>
-        {% endif %}
-    </div>
-
-    <div class="box mt-5">
-        <h2 class="subtitle">Mis Partidos</h2>
-        {% if partidos_asignados %}
-            <div class="table-container">
-                <table class="table is-striped is-fullwidth">
-                    <thead>
+    {% if partidos %}
+        <div class="table-container">
+            <table class="table is-striped is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Campeonato</th>
+                        <th>Fecha y Hora</th>
+                        <th>Lugar</th>
+                        <th>Equipos</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for partido in partidos %}
                         <tr>
-                            <th>Campeonato</th>
-                            <th>Equipo Local</th>
-                            <th>Equipo Visitante</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Cancha</th>
-                            <th>Estado</th>
+                            <td>
+                                <a href="{% url 'ver_tabla_posiciones_arbitro' partido.campeonato.id %}">
+                                    {{ partido.campeonato.nombre }}
+                                </a>
+                            </td>
+                            <td>{{ partido.fecha }} - {{ partido.hora }}</td>
+                            <td>{{ partido.lugar }}</td>
+                            <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
+                            <td><span class="tag is-info">{{ partido.get_estado_display }}</span></td>
+                            <td>
+                                {% if partido.estado == 'PROGRAMADO' or partido.estado == 'EN_CURSO' %}
+                                    <a href="{% url 'registrar_resultado_partido' partido.id %}" class="button is-small is-primary">Registrar Resultado</a>
+                                    <a href="{% url 'disciplinario_partido' partido.id %}" class="button is-small is-warning">Registrar Faltas</a>
+                                {% else %}
+                                    <span class="tag is-success">Finalizado</span>
+                                {% endif %}
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for partido in partidos_asignados %}
-                            <tr>
-                                <td>{{ partido.campeonato.nombre }}</td>
-                                <td>{{ partido.equipo_local.nombre }}</td>
-                                <td>{{ partido.equipo_visitante.nombre }}</td>
-                                <td>{{ partido.fecha }}</td>
-                                <td>{{ partido.hora }}</td>
-                                <td>{{ partido.lugar }}</td>
-                                <td>{{ partido.get_estado_display }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <p>No tienes partidos asignados.</p>
-        {% endif %}
-    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="notification is-info">
+            No tienes partidos asignados por el momento.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

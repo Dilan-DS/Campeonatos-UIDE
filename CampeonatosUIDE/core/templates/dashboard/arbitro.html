@@ -1,0 +1,65 @@
+{% extends 'comun/base.html' %}
+{% load static %}
+
+{% block title %}Mis Partidos - Árbitro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="title has-text-centered">Mis Partidos Asignados</h1>
+
+    {% if messages %}
+        <div class="notification is-info">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if partidos %}
+    <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Equipos</th>
+                    <th>Campeonato</th>
+                    <th>Lugar</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for partido in partidos %}
+                <tr>
+                    <td>{{ partido.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ partido.hora|time:"H:i" }}</td>
+                    <td>{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</td>
+                    <td>{{ partido.campeonato.nombre }}</td>
+                    <td>{{ partido.lugar }}</td>
+                    <td>
+                        <span class="tag {% if partido.estado == 'PROGRAMADO' %}is-info{% elif partido.estado == 'EN_CURSO' %}is-warning{% elif partido.estado == 'FINALIZADO' %}is-success{% endif %}">
+                            {{ partido.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if partido.estado == 'PROGRAMADO' or partido.estado == 'EN_CURSO' %}
+                        <a href="{% url 'registrar_resultado_partido' partido.id %}" class="button is-small is-primary">
+                            Registrar Resultado
+                        </a>
+                        {% else %}
+                        <button class="button is-small is-static" disabled>Finalizado</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="notification is-warning has-text-centered">
+        No tienes partidos asignados en este momento.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

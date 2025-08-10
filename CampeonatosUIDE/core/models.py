@@ -505,6 +505,15 @@ class Partido(models.Model):
         if conflicto_lugar.exists():
             # Si hay conflictos de lugar, lanzar una excepción de validación
             raise ValidationError("Ya hay un partido programado en este lugar, fecha y hora.")
+
+    # Campos disciplinarios
+    tarjetas_amarillas_local = models.PositiveIntegerField(default=0, blank=True, null=True)
+    tarjetas_amarillas_visitante = models.PositiveIntegerField(default=0, blank=True, null=True)
+    tarjetas_rojas_local = models.PositiveIntegerField(default=0, blank=True, null=True)
+    tarjetas_rojas_visitante = models.PositiveIntegerField(default=0, blank=True, null=True)
+    observaciones_arbitro = models.TextField(blank=True, null=True)
+    suspensiones_json = models.TextField(blank=True, null=True) # Para guardar suspensiones en formato JSON
+
     # Representación en texto del partido
     def __str__(self):
         return f"{self.equipo_local} vs {self.equipo_visitante} - {self.fecha}"
