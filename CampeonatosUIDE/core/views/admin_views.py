@@ -58,7 +58,8 @@ class ListarJugadoresAdminView(LoginRequiredMixin, View):
             estado_inscripcion = ""
             ya_inscrito = False
             if jugador_obj:
-                estado_inscripcion = f"Ya inscrito en: {jugador_obj.equipo.nombre}"
+                equipo_nombre = getattr(jugador_obj.equipo, 'nombre', 'Sin equipo')
+                estado_inscripcion = f"Ya inscrito en: {equipo_nombre}"
                 ya_inscrito = True
             
             jugadores_data.append({
