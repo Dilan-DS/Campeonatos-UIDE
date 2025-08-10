@@ -4,6 +4,7 @@ from .views import *
 from .views.carrera_views import ListarCarrerasView, GestionCarreraView
 from .views.partido_views import listar_partidos, fixture_campeonato_view, calendario_global_view
 from .views.feachure_views import calendar_view
+from .views.arbitro_views import listar_arbitros, ver_tabla_posiciones_arbitro
 
 from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
@@ -44,13 +45,12 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuario/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='usuario/password_reset_complete.html'), name='password_reset_complete'),
 
-    path('arbitros/', listar_arbitros.as_view(), name='listar_arbitros'),
-    
+    path('arbitros/', listar_arbitros, name='listar_arbitros'),
     path('arbitros/registrar/', GestionArbitroView.as_view(), name='registrar_arbitro'),
     path('arbitros/<int:id>/', GestionArbitroView.as_view(), name='detalle_arbitro'),
     path('arbitros/<int:id>/editar/', GestionArbitroView.as_view(), {'action': 'editar'}, name='editar_arbitro'),
     path('arbitros/<int:id>/eliminar/', GestionArbitroView.as_view(), {'action': 'eliminar'}, name='eliminar_arbitro'),
-    path('arbitros/historial/', HistorialArbitrosView.as_view(), name='historial_arbitros'),
+    path('arbitro/campeonato/<int:campeonato_id>/posiciones/', ver_tabla_posiciones_arbitro, name='ver_tabla_posiciones_arbitro'),
 
 
     path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),

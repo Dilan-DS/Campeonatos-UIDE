@@ -61,6 +61,15 @@
           <a class="navbar-item has-text-white" href="{% url 'listar_pagos_admin' %}">💰 Pagos</a>
           <a class="navbar-item has-text-white" href="{% url 'calendario_global' %}">📅 Partidos</a>
 
+        {% elif request.user.rol == "ARBITRO" %}
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link has-text-white">⚖️ Árbitro</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'mis_partidos_arbitro' %}">Mis Partidos</a>
+              <a class="navbar-item" href="{% url 'historial_arbitros' %}">Historial</a>
+            </div>
+          </div>
+
         {% elif request.user.rol == "DELEGADO" or request.user.rol == "JUGADOR" or request.user.rol == "ARBITRO" %}
           {% if campeonato %}
             <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}">📅 Calendario</a>

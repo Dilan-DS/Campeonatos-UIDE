@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from core.forms import *
 from core.models import Usuario, Equipo, Jugador, Campeonato, Partido
 from django.http import HttpResponse
@@ -114,18 +114,64 @@ class RegistrarDelegadoAdminView(LoginRequiredMixin, View):
         messages.error(request, "Error al crear el delegado. Por favor, revisa los campos.")
         return render(request, 'delegado/registrar.html', {'form': form})
 
-@login_required
-@user_passes_test(es_admin)
-def registrar_arbitro(request):
-    if request.method == 'POST':
-        form = CrearUsuarioArbitroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Árbitro creado exitosamente.')
-            return redirect('admin_dashboard')
-    else:
-        form = CrearUsuarioArbitroForm()
-    return render(request, 'arbitro/registrar.html', {'form': form})
+class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.rol == 'ADMIN'
+
+    def get(self, request, id=None, action=None):
+        arbitro_obj = None
+        form = None
+        modo = 'crear'
+
+        if id:
+            arbitro_obj = get_object_or_404(Arbitro, id=id)
+            if action == 'editar':
+                form = ArbitroForm(instance=arbitro_obj)
+                modo = 'editar'
+            elif action == 'eliminar':
+                modo = 'eliminar'
+            else: # Default to view if no action specified with ID
+                modo = 'ver'
+        else:
+            form = CrearUsuarioArbitroForm()
+
+        context = {
+            'form': form,
+            'arbitro': arbitro_obj,
+            'modo': modo
+        }
+        return render(request, 'arbitro/registrar.html', context)
+
+    def post(self, request, id=None, action=None):
+        if action == 'eliminar':
+            arbitro = get_object_or_404(Arbitro, id=id)
+            arbitro.usuario.delete() # Also deletes the Arbitro object via CASCADE
+            messages.success(request, "Árbitro eliminado correctamente.")
+            return redirect('listar_arbitros')
+        
+        if id: # Edit existing
+            arbitro = get_object_or_404(Arbitro, id=id)
+            form = ArbitroForm(request.POST, instance=arbitro)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Árbitro actualizado correctamente.")
+                return redirect('listar_arbitros')
+            modo = 'editar'
+        else: # Create new
+            form = CrearUsuarioArbitroForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Árbitro registrado correctamente.")
+                return redirect('listar_arbitros')
+            modo = 'crear'
+
+        context = {
+            'form': form,
+            'arbitro': arbitro if id else None,
+            'modo': modo
+        }
+        return render(request, 'arbitro/registrar.html', context)
+
 
 @login_required
 @user_passes_test(es_admin)
@@ -204,3 +250,5 @@ def exportar_estadisticas_excel(request):
     response['Content-Disposition'] = 'attachment; filename="estadisticas.xlsx"'
     workbook.save(response)
     return response
+
+
