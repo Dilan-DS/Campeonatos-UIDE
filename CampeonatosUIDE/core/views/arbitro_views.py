@@ -145,3 +145,19 @@ def ver_tabla_posiciones_arbitro(request, campeonato_id):
         'campeonato': campeonato,
         'tabla': tabla
     })
+
+@login_required
+@user_passes_test(es_arbitro, login_url='/login/')
+def historial_arbitros(request):
+    try:
+        arbitro_obj = request.user.arbitro
+        partidos_finalizados = (
+            Partido.objects
+            .filter(arbitro=arbitro_obj, estado='FINALIZADO')
+            .select_related('equipo_local','equipo_visitante','campeonato')
+            .order_by('-fecha','-hora','-id')
+        )
+        return render(request, 'arbitro/historial.html', {'partidos': partidos_finalizados})
+    except Arbitro.DoesNotExist:
+        messages.error(request, "No estás registrado como árbitro o tu perfil de árbitro no está completo.")
+        return redirect('vista_inicio')
