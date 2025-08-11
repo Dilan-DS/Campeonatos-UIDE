@@ -9,6 +9,7 @@ from core.views.inicio_views import equipo_publico
 from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import transmision_views
 
 urlpatterns = [
     # Inicio público y dashboard general
@@ -126,10 +127,10 @@ urlpatterns = [
 
     # Transmisiones
     path('transmisiones/', ListarTransmisionView.as_view(), name='listar_transmisiones'),
-    path('transmisiones/crear/', CrearTransmisionView.as_view(), name='crear_transmision'),
+    path('transmisiones/registrar/', transmision_views.upsert_transmision, name='registrar_transmision'),
+    path('transmisiones/<int:pk>/editar/', transmision_views.upsert_transmision, name='editar_transmision'),
+    path('transmisiones/<int:pk>/eliminar/', transmision_views.eliminar_transmision, name='eliminar_transmision'),
     path('transmisiones/<int:id>/', DetalleTransmisionView.as_view(), name='detalle_transmision'),
-    path('transmisiones/<int:id>/editar/', EditarTransmisionView.as_view(), name='editar_transmision'),
-    path('transmisiones/<int:id>/eliminar/', EliminarTransmisionView.as_view(), name='eliminar_transmision'),
     # Suspensiones
     path('suspensiones/', listar_suspensiones, name='listar_suspensiones'),
     path('suspension/registrar/', registrar_suspension, name='registrar_suspension'),
