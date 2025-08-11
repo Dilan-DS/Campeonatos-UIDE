@@ -402,7 +402,7 @@ class TransmisionForm(forms.ModelForm):
 # =============================
 # FORMULARIO DE REGISTRO PÚBLICO — Jugadores y Delegados
 # =============================
-class RegistroUsuarioPublicoForm(UserCreationForm):
+class RegistroUsuarioForm(UserCreationForm):
     ROL_CHOICES = [
         ('JUGADOR', 'Jugador'),
         ('DELEGADO', 'Delegado'),
@@ -830,3 +830,13 @@ class TestimonioForm(forms.ModelForm):
             # fecha auto generado
         }
 
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth import get_user_model
+
+class PasswordResetConValidacionForm(PasswordResetForm):
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        U = get_user_model()
+        if not U.objects.filter(email__iexact=email, is_active=True).exists():
+            raise forms.ValidationError("No existe una cuenta activa con ese correo.")
+        return email

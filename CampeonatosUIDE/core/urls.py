@@ -10,6 +10,8 @@ from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisti
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import transmision_views
+from core.forms import PasswordResetConValidacionForm
+from .views.auth_extra import PasswordResetViewWithEcho, PasswordResetDoneViewWithEcho
 
 urlpatterns = [
     # Inicio público y dashboard general
@@ -42,8 +44,8 @@ urlpatterns = [
     path('perfil/editar/', editar_perfil, name='editar_perfil'),
 
     # Recuperación de contraseña
-    path('reset_password/', auth_views.PasswordResetView.as_view(template_name='usuario/password_reset.html'), name='password_reset'),
-    path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(template_name='usuario/password_reset_sent.html'), name='password_reset_done'),
+    path('reset_password/', PasswordResetViewWithEcho.as_view(), name='password_reset'),
+    path('reset_password_sent/', PasswordResetDoneViewWithEcho.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuario/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='usuario/password_reset_complete.html'), name='password_reset_complete'),
 

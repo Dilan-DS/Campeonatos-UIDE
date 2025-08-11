@@ -20,6 +20,8 @@ class Carrera(models.Model):
 
 # Modelo personalizado de usuario
 class Usuario(AbstractUser):
+    email = models.EmailField(unique=True)
+    EMAIL_FIELD = "email"
 
     # Definición de roles posibles
     ROLES = [
@@ -66,7 +68,7 @@ class Usuario(AbstractUser):
 # Modelo de deporte
 class Deporte(models.Model):
     # Nombre único del deporte
-    nombre = models.CharField(max_length=100, unique=True)
+    nombre = models.CharField(max_length=100, unique=True) 
     # Descripción opcional del deporte
     descripcion = models.TextField(blank=True, null=True)
 
