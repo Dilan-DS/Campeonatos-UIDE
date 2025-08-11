@@ -43,6 +43,15 @@
 
   <!--  Contenido dinámico -->
   <main style="flex: 1;">
+    {% if messages %}
+    <div class="container mt-4">
+    {% for message in messages %}
+    <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %}">
+    {{ message }}
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
     {% block content %}
     {% endblock %}
   </main>

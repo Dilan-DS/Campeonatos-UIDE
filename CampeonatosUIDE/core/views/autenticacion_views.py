@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
-from core.forms import RegistroUsuarioPublicoForm
+from core.forms import RegistroUsuarioForm
 
 def _redir_por_rol(user):
     if getattr(user, 'rol', None) == 'ADMIN':
@@ -36,7 +36,7 @@ def vista_registro(request):
         return _redir_por_rol(request.user)
 
     # Crea una instancia del formulario de registro de jugador
-    form = RegistroUsuarioPublicoForm(request.POST or None)
+    form = RegistroUsuarioForm(request.POST or None)
 
     # Si el formulario es válido, guarda el nuevo usuario y lo autentica
     if request.method == 'POST' and form.is_valid():
