@@ -840,3 +840,22 @@ class PasswordResetConValidacionForm(PasswordResetForm):
         if not U.objects.filter(email__iexact=email, is_active=True).exists():
             raise forms.ValidationError("No existe una cuenta activa con ese correo.")
         return email
+
+class PerfilUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ["first_name", "last_name", "email", "cedula", "carrera", "genero"]
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        qs = Usuario.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("Ese correo ya está en uso.")
+        return email
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = (user.email or "").lower()
+        if commit:
+            user.save()
+        return user
