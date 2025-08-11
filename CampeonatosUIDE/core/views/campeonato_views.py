@@ -138,20 +138,14 @@ class FixtureCampeonato(LoginRequiredMixin, View):
 class CampeonatosPublicos(View):
     # Método GET que obtiene solo campeonatos activos
     def get(self, request):
-        campeonatos = Campeonato.objects.filter(activo=True)
-        # Renderiza la lista de campeonatos públicos
-        return render(request, 'campeonato/campeonatos_publicos.html', {
-            'campeonatos': campeonatos
-        })
+        campeonatos = Campeonato.objects.filter(activo='SI').order_by('-fecha_inicio')
+        return render(request, 'campeonato/campeonatos_publicos.html', {'campeonatos': campeonatos})
 
 
 # Función alternativa para listar campeonatos públicos activos
 def campeonatos_publicos(request):
-    campeonatos = Campeonato.objects.filter(activo=True)
-    # Renderiza la misma plantilla que la clase anterior
-    return render(request, 'campeonato/campeonatos_publicos.html', {
-        'campeonatos': campeonatos
-    })
+    campeonatos = Campeonato.objects.filter(activo='SI').order_by('-fecha_inicio')
+    return render(request, 'campeonato/campeonatos_publicos.html', {'campeonatos': campeonatos})
 
 
 # Clase para eliminar un campeonato

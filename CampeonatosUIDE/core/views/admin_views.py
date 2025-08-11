@@ -45,7 +45,7 @@ class ListarJugadoresAdminView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
 
         # Obtener todos los usuarios con rol JUGADOR
         jugadores_disponibles = Usuario.objects.filter(rol='JUGADOR').order_by('username')
@@ -99,14 +99,14 @@ class RegistrarDelegadoAdminView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         form = CrearUsuarioDelegadoForm()
         return render(request, 'delegado/registrar.html', {'form': form})
 
     def post(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         form = CrearUsuarioDelegadoForm(request.POST)
         if form.is_valid():
             form.save()

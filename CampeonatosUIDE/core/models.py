@@ -192,9 +192,10 @@ class Campeonato(models.Model):
 
     # Validación para que la fecha fin no sea anterior a la fecha inicio
     def clean(self):
-        if self.fecha_fin < self.fecha_inicio:
+        # Validaciones seguras (evitan TypeError con None)
+        if self.fecha_inicio and self.fecha_fin and self.fecha_fin < self.fecha_inicio:
             raise ValidationError("La fecha de fin no puede ser anterior a la fecha de inicio.")
-        if self.fecha_fin_inscripcion and self.fecha_fin_inscripcion > self.fecha_inicio:
+        if self.fecha_fin_inscripcion and self.fecha_inicio and self.fecha_fin_inscripcion > self.fecha_inicio:
             raise ValidationError("La fecha de fin de inscripción no puede ser posterior a la fecha de inicio del campeonato.")
 
     # Representación en texto del campeonato

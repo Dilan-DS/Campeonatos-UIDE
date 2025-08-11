@@ -70,38 +70,41 @@
             </div>
           </div>
 
-        {% elif request.user.rol == "DELEGADO" or request.user.rol == "JUGADOR" or request.user.rol == "ARBITRO" %}
+        {% elif request.user.rol == "DELEGADO" %}
+          {# Opcional: si manejas campeonato en contexto, muestra calendario de ese campeonato #}
           {% if campeonato %}
-            <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}">📅 Calendario</a>
+            <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}"> Calendario</a>
           {% endif %}
           <!-- DELEGADO -->
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">🎯 Delegado</a>
+            <a class="navbar-link has-text-white"> Delegado</a>
             <div class="navbar-dropdown">
               <a class="navbar-item" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
               <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
               <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
               <a class="navbar-item" href="{% url 'mis_jugadores_delegado' %}">Mis Jugadores</a>
               <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
-              <a class="navbar-item" href="{% url 'calendario_global' %}">📅 Calendario Global</a>
-              <a class="navbar-item" href="{% url 'registrar_pago_delegado' %}">💰 Pagos</a>
+              <a class="navbar-item" href="{% url 'calendario_global' %}"> Calendario Global</a>
+              <a class="navbar-item" href="{% url 'registrar_pago_delegado' %}"> Pagos</a>
             </div>
           </div>
-
         {% elif request.user.rol == "JUGADOR" %}
+          {% if campeonato %}
+            <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}"> Calendario</a>
+          {% endif %}
           <!-- JUGADOR -->
           <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">🎮 Jugador</a>
+            <a class="navbar-link has-text-white"> Jugador</a>
             <div class="navbar-dropdown">
               <a class="navbar-item" href="{% url 'jugador_dashboard' %}">Mi Perfil</a>
-              <a class="navbar-item" href="{% url 'calendario_global' %}">📅 Mis Partidos</a>
+              <a class="navbar-item" href="{% url 'calendario_global' %}"> Mis Partidos</a>
               {% with request.user.jugador as jugador %}
                 {% if jugador %}
-                  <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}">📊 Mis Estadísticas</a>
+                  <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}"> Mis Estadísticas</a>
                   {% if jugador.equipo %}
                     <a class="navbar-item" href="{% url 'ver_equipo_jugador' equipo_id=jugador.equipo.id %}">⚽ Mi Equipo</a>
                     {% if jugador.equipo.campeonato %}
-                      <a class="navbar-item" href="{% url 'tabla_estadisticas' jugador.equipo.campeonato.id %}">📈 Tabla de Posiciones</a>
+                      <a class="navbar-item" href="{% url 'tabla_posiciones' jugador.equipo.campeonato.id %}"> Tabla de Posiciones</a>
                     {% endif %}
                   {% endif %}
                 {% endif %}
