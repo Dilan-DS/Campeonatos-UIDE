@@ -150,7 +150,7 @@
                 <p class="clamp-1">
                   <strong>{{ partido.equipo_local.nombre }}</strong> vs
                   <strong>{{ partido.equipo_visitante.nombre }}</strong>
-                  — <span class="has-text-grey">{{ partido.deporte.nombre }}</span>
+                  — <span class="has-text-grey">{{ partido.campeonato.deporte.nombre }}</span>
                 </p>
                 <p class="is-size-7">⏰ {{ partido.fecha|date:"d/m/Y" }} · {{ partido.hora|time:"H:i" }}</p>
               </li>

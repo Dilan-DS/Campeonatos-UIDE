@@ -5,150 +5,250 @@
 
 {% block content %}
 
-<!-- 🎓 PANEL DEL DELEGADO -->
-<section class="section">
-  <div class="container">
-
-    <!-- Título de bienvenida -->
-    <h1 class="title has-text-danger">🎓 Panel del Delegado</h1>
-    <p class="subtitle">Hola, {{ user.first_name|default:user.username }}. Desde aquí puedes gestionar tu equipo y jugadores.</p>
-
-    <!-- Mensajes de estado del equipo y pago -->
-    <div class="box has-background-info-light mt-4">
-      {% if equipo %}
-        <p class="title is-6">Estado de tu equipo: <span class="has-text-info">{{ equipo.nombre }}</span></p>
-        <p class="subtitle is-7">Campeonato: {{ equipo.campeonato.nombre }}</p>
-        {% if pago %}
-          <p class="subtitle is-7">Estado del pago: 
-            {% if pago.estado == 'APROBADO' %}
-              <span class="has-text-success">APROBADO</span>
-            {% elif pago.estado == 'PENDIENTE' %}
-              <span class="has-text-warning">PENDIENTE</span>
-            {% else %}
-              <span class="has-text-danger">RECHAZADO</span>
-            {% endif %}
+<section class="section p-0">
+  <!-- Encabezado con gradiente -->
+  <div class="dash-hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div>
+          <h1 class="title is-3 is-size-4-mobile has-text-white">🎓 Panel del Delegado</h1>
+          <p class="subtitle is-6 has-text-white-bis m-t-2">
+            Hola, <strong>{{ user.first_name|default:user.username }}</strong>. Gestiona tu equipo, jugadores y pagos.
           </p>
-          {% if not equipo.aprobado %}
-            <p class="has-text-danger is-size-7">Tu equipo no está aprobado. No podrás registrar jugadores hasta que el pago sea aprobado.</p>
-          {% endif %}
+        </div>
+
+        {% if equipo %}
+          <div class="chips">
+            <span class="chip">
+              🏷️ Equipo: <strong>{{ equipo.nombre }}</strong>
+            </span>
+            {% if equipo.campeonato %}
+              <span class="chip">🏆 {{ equipo.campeonato.nombre }}</span>
+            {% endif %}
+            {% if pago %}
+              <span class="chip
+                {% if pago.estado == 'APROBADO' %} chip-success
+                {% elif pago.estado == 'PENDIENTE' %} chip-warning
+                {% else %} chip-danger{% endif %}">
+                💳 Pago: {{ pago.estado }}
+              </span>
+            {% else %}
+              <span class="chip chip-warning">💳 Pago: PENDIENTE</span>
+            {% endif %}
+            <span class="chip {% if equipo.aprobado %}chip-success{% else %}chip-danger{% endif %}">
+              ✅ Aprobación: {% if equipo.aprobado %}APROBADO{% else %}NO APROBADO{% endif %}
+            </span>
+          </div>
         {% else %}
-          <p class="subtitle is-7 has-text-warning">Aún no has registrado el pago de tu equipo.</p>
+          <div class="chips">
+            <span class="chip chip-warning">Aún no tienes un equipo registrado</span>
+          </div>
         {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Estado / ayuda -->
+<section class="section pt-5 pb-3">
+  <div class="container">
+    <div class="box info-box">
+      {% if equipo %}
+        <p class="has-text-grey-dark">
+          <strong>Estado actual:</strong>
+          {% if not pago %}
+            Debes registrar el pago de tu equipo para continuar.
+          {% elif pago.estado != 'APROBADO' %}
+            El pago está <strong>{{ pago.estado|lower }}</strong>. Cuando sea <strong>aprobado</strong> podrás gestionar jugadores.
+          {% else %}
+            ¡Todo listo! Ya puedes gestionar tu equipo y jugadores.
+          {% endif %}
+        </p>
       {% else %}
-        <p class="title is-6 has-text-warning">Aún no tienes un equipo registrado.</p>
-        <p class="subtitle is-7">¡Registra uno para empezar a participar en los campeonatos!</p>
+        <p class="has-text-grey-dark">
+          Registra tu equipo para participar en los campeonatos y habilitar el resto de acciones.
+        </p>
       {% endif %}
     </div>
+  </div>
+</section>
 
-    <!-- 📦 Tarjetas de acción -->
-    <div class="columns is-multiline mt-5">
+<!-- Acciones -->
+<section class="section pt-2">
+  <div class="container">
+    <div class="columns is-variable is-6 is-multiline">
 
       <!-- ⚽ Registrar equipo -->
-      <div class="column is-4">
+      <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if not equipo %}
-        <a href="{% url 'registrar_equipo' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">⚽ Registrar Equipo</p>
-            <p class="subtitle is-6">Inscribir un nuevo equipo</p>
-          </div>
-        </a>
+          <a class="action-card" href="{% url 'registrar_equipo' %}" aria-label="Registrar equipo">
+            <div class="icon-circle">⚽</div>
+            <h3>Registrar Equipo</h3>
+            <p>Inscribe un nuevo equipo</p>
+          </a>
         {% else %}
-        <div class="box has-background-grey-lighter has-text-centered" style="cursor: not-allowed;">
-          <p class="title is-5">⚽ Registrar Equipo</p>
-          <p class="subtitle is-6">Ya tienes un equipo registrado</p>
-        </div>
+          <div class="action-card is-disabled" role="button" aria-disabled="true">
+            <div class="icon-circle">⚽</div>
+            <h3>Registrar Equipo</h3>
+            <p>Ya tienes un equipo</p>
+          </div>
         {% endif %}
       </div>
 
-      <!-- 📋 Ver mi equipo -->
-      <div class="column is-4">
+      <!-- 📋 Mi Equipo -->
+      <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo %}
-        <a href="{% url 'detalle_equipo' id=equipo.id %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">📋 Mi Equipo</p>
-            <p class="subtitle is-6">Ver detalles de tu equipo</p>
-          </div>
-        </a>
+          <a class="action-card" href="{% url 'detalle_equipo' id=equipo.id %}" aria-label="Ver mi equipo">
+            <div class="icon-circle">📋</div>
+            <h3>Mi Equipo</h3>
+            <p>Ver detalles del equipo</p>
+          </a>
         {% else %}
-        <div class="box has-background-grey-lighter has-text-centered" style="cursor: not-allowed;">
-          <p class="title is-5">📋 Mi Equipo</p>
-          <p class="subtitle is-6">Registra un equipo primero</p>
-        </div>
+          <div class="action-card is-disabled" role="button" aria-disabled="true">
+            <div class="icon-circle">📋</div>
+            <h3>Mi Equipo</h3>
+            <p>Registra un equipo primero</p>
+          </div>
         {% endif %}
       </div>
 
       <!-- 👥 Mis jugadores -->
-      <div class="column is-4">
+      <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo and equipo.aprobado %}
-        <a href="{% url 'jugadores_equipo' id=equipo.id %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">👥 Mis Jugadores</p>
-            <p class="subtitle is-6">Gestionar jugadores del equipo</p>
-          </div>
-        </a>
+          <a class="action-card" href="{% url 'jugadores_equipo' id=equipo.id %}" aria-label="Gestionar jugadores">
+            <div class="icon-circle">👥</div>
+            <h3>Mis Jugadores</h3>
+            <p>Gestionar jugadores del equipo</p>
+          </a>
         {% else %}
-        <div class="box has-background-grey-lighter has-text-centered" style="cursor: not-allowed;">
-          <p class="title is-5">👥 Mis Jugadores</p>
-          <p class="subtitle is-6">Equipo no aprobado o no registrado</p>
-        </div>
+          <div class="action-card is-disabled" role="button" aria-disabled="true">
+            <div class="icon-circle">👥</div>
+            <h3>Mis Jugadores</h3>
+            <p>Equipo no aprobado / no registrado</p>
+          </div>
         {% endif %}
       </div>
 
-      <!-- 💰 Pagos -->
-      <div class="column is-4">
+      <!-- 💳 Pagos -->
+      <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo %}
-        <a href="{% url 'registrar_pago_delegado' %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">💰 Pagos</p>
-            <p class="subtitle is-6">Gestionar pagos de tu equipo</p>
-          </div>
-        </a>
+          <a class="action-card" href="{% url 'registrar_pago_delegado' %}" aria-label="Gestionar pagos">
+            <div class="icon-circle">💳</div>
+            <h3>Pagos</h3>
+            <p>Gestionar pago del equipo</p>
+          </a>
         {% else %}
-        <div class="box has-background-grey-lighter has-text-centered" style="cursor: not-allowed;">
-          <p class="title is-5">💰 Pagos</p>
-          <p class="subtitle is-6">Registra un equipo primero</p>
-        </div>
+          <div class="action-card is-disabled" role="button" aria-disabled="true">
+            <div class="icon-circle">💳</div>
+            <h3>Pagos</h3>
+            <p>Registra un equipo primero</p>
+          </div>
         {% endif %}
       </div>
 
-      <!-- 📆 Ver calendario deportivo (Fixture) -->
-      <div class="column is-4">
+      <!-- 📆 Calendario -->
+      <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo and equipo.campeonato %}
-        <a href="{% url 'fixture_campeonato' id=equipo.campeonato.id %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">📆 Calendario Deportivo</p>
-            <p class="subtitle is-6">Ver fixture de tu campeonato</p>
-          </div>
-        </a>
+          <a class="action-card" href="{% url 'fixture_campeonato' id=equipo.campeonato.id %}" aria-label="Ver calendario">
+            <div class="icon-circle">📆</div>
+            <h3>Calendario</h3>
+            <p>Fixture del campeonato</p>
+          </a>
         {% else %}
-        <div class="box has-background-grey-lighter has-text-centered" style="cursor: not-allowed;">
-          <p class="title is-5">📆 Calendario Deportivo</p>
-          <p class="subtitle is-6">Registra un equipo para ver el calendario</p>
-        </div>
+          <div class="action-card is-disabled" role="button" aria-disabled="true">
+            <div class="icon-circle">📆</div>
+            <h3>Calendario</h3>
+            <p>Registra un equipo para verlo</p>
+          </div>
         {% endif %}
       </div>
 
-      <!-- 📊 Tabla de Posiciones -->
-      <div class="column is-4">
+      <!-- 📊 Tabla de posiciones -->
+      <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo and equipo.campeonato %}
-        <a href="{% url 'tabla_posiciones' campeonato_id=equipo.campeonato.id %}">
-          <div class="box has-background-light has-text-centered">
-            <p class="title is-5">📊 Tabla de Posiciones</p>
-            <p class="subtitle is-6">Ver la clasificación de tu campeonato</p>
-          </div>
-        </a>
+          <a class="action-card" href="{% url 'tabla_posiciones' campeonato_id=equipo.campeonato.id %}" aria-label="Ver tabla de posiciones">
+            <div class="icon-circle">📊</div>
+            <h3>Tabla de Posiciones</h3>
+            <p>Clasificación del campeonato</p>
+          </a>
         {% else %}
-        <div class="box has-background-grey-lighter has-text-centered" style="cursor: not-allowed;">
-          <p class="title is-5">📊 Tabla de Posiciones</p>
-          <p class="subtitle is-6">Registra un equipo para ver la tabla</p>
-        </div>
+          <div class="action-card is-disabled" role="button" aria-disabled="true">
+            <div class="icon-circle">📊</div>
+            <h3>Tabla de Posiciones</h3>
+            <p>Registra un equipo para verla</p>
+          </div>
         {% endif %}
       </div>
 
     </div>
-
   </div>
 </section>
 
-{% endblock %}
+<style>
+/* Encabezado */
+.dash-hero{
+  background: linear-gradient(135deg,#ff7aa2 0%, #ffb36b 50%, #ffdf6b 100%);
+  padding: 2.25rem 0 1.75rem;
+}
+.hero-inner{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:1rem;
+}
+.chips{ display:flex; flex-wrap:wrap; gap:.5rem; }
 
+/* Chips */
+.chip{
+  display:inline-flex; align-items:center; gap:.35rem;
+  background: rgba(255,255,255,.18);
+  color:#fff; padding:.35rem .7rem; border-radius:999px; font-weight:600; font-size:.85rem;
+  backdrop-filter: blur(2px);
+}
+.chip-success{ background: rgba(12,160,44,.24); }
+.chip-warning{ background: rgba(255,170,0,.28); }
+.chip-danger { background: rgba(220,53,69,.28); }
+
+@media (max-width: 768px){
+  .hero-inner{ flex-direction:column; }
+}
+
+/* Caja de info */
+.info-box{ border: 1px dashed #e5e7eb; }
+
+/* Cards de acción */
+.action-card{
+  display:block; text-decoration:none; color:inherit;
+  border-radius:18px; padding:1.25rem 1.1rem;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(17,24,39,.06);
+  border: 1px solid rgba(17,24,39,.06);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  height: 100%;
+}
+.action-card:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(17,24,39,.12);
+  border-color: rgba(17,24,39,.12);
+}
+.action-card h3{ font-weight:700; margin-top:.75rem; margin-bottom:.25rem; }
+.action-card p { color:#4b5563; font-size:.95rem; }
+
+.icon-circle{
+  width:52px; height:52px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(135deg,#eff6ff,#fdf2f8);
+  box-shadow: inset 0 0 0 1px rgba(17,24,39,.06);
+  font-size:1.35rem;
+}
+
+/* Estado deshabilitado */
+.is-disabled{
+  position:relative; cursor:not-allowed; opacity:.72; background:#f8fafc;
+}
+.is-disabled::after{
+  content:""; position:absolute; inset:0; border-radius:18px;
+  background: repeating-linear-gradient(
+    -45deg, rgba(0,0,0,.02), rgba(0,0,0,.02) 8px, rgba(0,0,0,.05) 8px, rgba(0,0,0,.05) 16px
+  );
+}
+</style>
+
+{% endblock %}
