@@ -2,79 +2,199 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %}Iniciar Sesión{% endblock %}
+{% block title %}Iniciar sesión{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-5">
+<style>
+  /* Fondo con gradiente animado + burbujas */
+  .auth-hero {
+    position: relative;
+    min-height: calc(100vh - 6rem);
+    display: grid;
+    place-items: center;
+    background: radial-gradient(1200px 600px at 10% -10%, #ffe3ec 0%, transparent 60%),
+                radial-gradient(1200px 600px at 110% 10%, #e3f2ff 0%, transparent 60%),
+                linear-gradient(135deg, #fff7f0 0%, #f7fbff 100%);
+    overflow: hidden;
+  }
+  .auth-blob {
+    position: absolute; inset: -20% auto auto -10%;
+    width: 40vmax; height: 40vmax; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffd5e5 0%, #ffb3c7 35%, transparent 60%);
+    filter: blur(40px); opacity: .35; animation: float1 16s ease-in-out infinite;
+  }
+  .auth-blob.b2 {
+    inset: auto -12% -12% auto; width: 45vmax; height: 45vmax;
+    background: radial-gradient(circle at 70% 60%, #c9e7ff 0%, #a8d3ff 35%, transparent 60%);
+    animation: float2 18s ease-in-out infinite;
+  }
+  @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(12px)} }
+  @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
 
-        <!-- Mostrar mensajes de error o notificaciones, si existen -->
-        {% if messages %}
-          <div class="notification is-danger is-light has-text-centered">
-            {% for message in messages %}
-              {{ message }}
-            {% endfor %}
-          </div>
-        {% endif %}
+  /* Tarjeta vidrio pro */
+  .auth-card {
+    width: 100%;
+    max-width: 520px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 60px rgba(17, 24, 39, 0.15);
+    border: 1px solid rgba(148,163,184,.2);
+    overflow: hidden;
+  }
+  .auth-head {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #6c2943 0%, #ff8da1 45%, #9ac6ff 100%);
+    color: #fff;
+  }
+  .auth-head .brand {
+    display: flex; align-items: center; justify-content: center; gap: .75rem;
+  }
+  .auth-head .brand img {
+    width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.9);
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+  }
 
-        <!-- Caja principal del formulario de inicio de sesión -->
-        <div class="box" style="
-          border-radius: 20px;
-          padding: 2.5rem;
-          background-color: #fff3e1;
-          box-shadow: 0 10px 30px rgba(108, 41, 67, 0.2);">
-          
-          <!-- Título de bienvenida -->
-          <h2 class="title is-4 has-text-centered has-text-weight-bold" style="color: #6c2943;">
-            🎓 Bienvenido de nuevo
-          </h2>
+  .auth-body { padding: 1.75rem; }
 
-        <!-- Formulario de inicio de sesión -->
-          <form method="POST">
-            {% csrf_token %}
+  .field + .field { margin-top: 1rem; }
 
-            <!-- Iterar sobre los campos del formulario y mostrarlos con estilos -->
-            {% for field in form %}
-              <div class="field">
-                <label class="label has-text-dark">{{ field.label }}</label>
-                <div class="control">
-                  {{ field|add_class:"input is-rounded is-medium" }}
-                </div>
-                <!-- Mostrar errores específicos de cada campo -->
-                {% for error in field.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            {% endfor %}
+  /* Inputs pro */
+  .input.is-neo {
+    border-radius: 14px !important;
+    border: 1px solid rgba(148,163,184,.35);
+    box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
+    transition: box-shadow .15s ease, border-color .15s ease, transform .02s ease;
+  }
+  .input.is-neo:focus {
+    border-color: #6c2943;
+    box-shadow: 0 0 0 3px rgba(108, 41, 67, .18);
+  }
+  .control.has-icons-left .icon,
+  .control.has-icons-right .icon { color: #94a3b8; }
 
-            <!-- Botón de envío del formulario -->
-            <div class="field mt-5">
-              <div class="control">
-                <button type="submit" class="button is-fullwidth is-medium is-rounded" style="background-color: #6c2943; color: white;">
-                  <strong>Entrar</strong>
-                </button>
-              </div>
-            </div>
-          </form>
+  /* Botón CTA */
+  .btn-primary {
+    background: linear-gradient(135deg, #6c2943, #8a3b5b);
+    color: #fff; border: 0; border-radius: 14px;
+    box-shadow: 0 10px 20px rgba(108,41,67,.25);
+    transition: transform .1s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.03); }
+  .btn-primary:active { transform: translateY(0); box-shadow: 0 6px 14px rgba(108,41,67,.22); }
 
-          <!-- Enlaces adicionales para registro y recuperación de contraseña -->
-          <div class="has-text-centered mt-4">
-            <p>
-              ¿No tienes cuenta?
-              <a href="{% url 'registro' %}" class="has-text-link has-text-weight-bold">Regístrate aquí</a>
-            </p>
-            <p class="has-text-centered mt-2">
-              <a href="{% url 'password_reset' %}" class="has-text-warning has-text-weight-bold">¿Olvidaste tu contraseña?</a>
-            </p>
-          </div>
+  /* Notificaciones */
+  .notice {
+    border-radius: 14px;
+    border: 1px solid rgba(248,113,113,.3);
+    background: #fff1f2;
+    color: #991b1b;
+  }
 
+  /* Link actions */
+  .auth-actions a {
+    font-weight: 700; text-decoration: none;
+  }
+  .auth-actions a:hover { text-decoration: underline; }
+
+  /* Toggle password button */
+  .toggle-pass {
+    border: 0; background: transparent; cursor: pointer;
+    color: #6b7280; padding: 0 .5rem;
+  }
+</style>
+
+<section class="auth-hero">
+  <span class="auth-blob"></span>
+  <span class="auth-blob b2"></span>
+
+  <div class="auth-card">
+    <!-- Header -->
+    <div class="auth-head">
+      <div class="brand">
+        <img src="{% static 'img/logo.png' %}" alt="Logo">
+        <div>
+          <h2 class="title is-5 m-0">Iniciar sesión</h2>
+          <p class="is-size-7 m-0" style="opacity:.95;">Bienvenido de nuevo 👋</p>
         </div>
+      </div>
+    </div>
 
+    <!-- Body -->
+    <div class="auth-body">
+      {% if messages %}
+        <div class="notification notice is-light is-size-7">
+          {% for message in messages %}{{ message }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+      {% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="notification notice is-light is-size-7">
+          {% for err in form.non_field_errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="POST" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="field">
+            <label class="label is-size-6 has-text-grey-dark">{{ field.label }}</label>
+
+            {% if field.name == 'username' %}
+              <div class="control has-icons-left">
+                {{ field|add_class:"input is-medium is-neo" }}
+                <span class="icon is-left">
+                  <i class="fas fa-user"></i>
+                </span>
+              </div>
+            {% elif field.name == 'password' %}
+              <div class="control has-icons-left has-icons-right">
+                {{ field|add_class:"input is-medium is-neo" }}
+                <span class="icon is-left">
+                  <i class="fas fa-lock"></i>
+                </span>
+                <span class="icon is-right">
+                  <button type="button" class="toggle-pass" aria-label="Mostrar/ocultar contraseña"
+                          onclick="(function(){
+                            const i=document.getElementById('{{ field.id_for_label }}');
+                            if(!i) return;
+                            i.type = i.type==='password' ? 'text' : 'password';
+                          })()">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </span>
+              </div>
+            {% else %}
+              <div class="control">
+                {{ field|add_class:"input is-medium is-neo" }}
+              </div>
+            {% endif %}
+
+            {% for error in field.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <div class="field mt-5">
+          <button type="submit" class="button is-medium is-fullwidth btn-primary">
+            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span>Entrar</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="auth-actions has-text-centered mt-4">
+        <p class="is-size-7 mb-2">
+          ¿No tienes cuenta?
+          <a href="{% url 'registro' %}" class="has-text-link">Regístrate aquí</a>
+        </p>
+        <p class="is-size-7">
+          <a href="{% url 'password_reset' %}" class="has-text-warning-dark">¿Olvidaste tu contraseña?</a>
+        </p>
       </div>
     </div>
   </div>
 </section>
-
 {% endblock %}
