@@ -55,7 +55,13 @@ def vista_inicio(request):
                     campeonato__activo="SI",
                     fecha__gte=timezone.now()
                 )
-                .select_related("deporte", "equipo_local", "equipo_visitante")
+                .select_related(
+                    'campeonato',          # siempre
+                    'campeonato__deporte', # deporte viene POR campeonato
+                    'equipo_local',
+                    'equipo_visitante',
+                    'arbitro'
+                )
                 .order_by("fecha")[:6]
             )
         except Exception:
