@@ -407,34 +407,70 @@ class RegistroUsuarioPublicoForm(UserCreationForm):
         ('JUGADOR', 'Jugador'),
         ('DELEGADO', 'Delegado'),
     ]
-    rol = forms.ChoiceField(choices=ROL_CHOICES, widget=forms.RadioSelect)
+    rol = forms.ChoiceField(label='Rol', choices=ROL_CHOICES, widget=forms.RadioSelect)
+
     class Meta:
         model = Usuario
         fields = (
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'carrera',
-            'genero',
-            'rol',
+            'username', 'first_name', 'last_name', 'email',
+            'carrera', 'genero', 'rol',
+            'password1', 'password2',   # <- asegúrate de incluirlas
         )
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'input'}),
-            'first_name': forms.TextInput(attrs={'class': 'input'}),
-            'last_name': forms.TextInput(attrs={'class': 'input'}),
-            'email': forms.EmailInput(attrs={'class': 'input'}),
-            'carrera': forms.Select(attrs={'class': 'input'}),
-            'genero': forms.Select(attrs={'class': 'select'}),
+        labels = {
+            'username':   'Nombre de usuario',
+            'first_name': 'Nombres',
+            'last_name':  'Apellidos',
+            'email':      'Correo electrónico',
+            'carrera':    'Carrera',
+            'genero':     'Género',
+            'rol':        'Rol',
+            'password1':  'Contraseña',
+            'password2':  'Confirmar contraseña',
         }
+        help_texts = {
+            'username':  'Solo letras, números y @/./+/-/_.',
+            'password1': 'Mínimo 8 caracteres. No totalmente numérica ni muy común.',
+            'password2': 'Repite la contraseña exactamente igual.',
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'input',  'placeholder': 'Ej. jlopez'}),
+            'first_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Tu nombre'}),
+            'last_name':  forms.TextInput(attrs={'class': 'input', 'placeholder': 'Tus apellidos'}),
+            'email':      forms.EmailInput(attrs={'class': 'input', 'placeholder': 'tucorreo@ejemplo.com'}),
+            # En Bulma, el select suele ir envuelto en <div class="select">, pero dejamos la clase aquí.
+            'carrera': forms.Select(attrs={'class': 'select'}),
+            'genero':  forms.Select(attrs={'class': 'select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Email obligatorio
+        self.fields['email'].required = True
+
+        # Estilo de Bulma para contraseñas + ayudas en español
+        self.fields['password1'].widget.attrs.update({'class': 'input'})
+        self.fields['password2'].widget.attrs.update({'class': 'input'})
+        self.fields['password1'].help_text = (
+            "• Mínimo 8 caracteres.<br>"
+            "• No uses algo muy común.<br>"
+            "• No puede ser completamente numérica."
+        )
+        self.fields['password2'].help_text = "Repite la contraseña exactamente igual."
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if Usuario.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('Este correo ya está registrado.')
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.rol = self.cleaned_data['rol']
+        user.rol = self.cleaned_data.get('rol')
+        # normaliza el correo
+        user.email = (self.cleaned_data.get('email') or '').lower()
         if commit:
             user.save()
         return user
-
 # =============================
 # FORMULARIO: ADMIN CREA USUARIOS (con rol)
 # =============================
