@@ -9,7 +9,7 @@ class ListarDelegadosView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio_publico')
+            return redirect('vista_inicio')
         delegados = Usuario.objects.filter(rol='DELEGADO').order_by('username')
         return render(request, 'delegado/listar.html', {'delegados': delegados})
 
@@ -17,7 +17,7 @@ class DelegadoDashboardView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio_publico')
+            return redirect('vista_inicio')
         
         campeonato_id = request.GET.get('campeonato_id') or request.POST.get('campeonato_id') or request.session.get('campeonato_id')
         if campeonato_id:
@@ -39,7 +39,7 @@ class ListarJugadoresParaEquipoView(LoginRequiredMixin, View):
         from core.models import Equipo, Pago, Usuario, Jugador, Campeonato
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio_publico')
+            return redirect('vista_inicio')
         # campeonato actual desde kwargs/GET/POST/session/activo
         campeonato_id = (
             request.GET.get('campeonato_id')
@@ -89,7 +89,7 @@ class AgregarJugadorAEquipoView(LoginRequiredMixin, View):
     def post(self, request, jugador_usuario_id):
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio_publico')
+            return redirect('vista_inicio')
 
         campeonato_id = request.GET.get('campeonato_id') or request.POST.get('campeonato_id') or request.session.get('campeonato_id')
         if campeonato_id:
