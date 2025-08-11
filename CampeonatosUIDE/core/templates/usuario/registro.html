@@ -7,129 +7,181 @@
 <section class="section">
   <div class="container">
     <div class="columns is-centered">
-      <div class="column is-6">
+      <div class="column is-10-tablet is-7-desktop is-6-widescreen">
 
-        <!-- Caja principal del formulario con borde redondeado y padding -->
-        <div class="box" style="border-radius: 16px; padding: 2rem;">
-          <!-- Título centrado del formulario -->
-          <h2 class="title is-4 has-text-centered">Registro de Usuario</h2>
+        <div class="card reg-card">
+          <!-- Header con gradiente -->
+          <div class="reg-hero has-text-centered">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" class="reg-logo">
+            <h2 class="title is-3 is-size-4-mobile has-text-white mb-1">Crea tu cuenta</h2>
+            <p class="subtitle is-6 has-text-white is-opacity-80">
+              Completa tus datos para unirte a la plataforma
+            </p>
+          </div>
 
-          <!-- Formulario con método POST -->
-          <form method="post" class="has-text-centered">
-            {% csrf_token %} <!-- Token de protección CSRF -->
+          <div class="card-content">
+            <!-- Errores generales -->
+            {% if form.non_field_errors %}
+              <div class="notification is-danger is-light">
+                {% for e in form.non_field_errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+              </div>
+            {% endif %}
 
-            <!-- Campos comunes del formulario -->
-            {% for field in form %}
-              {% if field.name != 'numero_camiseta' and field.name != 'posicion' %}
-                <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
-                  <!-- Etiqueta del campo -->
-                  <label class="label">{{ field.label }}</label>
+            <form method="post" class="pro-form">
+              {% csrf_token %}
 
-                  <!-- Control que contiene el campo, con ancho fijo -->
-                  <div class="control" style="width: 80%;">
-                    {% if field.name == 'rol' %}
-                      <div class="control">
-                        {% for radio in field %}
-                          <label class="radio" >
-                            {{ radio.tag }} {{ radio.choice_label }}
-                          </label>
-                        {% endfor %}
-                      </div>
-                    {% else %}
-                      {{ field }}
-                    {% endif %}
+              <!-- Sección: Perfil -->
+              <div class="form-section">
+                <h3 class="section-title">👤 Información personal</h3>
+                <div class="columns is-multiline">
+                  {% if form.first_name %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.first_name.label }}</label>
+                      <div class="control">{{ form.first_name }}</div>
+                      {% for err in form.first_name.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
                   </div>
-
-                  <!-- Texto de ayuda opcional para el campo -->
-                  {% if field.help_text %}
-                    <p class="help">{{ field.help_text }}</p>
                   {% endif %}
 
-                  <!-- Mostrar errores del campo, si los hay -->
-                  {% for error in field.errors %}
-                    <p class="help is-danger">{{ error }}</p>
+                  {% if form.last_name %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.last_name.label }}</label>
+                      <div class="control">{{ form.last_name }}</div>
+                      {% for err in form.last_name.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {% if form.carrera %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.carrera.label }}</label>
+                      <div class="control">{{ form.carrera }}</div>
+                      {% for err in form.carrera.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {% if form.genero %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.genero.label }}</label>
+                      <div class="control">{{ form.genero }}</div>
+                      {% for err in form.genero.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Sección: Cuenta -->
+              <div class="form-section">
+                <h3 class="section-title">🔐 Datos de acceso</h3>
+                <div class="columns is-multiline">
+                  {% if form.username %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.username.label }}</label>
+                      <div class="control">{{ form.username }}</div>
+                      {% if form.username.help_text %}<p class="help is-info">{{ form.username.help_text }}</p>{% endif %}
+                      {% for err in form.username.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {% if form.email %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.email.label }}</label>
+                      <div class="control">{{ form.email }}</div>
+                      {% for err in form.email.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {% if form.password1 %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.password1.label }}</label>
+                      <div class="control">{{ form.password1 }}</div>
+                      {% if form.password1.help_text %}<p class="help is-info">{{ form.password1.help_text|safe }}</p>{% endif %}
+                      {% for err in form.password1.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {% if form.password2 %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.password2.label }}</label>
+                      <div class="control">{{ form.password2 }}</div>
+                      {% if form.password2.help_text %}<p class="help is-info">{{ form.password2.help_text }}</p>{% endif %}
+                      {% for err in form.password2.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Sección: Rol -->
+              {% if form.rol %}
+              <div class="form-section">
+                <h3 class="section-title">🎯 Selecciona tu rol</h3>
+                <div class="role-group">
+                  {% for radio in form.rol %}
+                    <label class="seg-pill" title="{{ radio.choice_label }}">
+                      {{ radio.tag }}
+                      <span>{{ radio.choice_label }}</span>
+                    </label>
                   {% endfor %}
                 </div>
+                {% for err in form.rol.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+              </div>
               {% endif %}
-            {% endfor %}
 
-            <!-- Campos específicos para Jugador, ocultos por defecto -->
-            <div id="player-fields-wrapper">
-              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
-                <label class="label">{{ form.numero_camiseta.label }}</label>
-                <div class="control" style="width: 80%;">
-                  {{ form.numero_camiseta }} 
+              <!-- Campos de JUGADOR -->
+              <div id="player-fields-wrapper" class="is-hidden">
+                <div class="form-section">
+                  <h3 class="section-title">⚽ Datos como jugador</h3>
+                  <div class="columns is-multiline">
+                    {% if form.numero_camiseta %}
+                    <div class="column is-12-mobile is-6-tablet">
+                      <div class="field">
+                        <label class="label">{{ form.numero_camiseta.label }}</label>
+                        <div class="control">{{ form.numero_camiseta }}</div>
+                        {% for err in form.numero_camiseta.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                      </div>
+                    </div>
+                    {% endif %}
+
+                    {% if form.posicion %}
+                    <div class="column is-12-mobile is-6-tablet">
+                      <div class="field">
+                        <label class="label">{{ form.posicion.label }}</label>
+                        <div class="control">{{ form.posicion }}</div>
+                        {% for err in form.posicion.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
+                      </div>
+                    </div>
+                    {% endif %}
+                  </div>
                 </div>
-                {% if form.numero_camiseta.help_text %}
-                  <p class="help">{{ form.numero_camiseta.help_text }}</p>
-                {% endif %}
-                {% for error in form.numero_camiseta.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
               </div>
 
-              <div class="field is-flex is-flex-direction-column is-align-items-center mb-4">
-                <label class="label">{{ form.posicion.label }}</label>
-                <div class="control" style="width: 80%;">
-                  {{ form.posicion }}
-                </div>
-                {% if form.posicion.help_text %}
-                  <p class="help">{{ form.posicion.help_text }}</p>
-                {% endif %}
-                {% for error in form.posicion.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
+              <!-- CTA -->
+              <div class="field mt-4">
+                <button type="submit" class="button is-primary is-medium is-fullwidth is-rounded reg-btn">
+                  Crear cuenta
+                </button>
               </div>
-            </div>
+            </form>
 
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const rolRadios = document.querySelectorAll('input[name="rol"]');
-                const playerFieldsWrapper = document.getElementById('player-fields-wrapper');
-                const numeroCamisetaInput = document.getElementById('id_numero_camiseta');
-                const posicionInput = document.getElementById('id_posicion');
-
-                function togglePlayerFields() {
-                  let isPlayer = false;
-                  rolRadios.forEach(radio => {
-                    if (radio.checked && radio.value === 'JUGADOR') {
-                      isPlayer = true;
-                    }
-                  });
-
-                  if (isPlayer) {
-                    playerFieldsWrapper.classList.remove('is-hidden');
-                    numeroCamisetaInput.required = true;
-                    posicionInput.required = true;
-                  } else {
-                    playerFieldsWrapper.classList.add('is-hidden');
-                    numeroCamisetaInput.required = false;
-                    posicionInput.required = false;
-                  }
-                }
-
-                rolRadios.forEach(radio => {
-                  radio.addEventListener('change', togglePlayerFields);
-                });
-
-                // Initial call to set visibility and required status based on default selected role
-                togglePlayerFields();
-              });
-            </script>
-
-            <!-- Botón para enviar el formulario -->
-            <div class="field mt-5">
-              <div class="control">
-                <button type="submit" class="button is-primary is-fullwidth">Registrarse</button>
-              </div>
-            </div>
-          </form>
-
-          <!-- Enlace para usuarios que ya tienen cuenta, para ir a la página de login -->
-          <p class="has-text-centered mt-4">
-            ¿Ya tienes cuenta?
-            <a href="{% url 'login' %}" class="has-text-link"><strong>Inicia sesión aquí</strong></a>
-          </p>
+            <p class="has-text-centered mt-3">
+              ¿Ya tienes cuenta?
+              <a href="{% url 'login' %}" class="has-text-link has-text-weight-semibold">Inicia sesión aquí</a>
+            </p>
+          </div>
         </div>
 
       </div>
@@ -137,4 +189,83 @@
   </div>
 </section>
 
+<style>
+/* Tarjeta y cabecera */
+.reg-card{ border-radius:18px; overflow:hidden; box-shadow:0 18px 48px rgba(17,24,39,.12); }
+.reg-hero{
+  padding:2.2rem 1.25rem;
+  background:linear-gradient(135deg,#ff7eb3 0%,#ff758c 35%,#ffa26b 100%);
+  position:relative;
+}
+.reg-logo{ width:64px;height:64px;object-fit:contain;background:#fff;border-radius:14px;padding:.35rem;box-shadow:0 8px 18px rgba(0,0,0,.18); }
+
+/* Secciones */
+.form-section{ margin-top:1.25rem; }
+.section-title{ font-weight:700; font-size:1.05rem; color:#334155; margin-bottom:.75rem; }
+
+/* Inputs genéricos (sin widget_tweaks) */
+.pro-form input[type="text"],
+.pro-form input[type="email"],
+.pro-form input[type="password"],
+.pro-form input[type="number"],
+.pro-form select,
+.pro-form textarea{
+  width:100%;
+  border-radius:12px;
+  height:2.75rem;
+  box-shadow:none;
+}
+.pro-form .label{ color:#334155; }
+
+/* Rol segmentado */
+.role-group{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.seg-pill{
+  position:relative; display:inline-flex; align-items:center;
+  background:#f1f5f9; border-radius:999px; padding:.5rem .9rem;
+  cursor:pointer; user-select:none; transition:.15s ease;
+  border:1px solid transparent;
+}
+.seg-pill:hover{ filter:brightness(1.03); }
+.seg-pill input[type="radio"]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.seg-pill input[type="radio"]:checked + span{
+  color:#fff; font-weight:700;
+}
+.seg-pill:has(input[type="radio"]:checked){
+  background:linear-gradient(135deg,#6366f1,#22d3ee);
+  box-shadow:0 10px 20px rgba(34,211,238,.25);
+}
+
+/* Botón CTA */
+.reg-btn{ box-shadow:0 10px 24px rgba(99,102,241,.22); }
+
+/* Visibilidad móvil */
+@media (max-width:768px){
+  .reg-hero{ padding:1.6rem 1rem; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const wrapper = document.getElementById('player-fields-wrapper');
+  const numero = document.getElementById('id_numero_camiseta');
+  const pos    = document.getElementById('id_posicion');
+  const radios = document.querySelectorAll('input[name="rol"]');
+
+  function togglePlayer() {
+    let isPlayer = false;
+    radios.forEach(r => { if (r.checked && r.value === 'JUGADOR') isPlayer = true; });
+    if (isPlayer) {
+      wrapper.classList.remove('is-hidden');
+      if (numero) numero.required = true;
+      if (pos)    pos.required    = true;
+    } else {
+      wrapper.classList.add('is-hidden');
+      if (numero) numero.required = false;
+      if (pos)    pos.required    = false;
+    }
+  }
+  radios.forEach(r => r.addEventListener('change', togglePlayer));
+  togglePlayer(); // estado inicial
+});
+</script>
 {% endblock %}
