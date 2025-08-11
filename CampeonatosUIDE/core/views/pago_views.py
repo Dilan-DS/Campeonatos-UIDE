@@ -9,7 +9,7 @@ class ListarPagosAdminView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pagos = Pago.objects.all().order_by('-fecha_pago')
         return render(request, 'pago/listar.html', {'pagos': pagos})
 
@@ -17,7 +17,7 @@ class DetallePagoAdminView(LoginRequiredMixin, View):
     def get(self, request, pk):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pago = get_object_or_404(Pago, pk=pk)
         return render(request, 'pago/detalle_pago.html', {'pago': pago})
 
@@ -25,7 +25,7 @@ class AprobarPagoAdminView(LoginRequiredMixin, View):
     def post(self, request, pk):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pago = get_object_or_404(Pago, pk=pk)
         if pago.estado == 'PENDIENTE':
             pago.estado = 'APROBADO'
@@ -40,7 +40,7 @@ class RechazarPagoAdminView(LoginRequiredMixin, View):
     def post(self, request, pk):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pago = get_object_or_404(Pago, pk=pk)
         if pago.estado == 'PENDIENTE' or pago.estado == 'APROBADO':
             pago.estado = 'RECHAZADO'
@@ -55,14 +55,14 @@ class RegistrarPagoAdminView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         form = PagoForm()
         return render(request, 'pago/registrar_admin.html', {'form': form, 'modo': 'crear'})
 
     def post(self, request):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         form = PagoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
@@ -75,7 +75,7 @@ class EditarPagoAdminView(LoginRequiredMixin, View):
     def get(self, request, pk):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pago = get_object_or_404(Pago, pk=pk)
         form = PagoForm(instance=pago)
         return render(request, 'pago/registrar_admin.html', {'form': form, 'modo': 'editar', 'pago': pago})
@@ -83,7 +83,7 @@ class EditarPagoAdminView(LoginRequiredMixin, View):
     def post(self, request, pk):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pago = get_object_or_404(Pago, pk=pk)
         form = PagoForm(request.POST, request.FILES, instance=pago)
         if form.is_valid():
@@ -97,7 +97,7 @@ class EliminarPagoAdminView(LoginRequiredMixin, View):
     def post(self, request, pk):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         pago = get_object_or_404(Pago, pk=pk)
         pago.delete()
         messages.success(request, 'Pago eliminado correctamente por el administrador.')
@@ -107,7 +107,7 @@ class RegistrarPagoParaEquipoAdminView(LoginRequiredMixin, View):
     def get(self, request, equipo_id):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         equipo = get_object_or_404(Equipo, pk=equipo_id)
         form = PagoForm(initial={'equipo': equipo})
         return render(request, 'pago/registrar_admin.html', {'form': form, 'modo': 'crear', 'equipo': equipo})
@@ -115,7 +115,7 @@ class RegistrarPagoParaEquipoAdminView(LoginRequiredMixin, View):
     def post(self, request, equipo_id):
         if not request.user.rol == 'ADMIN':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         equipo = get_object_or_404(Equipo, pk=equipo_id)
         form = PagoForm(request.POST, request.FILES)
         if form.is_valid():
@@ -131,7 +131,7 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         
         try:
             equipo = Equipo.objects.get(delegado=request.user)
@@ -152,7 +152,7 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
     def post(self, request):
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         
         try:
             equipo = Equipo.objects.get(delegado=request.user)
@@ -181,7 +181,7 @@ class DetallePagoDelegadoView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         
         try:
             equipo = Equipo.objects.get(delegado=request.user)
@@ -196,7 +196,7 @@ class EliminarPagoDelegadoView(LoginRequiredMixin, View):
     def post(self, request, pk):
         if not request.user.rol == 'DELEGADO':
             messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('inicio')
+            return redirect('inicio_publico')
         
         pago = get_object_or_404(Pago, pk=pk)
         
