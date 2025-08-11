@@ -44,8 +44,19 @@ urlpatterns = [
     path('perfil/editar/', editar_perfil, name='editar_perfil'),
 
     # Recuperación de contraseña
-    path('reset_password/', PasswordResetViewWithEcho.as_view(), name='password_reset'),
-    path('reset_password_sent/', PasswordResetDoneViewWithEcho.as_view(), name='password_reset_done'),
+    path(
+        'reset_password/',
+        PasswordResetViewWithEcho.as_view(
+            template_name='usuario/password_reset.html',
+            email_template_name='usuario/email/password_reset_email.txt',
+            html_email_template_name='usuario/email/password_reset_email.html',  # usar HTML
+            subject_template_name='usuario/email/password_reset_subject.txt',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            form_class=PasswordResetConValidacionForm,
+        ),
+        name='password_reset',
+    ),
+    path('reset_password_sent/', PasswordResetDoneViewWithEcho.as_view(template_name='usuario/password_reset_sent.html'), name='password_reset_done', ),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='usuario/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='usuario/password_reset_complete.html'), name='password_reset_complete'),
 
