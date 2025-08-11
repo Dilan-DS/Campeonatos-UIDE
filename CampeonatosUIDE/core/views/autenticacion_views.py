@@ -24,7 +24,7 @@ def vista_login(request):
         elif usuario.rol == 'JUGADOR':
             return redirect('jugador_dashboard')
         return redirect('vista_inicio')
-    return render(request, 'usuario/login.html', {'form': form})
+        
 
 # Función para registrar un nuevo jugador
 def vista_registro(request):

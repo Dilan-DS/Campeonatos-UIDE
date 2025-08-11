@@ -121,7 +121,119 @@ def vista_inicio(request):
     else:
         ctx["testimonios"] = []
 
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        rol = getattr(request.user, 'rol', None)
+        is_auth = request.user.is_authenticated
+        try:
+            # ---------- TESTIMONIO: lo puede enviar cualquiera (incluye anónimo) ----------
+            if accion == 'enviar_testimonio':
+                from core.models import Testimonio  # ajusta si el nombre difiere
+                texto = (request.POST.get('texto') or "").strip()
+                autor = (request.POST.get('autor') or "").strip()
+                if not texto:
+                    messages.error(request, "Escribe tu testimonio.")
+                    return redirect('vista_inicio')
+                obj = Testimonio()
+                if hasattr(obj, 'texto'):
+                    obj.texto = texto
+                elif hasattr(obj, 'contenido'):
+                    obj.contenido = texto
+                if hasattr(obj, 'autor_nombre'):
+                    obj.autor_nombre = autor or "Anónimo"
+                if hasattr(obj, 'usuario') and is_auth:
+                    obj.usuario = request.user
+                if hasattr(obj, 'publicado'):
+                    obj.publicado = False
+                if hasattr(obj, 'estado'):
+                    obj.estado = 'PENDIENTE'
+                obj.save()
+                messages.success(request, "¡Gracias! Tu testimonio quedó enviado para revisión.")
+                return redirect('vista_inicio')
+            # ---------- NOTICIA: SOLO ADMIN ----------
+            if accion == 'enviar_noticia':
+                if rol != 'ADMIN':
+                    messages.error(request, "Solo el administrador puede publicar noticias.")
+                    return redirect('vista_inicio')
+                from core.models import Noticia  # ajusta si el nombre difiere
+                titulo = (request.POST.get('titulo') or "").strip()
+                cuerpo = (request.POST.get('cuerpo') or "").strip()
+                if not titulo or not cuerpo:
+                    messages.error(request, "Completa título y contenido.")
+                    return redirect('vista_inicio')
+                obj = Noticia()
+                if hasattr(obj, 'titulo'):
+                    obj.titulo = titulo
+                if hasattr(obj, 'contenido'):
+                    obj.contenido = cuerpo
+                if hasattr(obj, 'publicado'):
+                    obj.publicado = True  # o False si requiere aprobación
+                if hasattr(obj, 'estado') and not hasattr(obj, 'publicado'):
+                    obj.estado = 'PUBLICADO'
+                obj.save()
+                messages.success(request, "Noticia publicada.")
+                return redirect('vista_inicio')
+            # ---------- GALERÍA: SOLO JUGADOR ----------
+            if accion == 'enviar_imagen':
+                if rol != 'JUGADOR':
+                    messages.error(request, "Solo los jugadores pueden subir imágenes a la galería.")
+                    return redirect('vista_inicio')
+                imagen = request.FILES.get('imagen')
+                descripcion = (request.POST.get('descripcion') or "").strip()
+                if not imagen:
+                    messages.error(request, "Selecciona una imagen.")
+                    return redirect('vista_inicio')
+                # Ajusta el modelo real de galería
+                try:
+                    from core.models import ImagenGaleria as Galeria
+                except Exception:
+                    from core.models import Galeria
+                obj = Galeria()
+                if hasattr(obj, 'imagen'):
+                    obj.imagen = imagen
+                elif hasattr(obj, 'archivo'):
+                    obj.archivo = imagen
+                if hasattr(obj, 'descripcion'):
+                    obj.descripcion = descripcion
+                if hasattr(obj, 'publicado'):
+                    obj.publicado = False
+                if hasattr(obj, 'estado'):
+                    obj.estado = 'PENDIENTE'
+                if hasattr(obj, 'usuario') and is_auth:
+                    obj.usuario = request.user
+                obj.save()
+                messages.success(request, "Imagen enviada. Queda pendiente de aprobación.")
+                return redirect('vista_inicio')
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error al enviar: {e}")
+            return redirect('vista_inicio')
     return render(request, 'publica/inicio_publico.html', ctx)
+
+def equipo_publico(request):
+    miembros = [
+        {
+            "nombre": "Felix Melgar Rodas",
+            "rol": "Desarrollador",
+            "telefono": "",
+            "correo": "",
+            "foto": "img/integrante1.png",
+        },
+        {
+            "nombre": "Stephano Dilan Galvez Perez",
+            "rol": "Desarrollador",
+            "telefono": "+593 99 070 6018",
+            "correo": "stgalvezpe@uide.edu.ec",
+            "foto": "img/integrante2.png",
+        },
+        {
+            "nombre": "Jhosty Sot",
+            "rol": "Desarrollador",
+            "telefono": "",
+            "correo": "",
+            "foto": "img/integrante3.png", 
+        },
+    ]
+    return render(request, "publica/equipo.html", {"miembros": miembros})
 
 def resultados_publicos(request):
     partidos_finalizados = Partido.objects.filter(estado='FINALIZADO').order_by('-fecha', '-hora')

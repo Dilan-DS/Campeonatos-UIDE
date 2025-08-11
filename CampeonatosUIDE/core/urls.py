@@ -5,7 +5,7 @@ from .views.carrera_views import ListarCarrerasView, GestionCarreraView
 from .views.partido_views import listar_partidos, fixture_campeonato_view, calendario_global_view
 from .views.feachure_views import calendar_view
 from .views.arbitro_views import listar_arbitros, ver_tabla_posiciones_arbitro
-
+from core.views.inicio_views import equipo_publico
 from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,6 +13,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     # Inicio público y dashboard general
     path('', vista_inicio_publico, name='inicio_publico'),
+    path("equipo/", equipo_publico, name="equipo_publico"),
     path('dashboard/', vista_inicio, name='vista_inicio'),
 
     # Dashboards por rol
