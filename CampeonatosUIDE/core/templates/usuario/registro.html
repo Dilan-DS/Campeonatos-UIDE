@@ -1,5 +1,6 @@
 {% extends 'comun/base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Registro de Usuario{% endblock %}
 
@@ -100,6 +101,18 @@
                     </div>
                   </div>
                   {% endif %}
+
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.cedula.label }}</label>
+                      <div class="control">
+                        {{ form.cedula |add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
+                      </div>
+                      {% if form.cedula.errors %}
+                      <p class="help is-danger">{{ form.cedula.errors.0 }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
 
                   {% if form.password1 %}
                   <div class="column is-12-mobile is-6-tablet">

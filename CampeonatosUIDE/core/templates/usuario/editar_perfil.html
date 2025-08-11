@@ -1,59 +1,55 @@
 {% extends 'comun/base.html' %}
 {% load widget_tweaks %}
-
 {% block title %}Editar Perfil{% endblock %}
-
 {% block content %}
 <section class="section">
-  <div class="container">
-    <h1 class="title has-text-centered mb-5">Editar Perfil</h1>
-
-    <div class="columns is-centered">
-      <div class="column is-full-mobile is-half-tablet is-one-third-desktop">
-
-        <form method="POST" novalidate>
-          {% csrf_token %}
-
-          {% if form.non_field_errors %}
-            <div class="notification is-danger">
-              <ul>
-                {% for error in form.non_field_errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-
-          {% for field in form %}
-            <div class="field">
-              <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              <div class="control">
-                {{ field|add_class:"input" }}
-              </div>
-              {% if field.help_text %}
-                <p class="help is-info">{{ field.help_text }}</p>
-              {% endif %}
-              {% if field.errors %}
-                <p class="help is-danger">
-                  {% for error in field.errors %}
-                    {{ error }}{% if not forloop.last %}, {% endif %}
-                  {% endfor %}
-                </p>
-              {% endif %}
-            </div>
-          {% endfor %}
-
-          <div class="field mt-5">
-            <div class="control">
-              <button type="submit" class="button is-primary is-fullwidth is-rounded">
-                Guardar Cambios
-              </button>
-            </div>
-          </div>
-        </form>
-
-      </div>
-    </div>
-  </div>
+<div class="container" style="max-width:720px">
+<h1 class="title has-text-centered">Editar Perfil</h1>
+<form method="post" enctype="multipart/form-data" class="box">
+{% csrf_token %}
+{{ form.non_field_errors }}
+<div class="columns">
+<div class="column">
+<label class="label">Nombre</label>
+{{ form.first_name|add_class:"input is-rounded" }}
+{% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
+</div>
+<div class="column">
+<label class="label">Apellido</label>
+{{ form.last_name|add_class:"input is-rounded" }}
+{% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
+</div>
+</div>
+<div class="field">
+<label class="label">Correo</label>
+{{ form.email|add_class:"input is-rounded" }}
+{% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
+</div>
+<div class="columns">
+<div class="column">
+<label class="label">Cédula</label>
+{{ form.cedula|add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
+{% if form.cedula.errors %}<p class="help is-danger">{{ form.cedula.errors.0 }}</p>{% endif %}
+</div>
+<div class="column">
+<label class="label">Carrera</label>
+<div class="select is-fullwidth is-rounded">
+{{ form.carrera }}
+</div>
+{% if form.carrera.errors %}<p class="help is-danger">{{ form.carrera.errors.0 }}</p>{% endif %}
+</div>
+</div>
+<div class="field">
+<label class="label">Género</label>
+<div class="select is-fullwidth is-rounded">
+{{ form.genero }}
+</div>
+{% if form.genero.errors %}<p class="help is-danger">{{ form.genero.errors.0 }}</p>{% endif %}
+</div>
+<div class="field mt-4">
+<button class="button is-primary is-fullwidth is-rounded" type="submit"> Guardar Cambios </button>
+</div>
+</form>
+</div>
 </section>
 {% endblock %}

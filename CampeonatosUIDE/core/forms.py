@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.contrib.auth.forms import UserCreationForm
 from .models import *
@@ -408,11 +409,17 @@ class RegistroUsuarioForm(UserCreationForm):
         ('DELEGADO', 'Delegado'),
     ]
     rol = forms.ChoiceField(label='Rol', choices=ROL_CHOICES, widget=forms.RadioSelect)
+    cedula = forms.CharField(
+        required=True,
+        max_length=10,
+        label="Cédula",
+        help_text="10 dígitos."
+    )
 
     class Meta:
         model = Usuario
         fields = (
-            'username', 'first_name', 'last_name', 'email',
+            'username', 'first_name', 'last_name', 'email', 'cedula',
             'carrera', 'genero', 'rol',
             'password1', 'password2',   # <- asegúrate de incluirlas
         )
@@ -457,6 +464,15 @@ class RegistroUsuarioForm(UserCreationForm):
         )
         self.fields['password2'].help_text = "Repite la contraseña exactamente igual."
 
+    def clean_cedula(self):
+        ced = (self.cleaned_data.get("cedula") or "").strip()
+        if not ced.isdigit() or len(ced) != 10:
+            raise ValidationError("La cédula debe tener exactamente 10 dígitos.")
+        # Única (en BD ya es unique, pero validamos antes)
+        if Usuario.objects.filter(cedula__iexact=ced).exists():
+            raise ValidationError("Esta cédula ya está registrada.")
+        return ced
+
     def clean_email(self):
         email = (self.cleaned_data.get('email') or '').strip().lower()
         if Usuario.objects.filter(email__iexact=email).exists():
@@ -468,6 +484,7 @@ class RegistroUsuarioForm(UserCreationForm):
         user.rol = self.cleaned_data.get('rol')
         # normaliza el correo
         user.email = (self.cleaned_data.get('email') or '').lower()
+        user.cedula = self.cleaned_data["cedula"].strip()
         if commit:
             user.save()
         return user
@@ -842,15 +859,26 @@ class PasswordResetConValidacionForm(PasswordResetForm):
         return email
 
 class PerfilUsuarioForm(forms.ModelForm):
+    cedula = forms.CharField(required=True, max_length=10, label="Cédula")
     class Meta:
         model = Usuario
         fields = ["first_name", "last_name", "email", "cedula", "carrera", "genero"]
+
+    def clean_cedula(self):
+        ced = (self.cleaned_data.get("cedula") or "").strip()
+        if not ced.isdigit() or len(ced) != 10:
+            raise ValidationError("La cédula debe tener exactamente 10 dígitos.")
+        # Única, excluyendo al propio usuario en edición
+        qs = Usuario.objects.filter(cedula__iexact=ced).exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError("Esta cédula ya está registrada.")
+        return ced
 
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
         qs = Usuario.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
         if qs.exists():
-            raise forms.ValidationError("Ese correo ya está en uso.")
+            raise ValidationError("Ese correo ya está en uso.")
         return email
 
     def save(self, commit=True):
