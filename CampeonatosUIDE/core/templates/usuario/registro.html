@@ -74,6 +74,22 @@
                     </div>
                   </div>
                   {% endif %}
+
+                  {% if form.cedula %}
+                  <div class="column is-12-mobile is-6-tablet">
+                    <div class="field">
+                      <label class="label">{{ form.cedula.label|default:"Cédula" }}</label>
+                      <div class="control">
+                        {{ form.cedula |add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" |attr:"autocomplete:off" |attr:"title:Ingresa 10 dígitos" }}
+                      </div>
+                      {% if form.cedula.errors %}
+                      <p class="help is-danger">{{ form.cedula.errors.0 }}</p>
+                      {% else %}
+                      <p class="help">10 dígitos, solo números.</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% endif %}
                 </div>
               </div>
 
@@ -102,17 +118,7 @@
                   </div>
                   {% endif %}
 
-                  <div class="column is-12-mobile is-6-tablet">
-                    <div class="field">
-                      <label class="label">{{ form.cedula.label }}</label>
-                      <div class="control">
-                        {{ form.cedula |add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
-                      </div>
-                      {% if form.cedula.errors %}
-                      <p class="help is-danger">{{ form.cedula.errors.0 }}</p>
-                      {% endif %}
-                    </div>
-                  </div>
+                  
 
                   {% if form.password1 %}
                   <div class="column is-12-mobile is-6-tablet">
