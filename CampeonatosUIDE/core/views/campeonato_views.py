@@ -51,18 +51,14 @@ class CrearCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
 
     # Método POST que procesa el formulario enviado para crear campeonato
     def post(self, request):
-        # Instancia del formulario con datos enviados y archivos (como reglamento)
-        form = CampeonatoForm(request.POST, request.FILES)
-        # Valida el formulario
+        form = CampeonatoForm(request.POST, request.FILES or None)
         if form.is_valid():
-            # Guarda el nuevo campeonato en la base de datos
             form.save()
-            # Mensaje de éxito al usuario
-            messages.success(request, 'Campeonato creado correctamente')
-            # Redirige a la lista de campeonatos usando reverse_lazy para la ruta nombrada
-            return redirect(reverse_lazy('listar_campeonatos'))
+            messages.success(request, "Campeonato creado correctamente.")
+            return redirect("listar_campeonatos")
         else:
-            # Si no es válido, vuelve a mostrar el formulario con errores
+            print("CampeonatoForm errors:", form.errors)
+            messages.error(request, "Revisa los campos del formulario.")
             return render(request, 'campeonato/crear.html', {'form': form, 'modo': 'crear'})
 
 
