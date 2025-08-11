@@ -24,8 +24,104 @@ def vista_inicio_publico(request):
     return render(request, 'publica/inicio_publico.html')
 # Esta vista renderiza la página de inicio pública del sitio.
 def vista_inicio(request):
-    # Si el usuario ya está autenticado, redirige al dashboard correspondiente
-    return render(request, 'publica/inicio_publico.html')
+    from django.utils import timezone
+    from django.shortcuts import render
+    from django.apps import apps # Added this import
+
+    # Helper function to safely get models
+    def _get_model(model_name):
+        try:
+            return apps.get_model('core', model_name)
+        except LookupError:
+            return None
+
+    ctx = {}
+
+    # 1) Campeonatos activos (CharField SI/NO)
+    Campeonato = _get_model('Campeonato')
+    if Campeonato:
+        ctx["campeonatos"] = (
+            Campeonato.objects.filter(activo="SI").order_by("-fecha_inicio")[:6]
+        )
+    else:
+        ctx["campeonatos"] = []
+
+    # 2) Próximos partidos (si el modelo existe)
+    Partido = _get_model('Partido')
+    if Partido:
+        try:
+            ctx["proximos_partidos"] = (
+                Partido.objects.filter(
+                    campeonato__activo="SI",
+                    fecha__gte=timezone.now()
+                )
+                .select_related("deporte", "equipo_local", "equipo_visitante")
+                .order_by("fecha")[:6]
+            )
+        except Exception:
+            ctx["proximos_partidos"] = []
+    else:
+        ctx["proximos_partidos"] = []
+
+    # Helper para filtrar por campos “publicados/visibles” si existen
+    def _filtrar_publico(qs, pares):
+        for campo, valor in pares:
+            try:
+                qs.model._meta.get_field(campo)
+                qs = qs.filter(**{campo: valor})
+            except Exception:
+                pass
+        return qs
+
+    # 3) Transmisiones (solo publicadas/visibles si esos campos existen)
+    Transmision = _get_model('Transmision')
+    if Transmision:
+        try:
+            trans = Transmision.objects.all().order_by("-id")
+            trans = _filtrar_publico(trans, [("estado", "PUBLICADO"), ("publicado", True), ("visible", True), ("activo", "SI")])
+            ctx["transmisiones"] = trans[:4]
+        except Exception:
+            ctx["transmisiones"] = []
+    else:
+        ctx["transmisiones"] = []
+
+    # 4) Galería (si hay modelo de imágenes para público)
+    ImagenGaleria = _get_model('ImagenGaleria')
+    if ImagenGaleria:
+        try:
+            gal = ImagenGaleria.objects.all().order_by("-id")
+            gal = _filtrar_publico(gal, [("publica", True), ("visible", True), ("estado", "PUBLICADO")])
+            ctx["imagenes_galeria"] = gal[:8]
+        except Exception:
+            ctx["imagenes_galeria"] = []
+    else:
+        ctx["imagenes_galeria"] = []
+
+    # 5) Noticias (admin publica; el público solo ve publicadas)
+    Noticia = _get_model('Noticia')
+    if Noticia:
+        try:
+            news = Noticia.objects.all().order_by("-id")
+            news = _filtrar_publico(news, [("publica", True), ("visible", True), ("estado", "PUBLICADO")])
+            ctx["noticias"] = news[:5]
+        except Exception:
+            ctx["noticias"] = []
+    else:
+        ctx["noticias"] = []
+
+    # 6) Testimonios (igual: solo los publicados/visibles)
+    Testimonio = _get_model('Testimonio')
+    if Testimonio:
+        try:
+            tes = Testimonio.objects.all().order_by("-id")
+            tes = _filtrar_publico(tes, [("publico", True), ("visible", True), ("estado", "PUBLICADO")])
+            ctx["testimonios"] = tes[:5]
+        except Exception:
+            ctx["testimonios"] = []
+    else:
+        ctx["testimonios"] = []
+
+    return render(request, 'publica/inicio_publico.html', ctx)
 
 def resultados_publicos(request):
     partidos_finalizados = Partido.objects.filter(estado='FINALIZADO').order_by('-fecha', '-hora')

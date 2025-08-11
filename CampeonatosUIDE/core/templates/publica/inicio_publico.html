@@ -4,6 +4,12 @@
 {% block title %}Campeonatos UIDE - Inicio Público{% endblock %}
 
 {% block content %}
+<style>
+.tile-link { display:block; text-decoration:none; color:inherit; }
+.hover-card { cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; }
+.hover-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.08); }
+.hover-card:focus-within { outline: 2px solid #ffd54f; outline-offset: 3px; }
+</style>
 
 <!--  Bienvenida -->
 <section class="hero is-danger is-bold py-5">
@@ -23,7 +29,8 @@
 
       <!-- Campeonatos Activos -->
       <div class="column is-one-third">
-        <div class="box has-background-warning-light">
+        <a class="tile-link" href="{% url 'campeonatos_publicos' %}">
+        <div class="box has-background-warning-light hover-card">
           <h2 class="title is-5 has-text-danger">🏆 Campeonatos Activos</h2>
           {% for campeonato in campeonatos %}
             <p class="has-text-grey-dark"><strong>{{ campeonato.nombre }}</strong></p>
@@ -34,11 +41,13 @@
             <p>No hay campeonatos activos.</p>
           {% endfor %}
         </div>
+        </a>
       </div>
 
       <!-- Próximos Partidos -->
       <div class="column is-one-third">
-        <div class="box has-background-info-light">
+        <a class="tile-link" href="{% url 'listar_partidos' %}">
+        <div class="box has-background-info-light hover-card">
           <h2 class="title is-5 has-text-link">📅 Próximos Partidos</h2>
           {% for partido in proximos_partidos %}
             <p>{{ partido.deporte.nombre }}: <strong>{{ partido.equipo_local.nombre }}</strong> vs <strong>{{ partido.equipo_visitante.nombre }}</strong></p>
@@ -48,11 +57,13 @@
             <p>No hay partidos programados.</p>
           {% endfor %}
         </div>
+        </a>
       </div>
 
       <!-- Transmisiones Recientes -->
       <div class="column is-one-third">
-        <div class="box has-background-light">
+        <a class="tile-link" href="{% url 'listar_transmisiones' %}">
+        <div class="box has-background-light hover-card">
           <h2 class="title is-5">🎥 Transmisiones</h2>
           {% for transmision in transmisiones %}
             <p><strong>{{ transmision.nombre }}</strong></p>
@@ -62,11 +73,13 @@
             <p>No hay transmisiones disponibles.</p>
           {% endfor %}
         </div>
+        </a>
       </div>
 
       <!-- Galería -->
       <div class="column is-one-third">
-        <div class="box has-background-primary-light">
+        <a class="tile-link" href="{% url 'listar_imagenes_galeria' %}">
+        <div class="box has-background-primary-light hover-card">
           <h2 class="title is-5">📸 Galería</h2>
           <div class="columns is-multiline">
             {% for imagen in imagenes_galeria %}
@@ -80,11 +93,13 @@
             {% endfor %}
           </div>
         </div>
+        </a>
       </div>
 
       <!-- Noticias -->
       <div class="column is-one-third">
-        <div class="box has-background-white">
+        <a class="tile-link" href="{% url 'listar_noticias' %}">
+        <div class="box has-background-white hover-card">
           <h2 class="title is-5 has-text-danger">📰 Noticias</h2>
           {% for noticia in noticias %}
             <p><strong>{{ noticia.titulo }}</strong></p>
@@ -95,11 +110,13 @@
             <p>No hay noticias por el momento.</p>
           {% endfor %}
         </div>
+        </a>
       </div>
 
       <!-- Testimonios -->
       <div class="column is-one-third">
-        <div class="box has-background-success-light">
+        <a class="tile-link" href="{% url 'listar_testimonios' %}">
+        <div class="box has-background-success-light hover-card">
           <h2 class="title is-5">💬 Testimonios</h2>
           {% for testimonio in testimonios %}
             <p>“{{ testimonio.texto }}”</p>
@@ -109,6 +126,7 @@
             <p>No hay testimonios aún.</p>
           {% endfor %}
         </div>
+        </a>
       </div>
 
     </div>
@@ -137,3 +155,5 @@
 </section>
 
 {% endblock %}
+
+

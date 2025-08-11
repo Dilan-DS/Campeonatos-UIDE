@@ -12,7 +12,7 @@ def vista_login(request):
             return redirect('delegado_dashboard')
         elif request.user.rol == 'JUGADOR':
             return redirect('jugador_dashboard')
-        return redirect('inicio_publico')
+        return redirect('vista_inicio')
     form = AuthenticationForm(request, data=request.POST or None)
     if form.is_valid():
         usuario = form.get_user()
@@ -23,7 +23,7 @@ def vista_login(request):
             return redirect('delegado_dashboard')
         elif usuario.rol == 'JUGADOR':
             return redirect('jugador_dashboard')
-        return redirect('inicio_publico')
+        return redirect('vista_inicio')
     return render(request, 'usuario/login.html', {'form': form})
 
 # Función para registrar un nuevo jugador
@@ -35,7 +35,7 @@ def vista_registro(request):
             return redirect('delegado_dashboard')
         elif request.user.rol == 'JUGADOR':
             return redirect('jugador_dashboard')
-        return redirect('inicio_publico')
+        return redirect('vista_inicio')
     # Crea una instancia del formulario de registro de jugador
     form = RegistroUsuarioPublicoForm(request.POST or None)
     # Si el formulario es válido, guarda el nuevo usuario y lo autentica
