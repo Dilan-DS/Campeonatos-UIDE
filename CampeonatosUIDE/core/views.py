@@ -668,11 +668,7 @@
 #     # Verifica si el campeonato tiene un tipo asociado
 #     return render(request, 'campeonato/detalle.html', {'campeonato': campeonato})
 
-# def fixture_campeonato(request, id):
-#     # Obtiene el campeonato por su ID, o devuelve un error 404 si no se encuentra
-#     campeonato = get_object_or_404(Campeonato, id=id)
-#     # Obtiene todos los partidos del campeonato y los ordena por fecha y hora
-#     return render(request, 'campeonato/fixture.html', {'campeonato': campeonato})
+
 
 # # ========================
 # # PARTIDOS

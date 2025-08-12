@@ -9,6 +9,21 @@
 <div class="container mt-4">
     <h2 class="text-center mb-4">Calendario de Partidos - {{ campeonato.nombre }}</h2>
 
+{% if request.user.rol == 'ADMIN' or request.user.rol == 'DELEGADO' %}
+<div class="buttons is-centered mb-4">
+<form method="post" action="{% url 'generar_fixture_campeonato' campeonato.id %}">
+{% csrf_token %}
+<input type="hidden" name="modo" value="auto">
+<button class="button is-primary is-light">Generar por fecha de inscripción</button>
+</form>
+<form method="post" action="{% url 'generar_fixture_campeonato' campeonato.id %}" class="ml-2">
+{% csrf_token %}
+<input type="hidden" name="modo" value="manual">
+<button class="button is-info is-light">Generar ahora</button>
+</form>
+</div>
+{% endif %}
+
     {% if partidos %}
         <div class="list-group">
             {% for partido in partidos %}

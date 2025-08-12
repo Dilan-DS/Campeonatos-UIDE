@@ -114,24 +114,9 @@ class DetalleCampeonato(LoginRequiredMixin, View):
 class FixtureCampeonato(LoginRequiredMixin, View):
     # Método GET para mostrar el fixture
     def get(self, request, id, deporte_id=None):
-        # Obtiene el campeonato o 404
-        # obtener todos los equipos ingrritos con sus repsectivos deportes
-        # equipos_inscritos = Equipo.objects.filter(campeonato__id=id, aprobado=True).select_related('deporte_id') genero
-        # variable para el tipo de campeonato=grupos y eiminatoria, = 1, 2, 3, generoEquipos
-        """
-        if genero == 'masculino':
-            if tipo_campeonato == 'eliminacion_simple':
-                generoEquipos = generar_sorteo_eliminacion_simple(equipos_inscritos)
-        """
-
-
-
-
-        # calendario = 
-
         campeonato = get_object_or_404(Campeonato, id=id)
-        # Renderiza el template específico para fixture
-        return render(request, 'campeonato/fixture.html', {'campeonato': campeonato})
+        partidos = Partido.objects.filter(campeonato=campeonato).order_by('fecha', 'hora')
+        return render(request, 'campeonato/fixture_campeonato.html', {'campeonato': campeonato, 'partidos': partidos})
 
 
 # Clase para mostrar campeonatos públicos y activos
@@ -253,6 +238,18 @@ class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
     def post(self, request, campeonato_id):
         campeonato = get_object_or_404(Campeonato, id=campeonato_id)
         equipos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True))
+        
+        modo = request.POST.get('modo', 'manual')
+        if modo == 'auto':
+            if not campeonato.fecha_fin_inscripcion:
+                messages.error(request, "Este campeonato no tiene fecha de fin de inscripción definida.")
+                return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
+            if timezone.now().date() < campeonato.fecha_fin_inscripcion.date():
+                messages.error(request, "Aún no termina la inscripción. No se puede generar automáticamente.")
+                return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
+            base_date = campeonato.fecha_fin_inscripcion
+        else:
+            base_date = campeonato.fecha_inicio or timezone.now()
 
         if len(equipos) < 2:
             messages.error(request, "Se necesitan al menos 2 equipos aprobados para generar el fixture.")
@@ -268,7 +265,7 @@ class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
         # y que hay un lugar predefinido o se asigna aleatoriamente.
         # Para simplificar, usaremos la fecha de inicio del campeonato y una hora fija.
         
-        current_date = campeonato.fecha_inicio
+        current_date = base_date
         # Convertir MultiSelectField a una lista de strings
         dias_partido_list = list(campeonato.dias_partido)
         dias_semana_map = {
@@ -298,7 +295,7 @@ class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
             current_date += timezone.timedelta(days=1) # Avanzar al siguiente día para el próximo round
 
         messages.success(request, "Fixture generado exitosamente.")
-        return redirect('detalle_campeonato', id=campeonato.id)
+        return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
 
 
 @login_required
