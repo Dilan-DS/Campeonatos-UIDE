@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from core.models import Pago, Equipo
 from core.forms import PagoForm, PagoDelegadoForm
+from django.urls import reverse
+
 
 class ListarPagosAdminView(LoginRequiredMixin, View):
     def get(self, request):
