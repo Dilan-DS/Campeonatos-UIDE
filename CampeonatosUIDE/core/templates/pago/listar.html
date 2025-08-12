@@ -47,7 +47,18 @@
                             </td>
                             <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
                             <td>
-                                <a href="{% url 'detalle_pago_admin' pago.pk %}" class="button is-small is-info is-rounded">Ver Detalle</a>
+                                <form action="{% url 'cambiar_estado_pago_admin' pago.pk %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <div class="select is-small is-rounded">
+                                        <select name="estado" onchange="this.form.submit()">
+                                            <option value="PENDIENTE" {% if pago.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                                            <option value="APROBADO" {% if pago.estado == 'APROBADO' %}selected{% endif %}>Aprobado</option>
+                                            <option value="RECHAZADO" {% if pago.estado == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
+                                        </select>
+                                    </div>
+                                </form>
+                                <a href="{% url 'detalle_pago_admin' pago.pk %}" class="button is-small is-info is-rounded ml-2">Ver Detalle</a>
                                 {% if request.user.rol == 'ADMIN' %}
                                 <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-small is-warning is-rounded ml-2">Editar</a>
                                 <form action="{% url 'eliminar_pago_admin' pago.pk %}" method="post" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago?');">

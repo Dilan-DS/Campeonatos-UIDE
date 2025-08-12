@@ -180,6 +180,7 @@ urlpatterns = [
     path('panel/admin/pagos/<int:pk>/', pago_views.DetallePagoAdminView.as_view(), name='detalle_pago_admin'),
     path('panel/admin/pagos/<int:pk>/aprobar/', pago_views.AprobarPagoAdminView.as_view(), name='aprobar_pago_admin'),
     path('panel/admin/pagos/<int:pk>/rechazar/', pago_views.RechazarPagoAdminView.as_view(), name='rechazar_pago_admin'),
+    path('panel/admin/pagos/<int:pk>/estado/', pago_views.CambiarEstadoPagoAdminView.as_view(), name='cambiar_estado_pago_admin'),
 
     # Pagos Delegado
     path('delegado/pagos/registrar/', pago_views.RegistrarPagoDelegadoView.as_view(), name='registrar_pago_delegado'),
