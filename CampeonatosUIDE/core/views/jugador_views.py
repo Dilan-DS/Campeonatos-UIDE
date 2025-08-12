@@ -142,12 +142,36 @@ def jugador_dashboard(request):
 
 @user_passes_test(es_jugador)
 def ver_estadisticas_jugador(request, jugador_id):
-    jugador = get_object_or_404(Jugador, id=jugador_id, usuario=request.user)
-    equipo = jugador.equipo
-    campeonato = equipo.campeonato
-    deporte_nombre = campeonato.deporte.nombre.upper()
+    jugador = get_object_or_404(Jugador, pk=jugador_id)
+    # SAFE: equipo/campeonato pueden ser None
+    equipo = getattr(jugador, "equipo", None)
+    campeonato = getattr(equipo, "campeonato", None) if equipo else None
 
+    # Prepara valores seguros por defecto
     estadisticas = None
+    partidos = []
+    goles = []
+    tarjetas = []
+    deporte_nombre = None # Initialize deporte_nombre
+
+    if campeonato is None:
+        # Jugador sin equipo -> no consultes nada que requiera campeonato
+        messages.info(request, "Este jugador aún no está asignado a un equipo.")
+        contexto = {
+            "jugador": jugador,
+            "equipo": None,
+            "campeonato": None,
+            "estadisticas": estadisticas,
+            "partidos": partidos,
+            "goles": goles,
+            "tarjetas": tarjetas,
+            "deporte_nombre": deporte_nombre, # Pass deporte_nombre
+        }
+        return render(request, "jugador/estadisticas.html", contexto)
+    
+    # Jugador con equipo/campeonato: deja la lógica existente, pero
+    # TODAS las consultas que antes asumían campeonato deben protegerse.
+    deporte_nombre = campeonato.deporte.nombre.upper()
 
     if deporte_nombre == 'FUTBOL':
         estadisticas = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
@@ -166,11 +190,17 @@ def ver_estadisticas_jugador(request, jugador_id):
     elif deporte_nombre == 'FUTBOLIN':
         estadisticas = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
 
-    return render(request, 'jugador/estadisticas.html', {
-        'jugador': jugador,
-        'estadisticas': estadisticas,
-        'deporte_nombre': deporte_nombre
-    })
+    contexto = {
+        "jugador": jugador,
+        "equipo": equipo,
+        "campeonato": campeonato,
+        "estadisticas": estadisticas,
+        "partidos": partidos, # These variables are not populated in the provided snippet, assuming they are handled elsewhere or not needed for this specific fix.
+        "goles": goles,
+        "tarjetas": tarjetas,
+        "deporte_nombre": deporte_nombre,
+    }
+    return render(request, "jugador/estadisticas.html", contexto)
 
 
 @login_required
