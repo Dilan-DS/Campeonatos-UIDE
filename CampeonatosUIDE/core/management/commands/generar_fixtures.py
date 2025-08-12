@@ -6,6 +6,7 @@ from core.models import Campeonato, Partido
 from core.utils.generar_fixture_liga import generar_fixture_liga
 from core.utils.generar_fixture_fase_grupos import generar_fixture_fase_grupos
 from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
+from core.utils.generar_fixture_liga import asignar_arbitros_a_partidos
 
 class Command(BaseCommand):
     help = 'Genera el fixture para campeonatos cuya fecha de inscripción ha finalizado.'
@@ -59,6 +60,10 @@ class Command(BaseCommand):
                         creados = generar_fixture_eliminatoria(campeonato.id) or 0
 
                     self.stdout.write(self.style.SUCCESS(f'Total partidos creados: {creados}'))
+
+                    # Asignar árbitros después de generar los partidos
+                    asignados_arbitros = asignar_arbitros_a_partidos(campeonato)
+                    self.stdout.write(self.style.SUCCESS(f'Árbitros asignados automáticamente: {asignados_arbitros}'))
 
                     # 3) Validar resultado: si 0, REVERSIÓN
                     if not creados:
