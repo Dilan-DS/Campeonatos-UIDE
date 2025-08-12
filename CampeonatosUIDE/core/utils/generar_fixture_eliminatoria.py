@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta, time
 import random
 from django.core.exceptions import ValidationError
+from .generar_fixture_liga import asignar_arbitros_a_partidos
 
 def generar_fixture_eliminatoria(campeonato_id):
     try:
@@ -67,16 +68,16 @@ def generar_fixture_eliminatoria(campeonato_id):
 
             try:
                 hora_partido = time(18, 0) # Usar una hora fija
-                                partido = Partido(
+                partido = Partido(
                     campeonato=campeonato,
-                    equipo_local=local,
-                    equipo_visitante=visitante,
+                    equipo_local=equipo1,
+                    equipo_visitante=equipo2,
                     fecha=fecha_partido,
                     hora=hora_partido,
-                    lugar=f'Cancha {cancha_num}'
+                    lugar=f'Cancha {random.randint(1, 5)}'
                 )
-                if arbitro_cycle:
-                    partido.arbitro = next(arbitro_cycle)
+                if arbitro:
+                    partido.arbitro = arbitro
                 partido.save()
                 creados += 1
                 print(f"CREADO: {equipo1.nombre} vs {equipo2.nombre} ({fecha_partido} {hora_partido})")
@@ -93,4 +94,7 @@ def generar_fixture_eliminatoria(campeonato_id):
     total_creados += generar_ronda_eliminatoria(equipos_femeninos, 'femenino')
     
     print(f"Fixture de eliminatoria generado para {campeonato.nombre}. Total partidos creados: {total_creados}")
+    # Asignar árbitros sin modificar las fechas ni los partidos
+    asignados = asignar_arbitros_a_partidos(campeonato)
+    print(f"Árbitros asignados: {asignados}")
     return total_creados

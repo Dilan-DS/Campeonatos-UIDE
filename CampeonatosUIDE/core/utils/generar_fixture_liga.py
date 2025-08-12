@@ -1,5 +1,5 @@
 from itertools import cycle
-from core.models import Campeonato, Equipo, Partido, Arbitro, Arbitro
+from core.models import Campeonato, Equipo, Partido, Arbitro
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta, time
@@ -77,16 +77,16 @@ def generar_fixture_liga(campeonato_id):
                     
                     try:
                         hora_partido = time(18, 0) # Usar una hora fija
-                                                partido = Partido(
+                        partido = Partido(
                             campeonato=campeonato,
-                            equipo_local=local,
-                            equipo_visitante=visitante,
+                            equipo_local=equipo1,
+                            equipo_visitante=equipo2,
                             fecha=fecha_partido,
                             hora=hora_partido,
-                            lugar=f'Cancha {cancha_num}'
+                            lugar=f'Cancha {random.randint(1, 5)}'
                         )
-                        if arbitro_cycle:
-                            partido.arbitro = next(arbitro_cycle)
+                        if arbitro:
+                            partido.arbitro = arbitro
                         partido.save()
                         creados += 1
                         print(f"CREADO: {equipo1.nombre} vs {equipo2.nombre} ({fecha_partido} {hora_partido})")
@@ -103,4 +103,32 @@ def generar_fixture_liga(campeonato_id):
     total_creados += generar_partidos_por_genero(equipos_femeninos, 'femenino')
 
     print(f"Fixture de liga generado exitosamente para {campeonato.nombre}. Total partidos creados: {total_creados}")
+    # Asignar árbitros sin modificar las fechas ni los partidos
+    asignados = asignar_arbitros_a_partidos(campeonato)
+    print(f"Árbitros asignados: {asignados}")
     return total_creados
+
+def asignar_arbitros_a_partidos(campeonato):
+    """
+    Asigna árbitros activos del mismo deporte del campeonato a los partidos sin árbitro, en rotación.
+    No modifica fechas ni crea partidos.
+    Retorna la cantidad asignada.
+    """
+    arbitros = list(
+        Arbitro.objects.filter(estado=True, deportes=campeonato.deporte)
+        .select_related('usuario')
+        .order_by('id')
+    )
+    if not arbitros:
+        return 0
+    rot = cycle(arbitros)
+    partidos = (
+        Partido.objects.filter(campeonato=campeonato, arbitro__isnull=True)
+        .order_by('fecha', 'hora', 'id')
+    )
+    asignados = 0
+    for p in partidos:
+        p.arbitro = next(rot)
+        p.save(update_fields=['arbitro'])
+        asignados += 1
+    return asignados

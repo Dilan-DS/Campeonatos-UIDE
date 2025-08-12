@@ -142,3 +142,7 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "no-reply@uide.local"
 # Reset de contraseña
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
 EMAIL_TIMEOUT = 20
+
+
+CSRF_TRUSTED_ORIGINS = ["https://*.trycloudflare.com"]
+# (ALLOWED_HOSTS ya lo tienes en ['*'], así que está OK para pruebas)

@@ -5,6 +5,7 @@ from datetime import timedelta, time, date, datetime
 import random
 import itertools
 from django.core.exceptions import ValidationError
+from .generar_fixture_liga import asignar_arbitros_a_partidos
 
 
 def generar_fixture_fase_grupos(campeonato_id):
@@ -144,4 +145,7 @@ def generar_fixture_fase_grupos(campeonato_id):
     total_creados += (generar_partidos_por_genero(equipos_f, "femenino") or 0)
 
     print(f"Fixture de fase de grupos generado para {campeonato.nombre}. Total partidos creados: {total_creados}")
+    # Asignar árbitros sin modificar las fechas ni los partidos
+    asignados = asignar_arbitros_a_partidos(campeonato)
+    print(f"Árbitros asignados: {asignados}")
     return total_creados  # SIEMPRE int
