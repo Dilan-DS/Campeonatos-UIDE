@@ -41,6 +41,7 @@
                             <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
                             <td><span class="tag is-info">{{ partido.get_estado_display }}</span></td>
                             <td>
+                                <a href="{% url 'acta_partido_arbitro' pk=partido.id %}" class="button is-small is-info">Cargar/Editar Acta</a>
                                 {% if partido.estado == 'PROGRAMADO' or partido.estado == 'EN_CURSO' %}
                                     <a href="{% url 'registrar_resultado_partido' partido.id %}" class="button is-small is-primary">Registrar Resultado</a>
                                     <a href="{% url 'disciplinario_partido' partido.id %}" class="button is-small is-warning">Registrar Faltas</a>

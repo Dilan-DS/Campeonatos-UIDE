@@ -887,3 +887,43 @@ class PerfilUsuarioForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+# --- ACTA ÁRBITRO ---
+class ArbitroActaForm(forms.Form):
+    resultado_local = forms.IntegerField(min_value=0, required=True, label="Goles local")
+    resultado_visitante = forms.IntegerField(min_value=0, required=True, label="Goles visitante")
+    tarjetas_amarillas_local = forms.IntegerField(min_value=0, required=False, initial=0)
+    tarjetas_amarillas_visitante = forms.IntegerField(min_value=0, required=False, initial=0)
+    tarjetas_rojas_local = forms.IntegerField(min_value=0, required=False, initial=0)
+    tarjetas_rojas_visitante = forms.IntegerField(min_value=0, required=False, initial=0)
+    observaciones = forms.CharField(required=False, widget=forms.Textarea(attrs={"rows":4}))
+
+    """
+    Construye campos por jugador:
+    - goles_{jugador_id}  (int >= 0)
+    - amarillas_{jugador_id} (0..2)
+    - roja_{jugador_id}   (0/1)
+    """
+    def __init__(self, *args, jugadores_local=None, jugadores_visitante=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        def add_player_fields(prefix, qs):
+            if qs is None:
+                return
+            for j in qs:
+                self.fields[f"goles_{j.id}"] = forms.IntegerField(min_value=0, required=False, initial=0, label=f"Goles {j.usuario.username}")
+                self.fields[f"amarillas_{j.id}"] = forms.IntegerField(min_value=0, max_value=2, required=False, initial=0, label=f"Amarillas {j.usuario.username}")
+                self.fields[f"roja_{j.id}"] = forms.IntegerField(min_value=0, max_value=1, required=False, initial=0, label=f"Roja {j.usuario.username}")
+                self.fields[f"susp_{j.id}"] = forms.BooleanField(required=False, label=f"Suspender {j.usuario.username}")
+                self.fields[f"susp_ini_{j.id}"] = forms.DateField(required=False, widget=forms.DateInput(attrs={"type":"date"}), label="Desde")
+                self.fields[f"susp_fin_{j.id}"] = forms.DateField(required=False, widget=forms.DateInput(attrs={"type":"date"}), label="Hasta")
+                self.fields[f"susp_mot_{j.id}"] = forms.CharField(required=False, max_length=255, label="Motivo")
+
+        add_player_fields("L", jugadores_local)
+        add_player_fields("V", jugadores_visitante)
+
+    def total_goles_por_equipo(self, jugadores):
+        total = 0
+        for j in jugadores:
+            total += int(self.cleaned_data.get(f"goles_{j.id}", 0) or 0)
+        return total

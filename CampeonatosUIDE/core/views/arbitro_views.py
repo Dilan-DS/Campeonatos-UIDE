@@ -1,8 +1,167 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from core.models import Partido, Usuario, Arbitro, Campeonato, Equipo # Import Arbitro for request.user.arbitro
-from django.db.models import Q # For select_related if needed
-from django.contrib import messages # For messages framework
+from core.models import Partido, Usuario, Arbitro, Campeonato, Equipo, EstadisticaJugadorFutbol, Suspension, Jugador
+from django.db.models import Q
+from django.contrib import messages
+import json
+from django.db import transaction
+from django.utils import timezone
+from core.forms import ArbitroActaForm
+import datetime # Added datetime
+from django.core.exceptions import ValidationError # Added ValidationError
+
+# --- ACTA ÁRBITRO HELPERS ---
+def _leer_snapshot(partido):
+    try:
+        return json.loads(partido.suspensiones_json or "{}")
+    except Exception:
+        return {}
+
+def _guardar_snapshot(partido, snap: dict):
+    partido.suspensiones_json = json.dumps(snap, default=str)
+    partido.save(update_fields=["suspensiones_json"])
+
+def _aplicar_delta_estadisticas(campeonato, jugador, goles, ama, roja, pj):
+    est, _ = EstadisticaJugadorFutbol.objects.get_or_create(campeonato=campeonato, jugador=jugador)
+    est.partidos_jugados += pj
+    est.goles += goles
+    est.tarjetas_amarillas += ama
+    est.tarjetas_rojas += roja
+    est.save()
+
+def _revertir_snapshot(partido):
+    snap = _leer_snapshot(partido)
+    # revertir estadísticas
+    for it in snap.get("jugadores", []):
+        j_id = it.get("jugador_id")
+        if not j_id:
+            continue
+        try:
+            j = Jugador.objects.get(id=j_id)
+            est = EstadisticaJugadorFutbol.objects.get(campeonato=partido.campeonato, jugador=j)
+            est.goles = max(0, est.goles - int(it.get("goles", 0)))
+            est.tarjetas_amarillas = max(0, est.tarjetas_amarillas - int(it.get("amarillas", 0)))
+            est.tarjetas_rojas = max(0, est.tarjetas_rojas - int(it.get("rojas", 0)))
+            est.partidos_jugados = max(0, est.partidos_jugados - int(it.get("pj", 0)))
+            est.save()
+        except (Jugador.DoesNotExist, EstadisticaJugadorFutbol.DoesNotExist):
+            pass
+    # borrar suspensiones creadas por la edición anterior del acta
+    for sid in snap.get("suspensiones_ids", []):
+        Suspension.objects.filter(id=sid).delete()
+    _guardar_snapshot(partido, {})
+
+@login_required
+@transaction.atomic
+def acta_partido_arbitro(request, pk):
+    partido = get_object_or_404(Partido, pk=pk)
+    # Permisos: sólo árbitro asignado
+    if not request.user.is_authenticated or not hasattr(partido, "arbitro") or partido.arbitro is None or partido.arbitro.usuario_id != request.user.id:
+        messages.error(request, "No tienes permiso para cargar el acta de este partido.")
+        return redirect("detalle_partido", partido_id=partido.id)
+
+    jugadores_local = Jugador.objects.filter(equipo=partido.equipo_local).select_related("usuario")
+    jugadores_vis   = Jugador.objects.filter(equipo=partido.equipo_visitante).select_related("usuario")
+
+    if request.method == "POST":
+        form = ArbitroActaForm(request.POST, jugadores_local=jugadores_local, jugadores_visitante=jugadores_vis)
+        if form.is_valid():
+            # Validar sumas
+            sum_loc = form.total_goles_por_equipo(jugadores_local)
+            sum_vis = form.total_goles_por_equipo(jugadores_vis)
+            if sum_loc != form.cleaned_data["resultado_local"] or sum_vis != form.cleaned_data["resultado_visitante"]:
+                messages.error(request, "La suma de goles por jugador no coincide con el resultado ingresado.")
+                # Prepare context for re-rendering with errors
+                filas_local = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_local]
+                filas_vis = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_vis]
+                return render(request, "arbitro/acta_partido.html", {
+                    "partido": partido,
+                    "form": form,
+                    "filas_local": filas_local,
+                    "filas_vis": filas_vis
+                })
+
+            # 1) Revertir snapshot previo si lo hay
+            _revertir_snapshot(partido)
+
+            # 2) Aplicar nuevo snapshot
+            snap = {"jugadores": [], "suspensiones_ids": []}
+            # por equipo
+            for j in list(jugadores_local) + list(jugadores_vis):
+                goles = int(form.cleaned_data.get(f"goles_{j.id}", 0) or 0)
+                ama   = int(form.cleaned_data.get(f"amarillas_{j.id}", 0) or 0)
+                roja  = int(form.cleaned_data.get(f"roja_{j.id}", 0) or 0)
+                pj    = 1 if (goles or ama or roja) else 0
+                if any([goles, ama, roja, pj]):
+                    _aplicar_delta_estadisticas(partido.campeonato, j, goles, ama, roja, pj)
+                snap["jugadores"].append({
+                    "jugador_id": j.id,
+                    "goles": goles,
+                    "amarillas": ama,
+                    "rojas": roja,
+                    "pj": pj
+                })
+
+                # Crear Suspensiones
+                if form.cleaned_data.get(f"susp_{j.id}"):
+                    hoy = datetime.date.today()
+                    ini_default = max(hoy, partido.fecha)
+                    ini = form.cleaned_data.get(f"susp_ini_{j.id}") or ini_default
+                    fin = form.cleaned_data.get(f"susp_fin_{j.id}") or ini
+                    mot = form.cleaned_data.get(f"susp_mot_{j.id}") or f"Expulsión en partido #{partido.id}"
+
+                    if fin < ini:
+                        messages.error(request, f"La suspensión de {j.usuario.username} tiene fecha fin anterior al inicio.")
+                        # Prepare context for re-rendering with errors
+                        filas_local = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_local]
+                        filas_vis = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_vis]
+                        return render(request, "arbitro/acta_partido.html", {
+                            "partido": partido,
+                            "form": form,
+                            "filas_local": filas_local,
+                            "filas_vis": filas_vis
+                        })
+
+                    s = Suspension.objects.create(jugador=j, fecha_inicio=ini, fecha_fin=fin, motivo=mot)
+                    snap["suspensiones_ids"].append(s.id)
+
+            # 3) Actualizar partido
+            partido.resultado_local = form.cleaned_data["resultado_local"]
+            partido.resultado_visitante = form.cleaned_data["resultado_visitante"]
+            partido.tarjetas_amarillas_local = int(form.cleaned_data.get("tarjetas_amarillas_local") or 0)
+            partido.tarjetas_amarillas_visitante = int(form.cleaned_data.get("tarjetas_amarillas_visitante") or 0)
+            partido.tarjetas_rojas_local = int(form.cleaned_data.get("tarjetas_rojas_local") or 0)
+            partido.tarjetas_rojas_visitante = int(form.cleaned_data.get("tarjetas_rojas_visitante") or 0)
+            obs = form.cleaned_data.get("observaciones") or ""
+            partido.observaciones_arbitro = obs
+            partido.estado = "FINALIZADO"
+            partido.save()
+            _guardar_snapshot(partido, snap)
+
+            messages.success(request, "Acta guardada correctamente.")
+            return redirect("detalle_partido", partido_id=partido.id)
+        else:
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
+            filas_local = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_local]
+            filas_vis = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_vis]
+            return render(request, "arbitro/acta_partido.html", {
+                "partido": partido,
+                "form": form,
+                "filas_local": filas_local,
+                "filas_vis": filas_vis,
+            })
+    
+    # Prepare context for initial GET
+    form = ArbitroActaForm(jugadores_local=jugadores_local, jugadores_visitante=jugadores_vis)
+    filas_local = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_local]
+    filas_vis = [(j, form[f"goles_{j.id}"], form[f"amarillas_{j.id}"], form[f"roja_{j.id}"], form[f"susp_{j.id}"], form[f"susp_ini_{j.id}"], form[f"susp_fin_{j.id}"], form[f"susp_mot_{j.id}"]) for j in jugadores_vis]
+
+    return render(request, "arbitro/acta_partido.html", {
+        "partido": partido,
+        "form": form,
+        "filas_local": filas_local,
+        "filas_vis": filas_vis
+    })
 
 # Permisos helpers
 def es_admin(user):

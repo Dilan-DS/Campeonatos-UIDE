@@ -68,6 +68,7 @@ urlpatterns = [
     path('arbitro/mis-partidos/', mis_partidos_arbitro, name='mis_partidos_arbitro'),
     path('arbitro/historial/', historial_arbitros, name='historial_arbitros'),
     path('arbitro/campeonato/<int:campeonato_id>/posiciones/', ver_tabla_posiciones_arbitro, name='ver_tabla_posiciones_arbitro'),
+    path('arbitro/partido/<int:pk>/acta/', acta_partido_arbitro, name='acta_partido_arbitro'), # New path added
 
 
     path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),
