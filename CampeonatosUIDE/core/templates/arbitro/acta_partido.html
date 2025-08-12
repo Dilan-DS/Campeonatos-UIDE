@@ -1,0 +1,201 @@
+{% extends 'comun/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="title is-3">Acta del Partido</h1>
+    <h2 class="subtitle is-4">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</h2>
+    <p><strong>Fecha:</strong> {{ partido.fecha }}</p>
+    <p><strong>Hora:</strong> {{ partido.hora }}</p>
+    <p><strong>Lugar:</strong> {{ partido.lugar }}</p>
+    <p><strong>Campeonato:</strong> {{ partido.campeonato.nombre }}</p>
+
+    <hr>
+
+    <form method="post" id="acta-form">
+        {% csrf_token %}
+
+        <div class="field is-horizontal">
+            <div class="field-body">
+                <div class="field">
+                    <label class="label">Resultado Local</label>
+                    <div class="control">
+                        {{ form.resultado_local }}
+                    </div>
+                    {% if form.resultado_local.errors %}
+                        <p class="help is-danger">{{ form.resultado_local.errors }}</p>
+                    {% endif %}
+                </div>
+                <div class="field">
+                    <label class="label">Resultado Visitante</label>
+                    <div class="control">
+                        {{ form.resultado_visitante }}
+                    </div>
+                    {% if form.resultado_visitante.errors %}
+                        <p class="help is-danger">{{ form.resultado_visitante.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="field is-horizontal">
+            <div class="field-body">
+                <div class="field">
+                    <label class="label">Tarjetas Amarillas Local</label>
+                    <div class="control">
+                        {{ form.tarjetas_amarillas_local }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Tarjetas Amarillas Visitante</label>
+                    <div class="control">
+                        {{ form.tarjetas_amarillas_visitante }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="field is-horizontal">
+            <div class="field-body">
+                <div class="field">
+                    <label class="label">Tarjetas Rojas Local</label>
+                    <div class="control">
+                        {{ form.tarjetas_rojas_local }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Tarjetas Rojas Visitante</label>
+                    <div class="control">
+                        {{ form.tarjetas_rojas_visitante }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Observaciones del Árbitro</label>
+            <div class="control">
+                {{ form.observaciones }}
+            </div>
+        </div>
+
+        <h3 class="title is-5 mt-5">Estadísticas por Jugador</h3>
+
+        <div class="columns">
+            <div class="column">
+                <h4 class="title is-6">{{ partido.equipo_local.nombre }}</h4>
+                <table id="tabla-local" class="table is-fullwidth is-striped">
+                    <thead>
+                        <tr>
+                            <th>Jugador</th>
+                            <th>Goles</th>
+                            <th>Amarillas</th>
+                            <th>Roja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for j, goles, ama, roja, susp, susp_ini, susp_fin, susp_mot in filas_local %}
+                        <tr>
+                            <td>{{ j.usuario.username }}</td>
+                            <td>{{ goles }}</td>
+                            <td>{{ ama }}</td>
+                            <td>{{ roja }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <label class="checkbox">{{ susp }} Suspender</label>
+                                <div class="columns is-multiline mt-2">
+                                    <div class="column is-4">Desde: {{ susp_ini }}</div>
+                                    <div class="column is-4">Hasta: {{ susp_fin }}</div>
+                                    <div class="column is-4">Motivo: {{ susp_mot }}</div>
+                                </div>
+                                <hr>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="help is-info" id="goles-local-warning" style="display:none;">La suma de goles local por jugador no coincide con el resultado total.</p>
+            </div>
+
+            <div class="column">
+                <h4 class="title is-6">{{ partido.equipo_visitante.nombre }}</h4>
+                <table id="tabla-visitante" class="table is-fullwidth is-striped">
+                    <thead>
+                        <tr>
+                            <th>Jugador</th>
+                            <th>Goles</th>
+                            <th>Amarillas</th>
+                            <th>Roja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for j, goles, ama, roja, susp, susp_ini, susp_fin, susp_mot in filas_vis %}
+                        <tr>
+                            <td>{{ j.usuario.username }}</td>
+                            <td>{{ goles }}</td>
+                            <td>{{ ama }}</td>
+                            <td>{{ roja }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <label class="checkbox">{{ susp }} Suspender</label>
+                                <div class="columns is-multiline mt-2">
+                                    <div class="column is-4">Desde: {{ susp_ini }}</div>
+                                    <div class="column is-4">Hasta: {{ susp_fin }}</div>
+                                    <div class="column is-4">Motivo: {{ susp_mot }}</div>
+                                </div>
+                                <hr>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="help is-info" id="goles-visitante-warning" style="display:none;">La suma de goles visitante por jugador no coincide con el resultado total.</p>
+            </div>
+        </div>
+
+        <div class="field is-grouped">
+            <div class="control">
+                <button type="submit" class="button is-primary">Guardar Acta</button>
+            </div>
+            <div class="control">
+                <a href="{% url 'detalle_partido' partido_id=partido.id %}" class="button is-link is-light">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function totalEnTabla(tablaId) {
+            let total = 0;
+            document.querySelectorAll('#' + tablaId + ' input[name^="goles_"]').forEach(inp => {
+                const v = parseInt(inp.value, 10);
+                if (!isNaN(v)) total += v;
+            });
+            return total;
+        }
+
+        function checkGoalConsistency() {
+            const rL = parseInt(document.querySelector('[name="resultado_local"]').value, 10) || 0;
+            const rV = parseInt(document.querySelector('[name="resultado_visitante"]').value, 10) || 0;
+            const tL = totalEnTabla('tabla-local');
+            const tV = totalEnTabla('tabla-visitante');
+            const warnL = document.getElementById('goles-local-warning');
+            const warnV = document.getElementById('goles-visitante-warning');
+            warnL.style.display = (tL !== rL) ? 'block' : 'none';
+            warnV.style.display = (tV !== rV) ? 'block' : 'none';
+        }
+
+        document.querySelectorAll('input[name^="goles_"]').forEach(inp => {
+            inp.addEventListener('input', checkGoalConsistency);
+        });
+        const rl = document.querySelector('[name="resultado_local"]');
+        const rv = document.querySelector('[name="resultado_visitante"]');
+        if (rl) rl.addEventListener('input', checkGoalConsistency);
+        if (rv) rv.addEventListener('input', checkGoalConsistency);
+        checkGoalConsistency();
+    });
+</script>
+
+{% endblock %}
