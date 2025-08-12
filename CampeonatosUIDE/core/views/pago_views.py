@@ -247,3 +247,29 @@ class EliminarPagoDelegadoView(LoginRequiredMixin, View):
         cid = (request.GET.get('campeonato_id') or request.POST.get('campeonato_id') or request.session.get('campeonato_id'))
         url = reverse('registrar_pago_delegado')
         return redirect(f"{url}?campeonato_id={cid}") if cid else redirect(url)
+
+
+class CambiarEstadoPagoAdminView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        if getattr(request.user, 'rol', '') != 'ADMIN':
+            messages.error(request, "No tienes permiso para realizar esta acción.")
+            return redirect('vista_inicio')
+        
+        pago = get_object_or_404(Pago, pk=pk)
+        nuevo_estado = request.POST.get('estado')
+        validos = {'PENDIENTE', 'APROBADO', 'RECHAZADO'}
+
+        if nuevo_estado not in validos:
+            messages.error(request, "Estado no válido.")
+        else:
+            if pago.estado != nuevo_estado:
+                pago.estado = nuevo_estado
+                obs = request.POST.get('observacion_admin', '') # Default to empty string if not provided
+                pago.observacion_admin = obs # Assign directly
+                pago.save()
+                messages.success(request, f"Estado actualizado a {nuevo_estado}.")
+            else:
+                messages.info(request, "Sin cambios.")
+        
+        next_url = request.POST.get('next') or reverse('listar_pagos_admin')
+        return redirect(next_url)
