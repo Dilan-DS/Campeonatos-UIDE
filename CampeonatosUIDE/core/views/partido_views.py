@@ -5,6 +5,8 @@ from core.models import Partido, Campeonato, Usuario, Equipo
 from core.forms import PartidoForm
 from core.views.admin_views import es_admin
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
+from django import forms
 
 # Función para validar que sea admin
 def es_admin(user):
@@ -22,23 +24,7 @@ def listar_partidos(request):
 @login_required
 @user_passes_test(es_admin)
 def registrar_partido(request):
-    # Verifica si la solicitud es POST (envío de formulario)
-    if request.method == 'POST':
-        # Crea una instancia del formulario PartidoForm con los datos enviados
-        form = PartidoForm(request.POST)
-        # Verifica si el formulario es válido
-        if form.is_valid():
-            # Si el formulario es válido, guarda el nuevo partido en la base de datos
-            partido = form.save()
-            # Muestra un mensaje de éxito al usuario
-            messages.success(request, 'Partido registrado correctamente.')
-            # Redirige al usuario a la lista de partidos
-            return redirect('listar_partidos')
-    else:
-        # Si la solicitud no es POST, crea un formulario vacío
-        form = PartidoForm()
-    # Renderiza la plantilla 'registrar_partido.html' con el formulario
-    return render(request, 'partido/registrar_partido.html', {'form': form})
+    raise PermissionDenied
 
 
 @login_required
@@ -50,21 +36,56 @@ def detalle_partido(request, partido_id):
     return render(request, 'partido/detalle_partido.html', {'partido': partido})
 
 
+class PartidoAdminForm(forms.ModelForm):
+    class Meta:
+        model = Partido
+        fields = ['fecha', 'hora', 'lugar', 'arbitro', 'estado']
+
 @login_required
-@user_passes_test(es_admin)
 def editar_partido(request, partido_id):
-    partido = get_object_or_404(Partido, id=partido_id)
+    if getattr(request.user, 'rol', '').upper() != 'ADMIN':
+        raise PermissionDenied
+    
+    partido = get_object_or_404(Partido, pk=partido_id)
     
     if request.method == 'POST':
-        form = PartidoForm(request.POST, instance=partido)
+        form = PartidoAdminForm(request.POST, instance=partido)
         if form.is_valid():
             form.save()
             messages.success(request, 'Partido actualizado correctamente.')
-            return redirect('detalle_partido', partido_id=partido.id)
+            return redirect('calendario_global')
     else:
-        form = PartidoForm(instance=partido)
-    
-    return render(request, 'partido/editar_partido.html', {'form': form, 'partido': partido})
+        form = PartidoAdminForm(instance=partido)
+
+    # Re-render the calendar view with the form in context for the modal
+    qs = Partido.objects.select_related(
+        'campeonato', 'equipo_local', 'equipo_visitante', 'arbitro__usuario'
+    ).order_by('fecha', 'hora')
+
+    campeonato_id_filter = request.GET.get('campeonato')
+    genero_filter = request.GET.get('genero')
+    estado_filter = request.GET.get('estado')
+    desde_filter = request.GET.get('desde')
+    hasta_filter = request.GET.get('hasta')
+
+    if campeonato_id_filter:
+        qs = qs.filter(campeonato_id=campeonato_id_filter)
+    if genero_filter in ('masculino', 'femenino'):
+        qs = qs.filter(equipo_local__genero=genero_filter, equipo_visitante__genero=genero_filter)
+    if estado_filter in ('PROGRAMADO', 'JUGADO', 'SUSPENDIDO'):
+        qs = qs.filter(estado=estado_filter)
+    if desde_filter:
+        qs = qs.filter(fecha__gte=desde_filter)
+    if hasta_filter:
+        qs = qs.filter(fecha__lte=hasta_filter)
+
+    contexto = {
+        'partidos': qs,
+        'campeonatos': Campeonato.objects.all().order_by('-id'),
+        'form': form,
+        'partido_a_editar': partido
+    }
+    return render(request, 'partido/calendario_global.html', contexto)
 
 @login_required
 @user_passes_test(es_admin)
@@ -145,33 +166,29 @@ def fixture_campeonato_view(request, campeonato_id):
 
 @login_required
 def calendario_global_view(request):
-    user_role = request.user.rol
-    all_partidos = Partido.objects.all().order_by('fecha', 'hora')
+    qs = Partido.objects.select_related(
+        'campeonato', 'equipo_local', 'equipo_visitante', 'arbitro__usuario'
+    ).order_by('fecha', 'hora')
 
-    if user_role == 'ADMIN':
-        # Admin sees all matches
-        pass
-    elif user_role == 'DELEGADO':
-        # Delegado sees all matches for their teams across all championships
-        delegado_equipos = Equipo.objects.filter(delegado=request.user)
-        all_partidos = all_partidos.filter(Q(equipo_local__in=delegado_equipos) | Q(equipo_visitante__in=delegado_equipos))
-    elif user_role == 'JUGADOR':
-        # Jugador sees matches where their team participates across all championships
-        jugador_equipo = None
-        if hasattr(request.user, 'jugador') and request.user.jugador.equipo:
-            jugador_equipo = request.user.jugador.equipo
-            all_partidos = all_partidos.filter(Q(equipo_local=jugador_equipo) | Q(equipo_visitante=jugador_equipo))
-        else:
-            all_partidos = Partido.objects.none()
-    elif user_role == 'ARBITRO':
-        # Arbitro sees matches they are assigned to across all championships
-        arbitro_obj = None
-        if hasattr(request.user, 'arbitro'):
-            arbitro_obj = request.user.arbitro
-            all_partidos = all_partidos.filter(arbitro=arbitro_obj)
-        else:
-            all_partidos = Partido.objects.none()
-    else:
-        all_partidos = Partido.objects.none() # Other roles see nothing
+    campeonato_id = request.GET.get('campeonato')
+    genero = request.GET.get('genero')
+    estado = request.GET.get('estado')
+    desde = request.GET.get('desde')
+    hasta = request.GET.get('hasta')
 
-    return render(request, 'partido/calendario_global.html', {'partidos': all_partidos})
+    if campeonato_id:
+        qs = qs.filter(campeonato_id=campeonato_id)
+    if genero in ('masculino', 'femenino'):
+        qs = qs.filter(equipo_local__genero=genero, equipo_visitante__genero=genero)
+    if estado in ('PROGRAMADO', 'JUGADO', 'SUSPENDIDO'):
+        qs = qs.filter(estado=estado)
+    if desde:
+        qs = qs.filter(fecha__gte=desde)
+    if hasta:
+        qs = qs.filter(fecha__lte=hasta)
+
+    contexto = {
+        'partidos': qs,
+        'campeonatos': Campeonato.objects.all().order_by('-id')
+    }
+    return render(request, 'partido/calendario_global.html', contexto)
