@@ -79,53 +79,7 @@ def es_admin_o_delegado(user):
     return user.rol in ['ADMIN', 'DELEGADO']
 
 from django.urls import reverse
-@login_required
-@user_passes_test(es_admin_o_delegado)
-def registrar_equipo(request, *args, **kwargs):
-    from core.models import Equipo, Campeonato
-    # Usa SIEMPRE el helper (kwargs → GET → POST → session → activo)
-    campeonato_id = _get_campeonato_id(request, kwargs)
-    if request.method == 'POST':
-        form = EquipoForm(request.POST, request.FILES or None)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            # Forzar campeonato si no vino en el form
-            if campeonato_id and not getattr(obj, 'campeonato_id', None):
-                obj.campeonato_id = int(campeonato_id)
-            # Obtener deporte: si el modelo Equipo tiene deporte_id, úsalo; si no, desde Campeonato
-            deporte_id = getattr(obj, 'deporte_id', None)
-            if deporte_id is None and getattr(obj, 'campeonato_id', None):
-                try:
-                    deporte_id = getattr(obj.campeonato, 'deporte_id', None)
-                except Exception:
-                    deporte_id = None
-            # Regla: 1 equipo por (campeonato [+ deporte]) para este delegado
-            dup = Equipo.objects.filter(campeonato_id=obj.campeonato_id, delegado_id=request.user.id)
-            if deporte_id is not None and hasattr(Equipo, 'deporte_id'):
-                dup = dup.filter(deporte_id=deporte_id)
-            if dup.exists():
-                form.add_error(None, "Solo puedes registrar un equipo por campeonato y deporte.")
-                messages.error(request, "Ya tienes un equipo en este campeonato/deporte.")
-                camp_ctx = getattr(obj, 'campeonato', None) or Campeonato.objects.filter(id=campeonato_id).first()
-                return render(request, 'equipo/registrar_equipo.html', {'form': form, 'campeonato': camp_ctx})
-            # Completar y guardar
-            if not getattr(obj, 'delegado_id', None):
-                obj.delegado = request.user
-            obj.save()
-            messages.success(request, 'Equipo registrado correctamente.')
-            # Redirigir preservando campeonato_id
-            if campeonato_id:
-                return redirect(f"{reverse('listar_equipos')}?campeonato_id={campeonato_id}")
-            return redirect('listar_equipos')
-    else:
-        initial = {}
-        if campeonato_id:
-            camp = Campeonato.objects.filter(id=campeonato_id).first()
-            if camp:
-                initial['campeonato'] = camp
-        form = EquipoForm(initial=initial)
-    camp = Campeonato.objects.filter(id=campeonato_id).first() if campeonato_id else None
-    return render(request, 'equipo/registrar_equipo.html', {'form': form, 'campeonato': camp})
+
 
 @login_required
 @user_passes_test(es_admin_o_delegado)
@@ -287,50 +241,27 @@ def registrar_equipo(request):
     campeonato = get_object_or_404(Campeonato, id=campeonato_id) if campeonato_id else None
 
     if request.method == 'POST':
-        form = EquipoForm(request.POST, request.FILES)
+        form = EquipoForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            campeonato_seleccionado = form.cleaned_data.get('campeonato')
-
-            # Regla 2: Un delegado solo puede registrar un equipo por campeonato.
-            if request.user.rol == 'DELEGADO':
-                if Equipo.objects.filter(campeonato=campeonato_seleccionado, delegado=request.user).exists():
-                    messages.error(request, f"Ya tienes un equipo registrado en el campeonato '{campeonato_seleccionado.nombre}'. No puedes registrar más de uno.")
-                    return render(request, 'equipo/registrar_equipo.html', {
-                        'form': form,
-                        'campeonato': campeonato
-                    })
-
-            # Verificar el estado del campeonato antes de guardar el equipo
-            if campeonato_seleccionado and campeonato_seleccionado.estado != 'INSCRIPCION':
-                messages.error(request, f"El campeonato '{campeonato_seleccionado.nombre}' no está en estado de inscripción.")
-                return render(request, 'equipo/registrar_equipo.html', {
-                    'form': form,
-                    'campeonato': campeonato_seleccionado
-                })
-
-            equipo = form.save(commit=False)
-            # Asignar el delegado actual al equipo
-            equipo.delegado = request.user
-            equipo.save()
+            # Asignar delegado si es ADMIN y no se envió
+            if not form.cleaned_data.get('delegado') and request.user.rol == 'ADMIN':
+                form.instance.delegado = request.user
+            form.save()
             messages.success(request, 'Equipo registrado correctamente.')
 
             # Redirección para el delegado después de registrar el equipo
             if request.user.rol == 'DELEGADO':
-                # Redirigir al delegado a la página de registro de pago para su equipo
                 return redirect('registrar_pago_delegado')
             elif request.user.rol == 'ADMIN':
-                # Redirección para el admin (si aplica, mantener la lógica existente o ajustar)
-                # Assuming 'registrar_pago_para_equipo_admin' is the correct URL name for admin to register payment for an team
-                return redirect('registrar_pago_para_equipo_admin', equipo_id=equipo.id)
+                return redirect('listar_equipos') # Admin goes to list
             else:
-                # Redirección por defecto si no es admin ni delegado (aunque el test_func lo impide)
-                redirect_url = reverse('listar_equipos') + f'?campeonato_id={equipo.campeonato.id}'
+                redirect_url = reverse('listar_equipos') + f'?campeonato_id={form.instance.campeonato.id}'
                 return redirect(redirect_url)
     else:
         initial_data = {}
         if campeonato:
             initial_data['campeonato'] = campeonato
-        form = EquipoForm(initial=initial_data)
+        form = EquipoForm(initial=initial_data, user=request.user)
 
     return render(request, 'equipo/registrar_equipo.html', {
         'form': form,
