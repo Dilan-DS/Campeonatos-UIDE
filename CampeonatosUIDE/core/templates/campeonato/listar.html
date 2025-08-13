@@ -58,7 +58,7 @@
                   <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light is-rounded">
                     ✏️ Editar
                   </a>
-                  <a href="{% url 'generar_calendario' campeonato.id %}" class="button is-small is-danger is-light is-rounded">
+                  <a href="{% url 'fixture_campeonato_detalle' campeonato.id %}" class="button is-small is-danger is-light is-rounded">
                     📅 Fixture
                   </a>
                   <a href="{% url 'listar_equipos' %}?campeonato_id={{ campeonato.id }}" class="button is-small is-link is-light is-rounded">
