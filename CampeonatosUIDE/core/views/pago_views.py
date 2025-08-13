@@ -1,8 +1,10 @@
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from core.models import Pago, Equipo
+from core.models import Pago, Equipo, CodigoQR
 from core.forms import PagoForm, PagoDelegadoForm
 from django.urls import reverse
 
@@ -154,7 +156,24 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
         else:
             # Si no existe pago, o si se solicitó el modo edición, mostrar el formulario
             form = PagoDelegadoForm(instance=pago_existente) if pago_existente else PagoDelegadoForm(initial={'equipo': equipo})
-            return render(request, 'pago/registrar.html', {'form': form, 'equipo': equipo, 'pago_existente': pago_existente})
+            codigos = CodigoQR.objects.all()
+            qr_catalog = {
+                qr.id: {
+                    "banco": qr.banco,
+                    "tipo_cuenta": getattr(qr, "get_tipo_cuenta_display", lambda: "")(),
+                    "numero_cuenta": qr.numero_cuenta,
+                    "titular": qr.titular,
+                    "identificacion": qr.identificacion or "",
+                    "imagen_qr": qr.imagen_qr.url if qr.imagen_qr else ""
+                } for qr in codigos
+            }
+            ctx = {
+                "form": form,
+                "equipo": equipo,
+                "pago_existente": pago_existente,
+                "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
+            }
+            return render(request, "pago/registrar.html", ctx)
 
     def post(self, request):
         if not request.user.rol == 'DELEGADO':
@@ -189,7 +208,24 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
             return redirect(f"{url}?campeonato_id={cid}") if cid else redirect(url)
         else:
             messages.error(request, "Error al registrar/actualizar el pago. Por favor, revisa los campos.")
-            return render(request, 'pago/registrar.html', {'form': form, 'equipo': equipo, 'pago_existente': pago_existente})
+            codigos = CodigoQR.objects.all()
+            qr_catalog = {
+                qr.id: {
+                    "banco": qr.banco,
+                    "tipo_cuenta": getattr(qr, "get_tipo_cuenta_display", lambda: "")(),
+                    "numero_cuenta": qr.numero_cuenta,
+                    "titular": qr.titular,
+                    "identificacion": qr.identificacion or "",
+                    "imagen_qr": qr.imagen_qr.url if qr.imagen_qr else ""
+                } for qr in codigos
+            }
+            ctx = {
+                "form": form,
+                "equipo": equipo,
+                "pago_existente": pago_existente,
+                "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
+            }
+            return render(request, "pago/registrar.html", ctx)
 
 class DetallePagoDelegadoView(LoginRequiredMixin, View):
     def get(self, request):

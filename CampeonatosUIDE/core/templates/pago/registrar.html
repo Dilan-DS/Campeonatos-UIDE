@@ -72,6 +72,66 @@
             </button>
           </div>
         </div>
+
+<!-- Tarjeta de datos bancarios (se muestra solo con Transferencia) -->
+<div id="transferencia-info" class="notification is-info is-light" style="display:none; border-radius:12px;">
+  <p><strong>Por favor, realiza la transferencia y sube el comprobante.</strong></p>
+  <div id="bank-card" class="box" style="border-radius:16px; display:none;">
+    <p><strong>Banco:</strong> <span id="cc_banco"></span></p>
+    <p><strong>Titular:</strong> <span id="cc_titular"></span></p>
+    <p><strong>Identificación:</strong> <span id="cc_id"></span></p>
+    <p><strong>Tipo:</strong> <span id="cc_tipo"></span></p>
+    <p><strong>N° Cuenta:</strong> <span id="cc_numero"></span></p>
+    <figure class="image is-128x128 mt-3">
+      <img id="cc_qr" alt="Código QR" />
+    </figure>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const QR_CATALOG = {{ qr_catalog_json|safe }};
+    const metodo = document.getElementById("id_metodo");
+    const codigo = document.getElementById("id_codigo_qr"); // el contenedor .field de codigo_qr (para ocultarlo si no es transferencia)
+    const codigoField = codigo ? codigo.closest(".field") : null;
+    const info = document.getElementById("transferencia-info");
+    const card = document.getElementById("bank-card");
+
+    function fillCard() {
+      if (!codigo) return;
+      const id = codigo.value;
+      const data = QR_CATALOG[id];
+      if (!data) {
+        card.style.display = "none";
+        return;
+      }
+      document.getElementById("cc_banco").textContent = data.banco || "";
+      document.getElementById("cc_titular").textContent = data.titular || "";
+      document.getElementById("cc_id").textContent = data.identificacion || "";
+      document.getElementById("cc_tipo").textContent = data.tipo_cuenta || "";
+      document.getElementById("cc_numero").textContent = data.numero_cuenta || "";
+      const img = document.getElementById("cc_qr");
+      if (data.imagen_qr) {
+        img.src = data.imagen_qr;
+        img.style.display = "";
+      } else {
+        img.removeAttribute("src");
+        img.style.display = "none";
+      }
+      card.style.display = "";
+    }
+
+    function toggle() {
+      const isTrans = metodo && metodo.value === "TRANSFERENCIA";
+      if (codigoField) codigoField.style.display = isTrans ? "" : "none";
+      info.style.display = isTrans ? "" : "none";
+      if (isTrans) fillCard();
+    }
+
+    if (metodo) metodo.addEventListener("change", toggle);
+    if (codigo) codigo.addEventListener("change", fillCard);
+    toggle();
+  });
+</script>
       </form>
 
       <div class="has-text-centered mt-5">
