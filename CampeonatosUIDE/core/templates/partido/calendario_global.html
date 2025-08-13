@@ -1,33 +1,139 @@
 {% extends 'comun/base.html' %}
-{% load static %}
-
-{% block extra_head %}
-    <link rel="stylesheet" href="{% static 'css/fixture.css' %}"> {# Reusing the same CSS #}
-{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Calendario Global de Partidos</h2>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Listado de Partidos</h1>
 
-    {% if partidos %}
-        <div class="list-group">
-            {% for partido in partidos %}
-                <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 rounded shadow-sm">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</h5>
-                        <small class="text-muted">{{ partido.fecha|date:"d/m/Y" }} {{ partido.hora|time:"H:i" }}</small>
+        {% comment %} Filtros {% endcomment %}
+        <form method="get" class="box mb-4">
+            <div class="columns is-multiline">
+                <div class="column is-3">
+                    <label class="label">Campeonato</label>
+                    <div class="select is-fullwidth">
+                        <select name="campeonato">
+                            <option value="">Todos</option>
+                            {% for c in campeonatos %}
+                                <option value="{{ c.id }}" {% if request.GET.campeonato|default:'' == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <p class="mb-1">Campeonato: {{ partido.campeonato.nombre }}</p>
-                    <p class="mb-1">Lugar: {{ partido.lugar }}</p>
-                    <p class="mb-1">Árbitro: {% if partido.arbitro %}{{ partido.arbitro.usuario.username }}{% else %}Por asignar{% endif %}</p>
-                    <small class="text-muted">Estado: {{ partido.get_estado_display }}</small>
                 </div>
-            {% endfor %}
+                <div class="column is-2">
+                    <label class="label">Género</label>
+                    <div class="select is-fullwidth">
+                        <select name="genero">
+                            <option value="">Todos</option>
+                            <option value="masculino" {% if request.GET.genero == "masculino" %}selected{% endif %}>Masculino</option>
+                            <option value="femenino" {% if request.GET.genero == "femenino" %}selected{% endif %}>Femenino</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-2">
+                    <label class="label">Estado</label>
+                    <div class="select is-fullwidth">
+                        <select name="estado">
+                            <option value="">Todos</option>
+                            <option value="PROGRAMADO" {% if request.GET.estado == "PROGRAMADO" %}selected{% endif %}>Programado</option>
+                            <option value="JUGADO" {% if request.GET.estado == "JUGADO" %}selected{% endif %}>Jugado</option>
+                            <option value="SUSPENDIDO" {% if request.GET.estado == "SUSPENDIDO" %}selected{% endif %}>Suspendido</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-2">
+                    <label class="label">Desde</label>
+                    <input class="input" type="date" name="desde" value="{{ request.GET.desde|default:'' }}">
+                </div>
+                <div class="column is-2">
+                    <label class="label">Hasta</label>
+                    <input class="input" type="date" name="hasta" value="{{ request.GET.hasta|default:'' }}">
+                </div>
+                <div class="column is-1" style="padding-top:2rem">
+                    <button class="button is-primary is-light is-fullwidth">Filtrar</button>
+                </div>
+            </div>
+        </form>
+
+        {% comment %} Tabla {% endcomment %}
+        <div class="box">
+            {% if partidos %}
+                <table class="table is-fullwidth is-striped is-hoverable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Campeonato</th>
+                            <th>Género</th>
+                            <th>Local</th>
+                            <th>Visitante</th>
+                            <th>Lugar</th>
+                            <th>Árbitro</th>
+                            <th>Estado</th>
+                            <th class="has-text-centered">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in partidos %}
+                            <tr>
+                                <td>{{ p.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ p.hora|time:"H:i" }}</td>
+                                <td>{{ p.campeonato.nombre }}</td>
+                                <td>
+                                    {% if p.equipo_local.genero == "masculino" %}<span class="tag is-info is-light">Masculino</span>
+                                    {% else %}<span class="tag is-danger is-light">Femenino</span>{% endif %}
+                                </td>
+                                <td>{{ p.equipo_local.nombre }}</td>
+                                <td>{{ p.equipo_visitante.nombre }}</td>
+                                <td>{{ p.lugar }}</td>
+                                <td>{% if p.arbitro %}{{ p.arbitro.usuario.username }}{% else %}<span class="tag is-light">Por asignar</span>{% endif %}</td>
+                                <td>
+                                    {% if p.estado == "PROGRAMADO" %}<span class="tag is-success is-light">Programado</span>
+                                    {% elif p.estado == "JUGADO" %}<span class="tag is-dark is-light">Jugado</span>
+                                    {% else %}<span class="tag is-warning is-light">Suspendido</span>{% endif %}
+                                </td>
+                                <td class="has-text-centered">
+                                    {% if request.user.rol == 'ADMIN' %}
+                                    <a href="{% url 'editar_partido' p.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="notification is-info is-light has-text-centered">
+                    No hay partidos con los filtros actuales.
+                </div>
+            {% endif %}
         </div>
-    {% else %}
-        <div class="alert alert-info text-center" role="alert">
-            No hay partidos programados o no tienes permisos para verlos.
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if partido_a_editar %}
+<div id="edit-modal" class="modal is-active">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Editar Partido</p>
+      <a href="{% url 'calendario_global' %}" class="delete" aria-label="close"></a>
+    </header>
+    <section class="modal-card-body">
+      <form method="post" action="{% url 'editar_partido' partido_a_editar.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="field is-grouped mt-5">
+          <div class="control">
+            <button type="submit" class="button is-success">Guardar Cambios</button>
+          </div>
+          <div class="control">
+            <a href="{% url 'calendario_global' %}" class="button is-light">Cancelar</a>
+          </div>
         </div>
-    {% endif %}
+      </form>
+    </section>
+  </div>
 </div>
+{% endif %}
 {% endblock %}
