@@ -85,7 +85,38 @@
                                 <td>{{ p.equipo_local.nombre }}</td>
                                 <td>{{ p.equipo_visitante.nombre }}</td>
                                 <td>{{ p.lugar }}</td>
-                                <td>{% if p.arbitro %}{{ p.arbitro.usuario.username }}{% else %}<span class="tag is-light">Por asignar</span>{% endif %}</td>
+                                <td>
+                                    {% if p.arbitro %}
+                                        <span class="tag is-light">{{ p.arbitro.usuario.username }}</span>
+                                    {% else %}
+                                        <span class="tag is-light">Por asignar</span>
+                                    {% endif %}
+                                    {% if request.user.rol == 'ADMIN' %}
+                                        <form method="post" action="{% url 'asignar_arbitro_partido' p.id %}" style="display:inline-block; margin-left:.5rem;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <div class="field has-addons">
+                                                <p class="control">
+                                                    <span class="select is-small">
+                                                        <select name="arbitro_id" required>
+                                                            <option value="" disabled selected>Elegir árbitro</option>
+                                                            {% for key, arbitro_list in arbitros_map_by_deporte.items %}
+                                                                {% if key == p.campeonato.deporte.id %}
+                                                                    {% for a in arbitro_list %}
+                                                                        <option value="{{ a.id }}">{{ a.usuario.username }}</option>
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </span>
+                                                </p>
+                                                <p class="control">
+                                                    <button class="button is-small is-info is-light" type="submit">Asignar</button>
+                                                </p>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if p.estado == "PROGRAMADO" %}<span class="tag is-success is-light">Programado</span>
                                     {% elif p.estado == "JUGADO" %}<span class="tag is-dark is-light">Jugado</span>

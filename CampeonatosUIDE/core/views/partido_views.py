@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from core.models import Partido, Campeonato, Usuario, Equipo
+from core.models import Partido, Campeonato, Usuario, Equipo, Arbitro
+from collections import defaultdict
 from core.forms import PartidoForm
 from core.views.admin_views import es_admin
 from django.db.models import Q
@@ -101,6 +102,36 @@ def eliminar_partido(request, partido_id):
 
 
 @login_required
+def asignar_arbitro_partido(request, partido_id):
+    if request.method != 'POST':
+        raise PermissionDenied
+    if getattr(request.user, 'rol', '').upper() != 'ADMIN':
+        raise PermissionDenied
+
+    partido = get_object_or_404(Partido, pk=partido_id)
+    arbitro_id = request.POST.get('arbitro_id')
+
+    deporte = getattr(partido.campeonato, 'deporte', None)
+    qs = Arbitro.objects.all()
+
+    if hasattr(Arbitro, 'deportes'):
+        qs = qs.filter(deportes=deporte)
+    elif hasattr(Arbitro, 'deporte'):
+        qs = qs.filter(deporte=deporte)
+
+    try:
+        arbitro = qs.get(pk=arbitro_id)
+    except Arbitro.DoesNotExist:
+        messages.error(request, "Selecciona un árbitro válido para este deporte.")
+        return redirect(request.POST.get('next') or 'calendario_global')
+
+    partido.arbitro = arbitro
+    partido.save(update_fields=['arbitro'])
+    messages.success(request, "Árbitro asignado correctamente.")
+    return redirect(request.POST.get('next') or 'calendario_global')
+
+
+@login_required
 @user_passes_test(es_admin)
 def aplazar_partido(request, partido_id):
     partido = get_object_or_404(Partido, id=partido_id)
@@ -167,7 +198,7 @@ def fixture_campeonato_view(request, campeonato_id):
 @login_required
 def calendario_global_view(request):
     qs = Partido.objects.select_related(
-        'campeonato', 'equipo_local', 'equipo_visitante', 'arbitro__usuario'
+        'campeonato__deporte', 'equipo_local', 'equipo_visitante', 'arbitro__usuario'
     ).order_by('fecha', 'hora')
 
     campeonato_id = request.GET.get('campeonato')
@@ -187,8 +218,20 @@ def calendario_global_view(request):
     if hasta:
         qs = qs.filter(fecha__lte=hasta)
 
+    deporte_ids = list(qs.values_list('campeonato__deporte_id', flat=True).distinct())
+    arbitros_map_by_deporte = {}
+    for dep_id in deporte_ids:
+        if dep_id:
+            a_qs = Arbitro.objects.all()
+            if hasattr(Arbitro, 'deportes'):
+                a_qs = a_qs.filter(deportes__id=dep_id)
+            elif hasattr(Arbitro, 'deporte'):
+                a_qs = a_qs.filter(deporte_id=dep_id)
+            arbitros_map_by_deporte[dep_id] = list(a_qs.select_related('usuario').order_by('usuario__username'))
+
     contexto = {
         'partidos': qs,
-        'campeonatos': Campeonato.objects.all().order_by('-id')
+        'campeonatos': Campeonato.objects.all().order_by('-id'),
+        'arbitros_map_by_deporte': arbitros_map_by_deporte,
     }
     return render(request, 'partido/calendario_global.html', contexto)
