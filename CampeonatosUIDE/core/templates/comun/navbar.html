@@ -1,4 +1,189 @@
 {% load static %}
+<style>
+/* ===========================
+   Navbar PRO – Campeonatos UIDE
+   (solo estilos, sin tocar HTML)
+   =========================== */
+:root{
+  --brand-1:#e11d48; /* danger-600 */
+  --brand-2:#f43f5e; /* rose-500 */
+  --ink:#ffffff;
+  --ink-dim:rgba(255,255,255,.85);
+  --ink-soft:rgba(255,255,255,.6);
+  --glass:rgba(255,255,255,.06);
+  --shadow:0 10px 25px rgba(0,0,0,.18);
+  --ring:0 0 0 2px rgba(255,255,255,.2), 0 0 1px rgba(0,0,0,.15);
+}
+
+/* Fondo degradado + glass */
+.navbar.has-background-danger{
+  background: linear-gradient(120deg,var(--brand-1),var(--brand-2));
+  color: var(--ink);
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: filter .25s ease;
+}
+.navbar.has-background-danger:hover{
+  filter: saturate(1.05) brightness(1.02);
+}
+
+/* Marca / título */
+.navbar-brand .navbar-item{
+  font-weight: 800;
+  letter-spacing:.2px;
+  color: var(--ink) !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,.12);
+}
+
+/* Ítems y links */
+.navbar-item.has-text-white,
+.navbar-link.has-text-white{
+  color: var(--ink-dim) !important;
+  transition: color .2s ease, background-color .2s ease, transform .18s ease;
+  position: relative;
+}
+
+/* Subrayado animado en hover */
+.navbar-item.has-text-white::after,
+.navbar-link.has-text-white::after{
+  content:'';
+  position:absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: .35rem;
+  height: 2px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .22s ease;
+  opacity:.7;
+}
+.navbar-item.has-text-white:hover::after,
+.navbar-link.has-text-white:hover::after{
+  transform: scaleX(1);
+}
+
+/* Hover suave */
+.navbar-item:hover,
+.navbar-link:hover{
+  color: var(--ink) !important;
+  background: var(--glass) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Dropdown estilizado */
+.navbar-dropdown{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
+  box-shadow: var(--shadow);
+  padding-top:.5rem;
+  padding-bottom:.5rem;
+  animation: dropdownIn .18s ease;
+}
+@keyframes dropdownIn{
+  from{transform: translateY(-6px); opacity:0}
+  to{transform: translateY(0); opacity:1}
+}
+.navbar-dropdown .navbar-item{
+  color:#0f172a !important; /* slate-900 */
+  border-radius:10px;
+  margin: 2px 8px;
+}
+.navbar-dropdown .navbar-item:hover{
+  background: rgba(244,63,94,.08);
+  color:#0f172a !important;
+}
+
+/* Botones del extremo derecho */
+.navbar-end .button{
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  transition: transform .14s ease, box-shadow .14s ease, filter .2s ease;
+}
+.navbar-end .button:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.16);
+}
+.navbar-end .button.is-warning{
+  background: #fde047; /* amber-300 */
+  border-color: transparent;
+}
+.navbar-end .button.is-info{
+  background: #38bdf8; /* sky-400 */
+  border-color: transparent;
+}
+.navbar-end .button.is-light{
+  background: rgba(255,255,255,.92);
+}
+
+/* Hamburguesa: animación a “X” */
+.navbar-burger{
+  color: var(--ink);
+  height: 3.25rem;
+  width: 3.25rem;
+  border-radius: 10px;
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+.navbar-burger:hover{
+  background: var(--glass);
+  box-shadow: var(--ring);
+}
+.navbar-burger span{
+  background-color: var(--ink) !important;
+  transition: transform .22s ease, opacity .22s ease;
+}
+.navbar-burger.is-active span:nth-child(1){
+  transform: translateY(6px) rotate(45deg);
+}
+.navbar-burger.is-active span:nth-child(2){
+  opacity:0;
+}
+.navbar-burger.is-active span:nth-child(3){
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Menú mobile: transición suave */
+@media (max-width: 1023px){
+  .navbar-menu{
+    display:block !important;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height .35s ease, opacity .2s ease;
+    background: linear-gradient(120deg,var(--brand-1),var(--brand-2));
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .navbar-menu.is-active{
+    max-height: 65vh;
+    opacity:1;
+  }
+  .navbar-menu .navbar-item,
+  .navbar-menu .navbar-link{
+    color: var(--ink) !important;
+  }
+  .navbar-menu .navbar-dropdown{
+    background: rgba(255,255,255,.98);
+  }
+}
+
+/* Accesibilidad/foco */
+.navbar-item:focus,
+.navbar-link:focus,
+.navbar-dropdown .navbar-item:focus{
+  outline: none;
+  box-shadow: var(--ring);
+}
+</style>
+
 <nav class="navbar has-background-danger" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">🏆 Campeonatos UIDE</a>
@@ -138,7 +323,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const burger = document.querySelector('.navbar-burger');
-    const menu = document.getElementById(burger.dataset.target);
+    const menu = document.getElementById(burger?.dataset?.target);
     if (burger && menu) {
       burger.addEventListener('click', () => {
         burger.classList.toggle('is-active');
