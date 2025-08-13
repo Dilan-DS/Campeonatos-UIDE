@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import *
 from .views.carrera_views import ListarCarrerasView, GestionCarreraView
-from .views.partido_views import listar_partidos, fixture_campeonato_view, calendario_global_view, editar_partido
+from .views.partido_views import listar_partidos, fixture_campeonato_view, calendario_global_view, editar_partido, asignar_arbitro_partido
 from .views.feachure_views import calendar_view
 from .views.arbitro_views import listar_arbitros, ver_tabla_posiciones_arbitro
 from core.views.inicio_views import equipo_publico
@@ -113,6 +113,7 @@ urlpatterns = [
     path('partidos/registrar/', registrar_partido, name='registrar_partido'),
     path('partidos/<int:partido_id>/', detalle_partido, name='detalle_partido'),
     path('partidos/<int:partido_id>/editar/', editar_partido, name='editar_partido'),
+    path('partidos/<int:partido_id>/asignar-arbitro/', asignar_arbitro_partido, name='asignar_arbitro_partido'),
 
     # Estadísticas por deporte
     path('estadisticas/futbol/', estadisticas_futbol, name='estadisticas_futbol'),
