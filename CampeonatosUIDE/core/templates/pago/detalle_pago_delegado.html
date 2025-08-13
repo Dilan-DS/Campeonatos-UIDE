@@ -21,7 +21,16 @@
                 <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
                 <p><strong>Método de Pago:</strong> {{ pago.get_metodo_display }}</p>
                 {% if pago.codigo_qr %}
-                    <p><strong>Banco (QR):</strong> {{ pago.codigo_qr.banco }}</p>
+                <div class="box has-background-info-light" style="border-radius:12px;">
+                    <p><strong>Banco:</strong> {{ pago.codigo_qr.banco }}</p>
+                    <p><strong>Titular:</strong> {{ pago.codigo_qr.titular }}</p>
+                    <p><strong>Identificación:</strong> {{ pago.codigo_qr.identificacion|default:"-" }}</p>
+                    <p><strong>Tipo:</strong> {{ pago.codigo_qr.get_tipo_cuenta_display }}</p>
+                    <p><strong>N° Cuenta:</strong> {{ pago.codigo_qr.numero_cuenta }}</p>
+                    {% if pago.codigo_qr.imagen_qr %}
+                    <figure class="image is-128x128 mt-2"><img src="{{ pago.codigo_qr.imagen_qr.url }}" alt="QR"></figure>
+                    {% endif %}
+                </div>
                 {% endif %}
                 <p><strong>Estado:</strong> 
                     <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">

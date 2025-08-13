@@ -105,9 +105,18 @@ class CodigoQR(models.Model):
     blank=True, null=True,
     verbose_name="Descripción adicional"
     )
+
+    TIPO_CUENTA_CHOICES = [
+        ('AHORROS', 'Ahorros'),
+        ('CORRIENTE', 'Corriente'),
+    ]
+    tipo_cuenta = models.CharField(max_length=20, choices=TIPO_CUENTA_CHOICES, default='AHORROS')
+    numero_cuenta = models.CharField(max_length=30)
+    titular = models.CharField(max_length=150)
+    identificacion = models.CharField(max_length=20, blank=True, null=True)
     # Representación en texto con el nombre del banco
     def __str__(self):
-        return self.banco
+        return f"{self.banco} - {self.get_tipo_cuenta_display()} - {self.numero_cuenta}"
 
     # Validaciones del modelo
     def clean(self):
