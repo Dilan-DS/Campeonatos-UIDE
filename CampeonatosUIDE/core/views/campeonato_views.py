@@ -8,6 +8,9 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
+from core.utils.generar_fixture_liga import generar_fixture_liga, asignar_arbitros_a_partidos
+from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
+from core.utils.generar_fixture_fase_grupos import generar_fixture_fase_grupos
 
 
 class EsAdminODelegadoMixin(UserPassesTestMixin):
@@ -237,64 +240,33 @@ class TablaPosiciones(LoginRequiredMixin, View):
 class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
     def post(self, request, campeonato_id):
         campeonato = get_object_or_404(Campeonato, id=campeonato_id)
-        equipos = list(Equipo.objects.filter(campeonato=campeonato, aprobado=True))
-        
-        modo = request.POST.get('modo', 'manual')
-        if modo == 'auto':
-            if not campeonato.fecha_fin_inscripcion:
-                messages.error(request, "Este campeonato no tiene fecha de fin de inscripción definida.")
-                return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
-            if timezone.now().date() < campeonato.fecha_fin_inscripcion.date():
-                messages.error(request, "Aún no termina la inscripción. No se puede generar automáticamente.")
-                return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
-            base_date = campeonato.fecha_fin_inscripcion
-        else:
-            base_date = campeonato.fecha_inicio or timezone.now()
 
-        if len(equipos) < 2:
+        if Equipo.objects.filter(campeonato=campeonato, aprobado=True).count() < 2:
             messages.error(request, "Se necesitan al menos 2 equipos aprobados para generar el fixture.")
-            return redirect('detalle_campeonato', id=campeonato.id)
+            return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
 
-        # Eliminar partidos existentes para este campeonato antes de generar nuevos
         Partido.objects.filter(campeonato=campeonato).delete()
 
-        fixture = generate_round_robin_fixture(equipos)
+        tipo = campeonato.tipo_campeonato
+        creados = 0
+        if tipo == 'LIGA':
+            creados = generar_fixture_liga(campeonato.id) or 0
+        elif tipo == 'FASE_GRUPOS':
+            creados = generar_fixture_fase_grupos(campeonato.id) or 0
+        else:
+            creados = generar_fixture_eliminatoria(campeonato.id) or 0
 
-        # Asignar fechas y horas a los partidos (ejemplo simple, se puede mejorar)
-        # Asumimos que los partidos se juegan en los dias_partido del campeonato
-        # y que hay un lugar predefinido o se asigna aleatoriamente.
-        # Para simplificar, usaremos la fecha de inicio del campeonato y una hora fija.
-        
-        current_date = base_date
-        # Convertir MultiSelectField a una lista de strings
-        dias_partido_list = list(campeonato.dias_partido)
-        dias_semana_map = {
-            'LUNES': 0, 'MARTES': 1, 'MIERCOLES': 2, 'JUEVES': 3,
-            'VIERNES': 4, 'SABADO': 5, 'DOMINGO': 6
-        }
-        dias_validos_indices = [dias_semana_map[d] for d in dias_partido_list]
+        asignar_arbitros_a_partidos(campeonato)
 
-        partido_hora = timezone.datetime(2000, 1, 1, 19, 0, 0).time() # Ejemplo: 7 PM
+        if creados > 0:
+            campeonato.fixture_generado = True
+            if campeonato.estado == 'INSCRIPCION':
+                campeonato.estado = 'EN_CURSO'
+            campeonato.save(update_fields=['fixture_generado', 'estado'])
+            messages.success(request, "Fixture generado.")
+        else:
+            messages.warning(request, "No se generaron partidos (verifica que haya al menos 2 equipos por género).")
 
-        for round_matches in fixture:
-            # Avanzar la fecha hasta el próximo día de partido válido
-            while current_date.weekday() not in dias_validos_indices:
-                current_date += timezone.timedelta(days=1)
-
-            for match in round_matches:
-                equipo_local, equipo_visitante = match
-                Partido.objects.create(
-                    campeonato=campeonato,
-                    equipo_local=equipo_local,
-                    equipo_visitante=equipo_visitante,
-                    fecha=current_date,
-                    hora=partido_hora,
-                    lugar="Cancha Principal", # Esto debería ser dinámico
-                    estado='PROGRAMADO'
-                )
-            current_date += timezone.timedelta(days=1) # Avanzar al siguiente día para el próximo round
-
-        messages.success(request, "Fixture generado exitosamente.")
         return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
 
 
