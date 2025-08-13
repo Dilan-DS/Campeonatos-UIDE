@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
-from core.utils.generar_fixture_liga import generar_fixture_liga, asignar_arbitros_a_partidos
+from core.utils.generar_fixture_liga import generar_fixture_liga
 from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
 from core.utils.generar_fixture_fase_grupos import generar_fixture_fase_grupos
 
@@ -263,7 +263,7 @@ class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
         else:
             creados = generar_fixture_eliminatoria(campeonato.id) or 0
 
-        asignar_arbitros_a_partidos(campeonato)
+        
 
         if creados > 0:
             campeonato.fixture_generado = True
