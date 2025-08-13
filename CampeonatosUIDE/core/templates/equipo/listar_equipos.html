@@ -3,6 +3,111 @@
 {% block title %}Listado de Equipos - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+
+<style>
+/* =======================================================
+   Estilo PRO – Listado de Equipos (solo CSS, sin cambiar HTML)
+   ======================================================= */
+
+/* Fondo totalmente blanco (por si el base usa degradés) */
+html, body { background:#ffffff !important; }
+.section { background:#ffffff !important; padding-top:3rem; padding-bottom:3rem; }
+
+/* Caja principal */
+.box{
+  background:#ffffff !important;
+  border:1px solid rgba(2,6,23,.08);
+  border-radius:12px !important;
+  box-shadow:0 12px 24px rgba(2,6,23,.06);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.box:hover{ transform:translateY(-2px); box-shadow:0 18px 36px rgba(2,6,23,.08); }
+
+/* Título */
+.title.is-4{
+  color:#0f172a !important;
+  font-weight:800 !important;
+  letter-spacing:.2px;
+  margin-bottom:.75rem;
+}
+
+/* Tarjeta de info de campeonato */
+.notification.is-warning.is-light{
+  border:1px dashed rgba(234,179,8,.45);
+  border-radius:10px;
+}
+
+/* Botón “Registrar Nuevo Equipo” */
+.button.is-success{
+  color:#052e16;
+  border-color:transparent;
+  background:linear-gradient(135deg,#86efac,#22c55e);
+  box-shadow:0 10px 20px rgba(34,197,94,.18);
+  transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.button.is-success:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.04);
+  box-shadow:0 16px 28px rgba(34,197,94,.26);
+}
+
+/* Tabla limpia y nítida */
+.table-container{ border-radius:14px; overflow:hidden; background:#fff; }
+.table{ border-collapse:separate; border-spacing:0; background:#fff; }
+
+.table thead th{
+  background:#fffaf0 !important; /* encabezado suave */
+  color:#334155 !important;
+  font-weight:700 !important;
+  border-bottom:1px solid rgba(2,6,23,.08) !important;
+  padding:.9rem 1rem !important;
+}
+.table td, .table th{
+  padding:.9rem 1rem !important;
+  vertical-align:middle !important;
+  border-color:rgba(2,6,23,.06) !important;
+}
+
+/* Hover de filas */
+.table tbody tr{ transition:background-color .12s ease; }
+.table tbody tr:hover{ background:#f8fafc !important; }
+
+/* Tags de estado */
+.tag.is-success{
+  background:#dcfce7 !important; color:#14532d !important; border:1px solid #bbf7d0;
+}
+.tag.is-danger{
+  background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #fecaca;
+}
+
+/* Botones de acción */
+.buttons .button{
+  border-color:transparent;
+  transition:transform .14s ease, box-shadow .14s ease;
+}
+.buttons .button:hover{ transform:translateY(-1px); }
+.buttons .is-info{ box-shadow:0 8px 16px rgba(59,130,246,.15); }
+.buttons .is-primary{ box-shadow:0 8px 16px rgba(2,132,199,.15); }
+.buttons .is-warning{ box-shadow:0 8px 16px rgba(234,179,8,.20); }
+.buttons .is-danger{ box-shadow:0 8px 16px rgba(225,29,72,.18); }
+
+/* Botón volver */
+.button.is-link.is-light{
+  border:1px solid rgba(2,6,23,.08);
+  transition:transform .14s ease, box-shadow .14s ease;
+}
+.button.is-link.is-light:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 22px rgba(15,23,42,.10);
+}
+
+/* Responsive */
+@media (max-width: 768px){
+  .title.is-4{ font-size:1.25rem; }
+  .button.is-success{ width:100%; }
+}
+</style>
+
 <section class="section">
   <div class="container">
 
@@ -37,50 +142,52 @@
           Total de equipos inscritos: {{ equipos|length }}
         </p>
 
-        <table class="table is-fullwidth is-striped is-hoverable mt-3">
-          <thead>
-            <tr class="has-background-warning-light">
-              <th>Nombre</th>
-              <th>Carrera</th>
-              <th>Estado</th>
-              <th class="has-text-centered">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for equipo in equipos %}
-              <tr>
-                <td>{{ equipo.nombre }}</td>
-                <td>{{ equipo.carrera.nombre }}</td>
-                <td>
-                  {% if equipo.aprobado %}
-                    <span class="tag is-success">Aprobado</span>
-                  {% else %}
-                    <span class="tag is-danger">No aprobado</span>
-                  {% endif %}
-                </td>
-                <!-- 🎯 Botones de acción -->
-                <td class="has-text-centered">
-                  <div class="buttons is-centered">
-                    <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
-                    {% if request.user.rol == "DELEGADO" and equipo.delegado == request.user %}
-                        <a href="{% url 'listar_jugadores_para_equipo' %}" class="button is-small is-primary is-light is-rounded">Registrar Jugadores</a>
-                    {% elif request.user.rol == "ADMIN" %}
-                        <a href="{% url 'listar_jugadores_admin' %}" class="button is-small is-primary is-light is-rounded">Ver Jugadores</a>
-                    {% endif %}
-                    {% if request.user.rol == "DELEGADO" %}
-                      {% if equipo.delegado == request.user %}
-                        <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
-                        <a href="{% url 'eliminar_equipo' equipo.id %}" class="button is-small is-danger is-light is-rounded" onclick="return confirm('¿Estás seguro de eliminar este equipo?');">Eliminar</a>
-                      {% endif %}
-                    {% else %}
-                      <!-- Para otros roles, o si no es el delegado del equipo, solo se muestra el botón Ver -->
-                    {% endif %}
-                  </div>
-                </td>
+        <div class="table-container">
+          <table class="table is-fullwidth is-striped is-hoverable mt-3">
+            <thead>
+              <tr class="has-background-warning-light">
+                <th>Nombre</th>
+                <th>Carrera</th>
+                <th>Estado</th>
+                <th class="has-text-centered">Acciones</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for equipo in equipos %}
+                <tr>
+                  <td>{{ equipo.nombre }}</td>
+                  <td>{{ equipo.carrera.nombre }}</td>
+                  <td>
+                    {% if equipo.aprobado %}
+                      <span class="tag is-success">Aprobado</span>
+                    {% else %}
+                      <span class="tag is-danger">No aprobado</span>
+                    {% endif %}
+                  </td>
+                  <!-- 🎯 Botones de acción -->
+                  <td class="has-text-centered">
+                    <div class="buttons is-centered">
+                      <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
+                      {% if request.user.rol == "DELEGADO" and equipo.delegado == request.user %}
+                          <a href="{% url 'listar_jugadores_para_equipo' %}" class="button is-small is-primary is-light is-rounded">Registrar Jugadores</a>
+                      {% elif request.user.rol == "ADMIN" %}
+                          <a href="{% url 'listar_jugadores_admin' %}" class="button is-small is-primary is-light is-rounded">Ver Jugadores</a>
+                      {% endif %}
+                      {% if request.user.rol == "DELEGADO" %}
+                        {% if equipo.delegado == request.user %}
+                          <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
+                          <a href="{% url 'eliminar_equipo' equipo.id %}" class="button is-small is-danger is-light is-rounded" onclick="return confirm('¿Estás seguro de eliminar este equipo?');">Eliminar</a>
+                        {% endif %}
+                      {% else %}
+                        {# Otros roles: solo Ver #}
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       {% else %}
         <p class="has-text-centered has-text-grey mt-5">No hay equipos registrados en este campeonato.</p>
       {% endif %}
@@ -94,4 +201,5 @@
     </div>
   </div>
 </section>
+
 {% endblock %}
