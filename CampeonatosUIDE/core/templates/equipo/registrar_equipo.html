@@ -1,5 +1,6 @@
 {% extends 'comun/base.html' %}
 {% load widget_tweaks %}
+
 {% block title %}
   {% if view_mode %}Detalle del Equipo: {{ equipo.nombre }}
   {% elif edit_mode %}Editar Equipo: {{ equipo.nombre }}
@@ -8,120 +9,237 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
+
+<style>
+  /* —— Estética general (solo CSS, sin romper nada) —— */
+  .hero-strip {
+    background: linear-gradient(90deg,#ff7aa0, #ffb86c);
+    border-radius: 18px;
+    padding: 1.25rem 1.5rem;
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(255, 122, 160, .25);
+  }
+  .glass-card {
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 20px;
+    box-shadow: 0 16px 30px rgba(19, 18, 66, .06);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem 1.5rem;
+  }
+  .file.has-name .file-name {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .btn-gradient {
+    background: linear-gradient(90deg,#6157ff,#ee49fd);
+    color: #fff !important;
+    border: none;
+  }
+  .btn-gradient:hover { filter: brightness(1.05); }
+  .btn-ghost {
+    background: #f7f8fb;
+    border: 1px solid #e7e9f3;
+    color: #4a4a4a;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .4rem .75rem;
+    border-radius: 999px;
+    background: #fff3f6;
+    color: #b71d56;
+    font-weight: 600;
+    border: 1px solid #ffd3e1;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .pill-ok {
+    background: #e8fff1;
+    color: #0f7a37;
+    border: 1px solid #baf0d0;
+  }
+  .pill-no {
+    background: #fff7e8;
+    color: #7a4e0f;
+    border: 1px solid #fde0b3;
+  }
+  .section-pad { padding-top: 2rem; }
+</style>
+
+<section class="section section-pad">
   <div class="container">
 
-    <div class="box has-background-light" style="border-radius: 20px; padding: 2rem;">
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">
-        {% if view_mode %}Detalle del Equipo: {{ equipo.nombre }}
-        {% elif edit_mode %}Editar Equipo: {{ equipo.nombre }}
-        {% else %}Registrar Nuevo Equipo
+    <div class="hero-strip mb-5">
+      <div class="is-flex is-justify-content-space-between is-align-items-center">
+        <h1 class="title is-4 mb-0">
+          🛡️
+          {% if view_mode %}Detalle del Equipo: {{ equipo.nombre }}
+          {% elif edit_mode %}Editar Equipo: {{ equipo.nombre }}
+          {% else %}Registrar Nuevo Equipo
+          {% endif %}
+        </h1>
+        {% if equipo.id %}
+          <span class="chip">ID #{{ equipo.id }}</span>
         {% endif %}
-      </h2>
+      </div>
+    </div>
 
-      <form method="post" action="{% if edit_mode %}{% url 'editar_equipo' equipo.id %}{% else %}{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}{% endif %}" enctype="multipart/form-data" class="mt-4">
+    <div class="box glass-card p-5">
+
+      <form method="post"
+            action="{% if edit_mode %}{% url 'editar_equipo' equipo.id %}{% else %}{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}{% endif %}"
+            enctype="multipart/form-data">
+
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-            <div class="notification is-danger">
-                {{ form.non_field_errors }}
-            </div>
+          <div class="notification is-danger is-light mb-4">
+            {{ form.non_field_errors }}
+          </div>
         {% endif %}
 
-        {% for field in form %}
-          <div class="field">
-            <label class="label has-text-dark">{{ field.label }}</label>
+        <div class="form-grid">
+          {% for field in form %}
+            <div class="field">
+              <label class="label has-text-weight-semibold">{{ field.label }}</label>
 
-            {% if field.name == 'logo' %}
-              <div class="file has-name is-right is-fullwidth">
-                <label class="file-label">
-                  {% if view_mode %}
-                    {% if equipo.logo %}
-                      <a href="{{ equipo.logo.url }}" target="_blank">Ver Logo Actual</a>
+              {% if field.name == 'logo' %}
+                <div class="file has-name is-fullwidth">
+                  <label class="file-label">
+                    {% if view_mode %}
+                      {% if equipo.logo %}
+                        <a class="button is-info is-light" href="{{ equipo.logo.url }}" target="_blank">Ver Logo Actual</a>
+                      {% else %}
+                        <span class="tag is-light">No hay logo</span>
+                      {% endif %}
                     {% else %}
-                      No hay logo
+                      {{ field|add_class:"file-input" }}
+                      <span class="file-cta">
+                        <span class="file-icon">📁</span>
+                        <span class="file-label">Subir Logo</span>
+                      </span>
+                      <span class="file-name">Selecciona un archivo…</span>
+                    {% endif %}
+                  </label>
+                </div>
+                {% if view_mode and equipo.logo %}
+                  <figure class="image is-128x128 mt-3">
+                    <img class="is-rounded" src="{{ equipo.logo.url }}" alt="Logo del equipo">
+                  </figure>
+                {% endif %}
+
+              {% elif field.name == 'documento' %}
+                <div class="control">
+                  {% if view_mode %}
+                    {% if equipo.documento %}
+                      <a class="button is-link is-light" href="{{ equipo.documento.url }}" target="_blank">Ver Documento</a>
+                    {% else %}
+                      <span class="tag is-light">No hay documento</span>
                     {% endif %}
                   {% else %}
                     {{ field|add_class:"file-input" }}
-                    <span class="file-cta">
-                      <span class="file-icon">📁</span>
-                      <span class="file-label">Subir Logo</span>
-                    </span>
-                    <span class="file-name">Selecciona un archivo...</span>
+                    <p class="help is-info">Adjunta un PDF/DOCX con la documentación del equipo.</p>
                   {% endif %}
-                </label>
-              </div>
-              {% if view_mode and equipo.logo %}
-                <figure class="image is-128x128 mt-2">
-                  <img src="{{ equipo.logo.url }}" alt="Logo del equipo">
-                </figure>
+                </div>
+
+              {% elif field.name == 'aprobado' %}
+                {# ——— NO permitir marcar desde aquí ——— #}
+                <div class="is-flex is-align-items-center is-justify-content-space-between">
+                  <div>
+                    {% if field.value %}
+                      <span class="pill pill-ok">Aprobado</span>
+                    {% else %}
+                      <span class="pill pill-no">No aprobado</span>
+                    {% endif %}
+                    <p class="help is-info mt-2">
+                      Este estado se actualiza automáticamente cuando se valida el pago. No es editable en este formulario.
+                    </p>
+                  </div>
+                  <label class="checkbox" style="opacity:.55; pointer-events:none;">
+                    {{ field|add_class:"" }} <span class="ml-1">Aprobado</span>
+                  </label>
+                </div>
+                {# Mantener el valor en el POST sin permitir cambios #}
+                {% if edit_mode %}
+                  <input type="hidden" name="aprobado" value="{% if field.value %}true{% else %}false{% endif %}">
+                {% else %}
+                  <input type="hidden" name="aprobado" value="false">
+                {% endif %}
+
+              {% elif field.name == "delegado" %}
+                {% if request.user.rol == "DELEGADO" %}
+                  <input type="hidden" name="delegado" value="{{ request.user.id }}">
+                  <div class="control">
+                    <input class="input is-rounded is-medium" value="{{ request.user.username }}" disabled>
+                  </div>
+                {% else %}
+                  <div class="control">
+                    {{ field|add_class:"select is-fullwidth" }}
+                  </div>
+                {% endif %}
+
+              {% else %}
+                <div class="control">
+                  {{ field|add_class:"input is-rounded is-medium" }}{% if view_mode %} readonly{% endif %}
+                </div>
               {% endif %}
 
-            {% elif field.name == 'documento' %}
-              <div class="control">
-                {% if view_mode %}
-                  {% if equipo.documento %}
-                    <a href="{{ equipo.documento.url }}" target="_blank">Ver Documento Actual</a>
-                  {% else %}
-                    No hay documento
-                  {% endif %}
-                {% else %}
-                  {{ field|add_class:"file-input" }}
-                  <p class="help is-info mt-1">Adjunta un documento relacionado al equipo (PDF, DOCX)</p>
-                {% endif %}
-              </div>
-
-            {% elif field.name == 'aprobado' %}
-              <div class="control">
-                <label class="checkbox">
-                  {{ field }} Aprobado
-                </label>
-              </div>
-
-            {% else %}
-              <div class="control">
-                {{ field|add_class:"input is-rounded is-medium" }}{% if view_mode %} readonly{% endif %}
-              </div>
-            {% endif %}
-
-            {% if field.errors %}
-              <p class="help is-danger">{{ field.errors|striptags }}</p>
-            {% endif %}
-          </div>
-        {% endfor %}
+              {% if field.errors %}
+                <p class="help is-danger">{{ field.errors|striptags }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
 
         {% if not view_mode %}
           <div class="field mt-5">
-            <div class="control">
-              <button type="submit" class="button is-link is-fullwidth is-rounded is-medium">
-                {% if edit_mode %}Guardar Cambios
-                {% else %}✅ Registrar Equipo
-                {% endif %}
+            <div class="buttons is-right">
+              <button type="submit" class="button btn-gradient is-rounded is-medium">
+                {% if edit_mode %}Guardar Cambios{% else %}✅ Registrar Equipo{% endif %}
               </button>
             </div>
           </div>
         {% endif %}
       </form>
 
-      <div class="has-text-centered mt-4">
+      <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
         {% if equipo.id %}
-          <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-rounded">Ver mis compañeros</a>
+          <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-light is-rounded">
+            👥 Ver mis compañeros
+          </a>
+        {% else %}
+          <span></span>
         {% endif %}
-        <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded">
-          ← Volver al listado
-        </a>
+        <a href="{% url 'listar_equipos' %}" class="button btn-ghost is-rounded">← Volver al listado</a>
       </div>
+
     </div>
   </div>
 </section>
 
 <script>
-  const fileInputs = document.querySelectorAll('.file input[type=file]');
-  fileInputs.forEach(input => {
-    input.addEventListener('change', () => {
-      const fileName = input.files.length > 0 ? input.files[0].name : 'Selecciona un archivo...';
-      input.closest('.file').querySelector('.file-name').textContent = fileName;
+  // Actualiza el nombre del archivo en los inputs Bulma
+  document.querySelectorAll('.file input[type=file]').forEach(function (input) {
+    input.addEventListener('change', function () {
+      const name = input.files && input.files.length ? input.files[0].name : 'Selecciona un archivo…';
+      const nameBox = input.closest('.file').querySelector('.file-name');
+      if (nameBox) nameBox.textContent = name;
     });
   });
 </script>
+
 {% endblock %}

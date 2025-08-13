@@ -177,21 +177,28 @@ class EquipoForm(forms.ModelForm):
             }),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si el formulario es para una instancia existente de un equipo
-        if self.instance and self.instance.pk:
-            # Verificar si el equipo tiene un pago asociado y si está aprobado
-            pago_aprobado = hasattr(self.instance, 'pago') and self.instance.pago.estado == 'APROBADO'
-            
-            # Si el pago no está aprobado, deshabilitar el campo 'aprobado'
-            if not pago_aprobado:
-                self.fields['aprobado'].widget.attrs['disabled'] = True
-                self.fields['aprobado'].help_text = 'Para aprobar el equipo, primero debe registrar y ser aprobado el pago correspondiente.'
-        else:
-            # Si es un equipo nuevo, el campo 'aprobado' siempre debe estar deshabilitado
-            self.fields['aprobado'].widget.attrs['disabled'] = True
-            self.fields['aprobado'].help_text = 'No se puede aprobar un equipo hasta que se haya registrado y aprobado su pago.'
+        self.user = user
+
+        # 1) Solo permitir campeonatos con inscripción abierta (excluir EN_CURSO/FINALIZADO)
+        self.fields["campeonato"].queryset = Campeonato.objects.exclude(
+            estado__in=["EN_CURSO", "FINALIZADO"]
+        )
+
+        # 2) Si es DELEGADO: fijar su usuario como delegado y ocultar el campo
+        if user and getattr(user, "rol", "").upper() == "DELEGADO":
+            self.fields["delegado"].queryset = Usuario.objects.filter(pk=user.pk)
+            self.fields["delegado"].initial = user.pk
+            self.fields["delegado"].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned = super().clean()
+        camp = cleaned.get("campeonato")
+        # Bloqueo duro por estado (además del filtro del queryset)
+        if camp and camp.estado in ("EN_CURSO", "FINALIZADO"):
+            self.add_error("campeonato", "No se pueden inscribir equipos en campeonatos en curso o finalizados.")
+        return cleaned
 
 
 # =============================
