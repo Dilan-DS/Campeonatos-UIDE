@@ -189,6 +189,8 @@ urlpatterns = [
     path('delegado/pagos/detalle/', pago_views.DetallePagoDelegadoView.as_view(), name='detalle_pago_delegado'),
     path('delegado/pagos/<int:pk>/eliminar/', pago_views.EliminarPagoDelegadoView.as_view(), name='eliminar_pago_delegado'),
 
+    path("equipos/<int:equipo_id>/pagos/registrar/", pago_views.RegistrarPagoDelegadoView.as_view(), name="registrar_pago_equipo"),
+
     # URLs para ImagenGaleria
     path('galeria/', ListarImagenGaleria.as_view(), name='listar_imagenes_galeria'),
     path('galeria/crear/', RegistrarImagenGaleria.as_view(), name='registrar_imagen_galeria'),
