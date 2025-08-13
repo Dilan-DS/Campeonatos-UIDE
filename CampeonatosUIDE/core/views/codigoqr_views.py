@@ -99,29 +99,11 @@ class EditarCodigoQRView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         # Valida el formulario
         if form.is_valid():
-            # Obtiene datos limpios para actualización manual
-            datos = form.cleaned_data
-
-            # Actualiza manualmente los campos banco y descripción
-            codigo.banco = datos.get('banco', codigo.banco)
-            codigo.descripcion = datos.get('descripcion', codigo.descripcion)
-
-            # Si se subió una nueva imagen de QR, actualiza el campo
-            if request.FILES.get('imagen_qr'):
-                codigo.imagen_qr = request.FILES['imagen_qr']
-
-            # Intenta validar el modelo completo
-            try:
-                codigo.full_clean()
-                # Guarda cambios en la base de datos
-                codigo.save()
-                # Mensaje de éxito
-                messages.success(request, "Código QR actualizado correctamente.")
-                # Redirige a la lista de códigos QR
-                return redirect('listar_codigos_qr')
-            # Captura errores de validación para agregar al formulario
-            except ValidationError as e:
-                form.add_error(None, e)
+            form.save()
+            # Mensaje de éxito
+            messages.success(request, "Código QR actualizado correctamente.")
+            # Redirige a la lista de códigos QR
+            return redirect('listar_codigos_qr')
 
         # Si no válido, vuelve a mostrar el formulario con errores y datos actuales
         return render(request, 'codigoqr/registrar.html', {

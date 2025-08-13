@@ -630,21 +630,41 @@ class CodigoQRForm(forms.ModelForm):
 
     class Meta:
         model = CodigoQR
-        fields = '__all__'
-        widgets = {
-            'banco': forms.TextInput(attrs={
-                'placeholder': 'Nombre del banco o método (Ej: Banco Pichincha)',
-                'class': 'input'
-            }),
-            'imagen_qr': forms.ClearableFileInput(attrs={
-                'class': 'file-input'
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'placeholder': 'Detalles adicionales del código QR (opcional)',
-                'class': 'textarea',
-                'rows': 3
-            }),
+        fields = [
+            "banco",
+            "descripcion",
+            "imagen_qr",
+            "titular",
+            "identificacion",
+            "tipo_cuenta",
+            "numero_cuenta",
+        ]
+        labels = {
+            "banco": "Nombre del banco",
+            "descripcion": "Descripción adicional",
+            "imagen_qr": "Imagen del QR",
+            "titular": "Titular",
+            "identificacion": "Identificación",
+            "tipo_cuenta": "Tipo de cuenta",
+            "numero_cuenta": "N° de cuenta",
         }
+        widgets = {
+            "banco": forms.TextInput(attrs={"class": "input", "placeholder": "Banco de Loja"}),
+            "descripcion": forms.Textarea(attrs={"class": "textarea", "rows": 3, "placeholder": "Detalles del QR (opcional)"}),
+            "titular": forms.TextInput(attrs={"class": "input", "placeholder": "Nombre completo del titular"}),
+            "identificacion": forms.TextInput(attrs={"class": "input", "placeholder": "Cédula/RUC (opcional)"}),
+            "tipo_cuenta": forms.Select(),
+            "numero_cuenta": forms.TextInput(attrs={"class": "input", "placeholder": "Ej: 29049255541"}),
+            "imagen_qr": forms.ClearableFileInput(attrs={"class": "file-input", "accept": "image/*"}),
+        }
+
+    def clean_numero_cuenta(self):
+        nc = self.cleaned_data.get("numero_cuenta", "").strip()
+        if nc and not nc.isdigit():
+            raise forms.ValidationError("El número de cuenta debe contener solo dígitos.")
+        if nc and len(nc) < 6:
+            raise forms.ValidationError("El número de cuenta es demasiado corto.")
+        return nc
 
 class UsuarioForm(forms.ModelForm):
     class Meta:
