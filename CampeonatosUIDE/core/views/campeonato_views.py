@@ -115,11 +115,18 @@ class DetalleCampeonato(LoginRequiredMixin, View):
 
 # Clase para mostrar el fixture (calendario de partidos) de un campeonato
 class FixtureCampeonato(LoginRequiredMixin, View):
-    # Método GET para mostrar el fixture
     def get(self, request, id, deporte_id=None):
         campeonato = get_object_or_404(Campeonato, id=id)
-        partidos = Partido.objects.filter(campeonato=campeonato).order_by('fecha', 'hora')
-        return render(request, 'campeonato/fixture_campeonato.html', {'campeonato': campeonato, 'partidos': partidos})
+        genero = request.GET.get('genero', 'masculino').lower()
+        if genero not in ('masculino', 'femenino'):
+            genero = 'masculino'
+        
+        return render(request, 'feachure/calendar.html', {
+            'campeonato': campeonato,
+            'partidos': Partido.objects.filter(campeonato=campeonato, equipo_local__genero=genero, equipo_visitante__genero=genero).order_by('fecha','hora'),
+            'genero_seleccionado': genero,
+            'campeonato_sin_fixture': not Partido.objects.filter(campeonato=campeonato).exists(),
+        })
 
 
 # Clase para mostrar campeonatos públicos y activos
