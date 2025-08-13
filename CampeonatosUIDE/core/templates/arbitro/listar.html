@@ -4,14 +4,125 @@
 {% block title %}Listado de Árbitros - Campeonatos UIDE{% endblock %}
 
 {% block content %}
+
+<style>
+/* ==========================================================
+   Estilo PRO – Listado de Árbitros (solo CSS)
+   * Fondo 100% blanco, sin degradés
+   * No cambia tu HTML
+   ========================================================== */
+
+/* Fondo global totalmente blanco (por si el base define otro) */
+html, body { background:#ffffff !important; }
+.section { background:#ffffff !important; padding-top:3rem; padding-bottom:3rem; }
+
+/* Contenedor principal */
+.box{
+  background:#ffffff !important;
+  border:1px solid rgba(2,6,23,.08);
+  border-radius:18px !important;
+  box-shadow:0 12px 24px rgba(2,6,23,.06);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.box:hover{ transform:translateY(-2px); box-shadow:0 18px 36px rgba(2,6,23,.08); }
+
+/* Encabezado y acciones */
+.title.is-3{
+  color:#0f172a !important;
+  letter-spacing:.2px;
+  margin:0;
+  display:flex; align-items:center; gap:.6rem;
+}
+.title.is-3::before{
+  content:"📋";
+  font-size:1.25rem;
+  line-height:1;
+}
+
+/* Botón “Nuevo árbitro” con estilo moderno */
+.button.is-warning{
+  color:#111827;
+  border-color:transparent;
+  background:linear-gradient(135deg,#fde047,#f59e0b);
+  box-shadow:0 10px 20px rgba(245,158,11,.20);
+  transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.button.is-warning:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.05);
+  box-shadow:0 16px 28px rgba(245,158,11,.28);
+}
+
+/* Tabla clara y nítida */
+.table-container{
+  border-radius:14px;
+  overflow:hidden;
+  background:#fff;
+}
+.table{
+  border-collapse:separate;
+  border-spacing:0;
+  background:#fff;
+}
+.table thead th{
+  background:#fffaf0 !important;            /* encabezado suave */
+  color:#334155 !important;
+  font-weight:700 !important;
+  border-bottom:1px solid rgba(2,6,23,.08) !important;
+  padding:.9rem .95rem !important;
+  text-transform:none;
+}
+.table td, .table th{
+  padding:.85rem .95rem !important;
+  vertical-align:middle !important;
+  border-color:rgba(2,6,23,.06) !important;
+}
+
+/* Fila hover sutil */
+.table tbody tr{
+  transition:background-color .12s ease;
+}
+.table tbody tr:hover{
+  background:#f8fafc !important;
+}
+
+/* Tags */
+.tag.is-success{
+  background:#dcfce7 !important; color:#14532d !important; border:1px solid #bbf7d0;
+}
+.tag.is-danger{
+  background:#fee2e2 !important; color:#7f1d1d !important; border:1px solid #fecaca;
+}
+.tag.is-info{
+  background:#e0f2fe !important; color:#075985 !important; border:1px solid #bae6fd;
+}
+.tag.is-light{
+  background:#f8fafc !important; color:#334155 !important; border:1px solid rgba(2,6,23,.06);
+}
+
+/* Botones pequeños de acción */
+.button.is-small{
+  border-color:transparent;
+  transition:transform .14s ease, box-shadow .14s ease;
+}
+.button.is-small:hover{ transform:translateY(-1px); }
+.button.is-small.is-info{ box-shadow:0 6px 14px rgba(59,130,246,.18); }
+.button.is-small.is-link{ box-shadow:0 6px 14px rgba(14,165,233,.18); }
+.button.is-small.is-danger{ box-shadow:0 6px 14px rgba(225,29,72,.18); }
+
+/* Responsive */
+@media (max-width: 768px){
+  .title.is-3{ font-size:1.5rem; }
+  .button.is-warning{ width:100%; }
+}
+</style>
+
 <section class="section">
   <div class="container">
-    <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2rem; box-shadow: 0 0 12px rgba(0,0,0,0.05);">
+    <div class="box" style="border-radius: 18px; background-color: #fff; padding: 2rem;">
 
       <div class="is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center mb-4">
-        <h2 class="title is-3 has-text-weight-semibold" style="color: #5a0035;">
-          📋 Árbitros Registrados
-        </h2>
+        <h2 class="title is-3 has-text-weight-semibold">Árbitros Registrados</h2>
         <a href="{% url 'registrar_arbitro' %}" class="button is-warning is-rounded mt-2-mobile">
           <strong>+ Nuevo Árbitro</strong>
         </a>
@@ -21,7 +132,7 @@
         <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped is-bordered">
             <thead>
-              <tr class="has-background-warning-light">
+              <tr>
                 <th class="has-text-centered">Nombre Completo</th>
                 <th class="has-text-centered">Experiencia</th>
                 <th class="has-text-centered">Contacto</th>
@@ -50,12 +161,10 @@
                       <span class="tag is-light">No asignado</span>
                     {% endfor %}
                   </td>
-                                    <td class="has-text-centered">
+                  <td class="has-text-centered">
                     <a href="{% url 'detalle_arbitro' arbitro.id %}" class="button is-small is-info is-light is-rounded mb-1">Ver</a>
                     <a href="{% url 'editar_arbitro' arbitro.id %}" class="button is-small is-link is-light is-rounded mb-1">Editar</a>
-                    <a href="{% url 'eliminar_arbitro' arbitro.id %}" class="button is-small is-danger is-light is-rounded mb-1">
-                      Eliminar
-                    </a>
+                    <a href="{% url 'eliminar_arbitro' arbitro.id %}" class="button is-small is-danger is-light is-rounded mb-1">Eliminar</a>
                   </td>
                 </tr>
               {% endfor %}
@@ -70,4 +179,5 @@
     </div>
   </div>
 </section>
+
 {% endblock %}
