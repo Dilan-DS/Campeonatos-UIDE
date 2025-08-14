@@ -131,100 +131,111 @@ class RegistrarPagoParaEquipoAdminView(LoginRequiredMixin, View):
         messages.error(request, "Error al registrar el pago. Por favor, revisa los campos.")
         return render(request, 'pago/registrar_admin.html', {'form': form, 'modo': 'crear', 'equipo': equipo})
 
-class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
-    def get(self, request):
-        if not request.user.rol == 'DELEGADO':
-            messages.error(request, "No tienes permiso para acceder a esta página.")
-            return redirect('vista_inicio')
-        
-        campeonato_id = (request.GET.get('campeonato_id') or request.POST.get('campeonato_id') or request.session.get('campeonato_id'))
-        if campeonato_id:
-            request.session['campeonato_id'] = int(campeonato_id)
-        qs_equipo = Equipo.objects.filter(delegado_id=request.user.id)
-        if campeonato_id:
-            qs_equipo = qs_equipo.filter(campeonato_id=campeonato_id)
-        equipo = qs_equipo.first()
-        if not equipo:
-            messages.error(request, "No tienes un equipo registrado en este campeonato.")
-            return redirect('delegado_dashboard')
-        
-        pago_existente = Pago.objects.filter(equipo=equipo).first()
-        
-        if pago_existente and not request.GET.get('edit_mode'):
-            # Si existe un pago y no se ha solicitado el modo edición, mostrar resumen
-            return render(request, 'pago/pago_existente.html', {'pago': pago_existente, 'equipo': equipo})
-        else:
-            # Si no existe pago, o si se solicitó el modo edición, mostrar el formulario
-            form = PagoDelegadoForm(instance=pago_existente) if pago_existente else PagoDelegadoForm(initial={'equipo': equipo})
-            codigos = CodigoQR.objects.all()
-            qr_catalog = {
-                qr.id: {
-                    "banco": qr.banco,
-                    "tipo_cuenta": getattr(qr, "get_tipo_cuenta_display", lambda: "")(),
-                    "numero_cuenta": qr.numero_cuenta,
-                    "titular": qr.titular,
-                    "identificacion": qr.identificacion or "",
-                    "imagen_qr": qr.imagen_qr.url if qr.imagen_qr else ""
-                } for qr in codigos
-            }
-            ctx = {
-                "form": form,
-                "equipo": equipo,
-                "pago_existente": pago_existente,
-                "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
-            }
-            return render(request, "pago/registrar.html", ctx)
+from django import forms
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
-    def post(self, request):
-        if not request.user.rol == 'DELEGADO':
-            messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect('vista_inicio')
+class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        equipo_id = kwargs.get("equipo_id") or request.GET.get("equipo_id")
+        equipo = None
+        if equipo_id:
+            equipo = get_object_or_404(Equipo, pk=equipo_id)
+
+        pago_existente = None
+        equipo_nombre = ""
         
-        campeonato_id = (request.GET.get('campeonato_id') or request.POST.get('campeonato_id') or request.session.get('campeonato_id'))
-        if campeonato_id:
-            request.session['campeonato_id'] = int(campeonato_id)
-        qs_equipo = Equipo.objects.filter(delegado_id=request.user.id)
-        if campeonato_id:
-            qs_equipo = qs_equipo.filter(campeonato_id=campeonato_id)
-        equipo = qs_equipo.first()
-        if not equipo:
-            messages.error(request, "No tienes un equipo registrado en este campeonato.")
-            return redirect('delegado_dashboard')
+        es_delegado = getattr(request.user, "rol", "") == "DELEGADO"
         
-        pago_existente = Pago.objects.filter(equipo=equipo).first()
+        if not equipo and es_delegado:
+            qs_equipo = Equipo.objects.filter(delegado=request.user)
+            if qs_equipo.exists():
+                equipo = qs_equipo.first()
+
+        if equipo:
+            equipo_nombre = equipo.nombre
+            pago_existente = Pago.objects.filter(equipo=equipo).first()
+
+        form = PagoDelegadoForm(instance=pago_existente) if pago_existente else PagoDelegadoForm(initial={'equipo': equipo})
+
+        qs_qr = CodigoQR.visibles_para_delegados()
+        if "codigo_qr" in form.fields:
+            form.fields["codigo_qr"].queryset = qs_qr
+
+        ocultar_select_qr = False
+        if es_delegado:
+            form.fields["codigo_qr"].widget = forms.HiddenInput()
+            ocultar_select_qr = True
+            principal = qs_qr.first()
+            if principal and not (form.instance and form.instance.codigo_qr_id):
+                form.initial = {**getattr(form, "initial", {}), "codigo_qr": principal.pk}
+
+        qr_catalog = {qr.pk: qr.to_dict() for qr in qs_qr}
         
-        if pago_existente:
-            form = PagoDelegadoForm(request.POST, request.FILES, instance=pago_existente)
-        else:
-            form = PagoDelegadoForm(request.POST, request.FILES)
+        ctx = {
+            "form": form,
+            "equipo": equipo,
+            "pago_existente": pago_existente,
+            "equipo_nombre": equipo_nombre,
+            "ocultar_select_qr": ocultar_select_qr,
+            "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
+        }
+        return render(request, "pago/registrar.html", ctx)
+
+    def post(self, request, *args, **kwargs):
+        equipo_id = kwargs.get("equipo_id") or request.POST.get("equipo")
+        equipo = None
+        if equipo_id:
+            equipo = get_object_or_404(Equipo, pk=equipo_id)
+
+        es_delegado = getattr(request.user, "rol", "") == "DELEGADO"
         
+        if not equipo and es_delegado:
+            qs_equipo = Equipo.objects.filter(delegado=request.user)
+            if qs_equipo.exists():
+                equipo = qs_equipo.first()
+
+        pago_existente = Pago.objects.filter(equipo=equipo).first() if equipo else None
+        form = PagoDelegadoForm(request.POST, request.FILES, instance=pago_existente)
+
         if form.is_valid():
             pago = form.save(commit=False)
-            pago.equipo = equipo
+            if pago.metodo != 'TRANSFERENCIA':
+                pago.codigo_qr = None
+            else:
+                if es_delegado and not pago.codigo_qr_id:
+                    principal = CodigoQR.visibles_para_delegados().first()
+                    if principal:
+                        pago.codigo_qr = principal
+            if equipo:
+                pago.equipo = equipo
             pago.save()
             messages.success(request, 'Pago registrado/actualizado correctamente.')
-            cid = (request.GET.get('campeonato_id') or request.POST.get('campeonato_id') or request.session.get('campeonato_id'))
-            url = reverse('detalle_pago_delegado')
-            return redirect(f"{url}?campeonato_id={cid}") if cid else redirect(url)
+            return redirect('detalle_pago_delegado')
         else:
-            messages.error(request, "Error al registrar/actualizar el pago. Por favor, revisa los campos.")
-            codigos = CodigoQR.objects.all()
-            qr_catalog = {
-                qr.id: {
-                    "banco": qr.banco,
-                    "tipo_cuenta": getattr(qr, "get_tipo_cuenta_display", lambda: "")(),
-                    "numero_cuenta": qr.numero_cuenta,
-                    "titular": qr.titular,
-                    "identificacion": qr.identificacion or "",
-                    "imagen_qr": qr.imagen_qr.url if qr.imagen_qr else ""
-                } for qr in codigos
-            }
+            qs_qr = CodigoQR.visibles_para_delegados()
+            if "codigo_qr" in form.fields:
+                form.fields["codigo_qr"].queryset = qs_qr
+
+            ocultar_select_qr = False
+            if es_delegado:
+                form.fields["codigo_qr"].widget = forms.HiddenInput()
+                ocultar_select_qr = True
+                principal = qs_qr.first()
+                if principal and not (form.instance and form.instance.codigo_qr_id):
+                    form.initial = {**getattr(form, "initial", {}), "codigo_qr": principal.pk}
+
+            qr_catalog = {qr.pk: qr.to_dict() for qr in qs_qr}
+            
             ctx = {
                 "form": form,
                 "equipo": equipo,
                 "pago_existente": pago_existente,
+                "equipo_nombre": equipo.nombre if equipo else "",
+                "ocultar_select_qr": ocultar_select_qr,
                 "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
             }
+            messages.error(request, "Error al registrar/actualizar el pago. Revisa los campos.")
             return render(request, "pago/registrar.html", ctx)
 
 class DetallePagoDelegadoView(LoginRequiredMixin, View):

@@ -87,51 +87,50 @@ class Arbitro(models.Model):
     def __str__(self):
         return f"{self.usuario.username} ({self.usuario.get_rol_display()})"
 
-# Modelo para guardar códigos QR de bancos o métodos de transferencia que sube el admin
 class CodigoQR(models.Model):
-    # Nombre del banco o método (ej: Banco Pichincha)
-    banco = models.CharField(
-    max_length=100,
-    unique=True,
-    verbose_name="Nombre del banco"
-    )
-    # Imagen del código QR subida por admin
-    imagen_qr = models.ImageField(
-    upload_to='codigos_qr/',
-    verbose_name="Imagen del QR"
-    )
-    # Descripción opcional para detalles extra
-    descripcion = models.TextField(
-    blank=True, null=True,
-    verbose_name="Descripción adicional"
-    )
-
-    TIPO_CUENTA_CHOICES = [
-        ('AHORROS', 'Ahorros'),
-        ('CORRIENTE', 'Corriente'),
-    ]
+    banco = models.CharField(max_length=100, verbose_name="Nombre del banco")
+    imagen_qr = models.ImageField(upload_to='codigos_qr/', verbose_name="Imagen del QR")
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción adicional")
+    TIPO_CUENTA_CHOICES = [('AHORROS','Ahorros'),('CORRIENTE','Corriente')]
     tipo_cuenta = models.CharField(max_length=20, choices=TIPO_CUENTA_CHOICES, default='AHORROS')
     numero_cuenta = models.CharField(max_length=30)
     titular = models.CharField(max_length=150)
     identificacion = models.CharField(max_length=20, blank=True, null=True)
-    # Representación en texto con el nombre del banco
-    def __str__(self):
-        return f"{self.banco} - {self.get_tipo_cuenta_display()} - {self.numero_cuenta}"
-
-    # Validaciones del modelo
-    def clean(self):
-        # Validar que la imagen QR esté presente
-        if not self.imagen_qr:
-            raise ValidationError("La imagen del código QR es obligatoria.")
-        # Validar longitud máxima de la descripción
-        if self.descripcion and len(self.descripcion) > 500:
-            raise ValidationError("La descripción no puede exceder los 500 caracteres.")
-
-    # Metadatos para admin
+    activo = models.BooleanField(default=True, help_text="Si está activo, se muestra a los delegados.")
+    es_principal = models.BooleanField(default=False, help_text="Si está marcado, se usa por defecto.")
     class Meta:
         verbose_name = "Código QR"
         verbose_name_plural = "Códigos QR"
-    
+        constraints = [
+            models.UniqueConstraint(fields=['banco','numero_cuenta'], name='uniq_banco_numero_cuenta')
+        ]
+        ordering = ['-es_principal','banco','numero_cuenta']
+    def __str__(self):
+        return f"{self.banco} - {self.get_tipo_cuenta_display()} - {self.numero_cuenta}"
+    def clean(self):
+        errors = {}
+        if not self.imagen_qr:
+            errors['imagen_qr'] = "La imagen del código QR es obligatoria."
+        if self.descripcion and len(self.descripcion) > 500:
+            errors['descripcion'] = "La descripción no puede exceder los 500 caracteres."
+        if errors:
+            raise ValidationError(errors)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.es_principal:
+            CodigoQR.objects.exclude(pk=self.pk).update(es_principal=False)
+    def to_dict(self):
+        return {
+            "banco": self.banco,
+            "tipo_cuenta": self.get_tipo_cuenta_display(),
+            "numero_cuenta": self.numero_cuenta,
+            "titular": self.titular,
+            "identificacion": self.identificacion or "",
+            "imagen_qr": self.imagen_qr.url if self.imagen_qr else "",
+        }
+    @classmethod
+    def visibles_para_delegados(cls):
+        return cls.objects.filter(activo=True).order_by('-es_principal','banco')
 
 # Modelo campeonato
 class Campeonato(models.Model):
@@ -563,58 +562,37 @@ class Transmision(models.Model):
     def __str__(self):
         return f"Transmisión de {self.partido} - {'Activa' if self.activa else 'Inactiva'}"
 
-# Modelo pago del equipo
 class Pago(models.Model):
-    # Métodos de pago permitidos
-    METODOS = [
-        ('TRANSFERENCIA', 'Transferencia'),
-        ('EFECTIVO', 'Efectivo'),
-    ]
-    # Estados del pago
-    ESTADOS = [
-        ('PENDIENTE', 'Pendiente'),
-        ('APROBADO', 'Aprobado'),
-        ('RECHAZADO', 'Rechazado'),
-    ]
-
-    # Equipo que realiza el pago (OneToOne)
+    METODOS = [('TRANSFERENCIA','Transferencia'),('EFECTIVO','Efectivo')]
+    ESTADOS = [('PENDIENTE','Pendiente'),('APROBADO','Aprobado'),('RECHAZADO','Rechazado')]
     equipo = models.OneToOneField(Equipo, on_delete=models.CASCADE, related_name='pago')
-    # Método de pago seleccionado (transferencia o efectivo)
     metodo = models.CharField(max_length=20, choices=METODOS)
-    # Banco elegido por el delegado si es transferencia (FK a CodigoQR)
-    codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True)
-    # Imagen comprobante del pago (subida por delegado)
+    codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos')
     comprobante_pago = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
-    # Estado del pago
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
-    # Fecha y hora de registro del pago
     fecha_pago = models.DateTimeField(auto_now_add=True)
-    # Observaciones que puede dejar el admin sobre el pago
     observacion_admin = models.TextField(blank=True, null=True)
-
-    # Validaciones del pago
+    class Meta:
+        verbose_name = "Pago"
+        verbose_name_plural = "Pagos"
+        ordering = ['-fecha_pago']
     def clean(self):
-        # Si el método es transferencia, se debe elegir banco (codigo_qr)
-        if self.metodo == 'TRANSFERENCIA' and not self.codigo_qr:
-            raise ValidationError("Debe seleccionar el banco para transferencia.")
-        # Validar estado válido
-        if self.estado not in dict(self.ESTADOS).keys():
-            raise ValidationError(f"Estado inválido: {self.estado}")
-        # Si el estado es aprobado o rechazado, debe haber comprobante de pago
-        if self.estado in ['APROBADO', 'RECHAZADO'] and not self.comprobante_pago:
-            raise ValidationError("Debe subir el comprobante de pago cuando el pago está aprobado o rechazado.")
-
-    # Representación en texto del pago con banco si aplica
+        errors = {}
+        if self.metodo == 'TRANSFERENCIA':
+            if not self.codigo_qr:
+                errors['codigo_qr'] = "Debe seleccionarse una cuenta bancaria para la transferencia."
+        else:
+            self.codigo_qr = None
+        if self.estado not in dict(self.ESTADOS):
+            errors['estado'] = f"Estado inválido: {self.estado}"
+        if errors:
+            raise ValidationError(errors)
     def __str__(self):
         if self.metodo == 'TRANSFERENCIA':
             banco = self.codigo_qr.banco if self.codigo_qr else 'Sin banco'
             return f"{self.equipo.nombre} - Transferencia ({banco}) - {self.estado}"
         return f"{self.equipo.nombre} - Efectivo - {self.estado}"
 
-    # Metadatos para admin
-    class Meta:
-        verbose_name = "Pago"
-        verbose_name_plural = "Pagos"
 # Señal para actualizar estado del equipo al cambiar el estado del pago
 @receiver(post_save, sender=Pago)
 # Actualizar el estado del equipo según el estado del pago
@@ -633,8 +611,6 @@ def actualizar_estado_equipo(sender, instance, **kwargs):
         equipo.aprobado = False
         # Guardar el equipo
         equipo.save()
-
-
 
 
 class Suspension(models.Model):
@@ -847,4 +823,3 @@ class Testimonio(models.Model):
 
     def __str__(self):
         return self.autor
-
