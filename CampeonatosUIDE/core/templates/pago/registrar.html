@@ -9,55 +9,24 @@
 {% block content %}
 
 <style>
-  /* —— Estética general (copiada/adaptada de pago_equipo) —— */
-  .hero-strip {
-    background: linear-gradient(90deg,#ff7aa0, #ffb86c);
-    border-radius: 18px;
-    padding: 1.25rem 1.5rem;
-    color: #fff;
-    box-shadow: 0 12px 30px rgba(255, 122, 160, .25);
+  .hero-strip{
+    background: linear-gradient(90deg,#ff7aa0,#ffb86c);
+    border-radius:18px; padding:1.25rem 1.5rem; color:#fff;
+    box-shadow:0 12px 30px rgba(255,122,160,.25);
   }
-  .glass-card {
-    background: rgba(255,255,255,.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(0,0,0,.06);
-    border-radius: 20px;
-    box-shadow: 0 16px 30px rgba(19, 18, 66, .06);
+  .glass-card{
+    background:rgba(255,255,255,.85); backdrop-filter:blur(8px);
+    border:1px solid rgba(0,0,0,.06); border-radius:20px;
+    box-shadow:0 16px 30px rgba(19,18,66,.06);
   }
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.25rem 1.5rem;
-  }
-  .file.has-name .file-name {
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .btn-gradient {
-    background: linear-gradient(90deg,#6157ff,#ee49fd);
-    color: #fff !important;
-    border: none;
-  }
-  .btn-gradient:hover { filter: brightness(1.05); }
-  .btn-ghost {
-    background: #f7f8fb;
-    border: 1px solid #e7e9f3;
-    color: #4a4a4a;
-  }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .4rem .75rem;
-    border-radius: 999px;
-    background: #fff3f6;
-    color: #b71d56;
-    font-weight: 600;
-    border: 1px solid #ffd3e1;
-  }
-  .section-pad { padding-top: 2rem; }
+  .form-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.25rem 1.5rem; }
+  .file.has-name .file-name{ max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .btn-gradient{ background:linear-gradient(90deg,#6157ff,#ee49fd); color:#fff!important; border:none; }
+  .btn-gradient:hover{ filter:brightness(1.05); }
+  .btn-ghost{ background:#f7f8fb; border:1px solid #e7e9f3; color:#4a4a4a; }
+  .chip{ display:inline-flex; align-items:center; gap:.5rem; padding:.4rem .75rem; border-radius:999px;
+         background:#fff3f6; color:#b71d56; font-weight:600; border:1px solid #ffd3e1; }
+  .section-pad{ padding-top:2rem; }
 </style>
 
 <section class="section section-pad">
@@ -66,64 +35,57 @@
     <div class="hero-strip mb-5">
       <div class="is-flex is-justify-content-space-between is-align-items-center">
         <h1 class="title is-4 mb-0">
-          💳
-          {% if pago_existente %}Editar Pago{% else %}Registrar Pago{% endif %}
-          {% if equipo and equipo.nombre %} — {{ equipo.nombre }}
-          {% elif equipo_nombre %} — {{ equipo_nombre }}{% endif %}
+          💳 {% if pago_existente %}Editar Pago{% else %}Registrar Pago{% endif %}
+          <span id="equipo-titulo">
+            {% if equipo and equipo.nombre %} — {{ equipo.nombre }}
+            {% elif equipo_nombre %} — {{ equipo_nombre }}{% endif %}
+          </span>
         </h1>
-        {% if equipo and equipo.id %}
-          <span class="chip">Equipo #{{ equipo.id }}</span>
-        {% endif %}
+        <span class="chip" id="equipo-chip">
+          {% if equipo and equipo.id %}Equipo #{{ equipo.id }}{% else %}Equipo{% endif %}
+        </span>
       </div>
     </div>
 
     <div class="box glass-card p-5">
-
-      {# Sin action => POST a la misma ruta #}
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-          <div class="notification is-danger is-light mb-4">
-            {{ form.non_field_errors }}
-          </div>
+          <div class="notification is-danger is-light mb-4">{{ form.non_field_errors }}</div>
         {% endif %}
 
         <div class="form-grid">
 
-          {# ——— EQUIPO: delegado (read-only) o admin (select) ——— #}
+          {# ——— EQUIPO (la vista filtra el queryset según rol) ——— #}
           {% if form.equipo %}
-            {% if equipo_nombre %}
-              <div class="field">
-                <label class="label has-text-weight-semibold">Equipo</label>
-                <input class="input is-rounded is-medium" type="text" value="{{ equipo_nombre }}" disabled>
-              </div>
-              {{ form.equipo }} {# HiddenInput lo pone la vista #}
-            {% else %}
-              <div class="field">
-                <label class="label has-text-weight-semibold">{{ form.equipo.label }}</label>
-                <div class="select is-rounded is-medium is-fullwidth">
-                  {{ form.equipo }}
-                </div>
-                {% if form.equipo.errors %}<p class="help is-danger">{{ form.equipo.errors|striptags }}</p>{% endif %}
-              </div>
-            {% endif %}
+          <div class="field">
+            <label class="label has-text-weight-semibold">{{ form.equipo.label }}</label>
+            <div class="select is-rounded is-medium is-fullwidth">
+              {{ form.equipo }}
+            </div>
+            {% if form.equipo.errors %}<p class="help is-danger">{{ form.equipo.errors|striptags }}</p>{% endif %}
+            <p class="help">Selecciona el equipo que realiza el pago.</p>
+          </div>
           {% endif %}
 
-          {# ——— RESTO DE CAMPOS (metodo, codigo_qr, monto, comprobante, etc.) ——— #}
+          {# ——— Resto de campos (método, comprobante, etc.) ——— #}
           {% for field in form %}
             {% if field.name == 'equipo' %}
-              {# ya manejado arriba #}
+              {# ya se mostró arriba #}
 
             {% elif field.name == 'codigo_qr' %}
               {% if not ocultar_select_qr %}
-              <div class="field is-hidden" data-qr-field>
-                <label class="label has-text-weight-semibold">{{ form.codigo_qr.label }}</label>
-                <div class="select is-rounded is-medium is-fullwidth">
-                  {{ form.codigo_qr }}
+                <div class="field is-hidden" data-qr-field>
+                  <label class="label has-text-weight-semibold">{{ form.codigo_qr.label }}</label>
+                  <div class="select is-rounded is-medium is-fullwidth">
+                    {{ form.codigo_qr }}
+                  </div>
+                  {% for error in form.codigo_qr.errors %}
+                    <p class="help is-danger">{{ error }}</p>
+                  {% endfor %}
+                  <p class="help">Selecciona la cuenta bancaria (solo para Transferencia).</p>
                 </div>
-                {% for error in form.codigo_qr.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
-              </div>
               {% endif %}
 
             {% else %}
@@ -133,26 +95,19 @@
                   {% if field|widget_type == 'textarea' %}
                     {{ field|add_class:"textarea is-rounded is-medium is-light" }}
                   {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
-                    <div class="select is-rounded is-medium is-fullwidth">
-                      {{ field }}
-                    </div>
+                    <div class="select is-rounded is-medium is-fullwidth">{{ field }}</div>
                   {% elif field|widget_type == 'clearablefileinput' %}
                     <div class="file has-name is-fullwidth">
                       <label class="file-label">
                         {{ field|add_class:"file-input" }}
-                        <span class="file-cta">
-                          <span class="file-icon">📁</span>
-                          <span class="file-label">Subir archivo</span>
-                        </span>
+                        <span class="file-cta"><span class="file-icon">📁</span><span class="file-label">Subir archivo</span></span>
                         <span class="file-name">
                           {% if field.value and field.value.name %}{{ field.value.name }}{% else %}Ningún archivo seleccionado{% endif %}
                         </span>
                       </label>
                     </div>
                     {% if field.value %}
-                      <p class="help">Archivo actual:
-                        <a href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a>
-                      </p>
+                      <p class="help">Archivo actual: <a href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a></p>
                     {% endif %}
                   {% else %}
                     {{ field|add_class:"input is-rounded is-medium is-light" }}
@@ -172,17 +127,20 @@
           </div>
         </div>
 
-        {# ——— Tarjeta Transferencia (solo cuando metodo = TRANSFERENCIA) ——— #}
+        {# ——— Tarjeta Transferencia (solo cuando método = TRANSFERENCIA) ——— #}
         <div class="notification is-info is-light is-hidden" data-transferencia-info style="border-radius:12px;">
           <p><strong>Por favor, realiza la transferencia y sube el comprobante.</strong></p>
           <div class="box is-hidden" data-bank-card style="border-radius:16px;">
-            <p><strong>Banco:</strong> <span data-bank-info="banco"></span></p>
-            <p><strong>Titular:</strong> <span data-bank-info="titular"></span></p>
-            <p><strong>Identificación:</strong> <span data-bank-info="identificacion"></span></p>
-            <p><strong>Tipo:</strong> <span data-bank-info="tipo_cuenta"></span></p>
-            <p><strong>N° Cuenta:</strong> <span data-bank-info="numero_cuenta"></span></p>
+            <p><strong>Banco:</strong> <span data-bank-info="banco">{% if qr_principal %}{{ qr_principal.banco }}{% endif %}</span></p>
+            <p><strong>Titular:</strong> <span data-bank-info="titular">{% if qr_principal %}{{ qr_principal.titular }}{% endif %}</span></p>
+            <p><strong>Identificación:</strong> <span data-bank-info="identificacion">{% if qr_principal %}{{ qr_principal.identificacion }}{% endif %}</span></p>
+            <p><strong>Tipo:</strong> <span data-bank-info="tipo_cuenta">{% if qr_principal %}{{ qr_principal.get_tipo_cuenta_display }}{% endif %}</span></p>
+            <p><strong>N° Cuenta:</strong> <span data-bank-info="numero_cuenta">{% if qr_principal %}{{ qr_principal.numero_cuenta }}{% endif %}</span></p>
             <figure class="image is-128x128 mt-3">
-              <img data-bank-info="qr_image" alt="Código QR" />
+              <img data-bank-info="qr_image"
+                   {% if qr_principal and qr_principal.imagen_qr %}src="{{ qr_principal.imagen_qr.url }}"{% endif %}
+                   style="{% if not qr_principal or not qr_principal.imagen_qr %}display:none{% endif %}"
+                   alt="Código QR" />
             </figure>
           </div>
         </div>
@@ -196,6 +154,11 @@
   </div>
 </section>
 
+{# ——— Catálogo QR (seguro) ——— #}
+<script id="qr-catalog-data" type="application/json">
+  {{ qr_catalog_json|default:"{}"|safe }}
+</script>
+
 <script>
   // Actualiza el nombre del archivo en inputs Bulma
   document.querySelectorAll('.file input[type=file]').forEach(function (input) {
@@ -205,69 +168,91 @@
       if (nameBox) nameBox.textContent = name;
     });
   });
-</script>
 
-{% endblock %}
+  // Interacciones del formulario
+  document.addEventListener('DOMContentLoaded', function () {
+    // Leer catálogo QR desde el script[type=application/json]
+    let catalog = {};
+    try {
+      const tag = document.getElementById('qr-catalog-data');
+      catalog = JSON.parse(tag ? (tag.textContent || '{}') : '{}');
+    } catch (e) { catalog = {}; }
 
-{% block extra_js %}
-{# Inyecta JSON seguro para evitar romper el parser de JS #}
-<script id="qr-catalog-data" type="application/json">
-  {{ qr_catalog_json|default:"{}"|safe }}
-</script>
+    const metodo   = document.getElementById('id_metodo');
+    const selectQR = document.getElementById('id_codigo_qr'); // puede no existir (delegado)
+    const qrField  = document.querySelector('[data-qr-field]');
+    const infoBox  = document.querySelector('[data-transferencia-info]');
+    const card     = document.querySelector('[data-bank-card]');
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Leer JSON desde el script[type=application/json]
-  let qrCatalog = {};
-  try {
-    const tag = document.getElementById('qr-catalog-data');
-    qrCatalog = JSON.parse(tag ? (tag.textContent || '{}') : '{}');
-  } catch (e) {
-    qrCatalog = {};
-  }
-
-  const metodoSelect      = document.getElementById('id_metodo');
-  const codigoQrSelect    = document.getElementById('id_codigo_qr');
-  const qrFieldWrapper    = document.querySelector('[data-qr-field]');
-  const transferenciaInfo = document.querySelector('[data-transferencia-info]');
-  const bankCard          = document.querySelector('[data-bank-card]');
-
-  function updateBankInfo() {
-    if (!codigoQrSelect || !bankCard) return;
-    const data = qrCatalog[codigoQrSelect.value];
-    if (!data) { bankCard.classList.add('is-hidden'); return; }
-
-    bankCard.querySelectorAll('[data-bank-info]').forEach(function (el) {
-      const key = el.dataset.bankInfo;
-      if (key === 'qr_image') {
-        el.src = data.imagen_qr || '';
-        el.style.display = data.imagen_qr ? '' : 'none';
-      } else {
-        el.textContent = data[key] || '';
+    // Título/chip con el equipo seleccionado
+    const equipoSelect = document.getElementById('id_equipo');
+    const tituloSpan = document.getElementById('equipo-titulo');
+    const chipSpan   = document.getElementById('equipo-chip');
+    function updateEquipoUI(){
+      if (!equipoSelect) return;
+      const opt = equipoSelect.options[equipoSelect.selectedIndex];
+      const txt = opt ? opt.text : '';
+      const id  = opt ? opt.value : '';
+      if (txt && tituloSpan) {
+        tituloSpan.textContent = ' — ' + txt;
       }
-    });
-    bankCard.classList.remove('is-hidden');
-  }
-
-  function toggleTransferencia() {
-    if (!metodoSelect) return;
-    const isTrans = metodoSelect.value === 'TRANSFERENCIA'; // ajusta si tu choice usa otro valor exacto
-    if (qrFieldWrapper)    qrFieldWrapper.classList.toggle('is-hidden', !isTrans);
-    if (transferenciaInfo) transferenciaInfo.classList.toggle('is-hidden', !isTrans);
-
-    if (isTrans) {
-      updateBankInfo();
-    } else {
-      if (codigoQrSelect) codigoQrSelect.value = '';
-      if (bankCard) bankCard.classList.add('is-hidden');
+      if (chipSpan) {
+        chipSpan.textContent = id ? ('Equipo #' + id) : 'Equipo';
+      }
     }
-  }
 
-  if (metodoSelect)   metodoSelect.addEventListener('change', toggleTransferencia);
-  if (codigoQrSelect) codigoQrSelect.addEventListener('change', updateBankInfo);
+    function fillCardById(id) {
+      const d = id ? catalog[id] : null;
+      if (!d) { if (card) card.classList.add('is-hidden'); return; }
 
-  // Inicial
-  toggleTransferencia();
-});
+      if (!card) return;
+      const set = (key, val) => {
+        const el = card.querySelector('[data-bank-info="'+key+'"]');
+        if (el) el.textContent = val || '';
+      };
+      set('banco', d.banco);
+      set('titular', d.titular);
+      set('identificacion', d.identificacion);
+      set('tipo_cuenta', d.tipo_cuenta);
+      set('numero_cuenta', d.numero_cuenta);
+
+      const img = card.querySelector('[data-bank-info="qr_image"]');
+      if (img) {
+        if (d.imagen_qr) { img.src = d.imagen_qr; img.style.display = ''; }
+        else { img.removeAttribute('src'); img.style.display = 'none'; }
+      }
+      card.classList.remove('is-hidden');
+    }
+
+    function toggleTransferencia() {
+      const val = (metodo && metodo.value || '').toUpperCase();
+      const isTrans = val === 'TRANSFERENCIA';
+
+      if (qrField) qrField.classList.toggle('is-hidden', !isTrans);
+      if (infoBox) infoBox.classList.toggle('is-hidden', !isTrans);
+
+      if (!isTrans) {
+        if (card) card.classList.add('is-hidden');
+        if (selectQR) selectQR.value = '';
+        return;
+      }
+
+      // Admin: usa el valor del select; Delegado: primer QR del catálogo
+      const firstId = Object.keys(catalog)[0] || null;
+      const selectedId = selectQR && selectQR.value ? selectQR.value : firstId;
+
+      if (selectedId) fillCardById(selectedId);
+      else if (card) card.classList.add('is-hidden');
+    }
+
+    if (metodo)      metodo.addEventListener('change', toggleTransferencia);
+    if (selectQR)    selectQR.addEventListener('change', () => fillCardById(selectQR.value));
+    if (equipoSelect)equipoSelect.addEventListener('change', updateEquipoUI);
+
+    // Estado inicial
+    toggleTransferencia();
+    updateEquipoUI();
+  });
 </script>
+
 {% endblock %}
