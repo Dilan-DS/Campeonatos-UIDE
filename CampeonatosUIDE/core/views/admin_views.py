@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from core.forms import *
+
 from core.models import Usuario, Equipo, Jugador, Campeonato, Partido
 from django.http import HttpResponse
 from openpyxl import Workbook
@@ -150,6 +151,8 @@ class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
             messages.success(request, "Árbitro eliminado correctamente.")
             return redirect('listar_arbitros')
         
+        arbitro = None
+        errores_json = None
         if id: # Edit existing
             arbitro = get_object_or_404(Arbitro, id=id)
             form = ArbitroForm(request.POST, instance=arbitro)
@@ -157,19 +160,28 @@ class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
                 form.save()
                 messages.success(request, "Árbitro actualizado correctamente.")
                 return redirect('listar_arbitros')
+            else:
+                errores_json = form.errors.get_json_data()
+                print('FORM ERRORS JSON =>', errores_json)
+                messages.error(request, 'Revisa los errores del formulario.')
             modo = 'editar'
         else: # Create new
-            form = CrearUsuarioArbitroForm(request.POST)
+            form = CrearUsuarioArbitroForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Árbitro registrado correctamente.")
                 return redirect('listar_arbitros')
+            else:
+                errores_json = form.errors.get_json_data()
+                print('FORM ERRORS JSON =>', errores_json)
+                messages.error(request, 'Revisa los errores del formulario.')
             modo = 'crear'
 
         context = {
             'form': form,
-            'arbitro': arbitro if id else None,
-            'modo': modo
+            'arbitro': arbitro,
+            'modo': modo,
+            'errores_json': errores_json
         }
         return render(request, 'arbitro/registrar.html', context)
 
