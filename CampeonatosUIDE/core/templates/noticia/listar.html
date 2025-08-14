@@ -1,53 +1,204 @@
 {% extends "comun/base.html" %}
+{% load static %}
 
-{% block title %}Noticias - Campeonatos UIDE{% endblock %}
+{% block title %}Noticias — Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<section class="section">
+
+<style>
+  :root{
+    --radius-xl: 18px;
+    --shadow-sm: 0 10px 22px rgba(17,24,39,.08);
+    --shadow-md: 0 18px 40px rgba(17,24,39,.14);
+    --grad-1: linear-gradient(135deg,#6f7cff 0%,#9a66ff 45%,#ff7aa0 100%);
+    --grad-cta: linear-gradient(90deg,#6157ff,#ee49fd);
+  }
+  .news-hero{
+    background: var(--grad-1);
+    color:#fff;
+    padding: 2.75rem 0 2.25rem;
+    position:relative;
+    overflow:hidden;
+    border-radius: 0 0 28px 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .news-hero .bubble{ position:absolute;border-radius:50%;opacity:.12;filter:blur(2px);animation:float 12s ease-in-out infinite; }
+  .news-hero .b1{ width:180px;height:180px;background:#fff; left:-40px; top:-40px;}
+  .news-hero .b2{ width:260px;height:260px;background:#000; right:-80px; bottom:-80px; opacity:.08;}
+  @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+  .hero-title{ margin:0; }
+  .btn-cta{ background:var(--grad-cta); color:#fff!important; border:none; box-shadow:0 8px 18px rgba(98,85,255,.35); }
+  .btn-cta:hover{ filter:brightness(1.06); }
+
+  .search-wrap{ background:#fff; border-radius:16px; padding:.85rem; box-shadow:var(--shadow-sm); margin-top:-22px; }
+
+  .news-grid{ margin-top:1.5rem; }
+  .news-card{ height:100%; border-radius:16px; overflow:hidden; background:#fff; box-shadow:var(--shadow-sm);
+              transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; display:flex; flex-direction:column; }
+  .news-card:hover{ transform:translateY(-6px); box-shadow:var(--shadow-md); filter:saturate(1.02); }
+
+  .news-cover{ position:relative; background:#f6f7fb; }
+  .news-cover img{ width:100%; height:220px; object-fit:cover; display:block; }
+  .date-badge{ position:absolute; left:14px; bottom:14px; background:rgba(0,0,0,.64); color:#fff;
+               padding:.35rem .6rem; border-radius:10px; font-size:.8rem; font-weight:700; backdrop-filter:blur(2px); }
+
+  .news-content{ padding:1rem 1rem .75rem; }
+  .news-title{ font-weight:800; font-size:1.05rem; line-height:1.3; margin-bottom:.35rem; color:#111827; }
+  .news-excerpt{ color:#4b5563; font-size:.92rem; min-height:3.6em; }
+
+  .card-actions{ display:flex; gap:.5rem; padding:.75rem 1rem 1rem; margin-top:auto; }
+  .btn-soft{ background:#f3f4f6; border:none; color:#111827!important; font-weight:600; }
+  .btn-soft.is-danger{ background:#fee2e2; color:#991b1b!important; }
+  .btn-soft.is-info{ background:#e0e7ff; color:#3730a3!important; }
+  .btn-soft:hover{ filter:brightness(1.02); }
+
+  .empty{ background:#fff; border-radius:16px; padding:2rem; box-shadow:var(--shadow-sm); }
+  .pagination{ justify-content:center; margin-top:1.5rem; }
+</style>
+
+<section class="news-hero">
+  <span class="bubble b1"></span><span class="bubble b2"></span>
   <div class="container">
-    <h1 class="title is-3 has-text-centered has-text-primary mb-6">Noticias</h1>
+    <div class="columns is-vcentered">
+      <div class="column">
+        <h1 class="hero-title title is-3 is-size-4-mobile">📰 Noticias</h1>
+        <p class="subtitle is-6 mt-1">Mantente al día con lo último de nuestros campeonatos.</p>
+      </div>
 
-    <!-- Botón de crear -->
-    <div class="has-text-right mb-5">
-      <a href="{% url 'registrar_noticia' %}" class="button is-primary">
-        <span class="icon"><i class="fas fa-plus"></i></span>
-        <span>Crear Nueva Noticia</span>
-      </a>
+      {% if request.user.rol == 'ADMIN' %}
+        <div class="column is-narrow">
+          <a href="{% url 'registrar_noticia' %}" class="button btn-cta is-rounded">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Nueva noticia</span>
+          </a>
+        </div>
+      {% endif %}
     </div>
+  </div>
+</section>
 
-    {% if noticias %}
-    <div class="columns is-multiline">
-      {% for noticia in noticias %}
-      <div class="column is-4">
-        <div class="card">
-          <div class="card-image">
-            <figure class="image is-4by3">
-              <img src="{{ noticia.imagen.url }}" alt="Imagen de {{ noticia.titulo }}">
-            </figure>
+<section class="section pt-4 pb-4">
+  <div class="container">
+    <form class="search-wrap" method="get">
+      <div class="columns is-vcentered is-variable is-2">
+        <div class="column">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input is-rounded" type="search" name="q" value="{{ request.GET.q }}"
+                     placeholder="Buscar por título o contenido…">
+            </div>
+            <div class="control">
+              <button class="button is-rounded is-link is-light" type="submit">
+                <span class="icon"><i class="fas fa-search"></i></span>
+                <span>Buscar</span>
+              </button>
+            </div>
           </div>
-          <div class="card-content">
-            <p class="title is-5">{{ noticia.titulo }}</p>
-            <p class="subtitle is-6 has-text-grey">
-              Publicado el {{ noticia.fecha_publicacion|date:"d/m/Y H:i" }}
-            </p>
-          </div>
-          <footer class="card-footer">
-            <a href="{% url 'editar_noticia' noticia.id %}" class="card-footer-item has-text-info">
-              <span class="icon"><i class="fas fa-edit"></i></span>&nbsp;Editar
-            </a>
-            <a href="{% url 'eliminar_noticia' noticia.id %}" class="card-footer-item has-text-danger">
-              <span class="icon"><i class="fas fa-trash-alt"></i></span>&nbsp;Eliminar
-            </a>
-          </footer>
+        </div>
+        <div class="column is-narrow">
+          {% if request.GET.q %}
+            <a href="." class="button is-light is-rounded">Limpiar</a>
+          {% endif %}
         </div>
       </div>
-      {% endfor %}
-    </div>
+    </form>
+  </div>
+</section>
+
+<section class="section pt-4">
+  <div class="container">
+    {% if noticias %}
+      <div class="columns is-multiline news-grid">
+        {% for noticia in noticias %}
+          <div class="column is-12-mobile is-6-tablet is-4-desktop">
+            <article class="news-card">
+              <div class="news-cover">
+                <figure class="image">
+                  {% if noticia.imagen %}
+                    <img src="{{ noticia.imagen.url }}"
+                         alt="Imagen de {{ noticia.titulo|default:'Noticia' }}"
+                         loading="lazy"
+                         data-fallback="{% static 'img/placeholder_news.png' %}"
+                         onerror="this.onerror=null;this.src=this.dataset.fallback;">
+                  {% else %}
+                    <img src="{% static 'img/placeholder_news.png' %}" alt="Imagen no disponible" loading="lazy">
+                  {% endif %}
+                </figure>
+                <span class="date-badge">{{ noticia.fecha_publicacion|date:"d M Y" }}</span>
+              </div>
+
+              <div class="news-content">
+                <h3 class="news-title">{{ noticia.titulo }}</h3>
+                {% with texto=noticia.contenido|striptags %}
+                  <p class="news-excerpt">{{ texto|truncatewords:24 }}</p>
+                {% endwith %}
+              </div>
+
+              <div class="card-actions">
+                {# Habilitar cuando exista la ruta detalle_noticia #}
+
+                {% if request.user.rol == 'ADMIN' %}
+                  <a href="{% url 'editar_noticia' noticia.id %}" class="button is-small btn-soft is-info">
+                    <span class="icon"><i class="fas fa-edit"></i></span><span>Editar</span>
+                  </a>
+                  <a href="{% url 'eliminar_noticia' noticia.id %}" class="button is-small btn-soft is-danger">
+                    <span class="icon"><i class="fas fa-trash-alt"></i></span><span>Eliminar</span>
+                  </a>
+                {% endif %}
+              </div>
+            </article>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if page_obj %}
+        <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+          {% if page_obj.has_previous %}
+            <a class="pagination-previous"
+               href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
+          {% else %}<a class="pagination-previous" disabled>Anterior</a>{% endif %}
+
+          {% if page_obj.has_next %}
+            <a class="pagination-next"
+               href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
+          {% else %}<a class="pagination-next" disabled>Siguiente</a>{% endif %}
+
+          <ul class="pagination-list">
+            {% for num in page_obj.paginator.page_range %}
+              {% if num == page_obj.number %}
+                <li><a class="pagination-link is-current">{{ num }}</a></li>
+              {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                <li><a class="pagination-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a></li>
+              {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                <li><a class="pagination-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a></li>
+              {% elif forloop.first or forloop.last %}
+                <li><span class="pagination-ellipsis">&hellip;</span></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+      {% endif %}
+
     {% else %}
-    <div class="notification is-light has-text-centered has-text-grey">
-      No hay noticias registradas todavía.
-    </div>
+      <div class="empty has-text-centered">
+        <figure class="image is-128x128 is-inline-block mb-3">
+          <img src="{% static 'img/placeholder_news.png' %}" alt="Sin noticias"
+               loading="lazy"
+               data-fallback="{% static 'img/placeholder_news.png' %}"
+               onerror="this.onerror=null;this.src=this.dataset.fallback;">
+        </figure>
+        <p class="title is-5 mb-1">No hay noticias registradas</p>
+        <p class="subtitle is-6 has-text-grey">Cuando publiquemos novedades, aparecerán aquí.</p>
+
+        {% if request.user.rol == 'ADMIN' %}
+          <a href="{% url 'registrar_noticia' %}" class="button btn-cta is-rounded mt-2">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Crear primera noticia</span>
+          </a>
+        {% endif %}
+      </div>
     {% endif %}
   </div>
 </section>
+
 {% endblock %}

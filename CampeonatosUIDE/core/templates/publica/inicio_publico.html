@@ -7,16 +7,19 @@
 
 <style>
   :root{
-    --radius-xl: 18px;
-    --shadow-sm: 0 10px 22px rgba(17,24,39,.08);
-    --shadow-md: 0 16px 36px rgba(17,24,39,.12);
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+    --shadow-sm: 0 8px 20px rgba(15, 23, 42, .08);
+    --shadow-md: 0 14px 34px rgba(15, 23, 42, .14);
+    --grad-hero: linear-gradient(135deg,#ff7aa0 0%,#ff9f68 45%,#ffd86f 100%);
+    --grad-chip: linear-gradient(90deg,#6157ff,#ee49fd);
   }
 
-  /* Hero */
+  /* HERO */
   .dashboard-hero{
-    background: linear-gradient(135deg,#ff7aa0 0%,#ff9f68 45%,#ffd86f 100%);
+    background: var(--grad-hero);
     color:#fff;
-    padding: 3.5rem 0 3rem;
+    padding: 3.75rem 0 3rem;
     position:relative;
     overflow:hidden;
   }
@@ -26,14 +29,14 @@
     object-fit:contain;
   }
   .hero-bubble{
-    position:absolute; border-radius:50%; opacity:.15; filter: blur(2px);
+    position:absolute; border-radius:50%; opacity:.18; filter: blur(2px);
     animation: float 12s ease-in-out infinite;
   }
-  .hero-bubble.b1{ width:160px;height:160px; background:#fff; left:6%; top:8%; }
-  .hero-bubble.b2{ width:220px;height:220px; background:#000; right:-60px; bottom:-60px; opacity:.08;}
-  @keyframes float{ 0%{transform:translateY(0)} 50%{transform:translateY(-12px)} 100%{transform:translateY(0)} }
+  .hero-bubble.b1{ width:160px;height:160px; background:#fff; left:8%; top:6%; }
+  .hero-bubble.b2{ width:240px;height:240px; background:#000; right:-80px; bottom:-80px; opacity:.08;}
+  @keyframes float{ 0%{transform:translateY(0)} 50%{transform:translateY(-10px)} 100%{transform:translateY(0)} }
 
-  /* Cards */
+  /* CARDS */
   .info-card{
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm);
@@ -41,68 +44,77 @@
     transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
     height:100%;
   }
-  .info-card:hover{ transform: translateY(-6px); box-shadow: var(--shadow-md); filter:saturate(1.02); }
+  .info-card:hover{ transform: translateY(-6px); box-shadow: var(--shadow-md); filter:saturate(1.03); }
   .card-head{
     display:flex; align-items:center; justify-content:space-between;
     margin-bottom:.75rem;
   }
   .card-head .title{ margin:0; }
-  .card-head .see-all{
-    font-weight:600; font-size:.85rem;
+  .see-all{
+    font-weight:700; font-size:.85rem; opacity:.9;
   }
-  .badge-soft{
-    display:inline-flex; align-items:center; gap:.4rem;
-    padding:.35rem .7rem; border-radius:999px; font-weight:700; font-size:.8rem;
-    background:#f8fafc; color:#0f172a;
+
+  /* CHIPS / BADGES */
+  .chip{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.4rem .75rem; border-radius:999px;
+    background:#ffffff; color:#0f172a; font-weight:700;
+    border:1px solid rgba(255,255,255,.55);
+    box-shadow:0 6px 16px rgba(255,255,255,.15) inset;
   }
-  /* Tipos */
-  .card--warn{ background: #fff7e6; }
-  .card--info{ background: #eef7ff; }
+  .chip-grad{
+    background: var(--grad-chip);
+    color:#fff; border-color: transparent;
+  }
+
+  /* TONOS */
+  .card--warn{    background: #fff7e6; }
+  .card--info{    background: #eef7ff; }
   .card--neutral{ background:#f7f7f9; }
   .card--primary{ background:#e8fbff; }
   .card--success{ background:#e8fff4; }
 
-  /* Listas compactas */
-  .list-compact > li{ padding:.35rem 0; border-bottom:1px dashed rgba(0,0,0,.06); }
+  /* LISTA COMPACTA */
+  .list-compact > li{ padding:.5rem 0; border-bottom:1px dashed rgba(0,0,0,.06); }
   .list-compact > li:last-child{ border-bottom:0; }
 
-  /* Galería */
+  /* GALERÍA */
   .galeria-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:.75rem; }
   @media(min-width:1024px){ .galeria-grid{ grid-template-columns: repeat(3,1fr); } }
   .thumb{
-    position:relative; overflow:hidden; border-radius:12px; background:#fff;
+    position:relative; overflow:hidden; border-radius:14px; background:#fff;
     box-shadow: 0 6px 14px rgba(17,24,39,.06);
   }
   .thumb img{ width:100%; height:100%; aspect-ratio: 4/3; object-fit:cover; transition: transform .25s ease; }
   .thumb:hover img{ transform: scale(1.03); }
 
-  /* Clamps */
-  .clamp-1{ display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
-  .clamp-2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-
-  /* Botones sociales */
-  .btn-social{ box-shadow: 0 8px 18px rgba(17,24,39,.08); }
-  .btn-social:hover{ transform: translateY(-2px); }
-
-  /* Utilidades */
+  /* UTILIDADES */
   .mt-2{ margin-top:.5rem; } .mb-2{ margin-bottom:.5rem; }
   .mb-3{ margin-bottom:1rem; } .mt-3{ margin-top:1rem; }
+  .truncate-1{ display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+  .truncate-2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .soft-border{ border-radius: var(--radius-lg); }
+
+  /* Botones sociales */
+  .btn-social{ box-shadow: 0 8px 18px rgba(17,24,39,.08); transition: transform .15s ease; }
+  .btn-social:hover{ transform: translateY(-2px); }
 </style>
 
 <!-- HERO -->
 <section class="dashboard-hero">
-  <span class="hero-bubble b1"></span>
-  <span class="hero-bubble b2"></span>
+  <span class="hero-bubble b1" aria-hidden="true"></span>
+  <span class="hero-bubble b2" aria-hidden="true"></span>
   <div class="container has-text-centered">
-    <figure class="image is-inline-block mb-3">
+    <figure class="image is-inline-block mb-3" aria-hidden="true">
       <img class="logo" src="{% static 'img/logo.png' %}" alt="Logo UIDE">
     </figure>
     <h1 class="title is-2 is-size-3-mobile">¡Bienvenidos a la UIDE! 🎓</h1>
     <p class="subtitle is-5 is-size-6-mobile">
       Anima a tu equipo favorito y vibra con los campeonatos universitarios.
     </p>
-    <div class="is-flex is-justify-content-center is-align-items-center mt-2">
-      <span class="badge-soft">🏟️ Público</span>
+    <div class="is-flex is-justify-content-center is-align-items-center mt-2" role="group" aria-label="Estado del sitio">
+      <span class="chip">🏟️ Público</span>
+      <span class="chip chip-grad ml-2">🔥 Activo</span>
     </div>
   </div>
 </section>
@@ -123,12 +135,22 @@
           <ul class="list-compact">
             {% for campeonato in campeonatos %}
               <li>
-                <p class="clamp-1 has-text-weight-semibold">{{ campeonato.nombre }}</p>
-                <p class="is-size-7">Inicio: {{ campeonato.fecha_inicio|date:"d/m/Y" }} · Fin: {{ campeonato.fecha_fin|date:"d/m/Y" }}</p>
-                <a class="button is-link is-light is-small mt-2"
-                   href="{% url 'tabla_estadisticas' campeonato.id %}">
-                  Tabla de posiciones
-                </a>
+                <p class="truncate-1 has-text-weight-semibold">{{ campeonato.nombre }}</p>
+                <p class="is-size-7">
+                  Inicio: {{ campeonato.fecha_inicio|date:"d/m/Y" }}
+                  · Fin: {{ campeonato.fecha_fin|date:"d/m/Y" }}
+                  {% if campeonato.deporte %} · <span class="has-text-grey">{{ campeonato.deporte.nombre }}</span>{% endif %}
+                </p>
+                <div class="buttons mt-2">
+                  <a class="button is-link is-light is-small"
+                     href="{% url 'tabla_estadisticas' campeonato.id %}">
+                    Tabla de posiciones
+                  </a>
+                  <a class="button is-dark is-light is-small"
+                     href="{% url 'campeonatos_publicos' %}">
+                    Ver campeonatos
+                  </a>
+                </div>
               </li>
             {% empty %}
               <li>No hay campeonatos activos.</li>
@@ -147,12 +169,17 @@
           <ul class="list-compact">
             {% for partido in proximos_partidos %}
               <li>
-                <p class="clamp-1">
+                <p class="truncate-2">
                   <strong>{{ partido.equipo_local.nombre }}</strong> vs
                   <strong>{{ partido.equipo_visitante.nombre }}</strong>
-                  — <span class="has-text-grey">{{ partido.campeonato.deporte.nombre }}</span>
+                  {% if partido.campeonato and partido.campeonato.deporte %}
+                    — <span class="has-text-grey">{{ partido.campeonato.deporte.nombre }}</span>
+                  {% endif %}
                 </p>
                 <p class="is-size-7">⏰ {{ partido.fecha|date:"d/m/Y" }} · {{ partido.hora|time:"H:i" }}</p>
+                {% if partido.lugar %}
+                  <p class="is-size-7">📍 {{ partido.lugar }}</p>
+                {% endif %}
               </li>
             {% empty %}
               <li>No hay partidos programados.</li>
@@ -172,13 +199,22 @@
             {% for t in transmisiones %}
               <li class="is-flex is-justify-content-space-between is-align-items-center">
                 <div class="pr-3">
-                  <p class="clamp-1 has-text-weight-semibold">{{ t.nombre }}</p>
-                  {% if t.descripcion %}<p class="is-size-7 clamp-1 has-text-grey">{{ t.descripcion }}</p>{% endif %}
+                  <p class="truncate-1 has-text-weight-semibold">
+                    {% if t.nombre %}{{ t.nombre }}{% else %}Transmisión{% endif %}
+                  </p>
+                  {% if t.descripcion %}
+                    <p class="is-size-7 truncate-1 has-text-grey">{{ t.descripcion }}</p>
+                  {% endif %}
                 </div>
-                {% if t.url %}
+                {% if t.enlace %}
+                  <a class="button is-dark is-light is-small"
+                     href="{{ t.enlace }}" target="_blank" rel="noopener">
+                    Ver
+                  </a>
+                {% elif t.url %}
                   <a class="button is-dark is-light is-small"
                      href="{{ t.url }}" target="_blank" rel="noopener">
-                    Ver transmisión
+                    Ver
                   </a>
                 {% endif %}
               </li>
@@ -197,12 +233,21 @@
             <a class="see-all" href="{% url 'listar_imagenes_galeria' %}">Ver todo</a>
           </div>
 
-          <div class="galeria-grid">
+          <div class="galeria-grid" role="list">
             {% for imagen in imagenes_galeria %}
-              <a class="thumb" href="{% url 'listar_imagenes_galeria' %}" aria-label="Ver galería">
-              <img src="{{ imagen.url }}" alt="Imagen del campeonato"
-                  data-fallback="{% static 'img/logo.png' %}"
-                  onerror="this.onerror=null; this.src=this.dataset.fallback;">
+              <a class="thumb" href="{% url 'listar_imagenes_galeria' %}" aria-label="Ver galería" role="listitem">
+                {% if imagen.imagen %}
+                  <img src="{{ imagen.imagen.url }}" loading="lazy"
+                       alt="{{ imagen.titulo|default:'Imagen de galería' }}">
+                {% elif imagen.url %}
+                  <img src="{{ imagen.url }}" loading="lazy"
+                       alt="{{ imagen.titulo|default:'Imagen de galería' }}"
+                       data-fallback="{% static 'img/logo.png' %}"
+                       onerror="this.onerror=null; this.src=this.dataset.fallback;">
+                {% else %}
+                  <img src="{% static 'img/logo.png' %}" loading="lazy"
+                       alt="Imagen de galería">
+                {% endif %}
               </a>
             {% empty %}
               <p class="mb-0">No hay imágenes.</p>
@@ -222,9 +267,13 @@
           <ul class="list-compact">
             {% for n in noticias %}
               <li>
-                <p class="clamp-1 has-text-weight-semibold">{{ n.titulo }}</p>
-                {% if n.resumen %}<p class="is-size-7 clamp-2 has-text-grey">{{ n.resumen }}</p>{% endif %}
-                <small class="is-size-7">📅 {{ n.fecha|date:"d/m/Y" }}</small>
+                <p class="truncate-1 has-text-weight-semibold">{{ n.titulo }}</p>
+                {% if n.contenido %}
+                  <p class="is-size-7 truncate-2 has-text-grey">{{ n.contenido|striptags|truncatechars:120 }}</p>
+                {% endif %}
+                {% if n.fecha_publicacion %}
+                  <small class="is-size-7">📅 {{ n.fecha_publicacion|date:"d/m/Y" }}</small>
+                {% endif %}
               </li>
             {% empty %}
               <li>No hay noticias por el momento.</li>
@@ -244,7 +293,11 @@
           <ul class="list-compact">
             {% for t in testimonios %}
               <li>
-                <p class="clamp-2">“{{ t.texto }}”</p>
+                {% if t.contenido %}
+                  <p class="truncate-2">“{{ t.contenido }}”</p>
+                {% elif t.texto %}
+                  <p class="truncate-2">“{{ t.texto }}”</p>
+                {% endif %}
                 {% if t.autor %}<p class="is-size-7 has-text-weight-semibold">– {{ t.autor }}</p>{% endif %}
               </li>
             {% empty %}
@@ -263,14 +316,14 @@
   <div class="container has-text-centered">
     <h2 class="title is-5">📱 Síguenos</h2>
     <div class="buttons is-centered">
-      <a href="https://instagram.com/uide" class="button is-danger is-light btn-social">
-        <span class="icon"><i class="fab fa-instagram"></i></span><span>Instagram</span>
+      <a href="https://instagram.com/uide" class="button is-danger is-light btn-social" target="_blank" rel="noopener">
+        <span class="icon"><i class="fab fa-instagram" aria-hidden="true"></i></span><span>Instagram</span>
       </a>
-      <a href="https://facebook.com/uide" class="button is-link is-light btn-social">
-        <span class="icon"><i class="fab fa-facebook"></i></span><span>Facebook</span>
+      <a href="https://facebook.com/uide" class="button is-link is-light btn-social" target="_blank" rel="noopener">
+        <span class="icon"><i class="fab fa-facebook" aria-hidden="true"></i></span><span>Facebook</span>
       </a>
-      <a href="https://youtube.com/uide" class="button is-dark is-light btn-social">
-        <span class="icon"><i class="fab fa-youtube"></i></span><span>YouTube</span>
+      <a href="https://youtube.com/uide" class="button is-dark is-light btn-social" target="_blank" rel="noopener">
+        <span class="icon"><i class="fab fa-youtube" aria-hidden="true"></i></span><span>YouTube</span>
       </a>
     </div>
   </div>
