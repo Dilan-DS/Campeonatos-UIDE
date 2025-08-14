@@ -13,7 +13,7 @@ import json
 from django import forms
 from django.core.serializers.json import DjangoJSONEncoder
 import json
-
+from django.core.paginator import Paginator 
 
 class ListarPagosAdminView(LoginRequiredMixin, View):
     def get(self, request):
@@ -820,3 +820,32 @@ class CambiarEstadoPagoAdminView(LoginRequiredMixin, View):
         
         next_url = request.POST.get('next') or reverse('listar_pagos_admin')
         return redirect(next_url)
+
+class ListarPagosDelegadoView(LoginRequiredMixin, View):
+    def get(self, request):
+        if getattr(request.user, "rol", "") != "DELEGADO":
+            messages.error(request, "No tienes permiso para acceder a esta página.")
+            return redirect("vista_inicio")
+
+        qs = Pago.objects.filter(
+            equipo__delegado=request.user
+        ).select_related("equipo", "codigo_qr").order_by("-fecha_pago", "-id")
+
+        # Filtro opcional por campeonato (mantén compat con lo que ya usan)
+        campeonato_id = request.GET.get("campeonato_id") or request.session.get("campeonato_id")
+        if campeonato_id:
+            try:
+                request.session["campeonato_id"] = int(campeonato_id)
+                qs = qs.filter(equipo__campeonato_id=campeonato_id)
+            except ValueError:
+                pass
+
+        paginator = Paginator(qs, 9)
+        page_obj = paginator.get_page(request.GET.get("page"))
+
+        ctx = {
+            "pagos": page_obj,
+            "page_obj": page_obj,
+            "campeonato_id": campeonato_id,
+        }
+        return render(request, "pago/mis_pagos.html", ctx)
