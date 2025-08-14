@@ -4,7 +4,7 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    {% if es_admin %}
+
     <!-- Título + botón de nueva transmisión -->
     <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
       <h1 class="title is-4 has-text-primary">📺 Lista de Transmisiones</h1>
@@ -12,7 +12,6 @@
         ➕ Nueva Transmisión
       </a>
     </div>
-    {% endif %}
 
     <!-- Tabla de transmisiones -->
     <table class="table is-striped is-hoverable is-fullwidth">
@@ -43,7 +42,6 @@
             </span>
           </td>
           <td>
-            {% if es_admin %}
             <div class="buttons are-small">
               <a href="{% url 'detalle_transmision' transmision.id %}" class="button is-info is-light" title="Ver">
                 👁️
@@ -58,7 +56,6 @@
                 </button>
               </form>
             </div>
-            {%endif %}
           </td>
         </tr>
         {% empty %}
