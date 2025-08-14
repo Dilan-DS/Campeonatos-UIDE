@@ -74,6 +74,11 @@ urlpatterns = [
     path('arbitro/partido/<int:pk>/disciplinario/', acta_partido_arbitro, name='disciplinario_partido'),
 
 
+
+    path("partidos/<int:pk>/editar/", EditarPartidoView.as_view(), name="editar_partido"),
+
+
+
     path('campeonatos/publicos/', CampeonatosPublicos.as_view(), name='campeonatos_publicos'),
     path('resultados-publicos/', resultados_publicos, name='resultados_publicos'),
     # path('tabla-publica/<int:campeonato_id>/', vista_tabla_publica, name='tabla_estadisticas'),

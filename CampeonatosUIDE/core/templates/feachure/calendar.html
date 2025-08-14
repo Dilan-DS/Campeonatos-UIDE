@@ -2,100 +2,204 @@
 
 {% block content %}
 <div class="container mt-4">
-    {% if campeonato %}
-        <h1 class="title">Calendario de Partidos: {{ campeonato.nombre }}</h1>
+  {% if campeonato %}
+    <h1 class="title">Calendario de Partidos: {{ campeonato.nombre }}</h1>
 
-        <!-- Notificación para el estado de las inscripciones -->
-        <div id="countdown" class="notification" data-fecha-fin="{{ campeonato.fecha_fin_inscripcion|date:'Y-m-d' }}"></div>
+    <!-- Estado inscripción -->
+    <div id="countdown" class="notification" data-fecha-fin="{{ campeonato.fecha_fin_inscripcion|date:'Y-m-d' }}"></div>
 
-        <!-- Mensaje si el fixture aún no se ha generado -->
-        {% if campeonato_sin_fixture %}
-            <div class="notification is-warning">
-                El fixture para este campeonato aún no ha sido generado. Por favor, vuelve más tarde.
-            </div>
-        {% else %}
-            <!-- Filtros por género -->
-            <div class="tabs is-centered">
-                <ul>
-                    <li class="{% if genero_seleccionado == 'masculino' %}is-active{% endif %}"><a href="?genero=masculino">Partidos Masculinos</a></li>
-                    <li class="{% if genero_seleccionado == 'femenino' %}is-active{% endif %}"><a href="?genero=femenino">Partidos Femeninos</a></li>
-                </ul>
-            </div>
-
-            <!-- Tabla de partidos -->
-            <div class="box">
-                {% if partidos %}
-                    <table class="table is-fullwidth is-striped">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Hora</th>
-                                <th>Equipo Local</th>
-                                <th>Equipo Visitante</th>
-                                <th>Lugar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for partido in partidos %}
-                                <tr>
-                                    <td>{{ partido.fecha|date:"d/m/Y" }}</td>
-                                    <td>{{ partido.hora|time:"H:i" }}</td>
-                                    <td>{{ partido.equipo_local.nombre }}</td>
-                                    <td>{{ partido.equipo_visitante.nombre }}</td>
-                                    <td>{{ partido.lugar }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="has-text-centered">No hay partidos programados para la categoría <strong>{{ genero_seleccionado }}</strong> en este momento.</p>
-                {% endif %}
-            </div>
-        {% endif %}
+    {% if campeonato_sin_fixture %}
+      <div class="notification is-warning">
+        El fixture para este campeonato aún no ha sido generado. Por favor, vuelve más tarde.
+      </div>
     {% else %}
-        <h1 class="title">Calendario de Partidos</h1>
-        <div class="notification is-info">
-            Actualmente no hay un campeonato activo o seleccionado.
-        </div>
+      <!-- Filtros por género -->
+      <div class="tabs is-centered">
+        <ul>
+          <li class="{% if genero_seleccionado == 'masculino' %}is-active{% endif %}">
+            <a href="?genero=masculino">Partidos Masculinos</a>
+          </li>
+          <li class="{% if genero_seleccionado == 'femenino' %}is-active{% endif %}">
+            <a href="?genero=femenino">Partidos Femeninos</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tabla -->
+      <div class="box">
+        {% if partidos %}
+          <table class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Equipo Local</th>
+                <th>Equipo Visitante</th>
+                <th>Lugar</th>
+                {% if request.user.rol == 'ADMIN' %}
+                  <th class="has-text-right">Acciones</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for partido in partidos %}
+                <tr>
+                  <td>{{ partido.fecha|date:"d/m/Y" }}</td>
+                  <td>{{ partido.hora|time:"H:i" }}</td>
+                  <td>{{ partido.equipo_local.nombre }}</td>
+                  <td>{{ partido.equipo_visitante.nombre }}</td>
+                  <td>{{ partido.lugar }}</td>
+
+                  {% if request.user.rol == 'ADMIN' %}
+                  <td class="has-text-right">
+                    <button
+                      class="button is-small is-warning js-edit"
+                      title="Editar"
+                      data-edit-url="{% url 'editar_partido' partido.id %}"
+                      data-fecha="{{ partido.fecha|date:'Y-m-d' }}"
+                      data-hora="{{ partido.hora|time:'H:i' }}"
+                      data-lugar="{{ partido.lugar|default_if_none:''|escape }}"
+                      data-next="{{ request.get_full_path }}"
+                    >
+                      ✏️ Editar
+                    </button>
+                  </td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="has-text-centered">
+            No hay partidos programados para la categoría <strong>{{ genero_seleccionado }}</strong> en este momento.
+          </p>
+        {% endif %}
+      </div>
     {% endif %}
+  {% else %}
+    <h1 class="title">Calendario de Partidos</h1>
+    <div class="notification is-info">
+      Actualmente no hay un campeonato activo o seleccionado.
+    </div>
+  {% endif %}
 </div>
+
+{% if request.user.rol == 'ADMIN' %}
+<!-- MODAL EDITAR PARTIDO (solo admin) -->
+<div id="modal-editar" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-card" style="border-radius:14px;">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Editar partido</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+
+    <form id="editForm" method="post" action="">
+      {% csrf_token %}
+      <section class="modal-card-body">
+        <div class="columns is-multiline">
+          <div class="column is-4">
+            <div class="field">
+              <label class="label">Fecha</label>
+              <div class="control">
+                <input class="input" type="date" name="fecha" id="f-fecha" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="column is-4">
+            <div class="field">
+              <label class="label">Hora</label>
+              <div class="control">
+                <input class="input" type="time" name="hora" id="f-hora" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="column is-12">
+            <div class="field">
+              <label class="label">Lugar</label>
+              <div class="control">
+                <input class="input" type="text" name="lugar" id="f-lugar" maxlength="120" placeholder="Ej. Cancha UIDE">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Para volver al mismo calendario tras guardar -->
+        <input type="hidden" name="next" id="f-next" value="">
+      </section>
+
+      <footer class="modal-card-foot is-justify-content-space-between">
+        <button type="button" class="button js-cancel">Cancelar</button>
+        <button type="submit" class="button is-link">Guardar cambios</button>
+      </footer>
+    </form>
+  </div>
+</div>
+{% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const countdownElement = document.getElementById("countdown");
-    const fechaFin = countdownElement.getAttribute('data-fecha-fin');
 
-    if (countdownElement && fechaFin) {
-        const countDownDate = new Date(fechaFin + "T23:59:59").getTime();
-        const now = new Date().getTime();
+  // --- Inscripciones countdown ---
+  const countdownElement = document.getElementById("countdown");
+  const fechaFin = countdownElement ? countdownElement.getAttribute('data-fecha-fin') : null;
 
-        if (countDownDate < now) {
-            countdownElement.innerHTML = "Las inscripciones para este campeonato han finalizado.";
-            countdownElement.classList.add('is-warning');
-        } else {
-            countdownElement.classList.add('is-info');
-            
-            const x = setInterval(function() {
-                const currentNow = new Date().getTime();
-                const distance = countDownDate - currentNow;
+  if (countdownElement && fechaFin) {
+    const countDownDate = new Date(fechaFin + "T23:59:59").getTime();
+    const now = new Date().getTime();
 
-                if (distance < 0) {
-                    clearInterval(x);
-                    countdownElement.innerHTML = "Las inscripciones para este campeonato han finalizado.";
-                    countdownElement.classList.remove('is-info');
-                    countdownElement.classList.add('is-warning');
-                    return;
-                }
+    if (countDownDate < now) {
+      countdownElement.innerHTML = "Las inscripciones para este campeonato han finalizado.";
+      countdownElement.classList.add('is-warning');
+    } else {
+      countdownElement.classList.add('is-info');
+      const x = setInterval(function() {
+        const currentNow = new Date().getTime();
+        const distance = countDownDate - currentNow;
 
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                countdownElement.innerHTML = "Cierre de inscripciones en: " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-            }, 1000);
+        if (distance < 0) {
+          clearInterval(x);
+          countdownElement.innerHTML = "Las inscripciones para este campeonato han finalizado.";
+          countdownElement.classList.remove('is-info');
+          countdownElement.classList.add('is-warning');
+          return;
         }
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        countdownElement.innerHTML = "Cierre de inscripciones en: " +
+          days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+      }, 1000);
     }
+  }
+
+  // --- Modal editar (solo admin) ---
+  const modal = document.getElementById('modal-editar');
+  const form  = document.getElementById('editForm');
+  const inputFecha = document.getElementById('f-fecha');
+  const inputHora  = document.getElementById('f-hora');
+  const inputLugar = document.getElementById('f-lugar');
+  const inputNext  = document.getElementById('f-next');
+
+  function openModal(){ modal.classList.add('is-active'); }
+  function closeModal(){ modal.classList.remove('is-active'); }
+
+  document.querySelectorAll('.js-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      form.action = btn.dataset.editUrl;
+      inputFecha.value = btn.dataset.fecha || '';
+      inputHora.value  = btn.dataset.hora || '';
+      inputLugar.value = btn.dataset.lugar || '';
+      inputNext.value  = btn.dataset.next || '';
+      openModal();
+    });
+  });
+
+  document.querySelectorAll('#modal-editar .delete, #modal-editar .modal-background, #modal-editar .js-cancel')
+    .forEach(el => el.addEventListener('click', closeModal));
 });
 </script>
 {% endblock %}
