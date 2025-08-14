@@ -2,6 +2,18 @@ from django import forms
 from core.models import Equipo, Jugador
 
 class EquipoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        self.campeonato = kwargs.pop('campeonato', None)
+        self.campeonato_id = kwargs.pop('campeonato_id', None)
+        super().__init__(*args, **kwargs)
+
+        if 'campeonato' in self.fields and not self.instance.pk:
+            if self.campeonato is not None:
+                self.fields['campeonato'].initial = self.campeonato
+            elif self.campeonato_id is not None:
+                self.fields['campeonato'].initial = self.campeonato_id
+
     class Meta:
         model = Equipo
         fields = '__all__'

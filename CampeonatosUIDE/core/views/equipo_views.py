@@ -128,33 +128,20 @@ def detalle_equipo(request, id):
 @login_required
 @user_passes_test(es_admin_o_delegado)
 def registrar_equipo(request):
-    """
-    Crear equipo.
-    - Si es DELEGADO: se fija como delegado y aprobado=False.
-    - Al guardar: redirige a subir comprobante (registrar_pago_equipo).
-    """
-    campeonato_id = request.GET.get("campeonato_id")
-    campeonato = get_object_or_404(Campeonato, id=campeonato_id) if campeonato_id else None
-
-    if request.method == "POST":
-        form = EquipoForm(request.POST, request.FILES, user=request.user)
-        # Fijar delegado y aprobado=False
-        if getattr(request.user, "rol", "").upper() == "DELEGADO":
-            form.instance.delegado = request.user
-        form.instance.aprobado = False
-
+    campeonato_id = request.GET.get('campeonato_id') or request.POST.get('campeonato_id')
+    if request.method == 'POST':
+        form = EquipoForm(request.POST, request.FILES, user=request.user, campeonato_id=campeonato_id)
         if form.is_valid():
-            equipo = form.save()
-            messages.success(request, "Equipo registrado correctamente.")
-            # Redirigir a subir comprobante
-            return redirect("registrar_pago_equipo", equipo_id=equipo.id)
+            obj = form.save()
+            messages.success(request, 'Equipo registrado correctamente.')
+            return redirect('listar_equipos')
+        else:
+            # debug no destructivo para ver por qué es inválido
+            print('FORM ERRORS:', form.errors.as_json())
+            messages.error(request, 'Revisa los errores del formulario.')
     else:
-        initial_data = {}
-        if campeonato:
-            initial_data["campeonato"] = campeonato
-        form = EquipoForm(initial=initial_data, user=request.user)
-
-    return render(request, "equipo/registrar_equipo.html", {"form": form, "campeonato": campeonato})
+        form = EquipoForm(user=request.user, campeonato_id=campeonato_id)
+    return render(request, 'equipo/registrar_equipo.html', {'form': form})
 
 
 @login_required
