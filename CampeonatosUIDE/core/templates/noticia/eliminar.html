@@ -1,9 +1,41 @@
-{% extends 'comun/base.html' %}
+{% extends "comun/base.html" %}
+{% load static %}
+
+{% block title %}Eliminar noticia{% endblock %}
+
 {% block content %}
-<h1>Eliminar Noticia</h1>
-<p>¿Estás seguro de que quieres eliminar {{ noticia.titulo }}?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Eliminar</button>
-</form>
+<section class="section">
+  <div class="container" style="max-width: 820px">
+    <div class="box" style="border-radius:16px;">
+      <h1 class="title is-4">🗑️ Eliminar noticia</h1>
+
+      <article class="message is-danger">
+        <div class="message-header">
+          <p>Acción irreversible</p>
+        </div>
+        <div class="message-body">
+          ¿Seguro que deseas eliminar la noticia
+          <strong>“{{ noticia.titulo }}”</strong>? Esta acción no se puede deshacer.
+        </div>
+      </article>
+
+      {% if noticia.imagen %}
+        <figure class="image is-16by9 mb-4" style="border-radius:12px; overflow:hidden;">
+          <img src="{{ noticia.imagen.url }}" alt="{{ noticia.titulo }}">
+        </figure>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="buttons is-right">
+          <a href="{% url 'listar_noticias' %}" class="button">Cancelar</a>
+          <button type="submit" class="button is-danger">
+            <span class="icon"><i class="fas fa-trash-alt"></i></span>
+            <span>Eliminar definitivamente</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
 {% endblock %}

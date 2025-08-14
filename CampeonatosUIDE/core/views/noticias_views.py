@@ -40,14 +40,23 @@ class EditarNoticia(View):
         return render(request, 'noticia/form.html', {'form': form, 'modo': 'editar', 'noticia': noticia})
 
 class EliminarNoticia(LoginRequiredMixin, UserPassesTestMixin, View):
+    """GET: muestra confirmación | POST: elimina.
+       Solo ADMIN puede eliminar.
+    """
     def test_func(self):
-        return es_admin_o_delegado(self.request.user)
+        return getattr(self.request.user, "rol", "") == "ADMIN"
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tienes permiso para eliminar noticias.")
+        return redirect("listar_noticias")
+
     def get(self, request, id):
         noticia = get_object_or_404(Noticia, id=id)
-        return render(request, 'noticia/form.html', {'noticia': noticia})
+        return render(request, "noticia/eliminar.html", {"noticia": noticia})
 
     def post(self, request, id):
         noticia = get_object_or_404(Noticia, id=id)
+        titulo = noticia.titulo
         noticia.delete()
-        messages.success(request, "Noticia eliminada correctamente.")
-        return redirect('listar_noticias')
+        messages.success(request, f'La noticia “{titulo}” fue eliminada correctamente.')
+        return redirect("listar_noticias")
