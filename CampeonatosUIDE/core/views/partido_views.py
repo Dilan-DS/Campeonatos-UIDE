@@ -8,10 +8,49 @@ from core.views.admin_views import es_admin
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django import forms
+from django.urls import reverse
+from django.utils.dateparse import parse_date, parse_time
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 # Función para validar que sea admin
 def es_admin(user):
     return user.rol == 'ADMIN'
+
+
+class EditarPartidoView(LoginRequiredMixin, View):
+    """
+    Actualiza fecha, hora y lugar de un partido. Solo ADMIN.
+    """
+    def post(self, request, pk):
+        if getattr(request.user, "rol", "") != "ADMIN":
+            messages.error(request, "No tienes permiso para realizar esta acción.")
+            return redirect("vista_inicio")
+
+        partido = get_object_or_404(Partido, pk=pk)
+
+        fecha_str = request.POST.get("fecha")
+        hora_str  = request.POST.get("hora")
+        lugar     = (request.POST.get("lugar") or "").strip()
+        next_url  = request.POST.get("next") or request.META.get("HTTP_REFERER")
+
+        # Validaciones simples
+        fecha = parse_date(fecha_str) if fecha_str else None
+        hora  = parse_time(hora_str)  if hora_str  else None
+
+        if not fecha or not hora:
+            messages.error(request, "Fecha y hora son obligatorias y deben tener un formato válido.")
+            return redirect(next_url or reverse("listar_partidos"))
+
+        partido.fecha = fecha
+        partido.hora  = hora
+        partido.lugar = lugar
+        partido.save()
+
+        messages.success(request, "Partido actualizado correctamente.")
+        return redirect(next_url or reverse("listar_partidos"))
+
 
 @login_required
 @user_passes_test(es_admin)
