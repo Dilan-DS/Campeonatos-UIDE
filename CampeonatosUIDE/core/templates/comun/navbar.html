@@ -271,7 +271,8 @@
               <a class="navbar-item" href="{% url 'mis_jugadores_delegado' %}">Mis Jugadores</a>
               <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
               <a class="navbar-item" href="{% url 'calendario_global' %}"> Calendario Global</a>
-              <a class="navbar-item" href="{% url 'registrar_pago_delegado' %}"> Pagos</a>
+              <a class="navbar-item" href="{% url 'mis_pagos_delegado' %}"> Pagos</a>
+
             </div>
           </div>
         {% elif request.user.rol == "JUGADOR" %}
