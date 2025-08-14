@@ -32,127 +32,45 @@
       {% endif %}
 
       {% if modo == 'crear' or modo == 'editar' %}
-        <form method="POST" action="{% if modo == 'editar' %}{% url 'editar_arbitro' id=arbitro.id %}{% else %}{% url 'registrar_arbitro' %}{% endif %}">
-          {% csrf_token %}
-          <div class="columns is-multiline">
-            <div class="column is-12-mobile is-6-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.username.label }}</label>
-                <div class="control">
-                  {{ form.username|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
-                </div>
-                {% for error in form.username.errors %}
-                  <p class="help is-danger">{{ error }}</p>
+        {% if errores_json %}
+        <div class="notification is-danger">
+            <strong>Errores del formulario:</strong>
+            <ul>
+                {% for campo, lista in errores_json.items %}
+                <li><b>{{ campo }}</b>: 
+                    {% for err in lista %}
+                        {{ err.message }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </li>
                 {% endfor %}
-              </div>
-            </div>
-            <div class="column is-12-mobile is-6-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.first_name.label }}</label>
-                <div class="control">
-                  {{ form.first_name|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
-                </div>
-                {% for error in form.first_name.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="column is-12-mobile is-6-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.last_name.label }}</label>
-                <div class="control">
-                  {{ form.last_name|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
-                </div>
-                {% for error in form.last_name.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="column is-12-mobile is-6-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.email.label }}</label>
-                <div class="control">
-                  {{ form.email|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
-                </div>
-                {% for error in form.email.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-            {% if modo == 'crear' %}
-              <div class="column is-12-mobile is-6-tablet mb-4">
-                <div class="field">
-                  <label class="label has-text-grey-dark">{{ form.password.label }}</label>
-                  <div class="control">
-                    {{ form.password|add_class:"input is-rounded is-medium is-light" }}
-                  </div>
-                  {% for error in form.password.errors %}
-                    <p class="help is-danger">{{ error }}</p>
-                  {% endfor %}
-                </div>
-              </div>
-            {% endif %}
-            <div class="column is-12-mobile is-6-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.contacto.label }}</label>
-                <div class="control">
-                  {{ form.contacto|add_class:"input is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
-                </div>
-                {% for error in form.contacto.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="column is-12-mobile is-12-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.experiencia.label }}</label>
-                <div class="control">
-                  {{ form.experiencia|add_class:"textarea is-rounded is-medium is-light" }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:readonly{% endif %}
-                </div>
-                {% for error in form.experiencia.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="column is-12-mobile is-12-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.deportes.label }}</label>
-                <div class="control">
-                  <div class="select is-rounded is-medium is-fullwidth is-multiple">
-                    {{ form.deportes }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:disabled{% endif %}
-                  </div>
-                </div>
-                {% for error in form.deportes.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="column is-12-mobile is-12-tablet mb-4">
-              <div class="field">
-                <label class="label has-text-grey-dark">{{ form.estado.label }}</label>
-                <div class="control">
-                  <div class="select is-rounded is-medium is-fullwidth">
-                    {{ form.estado }}{% if modo == 'ver' or modo == 'eliminar' %}|attr:disabled{% endif %}
-                  </div>
-                </div>
-                {% for error in form.estado.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
+            </ul>
+        </div>
+        {% endif %}
 
-          <div class="field mt-5">
-            <div class="control">
-              <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
-                <strong>
-                  {% if modo == 'crear' %}Registrar Árbitro
-                  {% else %}Actualizar Árbitro
-                  {% endif %}
-                </strong>
-              </button>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="field">
+                <label class="label">{{ field.label }}</label>
+                <div class="control">{{ field }}</div>
+                {% if field.errors %}
+                <p class="help is-danger">
+                    {% for e in field.errors %}{{ e }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                </p>
+                {% endif %}
             </div>
-          </div>
+            {% endfor %}
+            <div class="field mt-5">
+              <div class="control">
+                <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
+                  <strong>
+                    {% if modo == 'crear' %}Registrar Árbitro
+                    {% else %}Actualizar Árbitro
+                    {% endif %}
+                  </strong>
+                </button>
+              </div>
+            </div>
         </form>
       {% elif modo == 'eliminar' %}
         <p class="has-text-centered has-text-danger is-size-5">¿Estás seguro de que quieres eliminar al árbitro <strong>{{ arbitro.usuario.username }}</strong>?</p>
