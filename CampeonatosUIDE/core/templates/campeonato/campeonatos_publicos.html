@@ -2,35 +2,134 @@
 {% block title %}Campeonatos Públicos{% endblock %}
 
 {% block content %}
+
+<style>
+  /* ——— Estilos del listado público ——— */
+  .hero-strip {
+    background: linear-gradient(90deg, #ff7aa0, #ffb86c);
+    border-radius: 18px;
+    padding: 1.25rem 1.5rem;
+    color: #fff;
+    box-shadow: 0 12px 30px rgba(255, 122, 160, .25);
+  }
+  .pub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.25rem;
+  }
+  .pub-card {
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,.06);
+    box-shadow: 0 10px 24px rgba(19,18,66,.06);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .pub-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(19,18,66,.10);
+  }
+  .meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .85rem;
+    border: 1px solid #eee;
+    background: #fafafa;
+    color: #444;
+  }
+  .chip-info   { background:#eef6ff; border-color:#d8e9ff; color:#0f5db3; }
+  .chip-okay   { background:#e8fff1; border-color:#baf0d0; color:#0f7a37; }
+  .chip-warn   { background:#fff7e8; border-color:#fde0b3; color:#7a4e0f; }
+  .divider {
+    height: 1px; background: rgba(0,0,0,.06); margin: .75rem 0 1rem;
+  }
+  .pros {
+    margin: 0; padding-left: 1.15rem; color:#444;
+  }
+  .pros li {
+    margin: .25rem 0;
+  }
+  .btn-gradient {
+    background: linear-gradient(90deg,#6157ff,#ee49fd);
+    color:#fff !important; border:none;
+  }
+  .btn-gradient:hover { filter: brightness(1.05); }
+</style>
+
 <section class="section">
   <div class="container">
-    <h1 class="title has-text-centered has-text-danger">🏟️ Campeonatos Públicos</h1>
+    <div class="hero-strip mb-5">
+      <h1 class="title is-4 mb-0">🏟️ Campeonatos Públicos</h1>
+    </div>
 
-    <div class="columns is-multiline is-centered">
+    <div class="pub-grid">
       {% for campeonato in campeonatos %}
         {% if campeonato.es_publico %}
-        <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-          <div class="card has-background-light has-text-dark" style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            <div class="card-content">
-              <p class="title is-4 has-text-info">{{ campeonato.nombre }}</p>
-              <p class="subtitle is-6 has-text-grey-dark">{{ campeonato.descripcion }}</p>
-              <div class="content">
-                <p><strong>Inicio:</strong> {{ campeonato.fecha_inicio }}</p>
-                <p><strong>Fin:</strong> {{ campeonato.fecha_fin }}</p>
-                <p><strong>Tipo:</strong> {{ campeonato.tipo_campeonato.nombre }}</p>
-                <p><strong>Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
-                <p><strong>Estado:</strong> <span class="tag is-info is-light">{{ campeonato.get_estado_display }}</span></p>
+          <div class="pub-card">
+            <div class="card-content p-5">
+              <h2 class="title is-4 mb-2 has-text-weight-semibold">
+                {{ campeonato.nombre }}
+              </h2>
+              {% if campeonato.descripcion %}
+                <p class="has-text-grey-dark mb-3">
+                  {{ campeonato.descripcion|truncatechars:140 }}
+                </p>
+              {% endif %}
+
+              <div class="meta-chips mb-3">
+                {% if campeonato.deporte %}
+                  <span class="chip chip-info">🏐 {{ campeonato.deporte.nombre }}</span>
+                {% endif %}
+                {% if campeonato.tipo_campeonato %}
+                  <span class="chip chip-info">🏷️ {{ campeonato.tipo_campeonato.nombre }}</span>
+                {% endif %}
+                <span class="chip chip-okay">📅 Inicio: {{ campeonato.fecha_inicio }}</span>
+                <span class="chip chip-okay">🏁 Fin: {{ campeonato.fecha_fin }}</span>
+                {% if campeonato.fin_inscripcion %}
+                  <span class="chip chip-warn">🕒 Cierra: {{ campeonato.fin_inscripcion }}</span>
+                {% endif %}
+                <span class="chip chip-info">📌 {{ campeonato.get_estado_display }}</span>
               </div>
-              <div class="has-text-centered">
-                <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-primary is-rounded mt-3">Ver Detalles</a>
-              </div>
+
+              <div class="divider"></div>
+
+              <!-- Pros / Ventajas (textos genéricos, no rompen si faltan campos) -->
+              <p class="has-text-weight-semibold mb-2">Pros / Ventajas</p>
+              <ul class="pros">
+                <li>✅ Organización oficial UIDE</li>
+                <li>✅ Árbitros y reglas estandarizadas</li>
+                <li>✅ Calendario y resultados visibles para todos</li>
+                {% if campeonato.fin_inscripcion %}
+                  <li>✅ Inscripciones abiertas hasta {{ campeonato.fin_inscripcion }}</li>
+                {% endif %}
+                {% if campeonato.dias_partido %}
+                  <li>✅ Días de juego: {{ campeonato.dias_partido }}</li>
+                {% endif %}
+              </ul>
+
+              <!-- Solo ADMIN ve el botón de detalle del campeonato (gestión interna) -->
+              {% if request.user.rol == 'ADMIN' %}
+                <div class="has-text-right mt-4">
+                  <a href="{% url 'detalle_campeonato' campeonato.id %}"
+                     class="button btn-gradient is-rounded">
+                    Ver Detalles
+                  </a>
+                </div>
+              {% endif %}
             </div>
           </div>
-        </div>
         {% endif %}
       {% empty %}
-        <div class="column is-full">
-          <p class="notification is-info has-text-centered">No hay campeonatos públicos disponibles en este momento.</p>
+        <div class="notification is-info is-light">
+          No hay campeonatos públicos disponibles en este momento.
         </div>
       {% endfor %}
     </div>
