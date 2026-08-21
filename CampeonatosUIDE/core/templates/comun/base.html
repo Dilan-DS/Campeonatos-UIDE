@@ -4,20 +4,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <style>
-  @media screen and (max-width: 1024px) {
-    .navbar-menu {
-      display: none;
-    }
-    .navbar-menu.is-active {
-      display: block;
-    }
-  }
-  </style>
-
-
-
-
   <!-- Configuración general de la página -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -33,18 +19,20 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
   <!-- Fuente Roboto desde Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'styles/uide.css' %}">
+  {% block extra_css %}{% endblock %}
 </head>
 
-<body class="has-background-white has-text-black" style="display: flex; flex-direction: column; min-height: 100vh;">
+<body class="uide-app is-flex is-flex-direction-column">
 <!-- Cuerpo con fondo blanco y texto negro -->
 
   <!--  NAVBAR INCLUIDO -->
   {% include "comun/navbar.html" %}
 
   <!--  Contenido dinámico -->
-  <main style="flex: 1;">
+  <main class="uide-main">
     {% if messages %}
-    <div class="container mt-4">
+    <div class="container uide-alerts mb-5">
     {% for message in messages %}
     <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %}">
     {{ message }}
@@ -62,17 +50,22 @@
   <!-- JS para el menú hamburguesa en dispositivos móviles -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-      if ($navbarBurgers.length > 0) {
-        $navbarBurgers.forEach(el => {
-          el.addEventListener('click', () => {
-            const target = el.dataset.target;
-            const $target = document.getElementById(target);
-            el.classList.toggle('is-active');
-            $target.classList.toggle('is-active');
+      document.querySelectorAll('table.table, table.jugadores-tabla').forEach((table) => {
+        const headers = Array.from(table.querySelectorAll('thead th'))
+          .map((header) => header.textContent.trim().replace(/\s+/g, ' '));
+        const rows = table.querySelectorAll('tbody > tr');
+        if (!headers.length || !rows.length) return;
+
+        table.classList.add('uide-responsive-table');
+        if (headers.includes('Equipo') && headers.includes('Puntos') && headers.includes('PJ')) {
+          table.classList.add('uide-positions-table');
+        }
+        rows.forEach((row) => {
+          Array.from(row.children).forEach((cell, index) => {
+            if (cell.tagName === 'TD' && headers[index]) cell.dataset.label = headers[index];
           });
         });
-      }
+      });
     });
   </script>
 

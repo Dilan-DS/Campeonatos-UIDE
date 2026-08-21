@@ -36,7 +36,9 @@
 
         <p><strong>📆 Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
 
-        <p><strong>👤 Delegado:</strong> {{ campeonato.delegado.username if campeonato.delegado }}</p>
+        <p><strong>👤 Delegado:</strong>
+          {% if campeonato.delegado %}{{ campeonato.delegado.username }}{% else %}No asignado{% endif %}
+        </p>
 
         <p><strong>💲 Precio de inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
 
