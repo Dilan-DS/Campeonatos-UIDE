@@ -223,7 +223,7 @@ class EstadisticaJugadorBasquetAdmin(admin.ModelAdmin):
     list_filter = ('campeonato',)
 
 class EstadisticaJugadorAjedrezAdmin(admin.ModelAdmin):
-    list_display = ('jugador', 'campeonato', 'partidas_jugadas', 'partidas_ganadas', 'partidas_empatadas', 'partidas_perdidas')
+    list_display = ('jugador', 'campeonato', 'partidos_jugados', 'partidas_ganadas', 'partidas_empatadas', 'partidas_perdidas')
     search_fields = ('jugador__usuario__username', 'campeonato__nombre')
     list_filter = ('campeonato',)
 
@@ -243,7 +243,7 @@ class EstadisticaJugadorTenisAdmin(admin.ModelAdmin):
     list_filter = ('campeonato',)
 
 class EstadisticaJugadorVideojuegosAdmin(admin.ModelAdmin):
-    list_display = ('jugador', 'campeonato', 'partidas_jugadas', 'partidas_ganadas', 'partidas_perdidas')
+    list_display = ('jugador', 'campeonato', 'partidos_jugados', 'partidas_ganadas', 'partidas_perdidas')
     search_fields = ('jugador__usuario__username', 'campeonato__nombre')
     list_filter = ('campeonato',)
 
