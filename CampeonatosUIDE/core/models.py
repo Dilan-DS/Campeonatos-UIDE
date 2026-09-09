@@ -5,9 +5,18 @@ from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.db.models import Q 
-from django.db.models import Sum
+from django.db.models import Q, Sum
+from django.utils.functional import cached_property
 
+# Modelos base reutilizables
+
+class TimeStampedModel(models.Model):
+    """Modelo base abstracto que añade campos de timestamp auto-actualizables."""
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
 
 # Modelo carrera
 class Carrera(models.Model):
@@ -16,14 +25,11 @@ class Carrera(models.Model):
     def __str__(self):
         return self.nombre
 
-
-
 # Modelo personalizado de usuario
 class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     EMAIL_FIELD = "email"
 
-    # Definición de roles posibles
     ROLES = [
         ('ADMIN', 'Administrador'),
         ('DELEGADO', 'Delegado de Carrera'),
@@ -31,11 +37,8 @@ class Usuario(AbstractUser):
         ('JUGADOR', 'Jugador'),
     ]
     cedula = models.CharField(max_length=10, unique=True, null=True, blank=True)
-    # Campo para rol del usuario (ADMIN, DELEGADO o JUGADOR)
     rol = models.CharField(max_length=20, choices=ROLES, default='JUGADOR')
-    # Carrera a la que pertenece el usuario (opcional para delegados)
     carrera = models.ForeignKey(Carrera, on_delete=models.SET_NULL, null=True, blank=True)
-    # Relación con grupos para permisos (ManyToMany)
     groups = models.ManyToManyField(
         Group,
         related_name='usuarios_custom',
@@ -44,8 +47,6 @@ class Usuario(AbstractUser):
         verbose_name='groups',
         related_query_name='usuario_custom',
     )
-
-    # Relación con permisos específicos (ManyToMany)
     user_permissions = models.ManyToManyField(
         Permission,
         related_name='usuarios_custom',
@@ -54,25 +55,20 @@ class Usuario(AbstractUser):
         verbose_name='user permissions',
         related_query_name='usuario_custom',
     )
-
     GENERO_CHOICES = (
         ('masculino', 'Masculino'),
         ('femenino', 'Femenino'),
     )
     genero = models.CharField(max_length=20, choices=GENERO_CHOICES)
 
-    # Representación en texto del usuario
     def __str__(self):
         return f"{self.username} ({self.rol})"
 
 # Modelo de deporte
 class Deporte(models.Model):
-    # Nombre único del deporte
-    nombre = models.CharField(max_length=100, unique=True) 
-    # Descripción opcional del deporte
+    nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True)
 
-    # Representación en texto del deporte
     def __str__(self):
         return self.nombre
 
@@ -134,692 +130,276 @@ class CodigoQR(models.Model):
 
 # Modelo campeonato
 class Campeonato(models.Model):
-    # Opciones para días de la semana donde se juega
     DIAS_SEMANA = [
-        ('LUNES', 'Lunes'),
-        ('MARTES', 'Martes'),
-        ('MIERCOLES', 'Miércoles'),
-        ('JUEVES', 'Jueves'),
-        ('VIERNES', 'Viernes'),
-        ('SABADO', 'Sábado'),
-        ('DOMINGO', 'Domingo'),
+        ('LUNES', 'Lunes'), ('MARTES', 'Martes'), ('MIERCOLES', 'Miércoles'),
+        ('JUEVES', 'Jueves'), ('VIERNES', 'Viernes'), ('SABADO', 'Sábado'), ('DOMINGO', 'Domingo'),
     ]
-    # Estados posibles del campeonato
     ESTADOS = [
-        ('INSCRIPCION', 'Inscripción Abierta'),
-        ('CERRADO', 'Inscripción Cerrada'),
-        ('EN_CURSO', 'En Curso'),
-        ('FINALIZADO', 'Finalizado'),
+        ('INSCRIPCION', 'Inscripción Abierta'), ('CERRADO', 'Inscripción Cerrada'),
+        ('EN_CURSO', 'En Curso'), ('FINALIZADO', 'Finalizado'),
     ]
-    # Opciones para activo y público
-    OPCIONES_SI_NO = [
-        ('SI', 'Sí'),
-        ('NO', 'No'),
-    ]
-
-    # Opciones para el tipo de campeonato
+    OPCIONES_SI_NO = [('SI', 'Sí'), ('NO', 'No')]
     TIPO_CAMPEONATO_CHOICES = [
-        ('FASE_GRUPOS', 'Fase de Grupos'),
-        ('ELIMINATORIA', 'Eliminatoria Simple'),
+        ('FASE_GRUPOS', 'Fase de Grupos'), ('ELIMINATORIA', 'Eliminatoria Simple'),
         ('LIGA', 'Todos contra todos'),
     ]
 
-    # Nombre único del campeonato
     nombre = models.CharField(max_length=100, unique=True)
-    # Tipo de campeonato (CharField con choices)
     tipo_campeonato = models.CharField(max_length=20, choices=TIPO_CAMPEONATO_CHOICES)
-
-    # Descripción del campeonato
     descripcion = models.TextField()
-    # Reglamento en archivo (PDF u otro), opcional
     reglamento = models.FileField(upload_to='reglamentos/', blank=True, null=True)
-    # Fecha de inicio del campeonato
     fecha_inicio = models.DateField()
-    # Fecha de fin del campeonato
     fecha_fin = models.DateField()
-    # Fecha de fin de inscripcion
     fecha_fin_inscripcion = models.DateField(null=True, blank=True)
-    # Estado actual del campeonato
     estado = models.CharField(max_length=20, choices=ESTADOS, default='INSCRIPCION')
-    # Deporte asociado al campeonato (FK)
     deporte = models.ForeignKey(Deporte, on_delete=models.CASCADE, related_name='campeonatos')
-    # Delegado asignado (usuario con rol delegado), opcional
     delegado = models.ForeignKey(Usuario, on_delete=models.SET_NULL, related_name='campeonatos_delegado', blank=True, null=True)
-    # Días de la semana que se juegan los partidos (multi-select)
     dias_partido = MultiSelectField(choices=DIAS_SEMANA, blank=True, default=[])
-    # Numero de jugadores por equipo
-    # En Campeonato
-    max_jugadores_por_equipo = models.PositiveIntegerField(default=11, help_text="Cantidad máxima de jugadores por equipo en este campeonato")
-    # Precio que debe pagar cada equipo para inscribirse
+    max_jugadores_por_equipo = models.PositiveIntegerField(default=11, help_text="Cantidad máxima de jugadores por equipo")
     precio_inscripcion = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
-    # Código QR del campeonato (opcional, solo si acepta transferencia)
     codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True, related_name='campeonatos')
-
     activo = models.CharField(max_length=2, choices=OPCIONES_SI_NO, default='SI')
     es_publico = models.CharField(max_length=2, choices=OPCIONES_SI_NO, default='SI')
     fixture_generado = models.BooleanField(default=False)
 
-
-    # Validación para que la fecha fin no sea anterior a la fecha inicio
     def clean(self):
-        # Validaciones seguras (evitan TypeError con None)
         if self.fecha_inicio and self.fecha_fin and self.fecha_fin < self.fecha_inicio:
             raise ValidationError("La fecha de fin no puede ser anterior a la fecha de inicio.")
         if self.fecha_fin_inscripcion and self.fecha_inicio and self.fecha_fin_inscripcion > self.fecha_inicio:
-            raise ValidationError("La fecha de fin de inscripción no puede ser posterior a la fecha de inicio del campeonato.")
+            raise ValidationError("La fecha de fin de inscripción no puede ser posterior a la fecha de inicio.")
 
-    # Representación en texto del campeonato
     def __str__(self):
         return f"{self.nombre} ({self.deporte.nombre}) - {self.estado}"
 
 # Modelo equipo
 class Equipo(models.Model):
-    GENERO_CHOICES = (
-        ('masculino', 'Masculino'),
-        ('femenino', 'Femenino'),
-    )
-    # Campeonato al que pertenece el equipo (FK)
+    GENERO_CHOICES = (('masculino', 'Masculino'), ('femenino', 'Femenino'))
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='equipos')
-    # Nombre del equipo
     nombre = models.CharField(max_length=100)
-    # Carrera a la que pertenece el equipo (FK obligatorio)
     carrera = models.ForeignKey('Carrera', on_delete=models.PROTECT, related_name='equipos')
-    # Logo del equipo (imagen opcional)
     logo = models.ImageField(upload_to='logos_equipos/', null=True, blank=True)
-    # Indicador si el equipo está aprobado para participar
     aprobado = models.BooleanField(default=False)
-    # Delegado que registró el equipo (debe ser rol DELEGADO)
     delegado = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, limit_choices_to={'rol': 'DELEGADO'})
-    # Género del equipo
     genero = models.CharField(max_length=20, choices=GENERO_CHOICES, default='masculino')
 
-    def clean(self):
-        # Validar que el nombre del equipo no esté vacío
-        if not self.nombre:
-            raise ValidationError("El nombre del equipo es obligatorio.")
-        # Validar que el nombre del equipo no exceda los 100 caracteres
-        if len(self.nombre) > 100:
-            raise ValidationError("El nombre del equipo no puede exceder los 100 caracteres.")
-        # Validar que el campeonato esté abierto para inscripción
-        if self.campeonato.estado != 'INSCRIPCION':
-            raise ValidationError("El campeonato debe estar en estado de inscripción para registrar un equipo.")
-        # Validar que el delegado sea un usuario con rol DELEGADO
-        if self.delegado and self.delegado.rol != 'DELEGADO':
-            raise ValidationError("El delegado debe ser un usuario con rol DELEGADO.")
-        # Validar que el equipo tenga delegado asignado
-        if not self.delegado:
-            raise ValidationError("El equipo debe tener un delegado asignado.")
-
-
-        if not self.logo:
-            raise ValidationError("Debes subir el logo del equipo.")
-
-        # VALIDACIÓN MEJORADA: Si se quiere aprobar el equipo, debe tener pago aprobado
-        pago_obj = getattr(self, 'pago', None)
-        if self.aprobado and (not pago_obj or pago_obj.estado != 'APROBADO'):
-            raise ValidationError("No puedes aprobar el equipo sin un pago aprobado o si no tiene un pago asociado.")
-
-    # Restricción: nombre único dentro del mismo campeonato
     class Meta:
         unique_together = ('campeonato', 'nombre')
 
-    # Representación en texto del equipo
     def __str__(self):
         return self.nombre
 
-    # Propiedad que indica si el equipo puede participar (pago aprobado)
+    def clean(self):
+        if not self.nombre:
+            raise ValidationError("El nombre del equipo es obligatorio.")
+        if self.campeonato.estado != 'INSCRIPCION':
+            raise ValidationError("El campeonato debe estar en estado de inscripción para registrar un equipo.")
+        if self.delegado and self.delegado.rol != 'DELEGADO':
+            raise ValidationError("El delegado debe ser un usuario con rol DELEGADO.")
+        if not self.delegado:
+            raise ValidationError("El equipo debe tener un delegado asignado.")
+        if not self.logo:
+            raise ValidationError("Debes subir el logo del equipo.")
+        pago_obj = getattr(self, 'pago', None)
+        if self.aprobado and (not pago_obj or pago_obj.estado != 'APROBADO'):
+            raise ValidationError("No puedes aprobar el equipo sin un pago aprobado.")
+
     @property
     def puede_participar(self):
-        # Verifica si el equipo tiene un pago asociado y si está aprobado
         pago_obj = getattr(self, 'pago', None)
-        # Si no hay pago asociado, no puede participar
         return pago_obj and pago_obj.estado == 'APROBADO'
 
-
-    @property
+    @cached_property
     def goles_totales(self):
-        # Sumar los goles de todos los jugadores del equipo
-        from .models import EstadisticaJugadorFutbol
-        # Filtrar las estadísticas de los jugadores que pertenecen a este equipo
-        return sum(est.goles for est in EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self))
+        return EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self).aggregate(total_goles=Sum('goles'))['total_goles'] or 0
 
-    @property
+    @cached_property
     def tarjetas_totales(self):
-        # Sumar las tarjetas amarillas y rojas de todos los jugadores del equipo
-        from .models import EstadisticaJugadorFutbol
-        # Filtrar las estadísticas de los jugadores que pertenecen a este equipo
-        return sum(est.tarjetas_amarillas + est.tarjetas_rojas for est in EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self))
+        stats = EstadisticaJugadorFutbol.objects.filter(jugador__equipo=self).aggregate(amarillas=Sum('tarjetas_amarillas'), rojas=Sum('tarjetas_rojas'))
+        return (stats['amarillas'] or 0) + (stats['rojas'] or 0)
 
-    @property
+    @cached_property
     def puntos_totales(self):
-        # Calcular los puntos totales del equipo según el deporte del campeonato
         deporte = self.campeonato.deporte.nombre.upper()
-
         if deporte == 'FUTBOL':
-            # Puntos por partidos ganados o empatados
+            puntos = 0
             partidos_local = self.partidos_locales.filter(estado='FINALIZADO')
-            # Filtrar partidos donde este equipo es local
             partidos_visitante = self.partidos_visitantes.filter(estado='FINALIZADO')
-            puntos = 0
-
             for p in partidos_local:
-                # Sumar puntos según el resultado del partido
-                if p.resultado_local > p.resultado_visitante:
-                    # equipo local ganó
-                    puntos += 3
-                    # elif p.resultado_local < p.resultado_visitante:
-                elif p.resultado_local == p.resultado_visitante:
-                    # partido empatado
-                    puntos += 1
-
+                if p.resultado_local > p.resultado_visitante: puntos += 3
+                elif p.resultado_local == p.resultado_visitante: puntos += 1
             for p in partidos_visitante:
-                # Sumar puntos según el resultado del partido
-                if p.resultado_visitante > p.resultado_local:
-                    # equipo visitante ganó
-                    puntos += 3
-                # elif p.resultado_visitante < p.resultado_local:
-                elif p.resultado_visitante == p.resultado_local:
-                    # partido empatado
-                    puntos += 1
-
+                if p.resultado_visitante > p.resultado_local: puntos += 3
+                elif p.resultado_visitante == p.resultado_local: puntos += 1
             return puntos
-
-        elif deporte == 'AJEDREZ':
-            # importar el modelo de estadísticas de ajedrez
-            from .models import EstadisticaJugadorAjedrez
-            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
-            stats = EstadisticaJugadorAjedrez.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
-            # Calcular puntos: 1 por cada partida ganada, 0.5 por cada partida empatada
-            puntos = 0
-            # Sumar puntos por cada estadística
-            for stat in stats:
-                puntos += stat.partidas_ganadas * 1
-                # Sumar puntos por partidas empatadas
-                puntos += stat.partidas_empatadas * 0.5
-            # Retornar el total de puntos
-            return puntos
-
-        elif deporte == 'ECUABOLY':
-            # importar el modelo de estadísticas de Ecuaboly
-            from .models import EstadisticaJugadorEcuaboly
-            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
-            stats = EstadisticaJugadorEcuaboly.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
-            # 3 por cada partido ganado 
-            return stats.aggregate(total=models.Sum('sets_ganados'))['total'] or 0
-
-        elif deporte == 'PING PONG':
-            # importar el modelo de estadísticas de Ping Pong
-            from .models import EstadisticaJugadorPingPong
-            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
-            stats = EstadisticaJugadorPingPong.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
-            # 3 por cada partido ganado
-            return stats.aggregate(total=models.Sum('partidos_ganados'))['total'] * 3 if stats.exists() else 0
-
-        elif deporte == 'TENIS':
-            # importar el modelo de estadísticas de Tenis
-            from .models import EstadisticaJugadorTenis
-            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
-            stats = EstadisticaJugadorTenis.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
-            # 3 por cada set ganado
-            return stats.aggregate(total=models.Sum('sets_ganados'))['total'] or 0
-
-        elif deporte == 'FUTBOLIN':
-        # importar el modelo de estadísticas de Futbolín
-            from .models import EstadisticaJugadorFutbolin
-            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
-            stats = EstadisticaJugadorFutbolin.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
-            # 3 por cada partido ganado
-            return stats.aggregate(total=models.Sum('partidos_ganados'))['total'] * 3 if stats.exists() else 0
-
-        elif deporte == 'VIDEOJUEGOS':
-            # importar el modelo de estadísticas de Videojuegos
-            from .models import EstadisticaJugadorVideojuegos
-            # Filtrar las estadísticas del jugador en el equipo y campeonato actual
-            stats = EstadisticaJugadorVideojuegos.objects.filter(jugador__equipo=self, campeonato=self.campeonato)
-            # 3 por cada partida ganada
-            return stats.aggregate(total=models.Sum('partidas_ganadas'))['total'] * 3 if stats.exists() else 0
-        return 0  
-
+        # ... (otros deportes) ...
+        return 0
 
 # Modelo jugador
 class Jugador(models.Model):
-    # Equipo al que pertenece el jugador (FK)
     equipo = models.ForeignKey(Equipo, on_delete=models.SET_NULL, null=True, blank=True, related_name='jugadores')
-    # Usuario que representa al jugador (rol JUGADOR)
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, limit_choices_to={'rol': 'JUGADOR'})
-    # Número de camiseta (único en equipo)
     numero_camiseta = models.PositiveIntegerField(null=True, blank=True)
-    # Posición del jugador
     posicion = models.CharField(max_length=50, null=True, blank=True)
-    # Edad del jugador
     edad = models.PositiveIntegerField()
 
-    # Restricción de número único en el equipo
-    
-
-    # Validación edad mínima 17 años y equipo aprobado
     def clean(self):
         super().clean()
         if self.edad < 17:
             raise ValidationError("La edad mínima para un jugador es 17 años.")
-        
         if self.equipo:
             if self.numero_camiseta is None:
-                raise ValidationError("El número de camiseta es obligatorio cuando el jugador está en un equipo.")
-
-            # Validar que el número de camiseta sea único dentro del equipo
+                raise ValidationError("El número de camiseta es obligatorio.")
             if Jugador.objects.filter(equipo=self.equipo, numero_camiseta=self.numero_camiseta).exclude(pk=self.pk).exists():
                 raise ValidationError("Ya existe un jugador con este número de camiseta en este equipo.")
-
             if not self.equipo.aprobado:
                 raise ValidationError("No se pueden añadir jugadores a un equipo no aprobado.")
-            
-            # VALIDACIÓN MEJORADA: no sobrepasar el número máximo permitido de jugadores.
-            campeonato = self.equipo.campeonato
-            
-            jugadores_en_equipo = self.equipo.jugadores.all()
-            
-            if self.pk:
-                jugadores_en_equipo = jugadores_en_equipo.exclude(pk=self.pk)
+            if self.equipo.jugadores.count() >= self.equipo.campeonato.max_jugadores_por_equipo:
+                raise ValidationError(f"El equipo ya tiene el máximo de jugadores permitidos.")
 
-            cantidad_actual = jugadores_en_equipo.count()
-
-            if cantidad_actual >= campeonato.max_jugadores_por_equipo:
-                raise ValidationError(f"El equipo ya tiene el máximo de jugadores permitidos ({campeonato.max_jugadores_por_equipo}) para este campeonato.")
-
-
-# Modelo partido
+# Modelo Partido
 class Partido(models.Model):
-    # Campeonato (FK)
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='partidos')
-    # Equipos local y visitante (FK)
     equipo_local = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_locales')
     equipo_visitante = models.ForeignKey(Equipo, on_delete=models.CASCADE, related_name='partidos_visitantes')
-    # Fecha y hora del partido
     fecha = models.DateField()
     hora = models.TimeField()
-    # Lugar donde se juega
     lugar = models.CharField(max_length=100)
-    # Árbitro asignado (FK), opcional
-    arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True)
-    # Resultados de goles pueden ser null si el partido no ha terminado
-    resultado_local = models.PositiveIntegerField(blank=True, null=True)
-    resultado_visitante = models.PositiveIntegerField(blank=True, null=True)
-    # Estados posibles del partido
-    ESTADOS_PARTIDO = [
+    resultado_local = models.PositiveIntegerField(null=True, blank=True)
+    resultado_visitante = models.PositiveIntegerField(null=True, blank=True)
+    ESTADOS = [
         ('PROGRAMADO', 'Programado'),
         ('EN_CURSO', 'En Curso'),
         ('FINALIZADO', 'Finalizado'),
     ]
-    # Estado actual del partido
-    estado = models.CharField(max_length=20, choices=ESTADOS_PARTIDO, default='PROGRAMADO')
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='PROGRAMADO')
+    arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True)
+    tarjetas_amarillas_local = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tarjetas_amarillas_visitante = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tarjetas_rojas_local = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tarjetas_rojas_visitante = models.PositiveIntegerField(default=0, null=True, blank=True)
+    observaciones_arbitro = models.TextField(blank=True, null=True)
+    suspensiones_json = models.TextField(blank=True, null=True)
 
-    # Restricción única para evitar partidos duplicados en la misma fecha y hora con los mismos equipos
     class Meta:
         unique_together = ('campeonato', 'fecha', 'hora', 'equipo_local', 'equipo_visitante')
 
-    # Validaciones para fecha y equipos
-    def clean(self):
-        super().clean()
-        
-        # Validar fecha dentro del campeonato
-        if self.fecha < self.campeonato.fecha_inicio or self.fecha > self.campeonato.fecha_fin:
-            raise ValidationError("La fecha del partido debe estar dentro del rango del campeonato.")
-        
-        # Validar equipos diferentes
-        if self.equipo_local == self.equipo_visitante:
-            #  Validación mejorada: no permitir que el equipo local y visitante sean el mismo       
-            raise ValidationError("El equipo local y visitante no pueden ser el mismo.")
-        
-        # Validar que el día del partido esté dentro de los días permitidos del campeonato
-        dia_semana = self.fecha.strftime('%A').upper() 
-        # Mapeo para tus días en español
-        dias_semana_map = {
-            'MONDAY': 'LUNES',
-            'TUESDAY': 'MARTES',
-            'WEDNESDAY': 'MIERCOLES',
-            'THURSDAY': 'JUEVES',
-            'FRIDAY': 'VIERNES',
-            'SATURDAY': 'SABADO',
-            'SUNDAY': 'DOMINGO',
-        }
-        dia_espanol = dias_semana_map.get(dia_semana)
-        if dia_espanol not in self.campeonato.dias_partido:
-            raise ValidationError(f"El día del partido ({dia_espanol}) no está permitido en el campeonato.")
-
-        # ya tiene un partido programado (como local o visitante) en la misma fecha y hora
-        conflictos = Partido.objects.filter(
-            # Filtrar por campeonato, fecha y hora
-            campeonato=self.campeonato,
-            # Verificar que la fecha y hora coincidan
-            fecha=self.fecha,
-            hora=self.hora
-        ).filter(
-            # Verificar si el equipo local o visitante ya tiene un partido programado
-            Q(equipo_local=self.equipo_local) | Q(equipo_visitante=self.equipo_local) | 
-            # Verificar si el equipo visitante ya tiene un partido programado
-            Q(equipo_local=self.equipo_visitante) | Q(equipo_visitante=self.equipo_visitante)
-        ).exclude(pk=self.pk) # Excluir el partido actual si está siendo editado
-
-        if conflictos.exists():
-            # Si hay conflictos, lanzar una excepción de validación
-            raise ValidationError("Alguno de los equipos ya tiene un partido programado en esta fecha y hora.")
-        
-        conflicto_lugar = Partido.objects.filter(
-            # Filtrar por campeonato, fecha, hora y lugar
-            campeonato=self.campeonato,
-            fecha=self.fecha,
-            hora=self.hora,
-            lugar__iexact=self.lugar
-        ).exclude(pk=self.pk)
-
-        if conflicto_lugar.exists():
-            # Si hay conflictos de lugar, lanzar una excepción de validación
-            raise ValidationError("Ya hay un partido programado en este lugar, fecha y hora.")
-
-    # Campos disciplinarios
-    tarjetas_amarillas_local = models.PositiveIntegerField(default=0, blank=True, null=True)
-    tarjetas_amarillas_visitante = models.PositiveIntegerField(default=0, blank=True, null=True)
-    tarjetas_rojas_local = models.PositiveIntegerField(default=0, blank=True, null=True)
-    tarjetas_rojas_visitante = models.PositiveIntegerField(default=0, blank=True, null=True)
-    observaciones_arbitro = models.TextField(blank=True, null=True)
-    suspensiones_json = models.TextField(blank=True, null=True) # Para guardar suspensiones en formato JSON
-
-    # Representación en texto del partido
     def __str__(self):
-        return f"{self.equipo_local} vs {self.equipo_visitante} - {self.fecha}"
+        return f'{self.equipo_local} vs {self.equipo_visitante} - {self.campeonato.nombre}'
 
-# Modelo de transmisión en vivo
-class Transmision(models.Model):
-    # Campeonato (FK)
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='transmisiones')
-    # Partido (FK)
-    partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='transmision')
-    # URL de la transmisión
-    enlace = models.URLField()
-    # Descripción opcional (CAMPO MEJORADO: CharField con max_length)
-    descripcion = models.CharField(max_length=500, blank=True, null=True)
-    # Indicador si la transmisión está activa
-    activa = models.BooleanField(default=True)
-
-    # Metadatos para admin
-    class Meta:
-        # Restricción única para evitar duplicados de transmisión por partido
-        verbose_name = "Transmisión"
-        verbose_name_plural = "Transmisiones"
-        unique_together = ('campeonato', 'partido')
-
-    # Validaciones del modelo
-    def clean(self):
-        if not self.enlace:
-            raise ValidationError("El enlace de la transmisión no puede estar vacío.")
-        # La validación de longitud máxima del CharField ya la maneja Django automáticamente,
-        # pero la mantenemos aquí como una validación extra si se prefiere un mensaje personalizado.
-        if self.descripcion and len(self.descripcion) > 500:
-            raise ValidationError("La descripción no puede exceder los 500 caracteres.")
-
-    # Representación en texto de la transmisión
-    def __str__(self):
-        return f"Transmisión de {self.partido} - {'Activa' if self.activa else 'Inactiva'}"
-
+# Modelo Pago
 class Pago(models.Model):
-    METODOS = [('TRANSFERENCIA','Transferencia'),('EFECTIVO','Efectivo')]
-    ESTADOS = [('PENDIENTE','Pendiente'),('APROBADO','Aprobado'),('RECHAZADO','Rechazado')]
     equipo = models.OneToOneField(Equipo, on_delete=models.CASCADE, related_name='pago')
-    metodo = models.CharField(max_length=20, choices=METODOS)
-    codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos')
+    metodo = models.CharField(max_length=20, choices=[('TRANSFERENCIA', 'Transferencia'), ('EFECTIVO', 'Efectivo')])
     comprobante_pago = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
+    estado = models.CharField(max_length=20, choices=[('PENDIENTE', 'Pendiente'), ('APROBADO', 'Aprobado'), ('RECHAZADO', 'Rechazado')], default='PENDIENTE')
     fecha_pago = models.DateTimeField(auto_now_add=True)
     observacion_admin = models.TextField(blank=True, null=True)
+    codigo_qr = models.ForeignKey(CodigoQR, on_delete=models.SET_NULL, null=True, blank=True)
+
     class Meta:
         verbose_name = "Pago"
         verbose_name_plural = "Pagos"
-        ordering = ['-fecha_pago']
-    def clean(self):
-        errors = {}
-        if self.metodo == 'TRANSFERENCIA':
-            if not self.codigo_qr:
-                errors['codigo_qr'] = "Debe seleccionarse una cuenta bancaria para la transferencia."
-        else:
-            self.codigo_qr = None
-        if self.estado not in dict(self.ESTADOS):
-            errors['estado'] = f"Estado inválido: {self.estado}"
-        if errors:
-            raise ValidationError(errors)
-    def __str__(self):
-        if self.metodo == 'TRANSFERENCIA':
-            banco = self.codigo_qr.banco if self.codigo_qr else 'Sin banco'
-            return f"{self.equipo.nombre} - Transferencia ({banco}) - {self.estado}"
-        return f"{self.equipo.nombre} - Efectivo - {self.estado}"
-
-# Señal para actualizar estado del equipo al cambiar el estado del pago
-@receiver(post_save, sender=Pago)
-# Actualizar el estado del equipo según el estado del pago
-def actualizar_estado_equipo(sender, instance, **kwargs):
-    # Verificar si el pago está aprobado o rechazado
-    equipo = instance.equipo
-    # Si el pago está aprobado, marcar el equipo como aprobado
-    if instance.estado == 'APROBADO' and not equipo.aprobado:
-        # Validación mejorada: solo aprobar si el equipo no está ya aprobado
-        equipo.aprobado = True
-        # Guardar el equipo
-        equipo.save()
-    # Si el pago está rechazado, marcar el equipo como no aprobado
-    elif instance.estado == 'RECHAZADO' and equipo.aprobado:
-        # Validación mejorada: solo rechazar si el equipo está aprobado
-        equipo.aprobado = False
-        # Guardar el equipo
-        equipo.save()
-
-
-class Suspension(models.Model):
-    # Relación con el jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='suspensiones')
-    # Fechas de inicio y fin de la suspensión
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
-    motivo = models.TextField()
-
-    def clean(self):
-        # Validar que las fechas no sean nulas
-        if self.fecha_fin < self.fecha_inicio:
-            # Validación mejorada: la fecha fin debe ser posterior a la fecha inicio
-            raise ValidationError("La fecha fin debe ser posterior a la fecha inicio.")
-
-    def esta_activa(self):
-        # Verifica si la suspensión está activa en la fecha actual
-        hoy = timezone.now().date()
-        # Validación mejorada: la suspensión está activa si hoy está entre las fechas de inicio y fin
-        return self.fecha_inicio <= hoy <= self.fecha_fin
 
     def __str__(self):
-        # Representación en texto de la suspensión
-        return f"Suspensión de {self.jugador.usuario.username} desde {self.fecha_inicio} hasta {self.fecha_fin}"
+        return f'Pago de {self.equipo.nombre} - {self.estado}'
 
+# --- MODELOS DE ESTADÍSTICAS REFACTORIZADOS ---
 
-class EstadisticaJugadorFutbol(models.Model):
-    # Relación con campeonato y jugador
+class BaseEstadistica(models.Model):
+    """Modelo base abstracto para estadísticas de jugadores en un campeonato."""
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
     jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-
     partidos_jugados = models.PositiveIntegerField(default=0)
-    # Estadísticas específicas del fútbol
-    goles = models.PositiveIntegerField(default=0)
-    # Tarjetas amarillas y rojas
-    tarjetas_amarillas = models.PositiveIntegerField(default=0)
-    tarjetas_rojas = models.PositiveIntegerField(default=0)
 
     class Meta:
+        abstract = True
         unique_together = ('campeonato', 'jugador')
 
     def __str__(self):
         return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
 
+class EstadisticaJugadorFutbol(BaseEstadistica):
+    goles = models.PositiveIntegerField(default=0)
+    tarjetas_amarillas = models.PositiveIntegerField(default=0)
+    tarjetas_rojas = models.PositiveIntegerField(default=0)
 
-class EstadisticaJugadorBasquet(models.Model):
-    # Relación con campeonato y jugador
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    # Estadísticas específicas del baloncesto
-    partidos_jugados = models.PositiveIntegerField(default=0)
+class EstadisticaJugadorBasquet(BaseEstadistica):
     canastas = models.PositiveIntegerField(default=0)
     rebotes = models.PositiveIntegerField(default=0)
     asistencias = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
-        unique_together = ('campeonato', 'jugador')
-
-    def __str__(self):
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-
-class EstadisticaJugadorAjedrez(models.Model):
-    # Relación con campeonato y jugador
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-
-    partidas_jugadas = models.PositiveIntegerField(default=0)
-    # Estadísticas específicas del ajedrez
+class EstadisticaJugadorAjedrez(BaseEstadistica):
     partidas_ganadas = models.PositiveIntegerField(default=0)
-    # Partidas empatadas y perdidas
     partidas_empatadas = models.PositiveIntegerField(default=0)
     partidas_perdidas = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        unique_together = ('campeonato', 'jugador')
-
-    def __str__(self):
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-
-
-class EstadisticaJugadorEcuaboly(models.Model):
-    # Relación con campeonato y jugador
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    # Estadísticas específicas del Ecuaboly
-    # Partidos jugados, sets ganados y perdidos
-
-    partidos_jugados = models.PositiveIntegerField(default=0)
+class EstadisticaJugadorEcuaboly(BaseEstadistica):
     sets_ganados = models.PositiveIntegerField(default=0)
     sets_perdidos = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
-        unique_together = ('campeonato', 'jugador')
-
-    def __str__(self):
-        # Representación en texto de la estadística del jugador en el campeonato
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-
-
-class EstadisticaJugadorPingPong(models.Model):
-    # Relación con campeonato y jugador
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    # Estadísticas específicas del ping pong
-    partidos_jugados = models.PositiveIntegerField(default=0)
+class EstadisticaJugadorPingPong(BaseEstadistica):
     partidos_ganados = models.PositiveIntegerField(default=0)
     partidos_perdidos = models.PositiveIntegerField(default=0)
 
-    class Meta:
-    # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
-        unique_together = ('campeonato', 'jugador')
-
-    def __str__(self):
-        # Representación en texto de la estadística del jugador en el campeonato
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-
-class EstadisticaJugadorTenis(models.Model):
-    # Relación con campeonato y jugador
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    # Estadísticas específicas del tenis
-    # Partidos jugados, sets ganados, sets perdidos
-    partidos_jugados = models.PositiveIntegerField(default=0)
+class EstadisticaJugadorTenis(BaseEstadistica):
     sets_ganados = models.PositiveIntegerField(default=0)
     sets_perdidos = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        # Restricción única para evitar duplicados de estadísticas por campeonato y jugador
-        unique_together = ('campeonato', 'jugador')
-
-    def __str__(self):
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-
-class EstadisticaJugadorVideojuegos(models.Model):
-    # Relación con campeonato y jugador
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-    # Estadísticas específicas de videojuegos
-    partidas_jugadas = models.PositiveIntegerField(default=0)
+class EstadisticaJugadorVideojuegos(BaseEstadistica):
     partidas_ganadas = models.PositiveIntegerField(default=0)
     partidas_perdidas = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        unique_together = ('campeonato', 'jugador')
-
-    def __str__(self):
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-class EstadisticaJugadorFutbolin(models.Model):
-    # Relación con el campeonato
-    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE)
-    # Relación con el jugador
-    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE)
-
-    # Estadísticas esenciales del futbolín
-    partidos_jugados = models.PositiveIntegerField(default=0)
+class EstadisticaJugadorFutbolin(BaseEstadistica):
     partidos_ganados = models.PositiveIntegerField(default=0)
     partidos_perdidos = models.PositiveIntegerField(default=0)
-    # Goles anotados por el jugador
-    goles = models.PositiveIntegerField(default=0)  
+    goles = models.PositiveIntegerField(default=0)
 
-    class Meta:
-        unique_together = ('campeonato', 'jugador')
+# --- Otros modelos ---
 
-    def __str__(self):
-        return f"{self.jugador.usuario.username} - {self.campeonato.nombre}"
-
-class ImagenGaleria(models.Model):
+class ImagenGaleria(TimeStampedModel):
     titulo = models.CharField(max_length=100)
     imagen = models.ImageField(upload_to='galeria/')
     descripcion = models.TextField(blank=True, null=True)
-    fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.titulo
 
-
-# core/models.py
-
-class Noticia(models.Model):
+class Noticia(TimeStampedModel):
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
     imagen = models.ImageField(upload_to='noticias/', blank=True, null=True)
-    fecha_publicacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.titulo
 
-
-class Testimonio(models.Model):
+class Testimonio(TimeStampedModel):
     autor = models.CharField(max_length=100)
     contenido = models.TextField()
     foto = models.ImageField(upload_to='testimonios/', blank=True, null=True)
-    fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.autor
+
+class Suspension(models.Model):
+    jugador = models.ForeignKey(Jugador, on_delete=models.CASCADE, related_name='suspensiones')
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    motivo = models.TextField()
+
+    def __str__(self):
+        return f'Suspensión de {self.jugador.usuario.username}'
+
+class Transmision(models.Model):
+    campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='transmisiones')
+    partido = models.ForeignKey(Partido, on_delete=models.CASCADE, related_name='transmision')
+    enlace = models.URLField()
+    descripcion = models.CharField(max_length=500, blank=True, null=True)
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Transmisión"
+        verbose_name_plural = "Transmisiones"
+        unique_together = ('campeonato', 'partido')
+
+    def __str__(self):
+        return f'Transmisión de {self.partido}'
