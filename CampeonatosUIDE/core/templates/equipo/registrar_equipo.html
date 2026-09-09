@@ -86,7 +86,7 @@
     <div class="hero-strip mb-5">
       <div class="is-flex is-justify-content-space-between is-align-items-center">
         <h1 class="title is-4 mb-0">
-          🛡️
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg> 
           {% if view_mode %}Detalle del Equipo: {{ equipo.nombre }}
           {% elif edit_mode %}Editar Equipo: {{ equipo.nombre }}
           {% else %}Registrar Nuevo Equipo
@@ -115,7 +115,7 @@
         <div class="form-grid">
           {% for field in form %}
             <div class="field">
-              <label class="label has-text-weight-semibold">{{ field.label }}</label>
+              <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
 
               {% if field.name == 'logo' %}
                 <div class="file has-name is-fullwidth">
@@ -129,7 +129,7 @@
                     {% else %}
                       {{ field|add_class:"file-input" }}
                       <span class="file-cta">
-                        <span class="file-icon">📁</span>
+                        <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> </span>
                         <span class="file-label">Subir Logo</span>
                       </span>
                       <span class="file-name">Selecciona un archivo…</span>
@@ -209,7 +209,7 @@
           <div class="field mt-5">
             <div class="buttons is-right">
               <button type="submit" class="button btn-gradient is-rounded is-medium">
-                {% if edit_mode %}Guardar Cambios{% else %}✅ Registrar Equipo{% endif %}
+                {% if edit_mode %}Guardar Cambios{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Registrar Equipo{% endif %}
               </button>
             </div>
           </div>
@@ -219,12 +219,12 @@
       <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
         {% if equipo.id %}
           <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-light is-rounded">
-            👥 Ver mis compañeros
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Ver mis compañeros
           </a>
         {% else %}
           <span></span>
         {% endif %}
-        <a href="{% url 'listar_equipos' %}" class="button btn-ghost is-rounded">← Volver al listado</a>
+        <a href="{% url 'listar_equipos' %}" class="button btn-ghost is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado</a>
       </div>
 
     </div>

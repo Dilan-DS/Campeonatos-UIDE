@@ -18,10 +18,10 @@
 
       <!-- TÍTULO PRINCIPAL -->
       <h2 class="title is-3 has-text-centered mb-5">
-        {% if modo == "crear" %}🏆 Crear nuevo campeonato{% endif %}
-        {% if modo == "editar" %}✏️ Editar campeonato: {{ campeonato.nombre }}{% endif %}
-        {% if modo == "detalle" %}🏆 Detalles del campeonato: {{ campeonato.nombre }}{% endif %}
-        {% if modo == "eliminar" %}⚠️ Eliminar campeonato: {{ campeonato.nombre }}{% endif %}
+        {% if modo == "crear" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Crear nuevo campeonato{% endif %}
+        {% if modo == "editar" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar campeonato: {{ campeonato.nombre }}{% endif %}
+        {% if modo == "detalle" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Detalles del campeonato: {{ campeonato.nombre }}{% endif %}
+        {% if modo == "eliminar" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg> Eliminar campeonato: {{ campeonato.nombre }}{% endif %}
       </h2>
 
       <!-- FORMULARIO -->
@@ -32,7 +32,7 @@
             {% for field in form %}
               <div class="column is-12-mobile is-6-tablet">
                 <div class="field">
-                  <label class="label">{{ field.label }}</label>
+                  <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
 
                   <div class="control">
                     {# Checkboxes para días de partido (MultiSelectField) #}
@@ -54,7 +54,7 @@
                         {{ field|add_class:"file-input" }}
                         <label class="file-label">
                           <span class="file-cta">
-                            <span class="file-icon">📁</span>
+                            <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> </span>
                             <span class="file-label">Seleccionar archivo</span>
                           </span>
                           <span class="file-name" id="file-name-{{ field.id_for_label }}">
@@ -90,7 +90,7 @@
           <div class="field mt-5">
             <div class="control">
               <button type="submit" class="button is-primary is-fullwidth is-rounded is-medium">
-                {% if modo == "crear" %}🌟 Guardar Campeonato{% else %}💾 Guardar Cambios{% endif %}
+                {% if modo == "crear" %}🌟 Guardar Campeonato{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg> Guardar Cambios{% endif %}
               </button>
             </div>
           </div>
@@ -123,16 +123,16 @@
         {% if campeonato.reglamento %}
           <div class="has-text-centered mt-4">
             <a href="{{ campeonato.reglamento.url }}" target="_blank" class="button is-link is-rounded">
-              📄 Ver Reglamento
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> Ver Reglamento
             </a>
           </div>
         {% endif %}
 
         <!-- BOTONES DETALLE -->
         <div class="buttons is-centered mt-5">
-          <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-warning is-rounded">✏️ Editar</a>
-          <a href="{% url 'eliminar_campeonato' campeonato.id %}" class="button is-danger is-rounded">🗑️ Eliminar</a>
-          <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">← Volver al listado</a>
+          <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-warning is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
+          <a href="{% url 'eliminar_campeonato' campeonato.id %}" class="button is-danger is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar</a>
+          <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado</a>
         </div>
 
       <!-- CONFIRMACIÓN DE ELIMINACIÓN -->

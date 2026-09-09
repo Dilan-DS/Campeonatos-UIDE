@@ -9,17 +9,17 @@
     <div class="container">
       <div class="p-hero__inner">
         <div>
-          <h1 class="title is-3 is-size-4-mobile has-text-white">🎮 Panel del Jugador</h1>
+          <h1 class="title is-3 is-size-4-mobile has-text-white"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Panel del Jugador</h1>
           <p class="subtitle is-6 has-text-white-bis m-t-2">
             Hola, <strong>{{ user.first_name|default:user.username }}</strong>.
           </p>
         </div>
 
         <div class="p-chips">
-          {% if equipo %}<span class="p-chip">👕 {{ equipo.nombre }}</span>{% endif %}
-          {% if campeonato %}<span class="p-chip">🏆 {{ campeonato.nombre }}</span>{% endif %}
-          {% if deporte_nombre %}<span class="p-chip">🏅 {{ deporte_nombre|title }}</span>{% endif %}
-          {% if team_rank %}<span class="p-chip p-chip--success">📊 Puesto: {{ team_rank }}</span>{% endif %}
+          {% if equipo %}<span class="p-chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> {{ equipo.nombre }}</span>{% endif %}
+          {% if campeonato %}<span class="p-chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> {{ campeonato.nombre }}</span>{% endif %}
+          {% if deporte_nombre %}<span class="p-chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> {{ deporte_nombre|title }}</span>{% endif %}
+          {% if team_rank %}<span class="p-chip p-chip--success"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> Puesto: {{ team_rank }}</span>{% endif %}
         </div>
       </div>
     </div>
@@ -34,12 +34,12 @@
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         {% if equipo %}
           <a class="p-card" href="{% url 'ver_equipo_jugador' equipo_id=equipo.id %}">
-            <div class="p-icon">👕</div>
+            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> </div>
             <h3>Mi Equipo</h3><p>Ver detalles del equipo</p>
           </a>
         {% else %}
           <div class="p-card is-disabled" role="button" aria-disabled="true">
-            <div class="p-icon">👕</div>
+            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> </div>
             <h3>Mi Equipo</h3><p>No asignado</p>
           </div>
         {% endif %}
@@ -48,12 +48,12 @@
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         {% if campeonato %}
           <a class="p-card" href="{% url 'tabla_estadisticas' campeonato_id=campeonato.id %}">
-            <div class="p-icon">📊</div>
+            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
             <h3>Tabla de Posiciones</h3><p>Cómo va tu campeonato</p>
           </a>
         {% else %}
           <div class="p-card is-disabled" role="button" aria-disabled="true">
-            <div class="p-icon">📊</div>
+            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
             <h3>Tabla de Posiciones</h3><p>Sin campeonato</p>
           </div>
         {% endif %}
@@ -62,12 +62,12 @@
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         {% if jugador %}
           <a class="p-card" href="{% url 'ver_estadisticas_jugador' jugador_id=jugador.id %}">
-            <div class="p-icon">📈</div>
+            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
             <h3>Mis Estadísticas</h3><p>Tu rendimiento</p>
           </a>
         {% else %}
           <div class="p-card is-disabled" role="button" aria-disabled="true">
-            <div class="p-icon">📈</div>
+            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
             <h3>Mis Estadísticas</h3><p>Jugador no asignado</p>
           </div>
         {% endif %}
@@ -75,7 +75,7 @@
 
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         <a class="p-card" href="{% url 'ver_mis_partidos' %}">
-          <div class="p-icon">🎮</div>
+          <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> </div>
           <h3>Mis Partidos</h3><p>Próximos encuentros</p>
         </a>
       </div>

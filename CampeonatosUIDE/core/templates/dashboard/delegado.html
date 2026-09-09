@@ -11,7 +11,7 @@
     <div class="container">
       <div class="hero-inner">
         <div>
-          <h1 class="title is-3 is-size-4-mobile has-text-white">🎓 Panel del Delegado</h1>
+          <h1 class="title is-3 is-size-4-mobile has-text-white"><svg class="uide-icon" aria-hidden="true"><use href="#i-carrera"></use></svg> Panel del Delegado</h1>
           <p class="subtitle is-6 has-text-white-bis m-t-2">
             Hola, <strong>{{ user.first_name|default:user.username }}</strong>. Gestiona tu equipo, jugadores y pagos.
           </p>
@@ -20,23 +20,23 @@
         {% if equipo %}
           <div class="chips">
             <span class="chip">
-              🏷️ Equipo: <strong>{{ equipo.nombre }}</strong>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-filtro"></use></svg> Equipo: <strong>{{ equipo.nombre }}</strong>
             </span>
             {% if equipo.campeonato %}
-              <span class="chip">🏆 {{ equipo.campeonato.nombre }}</span>
+              <span class="chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> {{ equipo.campeonato.nombre }}</span>
             {% endif %}
             {% if pago %}
               <span class="chip
                 {% if pago.estado == 'APROBADO' %} chip-success
                 {% elif pago.estado == 'PENDIENTE' %} chip-warning
                 {% else %} chip-danger{% endif %}">
-                💳 Pago: {{ pago.estado }}
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Pago: {{ pago.estado }}
               </span>
             {% else %}
-              <span class="chip chip-warning">💳 Pago: PENDIENTE</span>
+              <span class="chip chip-warning"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Pago: PENDIENTE</span>
             {% endif %}
             <span class="chip {% if equipo.aprobado %}chip-success{% else %}chip-danger{% endif %}">
-              ✅ Aprobación: {% if equipo.aprobado %}APROBADO{% else %}NO APROBADO{% endif %}
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Aprobación: {% if equipo.aprobado %}APROBADO{% else %}NO APROBADO{% endif %}
             </span>
           </div>
         {% else %}
@@ -78,102 +78,102 @@
   <div class="container">
     <div class="columns is-variable is-6 is-multiline">
 
-      <!-- ⚽ Registrar equipo -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Registrar equipo -->
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if not equipo %}
           <a class="action-card" href="{% url 'registrar_equipo' %}" aria-label="Registrar equipo">
-            <div class="icon-circle">⚽</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> </div>
             <h3>Registrar Equipo</h3>
             <p>Inscribe un nuevo equipo</p>
           </a>
         {% else %}
           <div class="action-card is-disabled" role="button" aria-disabled="true">
-            <div class="icon-circle">⚽</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> </div>
             <h3>Registrar Equipo</h3>
             <p>Ya tienes un equipo</p>
           </div>
         {% endif %}
       </div>
 
-      <!-- 📋 Mi Equipo -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> Mi Equipo -->
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo %}
           <a class="action-card" href="{% url 'detalle_equipo' id=equipo.id %}" aria-label="Ver mi equipo">
-            <div class="icon-circle">📋</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> </div>
             <h3>Mi Equipo</h3>
             <p>Ver detalles del equipo</p>
           </a>
         {% else %}
           <div class="action-card is-disabled" role="button" aria-disabled="true">
-            <div class="icon-circle">📋</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> </div>
             <h3>Mi Equipo</h3>
             <p>Registra un equipo primero</p>
           </div>
         {% endif %}
       </div>
 
-      <!-- 👥 Mis jugadores -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Mis jugadores -->
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo and equipo.aprobado %}
           <a class="action-card" href="{% url 'jugadores_equipo' id=equipo.id %}" aria-label="Gestionar jugadores">
-            <div class="icon-circle">👥</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> </div>
             <h3>Mis Jugadores</h3>
             <p>Gestionar jugadores del equipo</p>
           </a>
         {% else %}
           <div class="action-card is-disabled" role="button" aria-disabled="true">
-            <div class="icon-circle">👥</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> </div>
             <h3>Mis Jugadores</h3>
             <p>Equipo no aprobado / no registrado</p>
           </div>
         {% endif %}
       </div>
 
-      <!-- 💳 Pagos -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Pagos -->
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo %}
           <a class="action-card" href="{% url 'registrar_pago_delegado' %}" aria-label="Gestionar pagos">
-            <div class="icon-circle">💳</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> </div>
             <h3>Pagos</h3>
             <p>Gestionar pago del equipo</p>
           </a>
         {% else %}
           <div class="action-card is-disabled" role="button" aria-disabled="true">
-            <div class="icon-circle">💳</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> </div>
             <h3>Pagos</h3>
             <p>Registra un equipo primero</p>
           </div>
         {% endif %}
       </div>
 
-      <!-- 📆 Calendario -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Calendario -->
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo and equipo.campeonato %}
           <a class="action-card" href="{% url 'fixture_campeonato' id=equipo.campeonato.id %}" aria-label="Ver calendario">
-            <div class="icon-circle">📆</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> </div>
             <h3>Calendario</h3>
             <p>Fixture del campeonato</p>
           </a>
         {% else %}
           <div class="action-card is-disabled" role="button" aria-disabled="true">
-            <div class="icon-circle">📆</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> </div>
             <h3>Calendario</h3>
             <p>Registra un equipo para verlo</p>
           </div>
         {% endif %}
       </div>
 
-      <!-- 📊 Tabla de posiciones -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> Tabla de posiciones -->
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         {% if equipo and equipo.campeonato %}
           <a class="action-card" href="{% url 'tabla_posiciones' campeonato_id=equipo.campeonato.id %}" aria-label="Ver tabla de posiciones">
-            <div class="icon-circle">📊</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
             <h3>Tabla de Posiciones</h3>
             <p>Clasificación del campeonato</p>
           </a>
         {% else %}
           <div class="action-card is-disabled" role="button" aria-disabled="true">
-            <div class="icon-circle">📊</div>
+            <div class="icon-circle"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
             <h3>Tabla de Posiciones</h3>
             <p>Registra un equipo para verla</p>
           </div>

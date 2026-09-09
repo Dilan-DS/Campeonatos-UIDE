@@ -11,7 +11,7 @@
     <div class="box" style="border-radius: 16px; background-color: #fffaf3; padding: 2.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
 
       <!-- Título principal centrado con estilo -->
-      <h1 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">🚫 Registrar Suspensión</h1>
+      <h1 class="title is-3 has-text-centered mb-5" style="color: #5a0035;"><svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg> Registrar Suspensión</h1>
 
       <!-- Formulario que envía datos por POST -->
       <form method="POST">
@@ -25,7 +25,7 @@
           <div class="column is-12-mobile is-6-tablet"> <!-- Cada campo ocupa toda la fila en móvil y mitad en tablet -->
             <div class="field">
               <!-- Etiqueta del campo -->
-              <label class="label has-text-grey-dark">{{ field.label }}</label>
+              <label class="label has-text-grey-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
 
               <div class="control">
                 <!-- Diferenciamos textarea de inputs normales para aplicar clases de Bulma -->
@@ -57,7 +57,7 @@
 
         <!-- Botón para cancelar y regresar a la lista de suspensiones -->
         <div class="has-text-centered mt-4">
-          <a href="{% url 'listar_suspensiones' %}" class="button is-light is-rounded">← Cancelar</a>
+          <a href="{% url 'listar_suspensiones' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Cancelar</a>
         </div>
       </form>
 

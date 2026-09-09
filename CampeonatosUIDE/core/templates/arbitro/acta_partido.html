@@ -72,11 +72,11 @@
             <p class="title is-6 mb-4">Disciplinarias — Local</p>
             <div class="columns">
               <div class="column">
-                <label class="label is-small">Tarjetas Amarillas</label>
+                <label class="label is-small" for="{{ form.tarjetas_amarillas_local.id_for_label }}">Tarjetas Amarillas</label>
                 <div class="control">{{ form.tarjetas_amarillas_local }}</div>
               </div>
               <div class="column">
-                <label class="label is-small">Tarjetas Rojas</label>
+                <label class="label is-small" for="{{ form.tarjetas_rojas_local.id_for_label }}">Tarjetas Rojas</label>
                 <div class="control">{{ form.tarjetas_rojas_local }}</div>
               </div>
             </div>
@@ -89,11 +89,11 @@
             <p class="title is-6 mb-4">Disciplinarias — Visitante</p>
             <div class="columns">
               <div class="column">
-                <label class="label is-small">Tarjetas Amarillas</label>
+                <label class="label is-small" for="{{ form.tarjetas_amarillas_visitante.id_for_label }}">Tarjetas Amarillas</label>
                 <div class="control">{{ form.tarjetas_amarillas_visitante }}</div>
               </div>
               <div class="column">
-                <label class="label is-small">Tarjetas Rojas</label>
+                <label class="label is-small" for="{{ form.tarjetas_rojas_visitante.id_for_label }}">Tarjetas Rojas</label>
                 <div class="control">{{ form.tarjetas_rojas_visitante }}</div>
               </div>
             </div>
@@ -105,7 +105,7 @@
     <!-- Observaciones -->
     <div class="card shadow-sm mb-6">
       <div class="card-content">
-        <label class="label">Observaciones del Árbitro</label>
+        <label class="label" for="{{ form.observaciones.id_for_label }}">Observaciones del Árbitro</label>
         <div class="control">{{ form.observaciones }}</div>
       </div>
     </div>
@@ -215,7 +215,7 @@
       </div>
       <div class="level-right">
         <button type="submit" class="button is-primary">
-          <span class="icon"><i class="fas fa-save"></i></span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg></span>
           <span>Guardar Acta</span>
         </button>
       </div>

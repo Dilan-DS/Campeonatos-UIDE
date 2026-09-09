@@ -61,7 +61,7 @@
                       data-lugar="{{ partido.lugar|default_if_none:''|escape }}"
                       data-next="{{ request.get_full_path }}"
                     >
-                      ✏️ Editar
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar
                     </button>
                   </td>
                   {% endif %}

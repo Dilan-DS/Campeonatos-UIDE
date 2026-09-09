@@ -92,7 +92,7 @@
     <div class="hero-strip mb-5">
       <div class="is-flex is-justify-content-space-between is-align-items-center">
         <h2 class="title is-4 mb-0">
-          {% if modo == 'crear' %}💰 Registrar Pago (Admin){% else %}✏️ Editar Pago (Admin){% endif %}
+          {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Registrar Pago (Admin){% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Pago (Admin){% endif %}
         </h2>
         <span class="tag is-light is-medium">Módulo Pagos</span>
       </div>
@@ -113,7 +113,7 @@
           {% for field in form %}
             <div class="column is-12-mobile is-6-tablet mb-4">
               <div class="field">
-                <label class="label">{{ field.label }}</label>
+                <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="control">
                   {% if field|widget_type == 'textarea' %}
                     {{ field|add_class:"textarea is-rounded is-medium is-light" }}
@@ -126,7 +126,7 @@
                       <label class="file-label">
                         {{ field|add_class:"file-input" }}
                         <span class="file-cta">
-                          <span class="file-icon">📎</span>
+                          <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> </span>
                           <span class="file-label">Elegir archivo…</span>
                         </span>
                         <span class="file-name">
@@ -161,7 +161,7 @@
 
       <div class="has-text-centered mt-5">
         <a href="{% url 'listar_pagos_admin' %}" class="button btn-ghost is-rounded">
-          ← Volver a Pagos
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
         </a>
       </div>
     </div>

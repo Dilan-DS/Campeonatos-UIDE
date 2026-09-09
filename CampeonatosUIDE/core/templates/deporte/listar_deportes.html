@@ -35,7 +35,7 @@
   .has-text-danger{ color: var(--rose) !important; }
   .header-actions{ gap: .75rem; }
 
-  /* Botón “Agregar Deporte” (warning→degradé ámbar) */
+  /* Botón “Agregar Deporte” (warning<svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-derecha"></use></svg> degradé ámbar) */
   .button.is-warning{
     border: none;
     color: #1f2937;
@@ -127,7 +127,7 @@
 
       <!-- Encabezado: Titulo + boton de "Agregar Deporte" (solo para ADMIN) -->
       <div class="is-flex is-justify-content-space-between is-align-items-center mb-4 header-actions">
-        <h2 class="title is-3 has-text-danger">🏅 Deportes Registrados</h2>
+        <h2 class="title is-3 has-text-danger"><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> Deportes Registrados</h2>
 
         {% if user.rol == "ADMIN" %}
         <!-- Boton para registrar nuevo deporte -->
@@ -142,7 +142,7 @@
         <div class="control has-icons-left">
           <input class="input" type="text" placeholder="Buscar por nombre..." id="busquedaInput" autocomplete="off">
           <span class="icon is-small is-left">
-            <i class="fas fa-search"></i>
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg>
           </span>
         </div>
       </div>
@@ -166,8 +166,8 @@
                 <td>{{ deporte.descripcion|default:"Sin descripción" }}</td>
                 {% if user.rol == "ADMIN" %}
                 <td class="has-text-centered">
-                  <a href="{% url 'editar_deporte' deporte.id %}" class="button is-small is-info is-light" title="Editar deporte">✏️ Editar</a>
-                  <a href="{% url 'eliminar_deporte' deporte.id %}" class="button is-small is-danger is-light" title="Eliminar deporte" onclick="return confirm('¿Estás seguro de eliminar este deporte?')">🗑️ Eliminar</a>
+                  <a href="{% url 'editar_deporte' deporte.id %}" class="button is-small is-info is-light" title="Editar deporte"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
+                  <a href="{% url 'eliminar_deporte' deporte.id %}" class="button is-small is-danger is-light" title="Eliminar deporte" onclick="return confirm('¿Estás seguro de eliminar este deporte?')"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar</a>
                 </td>
                 {% endif %}
               </tr>
