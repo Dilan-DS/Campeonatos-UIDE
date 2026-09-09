@@ -1,81 +1,36 @@
 {% load static %}
-<!-- comun/footer.html -->
+{% comment %}
+  Pie de página — Campeonatos UIDE
 
-<footer class="footer footer-pro">
-  <div class="container">
-    <!-- Link principal -->
-    <div class="footer-row">
-      <a class="navbar-item footer-link" href="{% url 'equipo_publico' %}">✨ Conócenos</a>
+  La versión anterior traía un <style> propio con degradado dorado que
+  chocaba con uide.css: el copyright terminaba en #eef2f6 sobre #FFD700
+  (contraste 1.25:1, texto invisible). Ahora los estilos viven en
+  uide.css (.uide-footer) sobre superficie oscura, con 4.5:1 o más.
+{% endcomment %}
+<footer class="footer uide-footer">
+  <div class="uide-footer__inner">
+    <div class="uide-footer__brand">
+      <img class="uide-navbar__logo" src="{% static 'img/logo.png' %}" alt="">
+      <span>Campeonatos UIDE Loja</span>
     </div>
 
-    <!-- Copyright -->
-    <div class="has-text-centered mt-5">
-      <p class="is-size-7 footer-copy">© 2025 UIDE Loja - Proyecto Campeonatos</p>
-    </div>
+    <nav class="uide-footer__nav" aria-label="Enlaces del pie de página">
+      <a class="uide-footer__link" href="{% url 'campeonatos_publicos' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+        Campeonatos
+      </a>
+      <a class="uide-footer__link" href="{% url 'resultados_publicos' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        Resultados
+      </a>
+      <a class="uide-footer__link" href="{% url 'equipo_publico' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>
+        Conócenos
+      </a>
+    </nav>
+
+    <p class="uide-footer__copy">
+      © 2025 Universidad Internacional del Ecuador — UIDE Loja · Proyecto Campeonatos
+    </p>
   </div>
 </footer>
-
-<style>
-  :root{
-    --gold-1:#FFE26D;   /* dorado claro */
-    --gold-2:#FFD700;   /* dorado base  */
-    --ink:#1E293B;      /* texto principal */
-    --ink-soft:#475569; /* texto secundario */
-    --line:rgba(0,0,0,.06);
-    --shadow-sm:0 6px 14px rgba(0,0,0,.06);
-    --shadow:0 12px 28px rgba(0,0,0,.12);
-  }
-
-  /* Footer con degradé dorado y sutil relieve */
-  .footer-pro{
-    background: linear-gradient(180deg, var(--gold-1), var(--gold-2)) !important;
-    padding: 3rem 1.5rem;
-    border-top: 1px solid var(--line);
-    box-shadow: inset 0 6px 18px rgba(0,0,0,.05);
-    position: relative;
-  }
-  /* Sombra suave en el borde superior (separa visualmente del contenido) */
-  .footer-pro::before{
-    content:"";
-    position:absolute; left:0; right:0; top:-18px; height:18px;
-    background: radial-gradient(120% 100% at 50% 0%, rgba(0,0,0,.08), transparent 60%);
-    pointer-events:none;
-  }
-
-  /* Layout del contenido */
-  .footer .container{ max-width:1100px; }
-  .footer-row{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:1rem;
-    flex-wrap:wrap;
-  }
-
-  /* Botón/enlace principal */
-  .footer-link{
-    color:#111827 !important;
-    background: rgba(255,255,255,.85);
-    padding:.65rem 1rem;
-    border-radius:999px;
-    border:1px solid var(--line);
-    box-shadow: var(--shadow-sm);
-    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-    font-weight:600;
-  }
-  .footer-link:hover{
-    transform: translateY(-1px);
-    background:#ffffff;
-    box-shadow: var(--shadow);
-  }
-
-  /* Texto del copyright */
-  .footer-copy{
-    color:#7c2d12; /* tono marrón-dorado */
-    letter-spacing:.2px;
-  }
-
-  @media (max-width: 768px){
-    .footer-pro{ padding:2.5rem 1.25rem; }
-  }
-</style>
