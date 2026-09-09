@@ -1,0 +1,174 @@
+{% comment %}
+  Sistema de iconos — Campeonatos UIDE
+
+  Sprite SVG en línea. Se incluye una sola vez al inicio de <body>
+  (ver comun/base.html) y cada icono se referencia así:
+
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+
+  Reglas:
+  · Trazo uniforme (grosor y color se heredan vía CSS: .uide-icon).
+  · Siempre aria-hidden="true": el icono acompaña texto, no lo sustituye.
+    Si un control es sólo icono, el texto va en aria-label del control.
+  · Sin dependencias externas ni peticiones de red adicionales.
+{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true" focusable="false">
+  <symbol id="i-trofeo" viewBox="0 0 24 24">
+    <path d="M8 21h8m-4-4v4m-5-17h10v5a5 5 0 0 1-10 0V4Z"/>
+    <path d="M7 6H5a2 2 0 0 0 0 4h2m10-4h2a2 2 0 0 1 0 4h-2"/>
+  </symbol>
+  <symbol id="i-ajustes" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/>
+  </symbol>
+  <symbol id="i-info" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 16v-4m0-4h.01"/>
+  </symbol>
+  <symbol id="i-imagen" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <circle cx="9" cy="9" r="1.6"/>
+    <path d="m21 15-4.5-4.5L7 21"/>
+  </symbol>
+  <symbol id="i-pago" viewBox="0 0 24 24">
+    <rect x="2" y="5" width="20" height="14" rx="2"/>
+    <path d="M2 10h20M6 15h4"/>
+  </symbol>
+  <symbol id="i-calendario" viewBox="0 0 24 24">
+    <rect x="3" y="5" width="18" height="16" rx="2"/>
+    <path d="M8 3v4m8-4v4M3 11h18"/>
+  </symbol>
+  <symbol id="i-equipos" viewBox="0 0 24 24">
+    <path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/>
+    <circle cx="9" cy="7" r="3.2"/>
+    <path d="M22 20v-1.5a4 4 0 0 0-3-3.85M16.5 4.2a3.2 3.2 0 0 1 0 5.9"/>
+  </symbol>
+  <symbol id="i-usuario" viewBox="0 0 24 24">
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </symbol>
+  <symbol id="i-salir" viewBox="0 0 24 24">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <path d="m16 17 5-5-5-5M21 12H9"/>
+  </symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24">
+    <path d="M4 6h16M4 12h16M4 18h16"/>
+  </symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24">
+    <path d="M18 6 6 18M6 6l12 12"/>
+  </symbol>
+  <symbol id="i-ver" viewBox="0 0 24 24">
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </symbol>
+  <symbol id="i-editar" viewBox="0 0 24 24">
+    <path d="M12 20h9"/>
+    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+  </symbol>
+  <symbol id="i-eliminar" viewBox="0 0 24 24">
+    <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 5v6m4-6v6"/>
+  </symbol>
+  <symbol id="i-mas" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14"/>
+  </symbol>
+  <symbol id="i-descargar" viewBox="0 0 24 24">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <path d="m7 10 5 5 5-5M12 15V3"/>
+  </symbol>
+  <symbol id="i-buscar" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="7"/>
+    <path d="m20 20-3.9-3.9"/>
+  </symbol>
+  <symbol id="i-chevron-abajo" viewBox="0 0 24 24">
+    <path d="m6 9 6 6 6-6"/>
+  </symbol>
+  <symbol id="i-chevron-derecha" viewBox="0 0 24 24">
+    <path d="m9 6 6 6-6 6"/>
+  </symbol>
+  <symbol id="i-atras" viewBox="0 0 24 24">
+    <path d="M19 12H5m7-7-7 7 7 7"/>
+  </symbol>
+  <symbol id="i-exito" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="m8.5 12.5 2.5 2.5 4.5-5"/>
+  </symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24">
+    <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+    <path d="M12 9v4m0 4h.01"/>
+  </symbol>
+  <symbol id="i-error" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="m15 9-6 6m0-6 6 6"/>
+  </symbol>
+  <symbol id="i-noticia" viewBox="0 0 24 24">
+    <path d="M4 22h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9h4"/>
+    <path d="M10 6h6M10 10h6M10 14h4"/>
+  </symbol>
+  <symbol id="i-testimonio" viewBox="0 0 24 24">
+    <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/>
+    <path d="M8.5 9.5h.01M12 9.5h.01m3.5 0h.01"/>
+  </symbol>
+  <symbol id="i-transmision" viewBox="0 0 24 24">
+    <rect x="2" y="6" width="15" height="12" rx="2"/>
+    <path d="m22 8-5 4 5 4V8Z"/>
+  </symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="7" height="7" rx="1"/>
+    <rect x="14" y="3" width="7" height="7" rx="1"/>
+    <rect x="3" y="14" width="7" height="7" rx="1"/>
+    <path d="M14 14h3v3m4 4h-3v-3"/>
+  </symbol>
+  <symbol id="i-lista" viewBox="0 0 24 24">
+    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+  </symbol>
+  <symbol id="i-estadisticas" viewBox="0 0 24 24">
+    <path d="M3 21h18M7 21V11m5 10V5m5 16v-7"/>
+  </symbol>
+  <symbol id="i-documento" viewBox="0 0 24 24">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+    <path d="M14 2v6h6M8 13h8m-8 4h5"/>
+  </symbol>
+  <symbol id="i-lugar" viewBox="0 0 24 24">
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </symbol>
+  <symbol id="i-reloj" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 7v5l3 2"/>
+  </symbol>
+  <symbol id="i-suspension" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="m5.6 5.6 12.8 12.8"/>
+  </symbol>
+  <symbol id="i-arbitro" viewBox="0 0 24 24">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+    <path d="m9 12 2 2 4-4"/>
+  </symbol>
+  <symbol id="i-carrera" viewBox="0 0 24 24">
+    <path d="M21 9 12 4 3 9l9 5 9-5Z"/>
+    <path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+  </symbol>
+  <symbol id="i-deporte" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M12 3a9 9 0 0 0 0 18M12 3a9 9 0 0 1 0 18M3.5 9h17M3.5 15h17"/>
+  </symbol>
+  <symbol id="i-bandeja" viewBox="0 0 24 24">
+    <path d="M22 12h-6l-2 3h-4l-2-3H2"/>
+    <path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1Z"/>
+  </symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+  </symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <path d="M3 9h18M9 21V9"/>
+  </symbol>
+  <symbol id="i-enlace" viewBox="0 0 24 24">
+    <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/>
+    <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7L12 19"/>
+  </symbol>
+  <symbol id="i-filtro" viewBox="0 0 24 24">
+    <path d="M3 5h18l-7 8v6l-4-2v-4Z"/>
+  </symbol>
+</svg>

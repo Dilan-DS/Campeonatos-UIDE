@@ -1,335 +1,336 @@
 {% load static %}
-<style>
-/* ===========================
-   Navbar PRO – Campeonatos UIDE
-   (solo estilos, sin tocar HTML)
-   =========================== */
-:root{
-  --brand-1:#e11d48; /* danger-600 */
-  --brand-2:#f43f5e; /* rose-500 */
-  --ink:#ffffff;
-  --ink-dim:rgba(255,255,255,.85);
-  --ink-soft:rgba(255,255,255,.6);
-  --glass:rgba(255,255,255,.06);
-  --shadow:0 10px 25px rgba(0,0,0,.18);
-  --ring:0 0 0 2px rgba(255,255,255,.2), 0 0 1px rgba(0,0,0,.15);
-}
+{% comment %}
+  Navegación principal — Campeonatos UIDE
 
-/* Fondo degradado + glass */
-.navbar.has-background-danger{
-  background: linear-gradient(120deg,var(--brand-1),var(--brand-2));
-  color: var(--ink);
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  transition: filter .25s ease;
-}
-.navbar.has-background-danger:hover{
-  filter: saturate(1.05) brightness(1.02);
-}
+  Cambios de accesibilidad respecto a la versión anterior:
+  · Los desplegables se abren con clic/teclado (<button aria-expanded>).
+    Antes eran `is-hoverable` sobre <a> sin href: imposibles de alcanzar
+    con teclado y poco fiables en táctil.
+  · La hamburguesa es un <button> real y sincroniza aria-expanded.
+  · Cerrar sesión va por POST (formulario), no por enlace GET.
+  · Los iconos son SVG del sprite (comun/iconos.html), no emoji.
+  · La página actual se marca con aria-current y subrayado ámbar.
 
-/* Marca / título */
-.navbar-brand .navbar-item{
-  font-weight: 800;
-  letter-spacing:.2px;
-  color: var(--ink) !important;
-  text-shadow: 0 1px 0 rgba(0,0,0,.12);
-}
-
-/* Ítems y links */
-.navbar-item.has-text-white,
-.navbar-link.has-text-white{
-  color: var(--ink-dim) !important;
-  transition: color .2s ease, background-color .2s ease, transform .18s ease;
-  position: relative;
-}
-
-/* Subrayado animado en hover */
-.navbar-item.has-text-white::after,
-.navbar-link.has-text-white::after{
-  content:'';
-  position:absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: .35rem;
-  height: 2px;
-  background: var(--ink);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .22s ease;
-  opacity:.7;
-}
-.navbar-item.has-text-white:hover::after,
-.navbar-link.has-text-white:hover::after{
-  transform: scaleX(1);
-}
-
-/* Hover suave */
-.navbar-item:hover,
-.navbar-link:hover{
-  color: var(--ink) !important;
-  background: var(--glass) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-/* Dropdown estilizado */
-.navbar-dropdown{
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.92));
-  box-shadow: var(--shadow);
-  padding-top:.5rem;
-  padding-bottom:.5rem;
-  animation: dropdownIn .18s ease;
-}
-@keyframes dropdownIn{
-  from{transform: translateY(-6px); opacity:0}
-  to{transform: translateY(0); opacity:1}
-}
-.navbar-dropdown .navbar-item{
-  color:#0f172a !important; /* slate-900 */
-  border-radius:10px;
-  margin: 2px 8px;
-}
-.navbar-dropdown .navbar-item:hover{
-  background: rgba(244,63,94,.08);
-  color:#0f172a !important;
-}
-
-/* Botones del extremo derecho */
-.navbar-end .button{
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.12);
-  transition: transform .14s ease, box-shadow .14s ease, filter .2s ease;
-}
-.navbar-end .button:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(0,0,0,.16);
-}
-.navbar-end .button.is-warning{
-  background: #fde047; /* amber-300 */
-  border-color: transparent;
-}
-.navbar-end .button.is-info{
-  background: #38bdf8; /* sky-400 */
-  border-color: transparent;
-}
-.navbar-end .button.is-light{
-  background: rgba(255,255,255,.92);
-}
-
-/* Hamburguesa: animación a “X” */
-.navbar-burger{
-  color: var(--ink);
-  height: 3.25rem;
-  width: 3.25rem;
-  border-radius: 10px;
-  transition: background-color .2s ease, box-shadow .2s ease;
-}
-.navbar-burger:hover{
-  background: var(--glass);
-  box-shadow: var(--ring);
-}
-.navbar-burger span{
-  background-color: var(--ink) !important;
-  transition: transform .22s ease, opacity .22s ease;
-}
-.navbar-burger.is-active span:nth-child(1){
-  transform: translateY(6px) rotate(45deg);
-}
-.navbar-burger.is-active span:nth-child(2){
-  opacity:0;
-}
-.navbar-burger.is-active span:nth-child(3){
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* Menú mobile: transición suave */
-@media (max-width: 1023px){
-  .navbar-menu{
-    display:block !important;
-    max-height:0;
-    overflow:hidden;
-    opacity:0;
-    transition:max-height .35s ease, opacity .2s ease;
-    background: linear-gradient(120deg,var(--brand-1),var(--brand-2));
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  .navbar-menu.is-active{
-    max-height: 65vh;
-    opacity:1;
-  }
-  .navbar-menu .navbar-item,
-  .navbar-menu .navbar-link{
-    color: var(--ink) !important;
-  }
-  .navbar-menu .navbar-dropdown{
-    background: rgba(255,255,255,.98);
-  }
-}
-
-/* Accesibilidad/foco */
-.navbar-item:focus,
-.navbar-link:focus,
-.navbar-dropdown .navbar-item:focus{
-  outline: none;
-  box-shadow: var(--ring);
-}
-</style>
-
-<nav class="navbar has-background-danger" role="navigation" aria-label="main navigation">
+  Los destinos y la lógica de roles son los mismos que antes.
+{% endcomment %}
+{% with url_name=request.resolver_match.url_name %}
+<nav class="navbar uide-navbar" role="navigation" aria-label="Navegación principal">
   <div class="navbar-brand">
-    <a class="navbar-item has-text-white" href="{% url 'inicio_publico' %}">🏆 Campeonatos UIDE</a>
-
-    <!-- BOTÓN HAMBURGUESA -->
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="menuPrincipal">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
+    <a class="navbar-item" href="{% url 'inicio_publico' %}">
+      <img class="uide-navbar__logo" src="{% static 'img/logo.png' %}" alt="">
+      <span>Campeonatos UIDE</span>
     </a>
+
+    <button type="button" class="navbar-burger" aria-label="Abrir menú de navegación"
+            aria-expanded="false" aria-controls="menuPrincipal" data-target="menuPrincipal">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </button>
   </div>
 
   <div id="menuPrincipal" class="navbar-menu">
     <div class="navbar-start">
-      <a class="navbar-item has-text-white" href="{% url 'campeonatos_publicos' %}">Inicio</a>
-     
+      <a class="navbar-item {% if url_name == 'campeonatos_publicos' %}is-current{% endif %}"
+         href="{% url 'campeonatos_publicos' %}"
+         {% if url_name == 'campeonatos_publicos' %}aria-current="page"{% endif %}>
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+        <span>Campeonatos</span>
+      </a>
 
       {% if request.user.is_authenticated %}
         {% if request.user.rol == "ADMIN" %}
-          <!-- ADMIN -->
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">⚙️ Gestión</a>
+
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-ajustes"></use></svg>
+              <span>Gestión</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'admin_dashboard' %}">Panel Admin</a>
-              <a class="navbar-item" href="{% url 'listar_usuarios' %}">Usuarios</a>
-              <a class="navbar-item" href="{% url 'listar_arbitros' %}">Árbitros</a>
+              <a class="navbar-item {% if url_name == 'admin_dashboard' %}is-current{% endif %}" href="{% url 'admin_dashboard' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-panel"></use></svg>Panel Admin
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_usuarios' %}is-current{% endif %}" href="{% url 'listar_usuarios' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>Usuarios
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_arbitros' %}is-current{% endif %}" href="{% url 'listar_arbitros' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg>Árbitros
+              </a>
             </div>
           </div>
 
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">🏆 Campeonatos</a>
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+              <span>Competencia</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'listar_campeonatos' %}">Campeonatos</a>
-              <a class="navbar-item" href="{% url 'listar_equipos' %}">Equipos</a>
+              <a class="navbar-item {% if url_name == 'listar_campeonatos' %}is-current{% endif %}" href="{% url 'listar_campeonatos' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>Campeonatos
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_equipos' %}is-current{% endif %}" href="{% url 'listar_equipos' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>Equipos
+              </a>
               {% if campeonato_listo_para_ver %}
-              <a class="navbar-item" href="{% url 'calendario_campeonato' campeonato_listo_para_ver.id %}">Calendario</a>
+                <a class="navbar-item {% if url_name == 'calendario_campeonato' %}is-current{% endif %}" href="{% url 'calendario_campeonato' campeonato_listo_para_ver.id %}">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Calendario
+                </a>
               {% endif %}
-              <a class="navbar-item" href="{% url 'listar_transmisiones' %}">Transmisiones</a>
-              <a class="navbar-item" href="{% url 'listar_suspensiones' %}">Suspensiones</a>
+              <a class="navbar-item {% if url_name == 'listar_transmisiones' %}is-current{% endif %}" href="{% url 'listar_transmisiones' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>Transmisiones
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_suspensiones' %}is-current{% endif %}" href="{% url 'listar_suspensiones' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-suspension"></use></svg>Suspensiones
+              </a>
             </div>
           </div>
 
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">📌 Información</a>
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+              <span>Catálogos</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'listar_deportes' %}">Deportes</a>
-              <a class="navbar-item" href="{% url 'listar_codigos_qr' %}">Códigos QR</a>
-              <a class="navbar-item" href="{% url 'listar_carreras' %}">Carreras</a>
+              <a class="navbar-item {% if url_name == 'listar_deportes' %}is-current{% endif %}" href="{% url 'listar_deportes' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg>Deportes
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_codigos_qr' %}is-current{% endif %}" href="{% url 'listar_codigos_qr' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-qr"></use></svg>Códigos QR
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_carreras' %}is-current{% endif %}" href="{% url 'listar_carreras' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-carrera"></use></svg>Carreras
+              </a>
             </div>
           </div>
 
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">🖼️ Multimedia</a>
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>
+              <span>Contenido</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'listar_imagenes_galeria' %}">Galería</a>
-              <a class="navbar-item" href="{% url 'listar_noticias' %}">Noticias</a>
-              <a class="navbar-item" href="{% url 'listar_testimonios' %}">Testimonios</a>
+              <a class="navbar-item {% if url_name == 'listar_imagenes_galeria' %}is-current{% endif %}" href="{% url 'listar_imagenes_galeria' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>Galería
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_noticias' %}is-current{% endif %}" href="{% url 'listar_noticias' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg>Noticias
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_testimonios' %}is-current{% endif %}" href="{% url 'listar_testimonios' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-testimonio"></use></svg>Testimonios
+              </a>
             </div>
           </div>
 
-          <a class="navbar-item has-text-white" href="{% url 'listar_pagos_admin' %}">💰 Pagos</a>
-          <a class="navbar-item has-text-white" href="{% url 'calendario_global' %}">📅 Partidos</a>
+          <a class="navbar-item {% if url_name == 'listar_pagos_admin' %}is-current{% endif %}"
+             href="{% url 'listar_pagos_admin' %}"
+             {% if url_name == 'listar_pagos_admin' %}aria-current="page"{% endif %}>
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg>
+            <span>Pagos</span>
+          </a>
+          <a class="navbar-item {% if url_name == 'calendario_global' %}is-current{% endif %}"
+             href="{% url 'calendario_global' %}"
+             {% if url_name == 'calendario_global' %}aria-current="page"{% endif %}>
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+            <span>Partidos</span>
+          </a>
 
         {% elif request.user.rol == "ARBITRO" %}
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white">⚖️ Árbitro</a>
+
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg>
+              <span>Arbitraje</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'mis_partidos_arbitro' %}">Mis Partidos</a>
-              <a class="navbar-item" href="{% url 'historial_arbitros' %}">Historial</a>
+              <a class="navbar-item {% if url_name == 'mis_partidos_arbitro' %}is-current{% endif %}" href="{% url 'mis_partidos_arbitro' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Mis partidos
+              </a>
+              <a class="navbar-item {% if url_name == 'historial_arbitros' %}is-current{% endif %}" href="{% url 'historial_arbitros' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-lista"></use></svg>Historial
+              </a>
             </div>
           </div>
 
         {% elif request.user.rol == "DELEGADO" %}
-          {# Opcional: si manejas campeonato en contexto, muestra calendario de ese campeonato #}
-          {% if campeonato %}
-            <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}"> Calendario</a>
-          {% endif %}
-          <!-- DELEGADO -->
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white"> Delegado</a>
-            <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'delegado_dashboard' %}">Mi Panel</a>
-              <a class="navbar-item" href="{% url 'registrar_equipo' %}">Registrar Equipo</a>
-              <a class="navbar-item" href="{% url 'listar_equipos' %}">Mis Equipos</a>
-              <a class="navbar-item" href="{% url 'mis_jugadores_delegado' %}">Mis Jugadores</a>
-              <a class="navbar-item" href="{% url 'listar_partidos' %}">Partidos</a>
-              <a class="navbar-item" href="{% url 'calendario_global' %}"> Calendario Global</a>
-              <a class="navbar-item" href="{% url 'mis_pagos_delegado' %}"> Pagos</a>
 
+          {% if campeonato %}
+            <a class="navbar-item {% if url_name == 'calendario_campeonato' %}is-current{% endif %}" href="{% url 'calendario_campeonato' campeonato.id %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+              <span>Calendario</span>
+            </a>
+          {% endif %}
+
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>
+              <span>Mi delegación</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
+            <div class="navbar-dropdown">
+              <a class="navbar-item {% if url_name == 'delegado_dashboard' %}is-current{% endif %}" href="{% url 'delegado_dashboard' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-panel"></use></svg>Mi panel
+              </a>
+              <a class="navbar-item {% if url_name == 'registrar_equipo' %}is-current{% endif %}" href="{% url 'registrar_equipo' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>Registrar equipo
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_equipos' %}is-current{% endif %}" href="{% url 'listar_equipos' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>Mis equipos
+              </a>
+              <a class="navbar-item {% if url_name == 'mis_jugadores_delegado' %}is-current{% endif %}" href="{% url 'mis_jugadores_delegado' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>Mis jugadores
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_partidos' %}is-current{% endif %}" href="{% url 'listar_partidos' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-lista"></use></svg>Partidos
+              </a>
+              <a class="navbar-item {% if url_name == 'calendario_global' %}is-current{% endif %}" href="{% url 'calendario_global' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Calendario global
+              </a>
+              <a class="navbar-item {% if url_name == 'mis_pagos_delegado' %}is-current{% endif %}" href="{% url 'mis_pagos_delegado' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg>Pagos
+              </a>
             </div>
           </div>
+
         {% elif request.user.rol == "JUGADOR" %}
+
           {% if campeonato %}
-            <a class="navbar-item has-text-white" href="{% url 'calendario_campeonato' campeonato.id %}"> Calendario</a>
+            <a class="navbar-item {% if url_name == 'calendario_campeonato' %}is-current{% endif %}" href="{% url 'calendario_campeonato' campeonato.id %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+              <span>Calendario</span>
+            </a>
           {% endif %}
-          <!-- JUGADOR -->
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link has-text-white"> Jugador</a>
+
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
+              <span>Mi actividad</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'calendario_global' %}"> Mis Partidos</a>
-              {% with request.user.jugador as jugador %}
+              <a class="navbar-item {% if url_name == 'calendario_global' %}is-current{% endif %}" href="{% url 'calendario_global' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Mis partidos
+              </a>
+              {% with jugador=request.user.jugador %}
                 {% if jugador %}
-                  <a class="navbar-item" href="{% url 'ver_estadisticas_jugador' jugador.id %}"> Mis Estadísticas</a>
+                  <a class="navbar-item {% if url_name == 'ver_estadisticas_jugador' %}is-current{% endif %}" href="{% url 'ver_estadisticas_jugador' jugador.id %}">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>Mis estadísticas
+                  </a>
                   {% if jugador.equipo %}
-                    <a class="navbar-item" href="{% url 'ver_equipo_jugador' equipo_id=jugador.equipo.id %}">⚽ Mi Equipo</a>
+                    <a class="navbar-item {% if url_name == 'ver_equipo_jugador' %}is-current{% endif %}" href="{% url 'ver_equipo_jugador' equipo_id=jugador.equipo.id %}">
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>Mi equipo
+                    </a>
                     {% if jugador.equipo.campeonato %}
-                      <a class="navbar-item" href="{% url 'tabla_posiciones' jugador.equipo.campeonato.id %}"> Tabla de Posiciones</a>
+                      <a class="navbar-item {% if url_name == 'tabla_posiciones' %}is-current{% endif %}" href="{% url 'tabla_posiciones' jugador.equipo.campeonato.id %}">
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>Tabla de posiciones
+                      </a>
                     {% endif %}
                   {% endif %}
                 {% endif %}
               {% endwith %}
             </div>
           </div>
+
         {% endif %}
       {% endif %}
     </div>
 
     <div class="navbar-end">
-      <div class="navbar-item">
-        <div class="buttons">
-          {% if request.user.is_authenticated %}
-            <span class="has-text-white mr-3">
-              Hola, {{ request.user.first_name|default:request.user.username }} ({{ request.user.get_rol_display }})
+      {% if request.user.is_authenticated %}
+        {# Cuenta agrupada: sueltos, Perfil y Cerrar sesión desbordaban la barra en ADMIN. #}
+        <div class="navbar-item has-dropdown uide-navbar__account" data-dropdown>
+          <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
+            <span class="uide-navbar__user">
+              <b>{{ request.user.first_name|default:request.user.username }}</b>
+              <span class="uide-navbar__role">{{ request.user.get_rol_display }}</span>
             </span>
-            <a class="button is-info" href="{% url 'perfil_usuario' %}">Perfil</a>
-            <a class="button is-warning" href="{% url 'logout' %}">Cerrar sesión</a>
-          {% else %}
-            <a class="button is-warning" href="{% url 'registro' %}"><strong>Registrarse</strong></a>
-            <a class="button is-light" href="{% url 'login' %}">Iniciar sesión</a>
-          {% endif %}
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+          </button>
+          <div class="navbar-dropdown is-right">
+            <a class="navbar-item {% if url_name == 'perfil_usuario' %}is-current{% endif %}" href="{% url 'perfil_usuario' %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>Mi perfil
+            </a>
+            <a class="navbar-item {% if url_name == 'editar_perfil' %}is-current{% endif %}" href="{% url 'editar_perfil' %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg>Editar perfil
+            </a>
+            <hr class="navbar-divider">
+            <form method="post" action="{% url 'logout' %}" class="uide-navbar__logout">
+              {% csrf_token %}
+              <button type="submit" class="navbar-item">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-salir"></use></svg>Cerrar sesión
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      {% else %}
+        <div class="navbar-item">
+          <div class="uide-navbar__session">
+            <a class="button is-outline" href="{% url 'registro' %}">Crear cuenta</a>
+            <a class="button is-light" href="{% url 'login' %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-salir"></use></svg>
+              <span>Iniciar sesión</span>
+            </a>
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 </nav>
+{% endwith %}
 
-<!-- Script para activar menú hamburguesa -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    /* Hamburguesa: sincroniza aria-expanded con el estado visible. */
     const burger = document.querySelector('.navbar-burger');
-    const menu = document.getElementById(burger?.dataset?.target);
+    const menu = burger && document.getElementById(burger.dataset.target);
     if (burger && menu) {
       burger.addEventListener('click', () => {
-        burger.classList.toggle('is-active');
-        menu.classList.toggle('is-active');
+        const open = menu.classList.toggle('is-active');
+        burger.classList.toggle('is-active', open);
+        burger.setAttribute('aria-expanded', String(open));
+        burger.setAttribute('aria-label', open ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
       });
     }
+
+    /* Desplegables: patrón de divulgación accesible con clic y teclado. */
+    const dropdowns = Array.from(document.querySelectorAll('[data-dropdown]'));
+
+    const closeAll = (except) => {
+      dropdowns.forEach((item) => {
+        if (item === except) return;
+        item.classList.remove('is-active');
+        const trigger = item.querySelector('[data-dropdown-trigger]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      });
+    };
+
+    dropdowns.forEach((item) => {
+      const trigger = item.querySelector('[data-dropdown-trigger]');
+      if (!trigger) return;
+
+      trigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const open = !item.classList.contains('is-active');
+        closeAll(item);
+        item.classList.toggle('is-active', open);
+        trigger.setAttribute('aria-expanded', String(open));
+      });
+
+      item.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        item.classList.remove('is-active');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('[data-dropdown]')) closeAll(null);
+    });
   });
 </script>

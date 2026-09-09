@@ -1,141 +1,1712 @@
+/* ==========================================================================
+   Campeonatos UIDE — Sistema de diseño
+   --------------------------------------------------------------------------
+   Capa única de diseño sobre Bulma 1.0.4. Orden de secciones:
+     1. Tokens
+     2. Tema (fijado en claro) y superficies del navegador
+     3. Base y tipografía
+     4. Layout de página
+     5. Navbar
+     6. Footer
+     7. Botones
+     8. Formularios
+     9. Tarjetas y paneles
+    10. Tablas
+    11. Etiquetas y estados
+    12. Avisos y mensajes
+    13. Estados vacíos
+    14. Métricas
+    15. Modales
+    16. Iconos
+    17. Responsive
+    18. Movimiento reducido / impresión
+
+   Regla: los colores y espacios se toman de los tokens. Si una pantalla
+   necesita un valor nuevo, se añade aquí como token, no en la plantilla.
+   ========================================================================== */
+
+/* ============================ 1. Tokens ================================== */
+
 :root {
+  /* Marca institucional UIDE */
   --uide-primary: #a6192e;
   --uide-primary-strong: #7f1022;
+  --uide-primary-soft: #fdf2f4;
+  --uide-primary-border: #f3d3d9;
   --uide-accent: #f4b400;
+  --uide-accent-strong: #b57f00;
+  --uide-accent-soft: #fffaeb;
+
+  /* Superficies y texto */
   --uide-bg: #f5f7fb;
   --uide-surface: #ffffff;
+  --uide-surface-sunken: #f8fafc;
   --uide-text: #172033;
+  --uide-text-soft: #475467;
   --uide-muted: #667085;
   --uide-border: #e5e9f1;
+  --uide-border-strong: #d7dde8;
+
+  /* Estados semánticos: texto / fondo / borde */
   --uide-success: #16794a;
+  --uide-success-bg: #ecfdf3;
+  --uide-success-border: #b7ecd0;
   --uide-warning: #9a6700;
+  --uide-warning-bg: #fffaeb;
+  --uide-warning-border: #f5e3ab;
   --uide-danger: #b42335;
+  --uide-danger-bg: #fff1f3;
+  --uide-danger-border: #f8ccd4;
+  --uide-info: #175cd3;
+  --uide-info-bg: #eff6ff;
+  --uide-info-border: #c3ddfd;
+
+  /* Escala de espaciado (base 4px) */
+  --uide-space-1: .25rem;
+  --uide-space-2: .5rem;
+  --uide-space-3: .75rem;
+  --uide-space-4: 1rem;
+  --uide-space-5: 1.5rem;
+  --uide-space-6: 2rem;
+  --uide-space-7: 3rem;
+
+  /* Radios */
   --uide-radius-sm: .5rem;
   --uide-radius-md: .875rem;
   --uide-radius-lg: 1.25rem;
-  --uide-shadow: 0 12px 32px rgba(25, 35, 55, .08);
-  --uide-shadow-hover: 0 18px 38px rgba(25, 35, 55, .14);
+  --uide-radius-pill: 999px;
+
+  /* Elevación: se declara una sola vez por elemento, borde O sombra */
+  --uide-shadow-sm: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .1);
+  --uide-shadow-md: 0 4px 8px -2px rgba(16, 24, 40, .1), 0 2px 4px -2px rgba(16, 24, 40, .06);
+  --uide-shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, .08), 0 4px 6px -2px rgba(16, 24, 40, .03);
+  --uide-shadow-focus: 0 0 0 3px rgba(166, 25, 46, .16);
+
+  /* Tipografía */
+  --uide-font: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --uide-leading-tight: 1.2;
+  --uide-leading: 1.55;
+
+  /* Movimiento */
+  --uide-ease: cubic-bezier(.16, .84, .44, 1);
+  --uide-fast: 140ms;
+  --uide-base: 200ms;
+
+  /* Contenedor */
+  --uide-page-max: 1180px;
 }
 
-html { background: var(--uide-bg); }
+/* ============= 2. Tema fijado en claro + superficies del navegador ========
+
+   Bulma 1.x cambia a su paleta oscura con `prefers-color-scheme: dark`,
+   pero las plantillas de este proyecto asumen fondo claro. Sin fijar el
+   tema, el texto de las tablas quedaba en 1.18:1 sobre blanco (ilegible)
+   para cualquier usuario con el sistema en modo oscuro.
+   `data-theme="light"` en <html> (ver comun/base.html) fija la paleta
+   clara de Bulma; aquí reforzamos el color-scheme para los controles
+   nativos (scrollbars, selects, date pickers).                              */
+
+:root {
+  color-scheme: light;
+}
+
+::selection {
+  background: var(--uide-primary);
+  color: #fff;
+}
+
+:root {
+  scrollbar-color: var(--uide-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--uide-border-strong);
+  border: 3px solid transparent;
+  border-radius: var(--uide-radius-pill);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--uide-muted);
+  background-clip: content-box;
+}
+
+/* Un único anillo de foco visible en toda la aplicación. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--uide-primary);
+  outline-offset: 2px;
+  border-radius: var(--uide-radius-sm);
+}
+
+/* ======================= 3. Base y tipografía ============================ */
+
+html {
+  background: var(--uide-bg);
+  -webkit-text-size-adjust: 100%;
+}
+
 body.uide-app {
   min-height: 100vh;
   color: var(--uide-text);
   background: var(--uide-bg);
-  font-family: Roboto, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--uide-font);
+  line-height: var(--uide-leading);
 }
-.uide-main { flex: 1; padding: 2rem 0 3rem; }
-.uide-main > .container { max-width: 1180px; }
 
+/* Enlace de salto: sólo visible al tabular. */
+.uide-skip-link {
+  position: absolute;
+  left: var(--uide-space-4);
+  top: -3rem;
+  z-index: 100;
+  padding: var(--uide-space-2) var(--uide-space-4);
+  background: var(--uide-surface);
+  color: var(--uide-primary);
+  font-weight: 700;
+  border-radius: var(--uide-radius-sm);
+  box-shadow: var(--uide-shadow-lg);
+  transition: top var(--uide-fast) var(--uide-ease);
+}
+
+.uide-skip-link:focus {
+  top: var(--uide-space-4);
+}
+
+.title {
+  color: var(--uide-text);
+  letter-spacing: -.02em;
+  line-height: var(--uide-leading-tight);
+  text-wrap: balance;
+}
+
+.subtitle {
+  color: var(--uide-muted);
+  text-wrap: pretty;
+}
+
+.subtitle strong {
+  color: var(--uide-text);
+}
+
+.help,
+.has-text-grey {
+  color: var(--uide-muted) !important;
+}
+
+/* Cifras alineadas en cualquier dato tabular o métrica. */
+.table,
+.uide-stat__value,
+.uide-numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ========================= 4. Layout de página =========================== */
+
+.uide-main {
+  flex: 1;
+  padding: var(--uide-space-6) 0 var(--uide-space-7);
+}
+
+.uide-main > .container,
+.uide-container {
+  max-width: var(--uide-page-max);
+}
+
+/* Cabecera de pantalla: título + acción principal, alineados y responsive. */
+.uide-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--uide-space-4);
+  margin-bottom: var(--uide-space-5);
+}
+
+.uide-page-head__text {
+  min-width: 0;
+}
+
+.uide-page-head .title {
+  margin-bottom: var(--uide-space-1);
+}
+
+.uide-page-head .subtitle {
+  margin-bottom: 0;
+  font-size: .95rem;
+}
+
+.uide-page-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uide-space-2);
+}
+
+/* Barra de herramientas de una lista: búsqueda, filtros, contador. */
+.uide-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uide-space-3);
+  margin-bottom: var(--uide-space-4);
+}
+
+.uide-toolbar__spacer {
+  flex: 1 1 auto;
+}
+
+.uide-toolbar__count {
+  color: var(--uide-muted);
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+/* ============================= 5. Navbar ================================= */
+
+.navbar.uide-navbar,
 .navbar.has-background-danger {
   background: linear-gradient(112deg, var(--uide-primary-strong), var(--uide-primary)) !important;
   border-radius: 0;
-  box-shadow: 0 2px 14px rgba(71, 8, 20, .22);
+  box-shadow: 0 1px 2px rgba(71, 8, 20, .28);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
-.navbar-brand .navbar-item { gap: .65rem; }
-.navbar-brand .navbar-item::before { content: ""; width: 30px; height: 30px; background: url("../img/logo.png") center / contain no-repeat; display: inline-block; }
-.navbar-item, .navbar-link { font-weight: 500; }
-.navbar-item:focus-visible, .navbar-link:focus-visible, .button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 3px solid rgba(244, 180, 0, .75); outline-offset: 2px;
+
+.uide-navbar .navbar-brand .navbar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uide-space-3);
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: #fff !important;
 }
-.navbar-dropdown { border: 1px solid var(--uide-border); box-shadow: var(--uide-shadow); }
 
-.uide-alerts .notification {
-  border-radius: var(--uide-radius-md); border-left: 4px solid currentColor; box-shadow: 0 4px 14px rgba(25,35,55,.06); padding: 1rem 1.25rem;
+.uide-navbar .navbar-brand .navbar-item:hover {
+  background: rgba(255, 255, 255, .1) !important;
 }
-.notification.is-success { color: var(--uide-success); background: #ecfdf3; }
-.notification.is-warning { color: var(--uide-warning); background: #fffaeb; }
-.notification.is-danger, .notification.is-error { color: var(--uide-danger); background: #fff1f3; }
 
-.box, .card, .message, .modal-card, .table-container {
-  border: 1px solid var(--uide-border); border-radius: var(--uide-radius-md); box-shadow: var(--uide-shadow);
+.uide-navbar__logo {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
-.box, .card { background: var(--uide-surface); }
-.card { overflow: hidden; }
-.card:hover { box-shadow: var(--uide-shadow-hover); }
-.title { color: var(--uide-text); letter-spacing: -.02em; }
-.subtitle, .help, .has-text-grey { color: var(--uide-muted) !important; }
 
-.button { border-radius: var(--uide-radius-sm); font-weight: 700; min-height: 2.55em; transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease; }
-.button:hover { transform: translateY(-1px); }
-.button.is-primary, .button.is-danger { background: var(--uide-primary); border-color: var(--uide-primary); color: #fff; }
-.button.is-primary:hover, .button.is-danger:hover { background: var(--uide-primary-strong); border-color: var(--uide-primary-strong); }
-.button.is-warning { color: #3d2800; }
-
-.input, .textarea, .select select, .file-cta {
-  border-color: #d7dde8; border-radius: var(--uide-radius-sm); box-shadow: none; min-height: 2.7em;
+.uide-navbar .navbar-item,
+.uide-navbar .navbar-link {
+  color: rgba(255, 255, 255, .9) !important;
+  font-weight: 500;
+  transition: background-color var(--uide-fast) var(--uide-ease),
+              color var(--uide-fast) var(--uide-ease);
 }
-.textarea { min-height: 7.5em; }
-.input:focus, .textarea:focus, .select select:focus { border-color: var(--uide-primary); box-shadow: 0 0 0 3px rgba(166,25,46,.12); }
-.label { color: var(--uide-text); font-weight: 700; margin-bottom: .45rem; }
-.help.is-danger { color: var(--uide-danger) !important; font-weight: 600; }
 
-.table-container { background: var(--uide-surface); overflow: auto; }
-.table { background: transparent; min-width: 640px; }
-.table thead th { color: #475467; background: #f8fafc; border-width: 0 0 1px; font-size: .75rem; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
-.table td, .table th { border-color: var(--uide-border); padding: .85rem 1rem; vertical-align: middle; }
-.table tbody tr { transition: background-color .15s ease; }
-.table tbody tr:hover { background: #fff8f9; }
+.uide-navbar .navbar-item:hover,
+.uide-navbar .navbar-link:hover,
+.uide-navbar .navbar-item:focus-visible,
+.uide-navbar .navbar-link:focus-visible {
+  background: rgba(255, 255, 255, .12) !important;
+  color: #fff !important;
+}
 
-.tag { border-radius: 999px; font-weight: 700; padding-inline: .7em; }
-.tag.is-success { background: #dcfae6; color: var(--uide-success); }
-.tag.is-warning { background: #fff0c2; color: var(--uide-warning); }
-.tag.is-danger { background: #ffe4e8; color: var(--uide-danger); }
+.uide-navbar :focus-visible {
+  outline-color: #fff;
+}
 
-.footer-pro { margin-top: auto; background: #111827 !important; box-shadow: none !important; }
-.footer-copy, .footer-link { color: #eef2f6 !important; }
-.footer-link { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.15) !important; }
+/* Página actual: subrayado sólido, no sólo color. */
+.uide-navbar .navbar-item.is-current,
+.uide-navbar .navbar-link.is-current {
+  color: #fff !important;
+  box-shadow: inset 0 -3px 0 var(--uide-accent);
+}
+
+/* Botón desplegable accesible: <button> real dentro del navbar. */
+.uide-navbar__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  padding: .5rem .75rem;
+  border-radius: var(--uide-radius-sm);
+  color: rgba(255, 255, 255, .9);
+}
+
+.uide-navbar__trigger:hover,
+.uide-navbar__trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+}
+
+.uide-navbar__trigger .uide-icon:last-child {
+  transition: transform var(--uide-fast) var(--uide-ease);
+}
+
+.uide-navbar__trigger[aria-expanded="true"] .uide-icon:last-child {
+  transform: rotate(180deg);
+}
+
+.uide-navbar .navbar-dropdown {
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  box-shadow: var(--uide-shadow-lg);
+  padding: var(--uide-space-2);
+  overflow: hidden;
+}
+
+.uide-navbar .navbar-dropdown .navbar-item {
+  color: var(--uide-text) !important;
+  border-radius: var(--uide-radius-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-3);
+  font-weight: 500;
+}
+
+.uide-navbar .navbar-dropdown .navbar-item:hover,
+.uide-navbar .navbar-dropdown .navbar-item:focus-visible {
+  background: var(--uide-primary-soft) !important;
+  color: var(--uide-primary-strong) !important;
+}
+
+.uide-navbar .navbar-dropdown .navbar-item.is-current {
+  background: var(--uide-primary-soft) !important;
+  color: var(--uide-primary-strong) !important;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+/* Identidad de sesión y acciones de cuenta. */
+.uide-navbar__session {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-3);
+  flex-wrap: wrap;
+}
+
+.uide-navbar__user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+  color: #fff;
+  font-size: .85rem;
+  text-align: left;
+  min-width: 0;
+}
+
+.uide-navbar__user b {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 12ch;
+}
+
+.uide-navbar__role {
+  color: rgba(255, 255, 255, .78);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+/* Desplegable de cuenta alineado al borde derecho. */
+.uide-navbar__account .navbar-dropdown.is-right {
+  right: 0;
+  left: auto;
+}
+
+/* Cerrar sesión es un <button> en POST, pero se ve como un navbar-item. */
+.uide-navbar__logout {
+  margin: 0;
+}
+
+.uide-navbar__logout button.navbar-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Botones sobre el granate: contraste garantizado. */
+.uide-navbar .button.is-light {
+  background: #fff;
+  border-color: #fff;
+  color: var(--uide-primary-strong);
+  font-weight: 700;
+}
+
+.uide-navbar .button.is-light:hover {
+  background: var(--uide-primary-soft);
+  border-color: var(--uide-primary-soft);
+  color: var(--uide-primary-strong);
+}
+
+.uide-navbar .button.is-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .55);
+  color: #fff;
+  font-weight: 600;
+}
+
+.uide-navbar .button.is-outline:hover {
+  background: rgba(255, 255, 255, .14);
+  border-color: #fff;
+  color: #fff;
+}
+
+/* Hamburguesa. */
+.uide-navbar .navbar-burger {
+  color: #fff;
+  height: 3.25rem;
+  width: 3.25rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--uide-radius-sm);
+}
+
+.uide-navbar .navbar-burger:hover {
+  background: rgba(255, 255, 255, .12);
+}
+
+.uide-navbar .navbar-burger span {
+  background-color: #fff !important;
+  transition: transform var(--uide-base) var(--uide-ease),
+              opacity var(--uide-fast) var(--uide-ease);
+}
+
+.uide-navbar .navbar-burger.is-active span:nth-child(1) {
+  transform: translateY(5px) rotate(45deg);
+}
+
+.uide-navbar .navbar-burger.is-active span:nth-child(2) {
+  opacity: 0;
+}
+
+.uide-navbar .navbar-burger.is-active span:nth-child(3) {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+/* ============================= 6. Footer ================================= */
+
+.uide-footer {
+  margin-top: auto;
+  background: #101828;
+  padding: var(--uide-space-6) var(--uide-space-5);
+  box-shadow: none;
+}
+
+.uide-footer__inner {
+  max-width: var(--uide-page-max);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uide-space-4);
+}
+
+.uide-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-3);
+  color: #fff;
+  font-weight: 700;
+}
+
+.uide-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uide-space-4);
+}
+
+.uide-footer__link {
+  color: #cdd5e0;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  border-radius: var(--uide-radius-sm);
+  transition: color var(--uide-fast) var(--uide-ease);
+}
+
+.uide-footer__link:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.uide-footer__link:focus-visible {
+  outline-color: #fff;
+}
+
+.uide-footer__copy {
+  color: #98a2b3;
+  font-size: .82rem;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  padding-top: var(--uide-space-4);
+  margin: 0;
+}
+
+/* ============================ 7. Botones ================================= */
+
+.button {
+  border-radius: var(--uide-radius-sm);
+  font-weight: 600;
+  min-height: 2.6em;
+  transition: background-color var(--uide-fast) var(--uide-ease),
+              border-color var(--uide-fast) var(--uide-ease),
+              color var(--uide-fast) var(--uide-ease),
+              box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button[disabled],
+.button.is-loading {
+  cursor: not-allowed;
+  opacity: .6;
+  box-shadow: none;
+}
+
+.button[disabled]:active {
+  transform: none;
+}
+
+/* Acción principal. */
+.button.is-primary {
+  background: var(--uide-primary);
+  border-color: var(--uide-primary);
+  color: #fff;
+}
+
+.button.is-primary:hover {
+  background: var(--uide-primary-strong);
+  border-color: var(--uide-primary-strong);
+  color: #fff;
+}
+
+/* Acción secundaria: mismo peso visual, sin competir por atención. */
+.button.is-light,
+.button.is-white {
+  background: var(--uide-surface);
+  border-color: var(--uide-border-strong);
+  color: var(--uide-text-soft);
+}
+
+.button.is-light:hover,
+.button.is-white:hover {
+  background: var(--uide-surface-sunken);
+  border-color: var(--uide-muted);
+  color: var(--uide-text);
+}
+
+/* Acción destructiva: sólo para borrar/rechazar. */
+.button.is-danger {
+  background: var(--uide-danger);
+  border-color: var(--uide-danger);
+  color: #fff;
+}
+
+.button.is-danger:hover {
+  background: #8f1b2a;
+  border-color: #8f1b2a;
+  color: #fff;
+}
+
+.button.is-danger.is-light {
+  background: var(--uide-danger-bg);
+  border-color: var(--uide-danger-border);
+  color: var(--uide-danger);
+}
+
+.button.is-danger.is-light:hover {
+  background: #ffe4e8;
+  border-color: var(--uide-danger);
+  color: var(--uide-danger);
+}
+
+.button.is-success {
+  background: var(--uide-success);
+  border-color: var(--uide-success);
+  color: #fff;
+}
+
+.button.is-success:hover {
+  background: #12603b;
+  border-color: #12603b;
+}
+
+.button.is-warning {
+  background: var(--uide-accent);
+  border-color: var(--uide-accent);
+  color: #3d2800;
+}
+
+.button.is-warning:hover {
+  background: #dba300;
+  border-color: #dba300;
+  color: #3d2800;
+}
+
+.button.is-info,
+.button.is-link {
+  background: var(--uide-info);
+  border-color: var(--uide-info);
+  color: #fff;
+}
+
+.button.is-info:hover,
+.button.is-link:hover {
+  background: #144ba9;
+  border-color: #144ba9;
+}
+
+/* Acción terciaria: texto con icono, sin caja. */
+.button.is-ghost,
+.button.is-text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--uide-primary);
+  text-decoration: none;
+}
+
+.button.is-ghost:hover,
+.button.is-text:hover {
+  background: var(--uide-primary-soft);
+  border-color: transparent;
+  color: var(--uide-primary-strong);
+  text-decoration: none;
+}
+
+/* Grupo de acciones en una fila de tabla. */
+.uide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uide-space-2);
+}
+
+.uide-actions .button {
+  min-height: 2.25em;
+}
+
+/* Área táctil mínima sin agrandar visualmente el control. */
+.button.is-small,
+.uide-actions .button.is-small {
+  position: relative;
+}
+
+.button.is-small::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 44px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* =========================== 8. Formularios ============================== */
+
+.label {
+  color: var(--uide-text);
+  font-weight: 600;
+  margin-bottom: var(--uide-space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+}
+
+.label .uide-required {
+  color: var(--uide-danger);
+  font-weight: 700;
+}
+
+.label .uide-optional {
+  color: var(--uide-muted);
+  font-weight: 500;
+  font-size: .8rem;
+}
+
+.input,
+.textarea,
+.select select,
+.file-cta {
+  background: var(--uide-surface);
+  border-color: var(--uide-border-strong);
+  border-radius: var(--uide-radius-sm);
+  box-shadow: none;
+  color: var(--uide-text);
+  min-height: 2.75em;
+  transition: border-color var(--uide-fast) var(--uide-ease),
+              box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+.textarea {
+  min-height: 7.5em;
+  line-height: var(--uide-leading);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #98a2b3;
+  opacity: 1;
+}
+
+.input:hover,
+.textarea:hover,
+.select select:hover {
+  border-color: var(--uide-muted);
+}
+
+.input:focus,
+.textarea:focus,
+.select select:focus,
+.input:focus-visible,
+.textarea:focus-visible,
+.select select:focus-visible {
+  border-color: var(--uide-primary);
+  box-shadow: var(--uide-shadow-focus);
+  outline: none;
+}
+
+.input[disabled],
+.textarea[disabled],
+.select select[disabled] {
+  background: var(--uide-surface-sunken);
+  color: var(--uide-muted);
+  cursor: not-allowed;
+}
+
+/* Campo en error: borde + mensaje, nunca sólo color. */
+.input.is-danger,
+.textarea.is-danger,
+.select select.is-danger {
+  border-color: var(--uide-danger);
+}
+
+.input.is-danger:focus,
+.textarea.is-danger:focus {
+  box-shadow: 0 0 0 3px rgba(180, 35, 53, .16);
+}
+
+.help.is-danger {
+  color: var(--uide-danger) !important;
+  font-weight: 500;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uide-space-2);
+  margin-top: var(--uide-space-2);
+}
+
+.help.is-danger .uide-icon {
+  flex: 0 0 auto;
+  margin-top: .1em;
+}
+
+.field:not(:last-child) {
+  margin-bottom: var(--uide-space-4);
+}
+
+/* Formulario en dos columnas cuando hay espacio. */
+.uide-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0 var(--uide-space-4);
+}
+
+.uide-form-grid .is-full {
+  grid-column: 1 / -1;
+}
+
+/* Pie de formulario: acción principal a la izquierda en escritorio. */
+.uide-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uide-space-3);
+  align-items: center;
+  margin-top: var(--uide-space-5);
+  padding-top: var(--uide-space-4);
+  border-top: 1px solid var(--uide-border);
+}
+
+.uide-form-actions .uide-form-actions__spacer {
+  flex: 1 1 auto;
+}
+
+/* Resumen de errores al inicio del formulario. */
+.uide-form-errors {
+  background: var(--uide-danger-bg);
+  border: 1px solid var(--uide-danger-border);
+  border-radius: var(--uide-radius-md);
+  color: var(--uide-danger);
+  padding: var(--uide-space-4);
+  margin-bottom: var(--uide-space-4);
+}
+
+.uide-form-errors ul {
+  margin: var(--uide-space-2) 0 0;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+
+/* ======================= 9. Tarjetas y paneles ===========================
+
+   Elevación declarada UNA vez: borde para paneles en reposo, sombra
+   para elementos que flotan (dropdown, modal). Nunca ambos.            */
+
+.box,
+.card,
+.uide-panel {
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  box-shadow: none;
+}
+
+.box {
+  padding: var(--uide-space-5);
+}
+
+.card {
+  overflow: hidden;
+}
+
+/* Sólo las tarjetas navegables reaccionan al puntero. */
+.uide-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  transition: border-color var(--uide-fast) var(--uide-ease),
+              box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+.uide-card-link:hover {
+  border-color: var(--uide-primary-border);
+  box-shadow: var(--uide-shadow-md);
+  color: inherit;
+}
+
+.uide-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uide-space-3);
+  padding: var(--uide-space-4) var(--uide-space-5);
+  border-bottom: 1px solid var(--uide-border);
+}
+
+.uide-panel__title {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-3);
+  font-weight: 700;
+  color: var(--uide-text);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.uide-panel__body {
+  padding: var(--uide-space-5);
+}
+
+.uide-panel__body--flush {
+  padding: 0;
+}
+
+/* Lista de pares dato/valor (pantallas de detalle). */
+.uide-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--uide-space-4);
+  margin: 0;
+}
+
+.uide-details > div {
+  min-width: 0;
+}
+
+.uide-details dt {
+  color: var(--uide-muted);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: var(--uide-space-1);
+}
+
+.uide-details dd {
+  color: var(--uide-text);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ============================= 10. Tablas ================================ */
+
+.table-container {
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  box-shadow: none;
+  overflow-x: auto;
+}
+
+.table {
+  background: transparent;
+  width: 100%;
+  min-width: 640px;
+}
+
+.table thead th {
+  background: var(--uide-surface-sunken);
+  border-width: 0 0 1px;
+  border-color: var(--uide-border);
+  color: var(--uide-text-soft);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: var(--uide-space-3) var(--uide-space-4);
+}
+
+.table td,
+.table th {
+  border-color: var(--uide-border);
+  color: var(--uide-text);
+  padding: var(--uide-space-3) var(--uide-space-4);
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: background-color var(--uide-fast) var(--uide-ease);
+}
+
+.table tbody tr:hover {
+  background: var(--uide-primary-soft);
+}
+
+.table tbody tr:last-child td {
+  border-bottom-width: 0;
+}
+
+/* Fila destacada (p. ej. el campeonato en curso). */
+.table tbody tr.is-current {
+  background: var(--uide-accent-soft);
+  box-shadow: inset 3px 0 0 var(--uide-accent);
+}
+
+.table .uide-cell-strong {
+  font-weight: 600;
+  color: var(--uide-text);
+}
+
+.table .uide-cell-muted {
+  color: var(--uide-muted);
+  font-size: .88rem;
+}
+
+/* Columna de acciones: siempre al final, sin envolver innecesariamente. */
+.table td.uide-cell-actions {
+  white-space: nowrap;
+}
+
+/* ======================= 11. Etiquetas y estados ========================= */
+
+.tag {
+  border-radius: var(--uide-radius-pill);
+  font-weight: 600;
+  font-size: .75rem;
+  padding-inline: .7em;
+  border: 1px solid transparent;
+}
+
+.tag.is-success,
+.tag.is-success.is-light {
+  background: var(--uide-success-bg);
+  border-color: var(--uide-success-border);
+  color: var(--uide-success);
+}
+
+.tag.is-warning,
+.tag.is-warning.is-light {
+  background: var(--uide-warning-bg);
+  border-color: var(--uide-warning-border);
+  color: var(--uide-warning);
+}
+
+.tag.is-danger,
+.tag.is-danger.is-light {
+  background: var(--uide-danger-bg);
+  border-color: var(--uide-danger-border);
+  color: var(--uide-danger);
+}
+
+.tag.is-info,
+.tag.is-info.is-light,
+.tag.is-link {
+  background: var(--uide-info-bg);
+  border-color: var(--uide-info-border);
+  color: var(--uide-info);
+}
+
+.tag.is-light,
+.tag:not([class*="is-"]) {
+  background: var(--uide-surface-sunken);
+  border-color: var(--uide-border);
+  color: var(--uide-text-soft);
+}
+
+/* Estado con punto: el color no es el único portador de significado. */
+.uide-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.uide-status::before {
+  content: "";
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+/* ====================== 12. Avisos y mensajes ============================ */
+
+.uide-alerts {
+  display: grid;
+  gap: var(--uide-space-3);
+}
+
+.uide-alerts .notification,
+.message {
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  box-shadow: none;
+  padding: var(--uide-space-4) var(--uide-space-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uide-space-3);
+  font-weight: 500;
+}
+
+.uide-alerts .notification .uide-icon {
+  flex: 0 0 auto;
+  margin-top: .1em;
+}
+
+.notification.is-success {
+  background: var(--uide-success-bg);
+  border-color: var(--uide-success-border);
+  color: var(--uide-success);
+}
+
+.notification.is-warning {
+  background: var(--uide-warning-bg);
+  border-color: var(--uide-warning-border);
+  color: var(--uide-warning);
+}
+
+.notification.is-danger,
+.notification.is-error {
+  background: var(--uide-danger-bg);
+  border-color: var(--uide-danger-border);
+  color: var(--uide-danger);
+}
+
+.notification.is-info {
+  background: var(--uide-info-bg);
+  border-color: var(--uide-info-border);
+  color: var(--uide-info);
+}
+
+.notification .delete {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+/* ========================= 13. Estados vacíos ============================ */
+
+.uide-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--uide-space-3);
+  padding: var(--uide-space-7) var(--uide-space-5);
+  text-align: center;
+  color: var(--uide-muted);
+}
+
+.uide-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--uide-surface-sunken);
+  color: var(--uide-muted);
+}
+
+.uide-empty__title {
+  color: var(--uide-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.uide-empty__text {
+  margin: 0;
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+.uide-empty__actions {
+  margin-top: var(--uide-space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uide-space-2);
+  justify-content: center;
+}
+
+/* Estado vacío dentro de una tabla. */
+td.uide-empty-cell {
+  padding: 0 !important;
+}
+
+td.uide-empty-cell .uide-empty {
+  padding: var(--uide-space-6) var(--uide-space-4);
+}
+
+/* =========================== 14. Métricas ================================ */
+
+.uide-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--uide-space-4);
+  margin-bottom: var(--uide-space-5);
+}
+
+.uide-stat {
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  padding: var(--uide-space-4) var(--uide-space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-4);
+}
+
+.uide-stat__icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  border-radius: var(--uide-radius-sm);
+  background: var(--uide-primary-soft);
+  color: var(--uide-primary);
+}
+
+.uide-stat__body {
+  min-width: 0;
+}
+
+.uide-stat__value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--uide-text);
+  letter-spacing: -.02em;
+}
+
+.uide-stat__label {
+  color: var(--uide-muted);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+/* ============================ 15. Modales ================================ */
+
+.modal-card {
+  border-radius: var(--uide-radius-md);
+  box-shadow: var(--uide-shadow-lg);
+  border: 0;
+  max-width: min(34rem, calc(100vw - 2rem));
+  width: 100%;
+}
+
+.modal-card-head,
+.modal-card-foot {
+  background: var(--uide-surface);
+  border-color: var(--uide-border);
+  padding: var(--uide-space-4) var(--uide-space-5);
+}
+
+.modal-card-head {
+  border-bottom: 1px solid var(--uide-border);
+}
+
+.modal-card-foot {
+  border-top: 1px solid var(--uide-border);
+  gap: var(--uide-space-2);
+  justify-content: flex-end;
+}
+
+.modal-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--uide-text);
+}
+
+.modal-card-body {
+  padding: var(--uide-space-5);
+  color: var(--uide-text);
+}
+
+.modal-background {
+  background: rgba(16, 24, 40, .55);
+}
+
+/* ============================= 16. Iconos ================================ */
+
+.uide-icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: -.18em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.uide-icon--lg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.uide-icon--xl {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Texto con icono: alineación vertical estable. */
+.uide-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+}
+
+/* El icono dentro de un botón Bulma no necesita el wrapper .icon. */
+.button .uide-icon {
+  margin-right: .4em;
+}
+
+.button .uide-icon:only-child {
+  margin-right: 0;
+}
+
+/* =========================== 17. Responsive ============================== */
+
+/* El rol ADMIN tiene 6 secciones de primer nivel; entre 1024 y 1215px no
+   caben junto a la cuenta (desbordaba horizontalmente). Se adelanta el
+   colapso a hamburguesa hasta 1215px replicando el comportamiento táctil
+   que Bulma aplica sólo por debajo de 1024px. */
+@media (min-width: 1024px) and (max-width: 1215px) {
+  .uide-navbar .navbar-burger {
+    display: block;
+  }
+
+  .uide-navbar .navbar-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+  }
+
+  .uide-navbar .navbar-menu.is-active {
+    display: block;
+  }
+
+  .uide-navbar .navbar-start,
+  .uide-navbar .navbar-end {
+    display: block;
+    margin: 0;
+  }
+
+  .uide-navbar .navbar-item.has-dropdown {
+    display: block;
+  }
+
+  .uide-navbar .navbar-dropdown {
+    display: none;
+    position: static;
+    width: 100%;
+  }
+
+  .uide-navbar .navbar-item.has-dropdown.is-active .navbar-dropdown {
+    display: block;
+  }
+
+  .uide-navbar__trigger {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .uide-navbar__trigger .uide-icon:last-child {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 1215px) {
+  /* Menú colapsado: cada sección se abre por clic/teclado, igual que en
+     escritorio, para que aria-expanded refleje siempre lo que se ve.
+     (Bulma dejaría los desplegables abiertos de forma permanente.) */
+  .uide-navbar .navbar-menu {
+    background: var(--uide-primary-strong);
+    box-shadow: var(--uide-shadow-lg);
+    padding: var(--uide-space-2) var(--uide-space-4) var(--uide-space-4);
+    max-height: calc(100vh - 3.25rem);
+    overflow-y: auto;
+  }
+
+  .uide-navbar .navbar-menu .navbar-dropdown {
+    display: none;
+  }
+
+  .uide-navbar .navbar-item.has-dropdown.is-active .navbar-dropdown {
+    display: block;
+  }
+
+  .uide-navbar__trigger {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .uide-navbar__trigger .uide-icon:last-child {
+    margin-left: auto;
+  }
+
+  .uide-navbar__user b {
+    max-width: none;
+  }
+
+  .uide-navbar .navbar-dropdown {
+    background: rgba(255, 255, 255, .06);
+    border: 0;
+    box-shadow: none;
+    padding-left: var(--uide-space-3);
+  }
+
+  .uide-navbar .navbar-dropdown .navbar-item {
+    color: rgba(255, 255, 255, .92) !important;
+  }
+
+  .uide-navbar .navbar-dropdown .navbar-item:hover,
+  .uide-navbar .navbar-dropdown .navbar-item:focus-visible,
+  .uide-navbar .navbar-dropdown .navbar-item.is-current {
+    background: rgba(255, 255, 255, .14) !important;
+    color: #fff !important;
+  }
+
+  .uide-navbar__session {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .uide-navbar__session .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 @media (max-width: 768px) {
-  .uide-main { padding: 1.25rem .75rem 2rem; }
-  .uide-main > .container { width: 100%; }
-  .title.is-2 { font-size: 1.8rem; }
-  .buttons { gap: .5rem; }
-  .button { width: auto; }
-  .navbar-end .buttons { flex-wrap: wrap; }
+  .uide-main {
+    padding: var(--uide-space-4) 0 var(--uide-space-6);
+  }
 
-  /* Las tablas de datos conservan su semántica, pero cada registro se
-     presenta como una ficha para evitar columnas comprimidas en móvil. */
+  .uide-main > .container,
+  .uide-container {
+    width: 100%;
+    padding-inline: var(--uide-space-4);
+  }
+
+  .title.is-1 { font-size: 1.9rem; }
+  .title.is-2 { font-size: 1.65rem; }
+  .title.is-3 { font-size: 1.4rem; }
+
+  .box {
+    padding: var(--uide-space-4);
+  }
+
+  .uide-page-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .uide-page-head__actions {
+    width: 100%;
+  }
+
+  .uide-page-head__actions .button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .uide-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .uide-form-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .uide-form-actions__spacer {
+    display: none;
+  }
+
+  .uide-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* --------------------------------------------------------------------
+     Tablas de datos en móvil: cada registro pasa a ficha. El <thead>
+     se oculta visualmente y cada celda recupera su etiqueta mediante
+     data-label (lo asigna comun/base.html). La semántica de tabla se
+     conserva para lectores de pantalla.
+     -------------------------------------------------------------------- */
   .table-container:has(.uide-responsive-table),
-  .uide-responsive-table { overflow: visible; min-width: 0; }
-  .uide-responsive-table thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .uide-responsive-table {
+    overflow: visible;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .uide-responsive-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .uide-responsive-table,
   .uide-responsive-table tbody,
   .uide-responsive-table tr,
-  .uide-responsive-table td { display: block; width: 100%; }
-  .uide-responsive-table tbody { display: grid; gap: .75rem; }
-  .uide-responsive-table tbody tr {
-    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .15rem 1rem;
-    padding: .85rem 1rem; background: var(--uide-surface); border: 1px solid var(--uide-border);
-    border-radius: var(--uide-radius-md); box-shadow: 0 3px 10px rgba(25,35,55,.05);
-  }
   .uide-responsive-table td {
-    display: flex; justify-content: space-between; align-items: center; gap: .75rem;
-    padding: .42rem 0; min-width: 0; text-align: right !important; border: 0 !important;
+    display: block;
+    width: 100%;
   }
-  .uide-responsive-table td::before {
-    content: attr(data-label); flex: 0 0 auto; color: var(--uide-muted); font-size: .72rem;
-    font-weight: 700; letter-spacing: .04em; text-align: left; text-transform: uppercase;
-  }
-  .uide-responsive-table td:last-child:has(.buttons),
-  .uide-responsive-table td:last-child:has(.button),
-  .uide-responsive-table td[data-label="Acciones"] { grid-column: 1 / -1; display: block; padding-top: .7rem; margin-top: .25rem; border-top: 1px solid var(--uide-border) !important; text-align: left !important; }
-  .uide-responsive-table td[data-label="Acciones"]::before { display: none; }
-  .uide-responsive-table td[data-label="Acciones"] .buttons { justify-content: flex-start; flex-wrap: wrap; gap: .45rem; }
-  .uide-responsive-table td[data-label="Acciones"] .button { margin: 0 !important; }
 
-  /* Las posiciones priorizan equipo, rango y puntos, con métricas en cuadrícula. */
-  .uide-positions-table tbody tr { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .25rem .5rem; }
-  .uide-positions-table td { display: block; padding: .35rem 0; text-align: center !important; }
-  .uide-positions-table td::before { display: block; font-size: .66rem; text-align: center; }
-  .uide-positions-table td:nth-child(1) { grid-column: span 1; font-weight: 800; color: var(--uide-primary); }
-  .uide-positions-table td:nth-child(2) { grid-column: span 2; font-weight: 800; overflow-wrap: anywhere; }
-  .uide-positions-table td:nth-child(10) { grid-column: span 1; font-weight: 800; color: var(--uide-primary); }
+  .uide-responsive-table tbody {
+    display: grid;
+    gap: var(--uide-space-3);
+  }
+
+  .uide-responsive-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--uide-space-1) var(--uide-space-4);
+    padding: var(--uide-space-3) var(--uide-space-4);
+    background: var(--uide-surface);
+    border: 1px solid var(--uide-border);
+    border-radius: var(--uide-radius-md);
+  }
+
+  .uide-responsive-table tbody tr:hover {
+    background: var(--uide-surface);
+  }
+
+  .uide-responsive-table tbody tr.is-current {
+    border-color: var(--uide-accent);
+    box-shadow: inset 3px 0 0 var(--uide-accent);
+  }
+
+  .uide-responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--uide-space-3);
+    padding: var(--uide-space-2) 0;
+    min-width: 0;
+    text-align: right;
+    border: 0 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .uide-responsive-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: var(--uide-muted);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  /* La celda de acciones ocupa todo el ancho de la ficha. */
+  .uide-responsive-table td:last-child:has(.buttons),
+  .uide-responsive-table td:last-child:has(.uide-actions),
+  .uide-responsive-table td.uide-cell-actions,
+  .uide-responsive-table td[data-label="Acciones"] {
+    grid-column: 1 / -1;
+    display: block;
+    padding-top: var(--uide-space-3);
+    margin-top: var(--uide-space-1);
+    border-top: 1px solid var(--uide-border) !important;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .uide-responsive-table td.uide-cell-actions::before,
+  .uide-responsive-table td[data-label="Acciones"]::before {
+    display: none;
+  }
+
+  .uide-responsive-table td.uide-cell-actions .uide-actions,
+  .uide-responsive-table td[data-label="Acciones"] .buttons {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: var(--uide-space-2);
+  }
+
+  /* Estado vacío: una sola celda a todo el ancho, sin etiqueta. */
+  .uide-responsive-table td.uide-empty-cell {
+    grid-column: 1 / -1;
+    display: block;
+    text-align: center;
+  }
+
+  .uide-responsive-table td.uide-empty-cell::before {
+    display: none;
+  }
+
+  /* Tabla de posiciones: prioriza puesto, equipo y puntos. */
+  .uide-positions-table tbody tr {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--uide-space-1) var(--uide-space-2);
+  }
+
+  .uide-positions-table td {
+    display: block;
+    padding: var(--uide-space-1) 0;
+    text-align: center;
+  }
+
+  .uide-positions-table td::before {
+    display: block;
+    font-size: .64rem;
+    text-align: center;
+  }
+
+  .uide-positions-table td:nth-child(1) {
+    font-weight: 700;
+    color: var(--uide-primary);
+  }
+
+  .uide-positions-table td:nth-child(2) {
+    grid-column: span 2;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .uide-positions-table td:nth-child(2)::before {
+    text-align: left;
+  }
+
   .uide-positions-table td:nth-child(1)::before,
-  .uide-positions-table td:nth-child(2)::before,
-  .uide-positions-table td:nth-child(10)::before { display: none; }
+  .uide-positions-table td:nth-child(2)::before {
+    display: none;
+  }
 }
 
+/* =============== 18. Movimiento reducido / impresión =====================
+
+   No se anula el movimiento con 0.01ms: eso destruye el feedback de
+   estado. Se eliminan los desplazamientos y se conservan los cambios
+   de color, que siguen comunicando hover, foco y error.                */
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-property: color, background-color, border-color, outline-color, box-shadow, opacity !important;
+    transition-duration: 80ms !important;
+  }
+
+  .button:active,
+  .uide-card-link:hover {
+    transform: none;
+  }
+
+  .uide-navbar__trigger[aria-expanded="true"] .uide-icon:last-child {
+    transform: none;
+  }
+}
+
+@media print {
+  .uide-navbar,
+  .uide-footer,
+  .uide-page-head__actions,
+  .uide-toolbar,
+  .uide-actions,
+  .uide-skip-link {
+    display: none !important;
+  }
+
+  body.uide-app {
+    background: #fff;
+  }
+
+  .box,
+  .table-container,
+  .uide-panel {
+    border-color: #cbd5e1;
+  }
+
+  .table {
+    min-width: 0;
+  }
 }
