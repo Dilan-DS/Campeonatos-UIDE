@@ -18,14 +18,14 @@
     {% if modo == 'crear' or modo == 'editar' %}
       <div class="box" style="max-width: 600px; margin: auto; border-radius: 18px; background-color: #fffef8; padding: 2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
         <h2 class="title is-3 has-text-centered has-text-danger mb-5">
-          {% if modo == 'crear' %}⚽ Registrar Deporte{% else %}✏️ Editar Deporte{% endif %}
+          {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Registrar Deporte{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Deporte{% endif %}
         </h2>
 
         <form method="post">
           {% csrf_token %}
 
           <div class="field">
-            <label class="label">Nombre</label>
+            <label class="label" for="{{ form.nombre.id_for_label }}">Nombre</label>
             <div class="control">
               {{ form.nombre|add_class:"input" }}
             </div>
@@ -35,7 +35,7 @@
           </div>
 
           <div class="field">
-            <label class="label">Descripción</label>
+            <label class="label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
             <div class="control">
               {{ form.descripcion|add_class:"textarea" }}
             </div>
@@ -59,7 +59,7 @@
 
     {% elif modo == 'eliminar' %}
       <div class="box has-background-warning-light" style="max-width: 600px; margin: auto; border-radius: 18px; padding: 2rem;">
-        <h2 class="title is-3 has-text-centered has-text-danger mb-4">🗑️ Eliminar Deporte</h2>
+        <h2 class="title is-3 has-text-centered has-text-danger mb-4"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar Deporte</h2>
 
         <p class="has-text-centered mb-4">
           ¿Estás seguro que deseas eliminar el deporte <strong>{{ deporte.nombre }}</strong>?

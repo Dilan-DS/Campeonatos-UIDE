@@ -112,13 +112,13 @@ html, body { background:#ffffff !important; }
   <div class="container">
 
     <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
-      <!-- ✅ Título dinámico del campeonato -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Título dinámico del campeonato -->
       {% if campeonato %}
         <h2 class="title is-4 has-text-centered has-text-danger-dark">
           Equipos del Campeonato: {{ campeonato.nombre }}
         </h2>
 
-        <!-- 🧾 Info extra del campeonato -->
+        <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Info extra del campeonato -->
         <div class="notification is-warning is-light has-text-centered mt-3 mb-2">
           <strong>Fecha:</strong> {{ campeonato.fecha|date:"d/m/Y" }} &nbsp;|&nbsp;
           <strong>Ubicación:</strong> {{ campeonato.ubicacion }}
@@ -132,11 +132,11 @@ html, body { background:#ffffff !important; }
       <!-- 🔘 Botón para registrar nuevo equipo con campeonato_id -->
       <div class="has-text-right mb-4">
         <a href="{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}" class="button is-success is-rounded">
-          ➕ Registrar Nuevo Equipo
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Registrar Nuevo Equipo
         </a>
       </div>
 
-      <!-- 📊 Conteo de equipos -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> Conteo de equipos -->
       {% if equipos %}
         <p class="has-text-right has-text-grey">
           Total de equipos inscritos: {{ equipos|length }}
@@ -164,7 +164,7 @@ html, body { background:#ffffff !important; }
                       <span class="tag is-danger">No aprobado</span>
                     {% endif %}
                   </td>
-                  <!-- 🎯 Botones de acción -->
+                  <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> Botones de acción -->
                   <td class="has-text-centered">
                     <div class="buttons is-centered">
                       <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
@@ -192,10 +192,10 @@ html, body { background:#ffffff !important; }
         <p class="has-text-centered has-text-grey mt-5">No hay equipos registrados en este campeonato.</p>
       {% endif %}
 
-      <!-- 🔙 Botón para regresar -->
+      <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Botón para regresar -->
       <div class="has-text-centered mt-4">
         <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
-          ← Volver al inicio
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al inicio
         </a>
       </div>
     </div>

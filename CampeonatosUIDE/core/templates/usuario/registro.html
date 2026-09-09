@@ -33,12 +33,12 @@
 
               <!-- Sección: Perfil -->
               <div class="form-section">
-                <h3 class="section-title">👤 Información personal</h3>
+                <h3 class="section-title"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Información personal</h3>
                 <div class="columns is-multiline">
                   {% if form.first_name %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.first_name.label }}</label>
+                      <label class="label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
                       <div class="control">{{ form.first_name }}</div>
                       {% for err in form.first_name.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                     </div>
@@ -48,7 +48,7 @@
                   {% if form.last_name %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.last_name.label }}</label>
+                      <label class="label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
                       <div class="control">{{ form.last_name }}</div>
                       {% for err in form.last_name.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                     </div>
@@ -58,7 +58,7 @@
                   {% if form.carrera %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.carrera.label }}</label>
+                      <label class="label" for="{{ form.carrera.id_for_label }}">{{ form.carrera.label }}</label>
                       <div class="control">{{ form.carrera }}</div>
                       {% for err in form.carrera.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                     </div>
@@ -68,7 +68,7 @@
                   {% if form.genero %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.genero.label }}</label>
+                      <label class="label" for="{{ form.genero.id_for_label }}">{{ form.genero.label }}</label>
                       <div class="control">{{ form.genero }}</div>
                       {% for err in form.genero.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                     </div>
@@ -78,7 +78,7 @@
                   {% if form.cedula %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.cedula.label|default:"Cédula" }}</label>
+                      <label class="label" for="{{ form.cedula.id_for_label }}">{{ form.cedula.label|default:"Cédula" }}</label>
                       <div class="control">
                         {{ form.cedula |add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" |attr:"autocomplete:off" |attr:"title:Ingresa 10 dígitos" }}
                       </div>
@@ -95,12 +95,12 @@
 
               <!-- Sección: Cuenta -->
               <div class="form-section">
-                <h3 class="section-title">🔐 Datos de acceso</h3>
+                <h3 class="section-title"><svg class="uide-icon" aria-hidden="true"><use href="#i-candado"></use></svg> Datos de acceso</h3>
                 <div class="columns is-multiline">
                   {% if form.username %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.username.label }}</label>
+                      <label class="label" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
                       <div class="control">{{ form.username }}</div>
                       {% if form.username.help_text %}<p class="help is-info">{{ form.username.help_text }}</p>{% endif %}
                       {% for err in form.username.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
@@ -111,7 +111,7 @@
                   {% if form.email %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.email.label }}</label>
+                      <label class="label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
                       <div class="control">{{ form.email }}</div>
                       {% for err in form.email.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                     </div>
@@ -123,7 +123,7 @@
                   {% if form.password1 %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.password1.label }}</label>
+                      <label class="label" for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
                       <div class="control">{{ form.password1 }}</div>
                       {% if form.password1.help_text %}<p class="help is-info">{{ form.password1.help_text|safe }}</p>{% endif %}
                       {% for err in form.password1.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
@@ -134,7 +134,7 @@
                   {% if form.password2 %}
                   <div class="column is-12-mobile is-6-tablet">
                     <div class="field">
-                      <label class="label">{{ form.password2.label }}</label>
+                      <label class="label" for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
                       <div class="control">{{ form.password2 }}</div>
                       {% if form.password2.help_text %}<p class="help is-info">{{ form.password2.help_text }}</p>{% endif %}
                       {% for err in form.password2.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
@@ -147,7 +147,7 @@
               <!-- Sección: Rol -->
               {% if form.rol %}
               <div class="form-section">
-                <h3 class="section-title">🎯 Selecciona tu rol</h3>
+                <h3 class="section-title"><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> Selecciona tu rol</h3>
                 <div class="role-group">
                   {% for radio in form.rol %}
                     <label class="seg-pill" title="{{ radio.choice_label }}">
@@ -163,12 +163,12 @@
               <!-- Campos de JUGADOR -->
               <div id="player-fields-wrapper" class="is-hidden">
                 <div class="form-section">
-                  <h3 class="section-title">⚽ Datos como jugador</h3>
+                  <h3 class="section-title"><svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Datos como jugador</h3>
                   <div class="columns is-multiline">
                     {% if form.numero_camiseta %}
                     <div class="column is-12-mobile is-6-tablet">
                       <div class="field">
-                        <label class="label">{{ form.numero_camiseta.label }}</label>
+                        <label class="label" for="{{ form.numero_camiseta.id_for_label }}">{{ form.numero_camiseta.label }}</label>
                         <div class="control">{{ form.numero_camiseta }}</div>
                         {% for err in form.numero_camiseta.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                       </div>
@@ -178,7 +178,7 @@
                     {% if form.posicion %}
                     <div class="column is-12-mobile is-6-tablet">
                       <div class="field">
-                        <label class="label">{{ form.posicion.label }}</label>
+                        <label class="label" for="{{ form.posicion.id_for_label }}">{{ form.posicion.label }}</label>
                         <div class="control">{{ form.posicion }}</div>
                         {% for err in form.posicion.errors %}<p class="help is-danger">{{ err }}</p>{% endfor %}
                       </div>

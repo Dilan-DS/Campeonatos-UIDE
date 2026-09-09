@@ -50,7 +50,7 @@
 
     <div class="has-text-centered mt-4">
         <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
-          ← Volver al listado
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
         </a>
         <a href="{% url 'export_tabla_posiciones_pdf' campeonato.id %}" class="button is-danger is-rounded ml-3">Exportar a PDF</a>
         <a href="{% url 'export_tabla_posiciones_excel' campeonato.id %}" class="button is-success is-rounded ml-3">Exportar a Excel</a>

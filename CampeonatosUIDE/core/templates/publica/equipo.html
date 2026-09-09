@@ -30,10 +30,10 @@
 
             <div class="content is-size-6 has-text-centered m-t-4 meta">
               {% if m.telefono %}
-                <p>📞 <a href="tel:{{ m.telefono }}">{{ m.telefono }}</a></p>
+                <p><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> <a href="tel:{{ m.telefono }}">{{ m.telefono }}</a></p>
               {% endif %}
               {% if m.correo %}
-                <p>✉️ <a href="mailto:{{ m.correo }}">{{ m.correo }}</a></p>
+                <p><svg class="uide-icon" aria-hidden="true"><use href="#i-enlace"></use></svg> <a href="mailto:{{ m.correo }}">{{ m.correo }}</a></p>
               {% endif %}
             </div>
 

@@ -13,7 +13,7 @@
                 {% csrf_token %}
                 
                 <div class="field">
-                    <label class="label">{{ form.metodo.label }}</label>
+                    <label class="label" for="{{ form.metodo.id_for_label }}">{{ form.metodo.label }}</label>
                     <div class="control">
                         <div class="select is-fullwidth">
                             {{ form.metodo }}
@@ -37,7 +37,7 @@
 
                 <div id="transferencia-fields" style="display: none;">
                     <div class="field">
-                        <label class="label">{{ form.codigo_qr.label }}</label>
+                        <label class="label" for="{{ form.codigo_qr.id_for_label }}">{{ form.codigo_qr.label }}</label>
                         <div class="control">
                             <div class="select is-fullwidth">
                                 {{ form.codigo_qr }}
@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="field">
-                        <label class="label">{{ form.nombre_titular.label }}</label>
+                        <label class="label" for="{{ form.nombre_titular.id_for_label }}">{{ form.nombre_titular.label }}</label>
                         <div class="control">
                             {{ form.nombre_titular }}
                         </div>
@@ -66,7 +66,7 @@
                                 <label class="file-label">
                                     {{ form.comprobante_pago }}
                                     <span class="file-cta">
-                                        <span class="file-icon"><i class="fas fa-upload"></i></span>
+                                        <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg></span>
                                         <span class="file-label">Elegir archivo…</span>
                                     </span>
                                     <span class="file-name">No se ha seleccionado un archivo</span>
