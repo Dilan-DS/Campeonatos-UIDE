@@ -8,7 +8,7 @@ from core.views.campeonato_views import es_admin_o_delegado
 
 class ListarTestimonios(View):
     def get(self, request):
-        testimonios = Testimonio.objects.all().order_by('-fecha')
+        testimonios = Testimonio.objects.all().order_by('-creado_en')
         return render(request, 'testimonio/listar.html', {'testimonios': testimonios})
 
 class RegistrarTestimonio(View):
