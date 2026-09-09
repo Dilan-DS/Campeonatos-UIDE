@@ -1,43 +1,105 @@
 {% extends 'comun/base.html' %}
 
+{% comment %}
+  Listado de delegados.
+
+  Las acciones apuntaban a 'detalle_delegado', 'editar_delegado' y
+  'eliminar_delegado', tres nombres de URL que no existen: la página
+  respondía NoReverseMatch (HTTP 500). Los delegados son Usuario con
+  rol DELEGADO, así que se usan las rutas reales de usuarios. No hay
+  vista de detalle de usuario, por eso se retira el botón "Ver".
+{% endcomment %}
+
+{% block title %}Delegados | Campeonatos UIDE{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <h1 class="title has-text-centered">Listado de Delegados</h1>
-    <div class="has-text-centered mb-4">
-        <a href="{% url 'registrar_delegado' %}" class="button is-primary">Agregar Delegado</a>
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Delegados</h1>
+      <p class="subtitle">Responsables de inscribir equipos y registrar pagos por carrera.</p>
     </div>
-    <div class="box">
-        <table class="table is-striped is-fullwidth">
-            <thead>
-                <tr>
-                    <th>Nombre de Usuario</th>
-                    <th>Cédula</th>
-                    <th>Email</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for delegado in delegados %}
-                <tr>
-                    <td>{{ delegado.username }}</td>
-                    <td>{{ delegado.cedula }}</td>
-                    <td>{{ delegado.email }}</td>
-                    <td>
-                        <a href="{% url 'detalle_delegado' delegado.id %}" class="button is-info is-small">Ver</a>
-                        <a href="{% url 'editar_delegado' delegado.id %}" class="button is-warning is-small">Editar</a>
-                        <form action="{% url 'eliminar_delegado' delegado.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="button is-danger is-small">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="has-text-centered">No hay delegados registrados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'registrar_delegado' %}" class="button is-primary">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>
+        <span>Agregar delegado</span>
+      </a>
     </div>
+  </div>
+
+  {% if delegados %}
+    <div class="uide-toolbar">
+      <span class="uide-toolbar__count">
+        {{ delegados|length }} delegado{{ delegados|length|pluralize:"s" }} registrado{{ delegados|length|pluralize:"s" }}
+      </span>
+    </div>
+  {% endif %}
+
+  <div class="table-container">
+    <table class="table is-fullwidth">
+      <thead>
+        <tr>
+          <th scope="col">Usuario</th>
+          <th scope="col">Cédula</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Carrera</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for delegado in delegados %}
+          <tr>
+            <td class="uide-cell-strong">
+              {{ delegado.get_full_name|default:delegado.username }}
+              {% if delegado.get_full_name %}
+                <span class="uide-cell-muted is-block">{{ delegado.username }}</span>
+              {% endif %}
+            </td>
+            <td>{{ delegado.cedula|default:"—" }}</td>
+            <td>{{ delegado.email|default:"—" }}</td>
+            <td>{{ delegado.carrera.nombre|default:"Sin carrera" }}</td>
+            <td class="uide-cell-actions">
+              <div class="uide-actions">
+                <a href="{% url 'editar_usuario' delegado.id %}" class="button is-small is-light">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg>
+                  <span>Editar</span>
+                </a>
+                <form method="post" action="{% url 'eliminar_usuario' delegado.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="button is-small is-danger is-light">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
+                    <span>Eliminar</span>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="uide-empty-cell">
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-equipos"></use></svg>
+                </span>
+                <p class="uide-empty__title">Todavía no hay delegados</p>
+                <p class="uide-empty__text">
+                  Los delegados inscriben a los equipos de su carrera y registran los pagos
+                  de inscripción. Crea el primero para empezar.
+                </p>
+                <div class="uide-empty__actions">
+                  <a href="{% url 'registrar_delegado' %}" class="button is-primary">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>
+                    <span>Agregar delegado</span>
+                  </a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
 {% endblock %}

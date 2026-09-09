@@ -61,7 +61,6 @@ class CrearCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
             messages.success(request, "Campeonato creado correctamente.")
             return redirect("listar_campeonatos")
         else:
-            print("CampeonatoForm errors:", form.errors)
             messages.error(request, "Revisa los campos del formulario.")
             return render(request, 'campeonato/crear.html', {'form': form, 'modo': 'crear'})
 

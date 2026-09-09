@@ -10,7 +10,7 @@ def es_admin_o_delegado(user):
 
 class ListarImagenGaleria(View):
     def get(self, request):
-        imagenes = ImagenGaleria.objects.all().order_by('-fecha')
+        imagenes = ImagenGaleria.objects.all().order_by('-creado_en')
         return render(request, 'galeria/imagen_listar.html', {'imagenes': imagenes})
 
 class RegistrarImagenGaleria(View):
@@ -41,10 +41,10 @@ class EditarImagenGaleria(View):
             return redirect('listar_imagenes_galeria')
         return render(request, 'galeria/imagen_form.html', {'form': form, 'modo': 'editar', 'imagen': imagen})
 
-    def test_func(self):
-        return self.request.user.rol in ['ADMIN', 'DELEGADO']
-
 class EliminarImagenGaleria(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
+
     def get(self, request, id):
         imagen = get_object_or_404(ImagenGaleria, id=id)
         return render(request, 'galeria/imagen_form.html', {'imagen': imagen})

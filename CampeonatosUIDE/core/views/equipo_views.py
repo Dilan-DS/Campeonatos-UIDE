@@ -137,7 +137,6 @@ def registrar_equipo(request):
             return redirect('listar_equipos')
         else:
             # debug no destructivo para ver por qué es inválido
-            print('FORM ERRORS:', form.errors.as_json())
             messages.error(request, 'Revisa los errores del formulario.')
     else:
         form = EquipoForm(user=request.user, campeonato_id=campeonato_id)

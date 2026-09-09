@@ -2,26 +2,45 @@ from django.shortcuts import render
 from core.models import Campeonato, Partido, Transmision, ImagenGaleria, Noticia, Testimonio
 from django.utils import timezone
 
-def inicio_publico(request):
-    campeonatos = Campeonato.objects.filter(fecha_fin__gte=timezone.now())
-    proximos_partidos = Partido.objects.filter(fecha__gte=timezone.now()).order_by('fecha')[:5]
-    transmisiones = Transmision.objects.all()[:3]
-    imagenes_galeria = ImagenGaleria.objects.all()[:6]
-    noticias = Noticia.objects.order_by('-fecha_publicacion')[:5]
-    testimonios = Testimonio.objects.order_by('-fecha')[:3]
-    return render(request, 'publico/inicio_publico.html', {
-        'campeonatos': campeonatos,
-        'proximos_partidos': proximos_partidos,
-        'transmisiones': transmisiones,
-        'imagenes_galeria': imagenes_galeria,
-        'noticias': noticias,
-        'testimonios': testimonios,
-    })
+
+def _contexto_portada():
+    """Datos que muestra la portada pública (publica/inicio_publico.html).
+
+    La plantilla espera campeonatos, proximos_partidos, transmisiones,
+    imagenes_galeria, noticias y testimonios. Antes vista_inicio_publico
+    renderizaba sin contexto, así que la portada mostraba siempre sus
+    estados vacíos ("No hay campeonatos activos.") aunque hubiera datos.
+    """
+    hoy = timezone.localdate()
+    return {
+        'campeonatos': (
+            Campeonato.objects
+            .filter(activo='SI', es_publico='SI')
+            .select_related('deporte')
+            .order_by('-fecha_inicio')[:6]
+        ),
+        'proximos_partidos': (
+            Partido.objects
+            .filter(campeonato__activo='SI', campeonato__es_publico='SI', fecha__gte=hoy)
+            .select_related('campeonato', 'campeonato__deporte',
+                            'equipo_local', 'equipo_visitante')
+            .order_by('fecha', 'hora')[:6]
+        ),
+        'transmisiones': (
+            Transmision.objects
+            .filter(activa=True)
+            .select_related('campeonato', 'partido')
+            .order_by('-id')[:4]
+        ),
+        'imagenes_galeria': ImagenGaleria.objects.order_by('-creado_en')[:8],
+        'noticias': Noticia.objects.order_by('-creado_en')[:5],
+        'testimonios': Testimonio.objects.order_by('-creado_en')[:5],
+    }
+
 
 # Esta vista renderiza la página de inicio pública del sitio.
 def vista_inicio_publico(request):
-    # Si el usuario ya está autenticado, redirige al dashboard correspondiente
-    return render(request, 'publica/inicio_publico.html')
+    return render(request, 'publica/inicio_publico.html', _contexto_portada())
 # Esta vista renderiza la página de inicio pública del sitio.
 def vista_inicio(request):
     from django.utils import timezone
@@ -242,5 +261,14 @@ def equipo_publico(request):
     return render(request, "publica/equipo.html", {"miembros": miembros})
 
 def resultados_publicos(request):
-    partidos_finalizados = Partido.objects.filter(estado='FINALIZADO').order_by('-fecha', '-hora')
-    return render(request, 'publico/resultados_publicos.html', {'partidos_finalizados': partidos_finalizados})
+    # El directorio de plantillas es 'publica/', no 'publico/': con la ruta
+    # anterior /resultados-publicos/ respondía TemplateDoesNotExist.
+    partidos_finalizados = (
+        Partido.objects
+        .filter(estado='FINALIZADO')
+        .select_related('campeonato', 'campeonato__deporte',
+                        'equipo_local', 'equipo_visitante')
+        .order_by('-fecha', '-hora')
+    )
+    return render(request, 'publica/resultados_publicos.html',
+                  {'partidos_finalizados': partidos_finalizados})

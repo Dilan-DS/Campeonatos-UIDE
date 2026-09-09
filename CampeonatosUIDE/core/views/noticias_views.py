@@ -8,7 +8,7 @@ from core.views.campeonato_views import es_admin_o_delegado
 
 class ListarNoticias(View):
     def get(self, request):
-        noticias = Noticia.objects.all().order_by('-fecha_publicacion')
+        noticias = Noticia.objects.all().order_by('-creado_en')
         return render(request, 'noticia/listar.html', {'noticias': noticias})
 
 class RegistrarNoticia(View):
