@@ -1,4 +1,7 @@
 Django==5.2.3
+django-environ
 openpyxl
 pandas
 reportlab
+django-multiselectfield
+django-widget-tweaks
