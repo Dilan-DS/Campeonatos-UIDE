@@ -78,14 +78,14 @@
             <img class="team-logo" src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}">
           {% else %}
             <div class="team-logo is-flex is-justify-content-center is-align-items-center"
-                 style="background:rgba(255,255,255,.2);"><span>🏆</span></div>
+                 style="background:rgba(255,255,255,.2);"><span><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> </span></div>
           {% endif %}
           <div>
             <h2 class="title is-4 mb-1" style="color:#fff;">{{ equipo.nombre }}</h2>
             <div class="is-flex" style="gap:.5rem;">
-              <span class="chip">🎽 Jugadores: {{ jugadores_data|length }}</span>
+              <span class="chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> Jugadores: {{ jugadores_data|length }}</span>
               {% if equipo.aprobado %}
-                <span class="chip">✅ Aprobado</span>
+                <span class="chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Aprobado</span>
               {% else %}
                 <span class="chip">⏳ En revisión</span>
               {% endif %}
@@ -95,9 +95,9 @@
 
         <div class="is-hidden-touch">
           {% if is_jugador_view %}
-            <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded">← Dashboard Jugador</a>
+            <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Dashboard Jugador</a>
           {% else %}
-            <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">← Dashboard Delegado</a>
+            <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Dashboard Delegado</a>
           {% endif %}
         </div>
       </div>
@@ -133,17 +133,17 @@
                   <td>
                     {% if data.stats %}
                       {% if data.deporte_nombre == 'FUTBOL' %}
-                        ⚽ Goles: {{ data.stats.goles }}, TA: {{ data.stats.tarjetas_amarillas }}, TR: {{ data.stats.tarjetas_rojas }}
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Goles: {{ data.stats.goles }}, TA: {{ data.stats.tarjetas_amarillas }}, TR: {{ data.stats.tarjetas_rojas }}
                       {% elif data.deporte_nombre == 'BASQUET' %}
-                        🏀 Canastas: {{ data.stats.canastas }}, Rebotes: {{ data.stats.rebotes }}, Asistencias: {{ data.stats.asistencias }}
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Canastas: {{ data.stats.canastas }}, Rebotes: {{ data.stats.rebotes }}, Asistencias: {{ data.stats.asistencias }}
                       {% elif data.deporte_nombre == 'AJEDREZ' %}
-                        ♟️ Ganadas: {{ data.stats.partidas_ganadas }}, Empatadas: {{ data.stats.partidas_empatadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Ganadas: {{ data.stats.partidas_ganadas }}, Empatadas: {{ data.stats.partidas_empatadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
                       {% elif data.deporte_nombre == 'ECUABOLY' or data.deporte_nombre == 'TENIS' %}
-                        🏐 Sets Ganados: {{ data.stats.sets_ganados }}, Sets Perdidos: {{ data.stats.sets_perdidos }}
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Sets Ganados: {{ data.stats.sets_ganados }}, Sets Perdidos: {{ data.stats.sets_perdidos }}
                       {% elif data.deporte_nombre == 'PING PONG' or data.deporte_nombre == 'VIDEOJUEGOS' %}
-                        🏓 Ganadas: {{ data.stats.partidas_ganadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Ganadas: {{ data.stats.partidas_ganadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
                       {% elif data.deporte_nombre == 'FUTBOLIN' %}
-                        🥅 Goles: {{ data.stats.goles }}, Ganadas: {{ data.stats.partidas_ganadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Goles: {{ data.stats.goles }}, Ganadas: {{ data.stats.partidas_ganadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
                       {% else %}
                         Estadísticas no disponibles para este deporte.
                       {% endif %}
@@ -178,17 +178,17 @@
                 <div class="has-text-right">
                   {% if data.stats %}
                     {% if data.deporte_nombre == 'FUTBOL' %}
-                      ⚽ {{ data.stats.goles }} · TA {{ data.stats.tarjetas_amarillas }} · TR {{ data.stats.tarjetas_rojas }}
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> {{ data.stats.goles }} · TA {{ data.stats.tarjetas_amarillas }} · TR {{ data.stats.tarjetas_rojas }}
                     {% elif data.deporte_nombre == 'BASQUET' %}
-                      🏀 {{ data.stats.canastas }} · Rb {{ data.stats.rebotes }} · Ast {{ data.stats.asistencias }}
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> {{ data.stats.canastas }} · Rb {{ data.stats.rebotes }} · Ast {{ data.stats.asistencias }}
                     {% elif data.deporte_nombre == 'AJEDREZ' %}
-                      ♟️ G {{ data.stats.partidas_ganadas }} · E {{ data.stats.partidas_empatadas }} · P {{ data.stats.partidas_perdidas }}
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> G {{ data.stats.partidas_ganadas }} · E {{ data.stats.partidas_empatadas }} · P {{ data.stats.partidas_perdidas }}
                     {% elif data.deporte_nombre == 'ECUABOLY' or data.deporte_nombre == 'TENIS' %}
-                      🏐 SG {{ data.stats.sets_ganados }} · SP {{ data.stats.sets_perdidos }}
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> SG {{ data.stats.sets_ganados }} · SP {{ data.stats.sets_perdidos }}
                     {% elif data.deporte_nombre == 'PING PONG' or data.deporte_nombre == 'VIDEOJUEGOS' %}
-                      🏓 G {{ data.stats.partidas_ganadas }} · P {{ data.stats.partidas_perdidas }}
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> G {{ data.stats.partidas_ganadas }} · P {{ data.stats.partidas_perdidas }}
                     {% elif data.deporte_nombre == 'FUTBOLIN' %}
-                      🥅 G {{ data.stats.goles }} · W {{ data.stats.partidas_ganadas }} · L {{ data.stats.partidas_perdidas }}
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> G {{ data.stats.goles }} · W {{ data.stats.partidas_ganadas }} · L {{ data.stats.partidas_perdidas }}
                     {% else %}
                       <span class="has-text-grey">No disponible</span>
                     {% endif %}
@@ -207,9 +207,9 @@
 
       <div class="has-text-centered mt-5">
         {% if is_jugador_view %}
-          <a href="{% url 'jugador_dashboard' %}" class="button btn-ghost is-rounded">← Volver al Dashboard del Jugador</a>
+          <a href="{% url 'jugador_dashboard' %}" class="button btn-ghost is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Jugador</a>
         {% else %}
-          <a href="{% url 'delegado_dashboard' %}" class="button btn-ghost is-rounded">← Volver al Dashboard del Delegado</a>
+          <a href="{% url 'delegado_dashboard' %}" class="button btn-ghost is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Delegado</a>
         {% endif %}
       </div>
     </div>

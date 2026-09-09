@@ -29,7 +29,7 @@
                 <p class="control has-icons-left">
                     <input class="input" type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar jugador por nombre o cédula...">
                     <span class="icon is-small is-left">
-                        <i class="fas fa-search"></i>
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg>
                     </span>
                 </p>
             </div>
@@ -67,7 +67,7 @@
                                         <form action="{% url 'agregar_jugador_a_equipo' jugador_data.usuario.id %}" method="post">
                                             {% csrf_token %}
                                             <button type="submit" class="button is-small is-success">
-                                                <span class="icon is-small"><i class="fas fa-user-plus"></i></span>
+                                                <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg></span>
                                                 <span>Agregar al Equipo</span>
                                             </button>
                                         </form>
@@ -75,7 +75,7 @@
                                         <span class="tag is-primary">Ya en tu equipo</span>
                                     {% else %}
                                         <button class="button is-small is-light" disabled>
-                                            <span class="icon is-small"><i class="fas fa-ban"></i></span>
+                                            <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg></span>
                                             <span>No disponible</span>
                                         </button>
                                     {% endif %}

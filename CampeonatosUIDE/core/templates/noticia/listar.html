@@ -61,14 +61,14 @@
   <div class="container">
     <div class="columns is-vcentered">
       <div class="column">
-        <h1 class="hero-title title is-3 is-size-4-mobile">📰 Noticias</h1>
+        <h1 class="hero-title title is-3 is-size-4-mobile"><svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg> Noticias</h1>
         <p class="subtitle is-6 mt-1">Mantente al día con lo último de nuestros campeonatos.</p>
       </div>
 
       {% if request.user.rol == 'ADMIN' %}
         <div class="column is-narrow">
           <a href="{% url 'registrar_noticia' %}" class="button btn-cta is-rounded">
-            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
             <span>Nueva noticia</span>
           </a>
         </div>
@@ -89,7 +89,7 @@
             </div>
             <div class="control">
               <button class="button is-rounded is-link is-light" type="submit">
-                <span class="icon"><i class="fas fa-search"></i></span>
+                <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg></span>
                 <span>Buscar</span>
               </button>
             </div>
@@ -139,10 +139,10 @@
 
                 {% if request.user.rol == 'ADMIN' %}
                   <a href="{% url 'editar_noticia' noticia.id %}" class="button is-small btn-soft is-info">
-                    <span class="icon"><i class="fas fa-edit"></i></span><span>Editar</span>
+                    <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg></span><span>Editar</span>
                   </a>
                   <a href="{% url 'eliminar_noticia' noticia.id %}" class="button is-small btn-soft is-danger">
-                    <span class="icon"><i class="fas fa-trash-alt"></i></span><span>Eliminar</span>
+                    <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg></span><span>Eliminar</span>
                   </a>
                 {% endif %}
               </div>
@@ -192,7 +192,7 @@
 
         {% if request.user.rol == 'ADMIN' %}
           <a href="{% url 'registrar_noticia' %}" class="button btn-cta is-rounded mt-2">
-            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
             <span>Crear primera noticia</span>
           </a>
         {% endif %}

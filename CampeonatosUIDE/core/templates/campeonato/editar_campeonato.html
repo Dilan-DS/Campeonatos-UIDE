@@ -35,7 +35,7 @@
           <!-- Itera sobre cada campo del formulario -->
           <div class="field mb-4">
             <!-- Contenedor del campo con margen inferior -->
-            <label class="label has-text-weight-semibold">{{ field.label }}</label>
+            <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
             <!-- Etiqueta del campo con peso de fuente fuerte -->
             <div class="control">
               {{ field|add_class:"input is-rounded is-medium" }}
@@ -64,7 +64,7 @@
         <!-- Contenedor centrado con botón para regresar -->
         <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
           <!-- Botón claro y redondeado que redirige al listado de campeonatos -->
-          ← Volver al listado
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
         </a>
       </div>
 

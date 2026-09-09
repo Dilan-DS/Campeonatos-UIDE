@@ -108,12 +108,12 @@
     <figure class="image is-inline-block mb-3" aria-hidden="true">
       <img class="logo" src="{% static 'img/logo.png' %}" alt="Logo UIDE">
     </figure>
-    <h1 class="title is-2 is-size-3-mobile">¡Bienvenidos a la UIDE! 🎓</h1>
+    <h1 class="title is-2 is-size-3-mobile">¡Bienvenidos a la UIDE! <svg class="uide-icon" aria-hidden="true"><use href="#i-carrera"></use></svg> </h1>
     <p class="subtitle is-5 is-size-6-mobile">
       Anima a tu equipo favorito y vibra con los campeonatos universitarios.
     </p>
     <div class="is-flex is-justify-content-center is-align-items-center mt-2" role="group" aria-label="Estado del sitio">
-      <span class="chip">🏟️ Público</span>
+      <span class="chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg> Público</span>
       <span class="chip chip-grad ml-2">🔥 Activo</span>
     </div>
   </div>
@@ -128,7 +128,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="info-card card--warn p-4">
           <div class="card-head">
-            <h2 class="title is-5 has-text-danger">🏆 Campeonatos activos</h2>
+            <h2 class="title is-5 has-text-danger"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Campeonatos activos</h2>
             <a class="see-all has-text-weight-semibold" href="{% url 'campeonatos_publicos' %}">Ver todo</a>
           </div>
 
@@ -163,7 +163,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="info-card card--info p-4">
           <div class="card-head">
-            <h2 class="title is-5 has-text-link">📅 Próximos partidos</h2>
+            <h2 class="title is-5 has-text-link"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Próximos partidos</h2>
             <a class="see-all" href="{% url 'listar_partidos' %}">Ver todo</a>
           </div>
           <ul class="list-compact">
@@ -178,7 +178,7 @@
                 </p>
                 <p class="is-size-7">⏰ {{ partido.fecha|date:"d/m/Y" }} · {{ partido.hora|time:"H:i" }}</p>
                 {% if partido.lugar %}
-                  <p class="is-size-7">📍 {{ partido.lugar }}</p>
+                  <p class="is-size-7"><svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg> {{ partido.lugar }}</p>
                 {% endif %}
               </li>
             {% empty %}
@@ -192,7 +192,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="info-card card--neutral p-4">
           <div class="card-head">
-            <h2 class="title is-5">🎥 Transmisiones</h2>
+            <h2 class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Transmisiones</h2>
             <a class="see-all" href="{% url 'listar_transmisiones' %}">Ver todo</a>
           </div>
           <ul class="list-compact">
@@ -229,7 +229,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="info-card card--primary p-4">
           <div class="card-head">
-            <h2 class="title is-5">📸 Galería</h2>
+            <h2 class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> Galería</h2>
             <a class="see-all" href="{% url 'listar_imagenes_galeria' %}">Ver todo</a>
           </div>
 
@@ -260,7 +260,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="info-card p-4">
           <div class="card-head">
-            <h2 class="title is-5 has-text-danger">📰 Noticias</h2>
+            <h2 class="title is-5 has-text-danger"><svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg> Noticias</h2>
             <a class="see-all" href="{% url 'listar_noticias' %}">Ver todo</a>
           </div>
 
@@ -272,7 +272,7 @@
                   <p class="is-size-7 truncate-2 has-text-grey">{{ n.contenido|striptags|truncatechars:120 }}</p>
                 {% endif %}
                 {% if n.fecha_publicacion %}
-                  <small class="is-size-7">📅 {{ n.fecha_publicacion|date:"d/m/Y" }}</small>
+                  <small class="is-size-7"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> {{ n.fecha_publicacion|date:"d/m/Y" }}</small>
                 {% endif %}
               </li>
             {% empty %}
@@ -286,7 +286,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="info-card card--success p-4">
           <div class="card-head">
-            <h2 class="title is-5">💬 Testimonios</h2>
+            <h2 class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-testimonio"></use></svg> Testimonios</h2>
             <a class="see-all" href="{% url 'listar_testimonios' %}">Ver todo</a>
           </div>
 
@@ -314,16 +314,16 @@
 <!-- REDES -->
 <section class="section">
   <div class="container has-text-centered">
-    <h2 class="title is-5">📱 Síguenos</h2>
+    <h2 class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Síguenos</h2>
     <div class="buttons is-centered">
       <a href="https://instagram.com/uide" class="button is-danger is-light btn-social" target="_blank" rel="noopener">
-        <span class="icon"><i class="fab fa-instagram" aria-hidden="true"></i></span><span>Instagram</span>
+        <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-instagram"></use></svg></span><span>Instagram</span>
       </a>
       <a href="https://facebook.com/uide" class="button is-link is-light btn-social" target="_blank" rel="noopener">
-        <span class="icon"><i class="fab fa-facebook" aria-hidden="true"></i></span><span>Facebook</span>
+        <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-facebook"></use></svg></span><span>Facebook</span>
       </a>
       <a href="https://youtube.com/uide" class="button is-dark is-light btn-social" target="_blank" rel="noopener">
-        <span class="icon"><i class="fab fa-youtube" aria-hidden="true"></i></span><span>YouTube</span>
+        <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-youtube"></use></svg></span><span>YouTube</span>
       </a>
     </div>
   </div>

@@ -7,9 +7,9 @@
 
     <!-- Título + botón de nueva transmisión -->
     <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
-      <h1 class="title is-4 has-text-primary">📺 Lista de Transmisiones</h1>
+      <h1 class="title is-4 has-text-primary"><svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Lista de Transmisiones</h1>
       <a href="{% url 'registrar_transmision' %}" class="button is-primary is-light">
-        ➕ Nueva Transmisión
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Nueva Transmisión
       </a>
     </div>
 
@@ -17,12 +17,12 @@
     <table class="table is-striped is-hoverable is-fullwidth">
       <thead>
         <tr>
-          <th>🏆 Campeonato</th>
-          <th>⚽ Partido</th>
-          <th>🔗 Enlace</th>
-          <th>📝 Descripción</th>
-          <th>📡 Activa</th>
-          <th>⚙️ Acciones</th>
+          <th><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Campeonato</th>
+          <th><svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Partido</th>
+          <th><svg class="uide-icon" aria-hidden="true"><use href="#i-enlace"></use></svg> Enlace</th>
+          <th><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Descripción</th>
+          <th><svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Activa</th>
+          <th><svg class="uide-icon" aria-hidden="true"><use href="#i-ajustes"></use></svg> Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -44,15 +44,15 @@
           <td>
             <div class="buttons are-small">
               <a href="{% url 'detalle_transmision' transmision.id %}" class="button is-info is-light" title="Ver">
-                👁️
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> 
               </a>
               <a href="{% url 'editar_transmision' transmision.id %}" class="button is-warning is-light" title="Editar">
-                ✏️
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> 
               </a>
               <form method="post" action="{% url 'eliminar_transmision' transmision.id %}" style="display:inline" onsubmit="return confirm('¿Eliminar esta transmisión?');">
                 {% csrf_token %}
                 <button type="submit" class="button is-danger is-light" title="Eliminar">
-                  🗑️
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> 
                 </button>
               </form>
             </div>

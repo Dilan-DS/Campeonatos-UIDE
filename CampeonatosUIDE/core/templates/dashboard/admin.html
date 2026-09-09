@@ -123,7 +123,7 @@
     <div class="level">
       <div class="level-left">
         <div>
-          <h1 class="title dash-title">📊 Panel de Administración</h1>
+          <h1 class="title dash-title"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> Panel de Administración</h1>
           <p class="subtitle dash-sub">
             Bienvenido, <strong>{{ user.first_name|default:user.username }}</strong>. Gestiona todo el sistema desde aquí.
           </p>
@@ -141,7 +141,7 @@
     <div class="filters bar mb-4">
       <div class="box">
         <span class="icon-text">
-          <span class="icon">🧑‍🤝‍🧑</span><span>Género</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> </span><span>Género</span>
         </span>
         <div class="select is-small ml-2">
           <select>
@@ -153,13 +153,13 @@
       </div>
       <div class="box">
         <span class="icon-text">
-          <span class="icon">📅</span><span>Año</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> </span><span>Año</span>
         </span>
         <input class="input is-small ml-2" type="number" min="2020" max="2100" placeholder="2025">
       </div>
       <div class="box">
         <span class="icon-text">
-          <span class="icon">🏅</span><span>Deporte</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> </span><span>Deporte</span>
         </span>
         <div class="select is-small ml-2">
           <select>
@@ -180,7 +180,7 @@
     <div class="columns is-multiline">
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         <div class="kpi">
-          <span class="icon">👥</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> </span>
           <div>
             <div class="label">Usuarios Totales</div>
             <div class="value">{{ kpi_usuarios|default:"—" }}</div>
@@ -190,7 +190,7 @@
       </div>
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         <div class="kpi">
-          <span class="icon">🏆</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> </span>
           <div>
             <div class="label">Campeonatos</div>
             <div class="value">{{ kpi_campeonatos|default:"—" }}</div>
@@ -200,7 +200,7 @@
       </div>
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         <div class="kpi">
-          <span class="icon">👥</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> </span>
           <div>
             <div class="label">Equipos</div>
             <div class="value">{{ kpi_equipos|default:"—" }}</div>
@@ -210,7 +210,7 @@
       </div>
       <div class="column is-12-mobile is-6-tablet is-3-desktop">
         <div class="kpi">
-          <span class="icon">⚖️</span>
+          <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg> </span>
           <div>
             <div class="label">Árbitros</div>
             <div class="value">{{ kpi_arbitros|default:"—" }}</div>
@@ -227,7 +227,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">👥 Usuarios</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Usuarios</p>
             <p class="subtitle is-6">Administrar usuarios del sistema</p>
             <div class="mini-bars">
               <div class="bar"><span style="width:65%"></span></div>
@@ -243,7 +243,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">🏆 Campeonatos</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Campeonatos</p>
             <p class="subtitle is-6">Crear, editar y revisar campeonatos</p>
             <div class="mini-bars">
               <div class="bar"><span style="width:48%"></span></div>
@@ -259,7 +259,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">📅 Calendario</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Calendario</p>
             <p class="subtitle is-6">Fixture del campeonato actual</p>
             {% if not campeonato or not campeonato.fixture_generado %}
               <span class="tag tag-alert is-light">Aún no disponible</span>
@@ -279,7 +279,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">👥 Equipos</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Equipos</p>
             <p class="subtitle is-6">Listar y editar equipos inscritos</p>
             <div class="mini-bars">
               <div class="bar"><span style="width:72%"></span></div>
@@ -295,7 +295,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">💰 Pagos</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Pagos</p>
             <p class="subtitle is-6">Control de pagos de equipos</p>
           </div>
           <div class="mt-3">
@@ -308,7 +308,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">⚖️ Árbitros</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg> Árbitros</p>
             <p class="subtitle is-6">Gestión de árbitros registrados</p>
           </div>
           <div class="mt-3">
@@ -321,7 +321,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">📺 Transmisiones</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Transmisiones</p>
             <p class="subtitle is-6">Enlaces y control en vivo</p>
           </div>
           <div class="mt-3">
@@ -334,7 +334,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">🚫 Suspensiones</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg> Suspensiones</p>
             <p class="subtitle is-6">Historial y sanciones</p>
           </div>
           <div class="mt-3">
@@ -347,13 +347,13 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">📈 Estadísticas</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> Estadísticas</p>
             <p class="subtitle is-6">Resumen general por deporte</p>
           </div>
           <div class="mt-3">
             <a href="{% url 'estadisticas_futbol' %}" class="button btn-accent is-rounded">Ver</a>
-            <a href="{% url 'exportar_estadisticas_pdf' %}" class="button btn-ghost is-rounded ml-2">⬇ PDF</a>
-            <a href="{% url 'exportar_estadisticas_excel' %}" class="button btn-ghost is-rounded ml-1">⬇ Excel</a>
+            <a href="{% url 'exportar_estadisticas_pdf' %}" class="button btn-ghost is-rounded ml-2"><svg class="uide-icon" aria-hidden="true"><use href="#i-descargar"></use></svg> PDF</a>
+            <a href="{% url 'exportar_estadisticas_excel' %}" class="button btn-ghost is-rounded ml-1"><svg class="uide-icon" aria-hidden="true"><use href="#i-descargar"></use></svg> Excel</a>
           </div>
         </div>
       </div>
@@ -362,7 +362,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">🏅 Deportes</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> Deportes</p>
             <p class="subtitle is-6">Tipos de deporte</p>
           </div>
           <div class="mt-3">
@@ -375,7 +375,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">🏫 Carreras</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg> Carreras</p>
             <p class="subtitle is-6">Programas académicos</p>
           </div>
           <div class="mt-3">
@@ -388,7 +388,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">🧾 Códigos QR</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Códigos QR</p>
             <p class="subtitle is-6">Pagos y validaciones</p>
           </div>
           <div class="mt-3">
@@ -401,7 +401,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">👤 Delegados</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Delegados</p>
             <p class="subtitle is-6">Registro y control</p>
           </div>
           <div class="mt-3">
@@ -414,7 +414,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">📰 Noticias</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg> Noticias</p>
             <p class="subtitle is-6">Publicación y edición</p>
           </div>
           <div class="mt-3">
@@ -427,7 +427,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">💬 Testimonios</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-testimonio"></use></svg> Testimonios</p>
             <p class="subtitle is-6">Aprobación de comentarios</p>
           </div>
           <div class="mt-3">
@@ -440,7 +440,7 @@
       <div class="column is-12-mobile is-6-tablet is-4-desktop">
         <div class="box dash-card">
           <div>
-            <p class="title is-5">🖼 Galería</p>
+            <p class="title is-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> Galería</p>
             <p class="subtitle is-6">Imágenes del evento</p>
           </div>
           <div class="mt-3">

@@ -22,28 +22,28 @@
 
       <div class="content is-medium has-text-grey-dark">
 
-        <p><strong>🏅 Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> Deporte:</strong> {{ campeonato.deporte.nombre }}</p>
 
-        <p><strong>📖 Descripción:</strong> {{ campeonato.descripcion }}</p>
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> Descripción:</strong> {{ campeonato.descripcion }}</p>
 
-        <p><strong>📅 Fechas:</strong> {{ campeonato.fecha_inicio }} a {{ campeonato.fecha_fin }}</p>
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Fechas:</strong> {{ campeonato.fecha_inicio }} a {{ campeonato.fecha_fin }}</p>
 
-        <p><strong>📌 Estado:</strong> 
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> Estado:</strong> 
           <span class="tag is-medium {% if campeonato.estado == 'activo' %}is-success{% else %}is-danger{% endif %}">
             {{ campeonato.estado|capfirst }}
           </span>
         </p>
 
-        <p><strong>📆 Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Días de partido:</strong> {{ campeonato.dias_partido|join:", " }}</p>
 
-        <p><strong>👤 Delegado:</strong>
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Delegado:</strong>
           {% if campeonato.delegado %}{{ campeonato.delegado.username }}{% else %}No asignado{% endif %}
         </p>
 
-        <p><strong>💲 Precio de inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
+        <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Precio de inscripción:</strong> ${{ campeonato.precio_inscripcion }}</p>
 
         {% if campeonato.reglamento %}
-          <p><strong>📄 Reglamento:</strong> 
+          <p><strong><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> Reglamento:</strong> 
             <a href="{{ campeonato.reglamento.url }}" target="_blank" class="button is-link is-light is-small">
               Ver archivo PDF
             </a>
@@ -53,7 +53,7 @@
 
       <div class="buttons is-centered mt-5">
         <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded">
-          ← Volver al listado
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
         </a>
         <a href="{% url 'tabla_posiciones' campeonato.id %}" class="button is-info is-rounded">
             Ver Tabla de Posiciones

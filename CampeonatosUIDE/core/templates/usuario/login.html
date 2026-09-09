@@ -139,20 +139,20 @@
 
         {% for field in form %}
           <div class="field">
-            <label class="label is-size-6 has-text-grey-dark">{{ field.label }}</label>
+            <label class="label is-size-6 has-text-grey-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
 
             {% if field.name == 'username' %}
               <div class="control has-icons-left">
                 {{ field|add_class:"input is-medium is-neo" }}
                 <span class="icon is-left">
-                  <i class="fas fa-user"></i>
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
                 </span>
               </div>
             {% elif field.name == 'password' %}
               <div class="control has-icons-left has-icons-right">
                 {{ field|add_class:"input is-medium is-neo" }}
                 <span class="icon is-left">
-                  <i class="fas fa-lock"></i>
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-candado"></use></svg>
                 </span>
                 <span class="icon is-right">
                   <button type="button" class="toggle-pass" aria-label="Mostrar/ocultar contraseña"
@@ -161,7 +161,7 @@
                             if(!i) return;
                             i.type = i.type==='password' ? 'text' : 'password';
                           })()">
-                    <i class="fas fa-eye"></i>
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg>
                   </button>
                 </span>
               </div>
@@ -179,7 +179,7 @@
 
         <div class="field mt-5">
           <button type="submit" class="button is-medium is-fullwidth btn-primary">
-            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-salir"></use></svg></span>
             <span>Entrar</span>
           </button>
         </div>

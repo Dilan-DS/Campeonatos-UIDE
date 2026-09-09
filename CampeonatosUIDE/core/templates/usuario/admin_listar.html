@@ -11,13 +11,13 @@
     <h1 class="title has-text-centered has-text-danger mb-5">
       <span class="icon-text">
         <span class="icon has-text-danger">
-          <i class="fas fa-users"></i>
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>
         </span>
         <span>Usuarios Registrados</span>
       </span>
     </h1>
 
-    <!-- 🔍 Barra de búsqueda -->
+    <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg> Barra de búsqueda -->
     <form method="get" class="field has-addons is-justify-content-center mb-6 max-w-2xl mx-auto">
       <div class="control is-expanded">
         <input class="input" type="text" name="buscar" placeholder="Buscar por cédula o usuario" value="{{ query|default:'' }}">
@@ -27,7 +27,7 @@
       </div>
     </form>
 
-    <!-- 📋 Tabla de usuarios -->
+    <!-- <svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> Tabla de usuarios -->
     <div class="table-container">
       <table class="table is-bordered is-striped is-hoverable is-fullwidth">
         <thead>

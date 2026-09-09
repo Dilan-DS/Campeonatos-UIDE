@@ -49,7 +49,7 @@
               <!-- Itera sobre cada campo del formulario para renderizarlo. -->
               <div class="field mb-4">
                 <!-- Grupo de campo con margen inferior. -->
-                <label class="label">{{ field.label }}</label>
+                <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <!-- Muestra la etiqueta del campo (por ejemplo, 'Nombre de usuario'). -->
                 <div class="control">
                   {{ field|add_class:"input is-rounded" }}
