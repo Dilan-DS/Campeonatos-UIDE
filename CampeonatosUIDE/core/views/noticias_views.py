@@ -1,4 +1,6 @@
 from django.views import View
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from core.models import Noticia
@@ -7,9 +9,30 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from core.views.campeonato_views import es_admin_o_delegado
 
 class ListarNoticias(View):
+    """Listado de noticias con búsqueda y paginación.
+
+    La plantilla ya ofrecía un buscador (?q=) y una paginación, pero la
+    vista no filtraba ni paginaba: el campo de búsqueda no hacía nada y la
+    paginación nunca se mostraba porque page_obj no llegaba al contexto.
+    """
+
+    POR_PAGINA = 9
+
     def get(self, request):
         noticias = Noticia.objects.all().order_by('-creado_en')
-        return render(request, 'noticia/listar.html', {'noticias': noticias})
+
+        q = (request.GET.get('q') or '').strip()
+        if q:
+            noticias = noticias.filter(
+                Q(titulo__icontains=q) | Q(contenido__icontains=q)
+            )
+
+        page_obj = Paginator(noticias, self.POR_PAGINA).get_page(request.GET.get('page'))
+        return render(request, 'noticia/listar.html', {
+            'noticias': page_obj,
+            'page_obj': page_obj,
+            'q': q,
+        })
 
 class RegistrarNoticia(View):
     def get(self, request):
