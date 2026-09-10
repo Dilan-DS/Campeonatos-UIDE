@@ -272,5 +272,11 @@ def calendario_global_view(request):
         'partidos': qs,
         'campeonatos': Campeonato.objects.all().order_by('-id'),
         'arbitros_map_by_deporte': arbitros_map_by_deporte,
+        # El desplegable de estado ofrecía 'JUGADO' y 'SUSPENDIDO', valores
+        # que Partido.estado no admite: filtrar por ellos no devolvía nada y
+        # EN_CURSO / FINALIZADO no se podían filtrar. Se toman del modelo
+        # para que no vuelvan a divergir.
+        'estados_partido': Partido.ESTADOS,
+        'generos_equipo': Equipo.GENERO_CHOICES,
     }
     return render(request, 'partido/calendario_global.html', contexto)
