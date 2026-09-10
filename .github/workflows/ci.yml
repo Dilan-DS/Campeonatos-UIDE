@@ -43,10 +43,10 @@ jobs:
         run: python manage.py check
 
       - name: Comprobaciones de despliegue
-        # Informativas: señalan lo que falta endurecer para producción sin
-        # bloquear el PR (SECURE_HSTS_SECONDS, SESSION_COOKIE_SECURE...).
-        continue-on-error: true
-        run: python manage.py check --deploy
+        # Ya no es informativa: con el endurecimiento aplicado esta
+        # comprobación pasa limpia, así que cualquier aviso nuevo debe
+        # bloquear el PR en lugar de pasar desapercibido.
+        run: python manage.py check --deploy --fail-level WARNING
 
       - name: Migraciones sin cambios pendientes
         run: python manage.py makemigrations --check --dry-run

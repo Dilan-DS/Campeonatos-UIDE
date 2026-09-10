@@ -128,7 +128,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
+# No se declara STATICFILES_DIRS: core/static/ vive dentro de la app core,
+# así que AppDirectoriesFinder ya lo encuentra. Declararlo además hacía que
+# collectstatic viera cada fichero dos veces ("Found another file with the
+# destination path 'styles/uide.css'").
 # Sin STATIC_ROOT, collectstatic aborta con ImproperlyConfigured y no se
 # pueden preparar los estáticos para un despliegue.
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -158,3 +161,59 @@ EMAIL_TIMEOUT = 20
 
 
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+
+
+# ---------------------------------------------------------------------------
+# Seguridad de transporte y cookies
+#
+# Todo esto se activa solo cuando DEBUG está desactivado: en desarrollo se
+# sirve por HTTP, y forzar HTTPS o cookies "secure" dejaría la aplicación
+# inaccesible en local. Cada valor puede forzarse por variable de entorno si
+# el despliegue concreto lo necesita.
+# ---------------------------------------------------------------------------
+
+EN_PRODUCCION = not DEBUG
+
+# El proyecto se expone detrás de un proxy (ver CSRF_TRUSTED_ORIGINS con
+# *.trycloudflare.com). Sin esta cabecera Django no sabe que la petición
+# original llegó por HTTPS y SECURE_SSL_REDIRECT entra en bucle infinito.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=EN_PRODUCCION)
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=EN_PRODUCCION)
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=EN_PRODUCCION)
+
+# HTTP Strict Transport Security.
+#
+# El navegador recuerda esta cabecera durante todo el max-age y se niega a
+# hablar por HTTP con el dominio, así que un valor alto es difícil de
+# revertir: si el certificado caduca, el sitio queda inaccesible hasta
+# arreglarlo. Por eso se arranca en 1 hora.
+#
+# Cuando el HTTPS esté estable en producción, subir por pasos:
+#   SECURE_HSTS_SECONDS=86400      (1 día)
+#   SECURE_HSTS_SECONDS=2592000    (30 días)
+#   SECURE_HSTS_SECONDS=31536000   (1 año, valor recomendado)
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=3600 if EN_PRODUCCION else 0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=EN_PRODUCCION
+)
+# El preload es prácticamente irreversible (hay que pedir la baja en la lista
+# de los navegadores y esperar meses). Se deja desactivado a propósito y solo
+# debe activarse con el HSTS ya a un año y todos los subdominios en HTTPS.
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=False)
+
+# Cabeceras defensivas adicionales.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # el CSRF se lee desde JS en algunos formularios
+
+# security.W021 pide activar SECURE_HSTS_PRELOAD. No se activa a propósito:
+# entrar en la lista de preload de los navegadores exige HSTS a un año, todos
+# los subdominios por HTTPS, y darse de baja lleva meses. Es una decisión de
+# infraestructura, no de código, y debe tomarse cuando se cumplan esas tres
+# condiciones. Se silencia para que `check --deploy` quede limpio y cualquier
+# aviso nuevo se vea de inmediato.
+SILENCED_SYSTEM_CHECKS = ["security.W021"]
