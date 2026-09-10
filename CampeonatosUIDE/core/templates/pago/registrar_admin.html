@@ -8,82 +8,6 @@
 
 {% block content %}
 
-<style>
-  /* ====== Palette & tokens ====== */
-  :root{
-    --grad-1:#6a11cb; --grad-2:#2575fc;
-    --ink:#1f2330; --muted:#6b7280; --paper:#fffdf8;
-    --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
-    --ring: rgba(37,117,252,.25);
-  }
-
-  /* ====== Decorative header strip ====== */
-  .hero-strip {
-    background: linear-gradient(90deg,var(--grad-1),var(--grad-2));
-    color:#fff;
-    border-radius: 18px;
-    padding: 1.25rem 1.5rem;
-    box-shadow: 0 14px 40px rgba(37,117,252,.25);
-  }
-  .hero-strip .title { color:#fff; letter-spacing:.3px; }
-
-  /* ====== Card look ====== */
-  .glass-card{
-    background: var(--paper);
-    border-radius: 18px;
-    padding: 2.25rem;
-    box-shadow: 0 20px 40px rgba(31,35,48,.08), 0 2px 6px rgba(31,35,48,.05);
-    border: 1px solid rgba(31,35,48,.06);
-  }
-
-  /* ====== Form polish ====== */
-  .form-wrap .label{ color: var(--ink); font-weight: 600; }
-  .form-wrap .help{ margin-top:.35rem; }
-  .form-wrap .input.is-light,
-  .form-wrap .textarea.is-light,
-  .form-wrap .select select{
-    background: #f8fafc;
-    border-color: #e5e7eb;
-  }
-  .form-wrap .input:focus,
-  .form-wrap .textarea:focus,
-  .form-wrap .select select:focus{
-    border-color: var(--grad-2);
-    box-shadow: 0 0 0 .25rem var(--ring);
-  }
-
-  /* Compact spacing on mobile */
-  @media (max-width: 768px){
-    .columns.is-multiline > .column { padding-bottom: .25rem; }
-  }
-
-  /* ====== File input nicer name line ====== */
-  .file.has-name .file-name{
-    max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    background:#fff; border:1px dashed #e5e7eb; border-radius: 10px; padding:.4rem .6rem;
-  }
-  .file .file-cta{
-    border-radius: 10px;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.04);
-  }
-
-  /* ====== Buttons ====== */
-  .btn-gradient{
-    background: linear-gradient(90deg,var(--grad-1),var(--grad-2));
-    border:none; color:#fff !important;
-    box-shadow: 0 12px 22px rgba(37,117,252,.25);
-  }
-  .btn-gradient:hover{ filter: brightness(1.06); }
-  .btn-ghost{
-    background:#f7f8fb; border:1px solid #e7e9f3; color:#334155;
-  }
-
-  /* ====== Notifications polish ====== */
-  .notification { border-radius: 14px; }
-
-  /* Subtle divider */
-  .soft-divider { height:1px; background:linear-gradient(90deg,transparent,#eaeaea,transparent); margin:1.25rem 0; }
-</style>
 
 <section class="section">
   <div class="container">
@@ -99,15 +23,15 @@
     </div>
 
     <!-- Main card -->
-    <div class="box glass-card">
+    <div class="box">
       {% if messages %}
         {% for message in messages %}
           <div class="notification is-{{ message.tags }} is-light">{{ message }}</div>
         {% endfor %}
-        <div class="soft-divider"></div>
+        <div class="uide-divider"></div>
       {% endif %}
 
-      <form method="POST" enctype="multipart/form-data" class="form-wrap">
+      <form method="POST" enctype="multipart/form-data" class="box">
         {% csrf_token %}
         <div class="columns is-multiline">
           {% for field in form %}
@@ -153,14 +77,14 @@
         </div>
 
         <div class="field mt-4">
-          <button type="submit" class="button btn-gradient is-fullwidth is-rounded is-medium">
+          <button type="submit" class="button is-primary is-fullwidth is-rounded is-medium">
             <strong>{% if modo == 'crear' %}Registrar Pago{% else %}Actualizar Pago{% endif %}</strong>
           </button>
         </div>
       </form>
 
       <div class="has-text-centered mt-5">
-        <a href="{% url 'listar_pagos_admin' %}" class="button btn-ghost is-rounded">
+        <a href="{% url 'listar_pagos_admin' %}" class="button is-light is-rounded">
           <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
         </a>
       </div>

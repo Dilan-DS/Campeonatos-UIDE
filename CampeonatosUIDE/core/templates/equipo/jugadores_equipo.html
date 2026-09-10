@@ -83,11 +83,11 @@
           <div>
             <h2 class="title is-4 mb-1" style="color:#fff;">{{ equipo.nombre }}</h2>
             <div class="is-flex" style="gap:.5rem;">
-              <span class="chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> Jugadores: {{ jugadores_data|length }}</span>
+              <span class="tag"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> Jugadores: {{ jugadores_data|length }}</span>
               {% if equipo.aprobado %}
-                <span class="chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Aprobado</span>
+                <span class="tag"><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Aprobado</span>
               {% else %}
-                <span class="chip">⏳ En revisión</span>
+                <span class="tag">⏳ En revisión</span>
               {% endif %}
             </div>
           </div>
@@ -103,7 +103,7 @@
       </div>
     </div>
 
-    <div class="glass-card">
+    <div class="box">
       {% if not equipo.aprobado %}
         <div class="notification is-warning is-light has-text-centered mb-4">
           Tu equipo aún <strong>no está aprobado</strong>. No podrás registrar jugadores hasta que el pago sea aprobado.
@@ -127,7 +127,7 @@
               {% for data in jugadores_data %}
                 <tr>
                   <td><strong>{{ data.jugador.usuario.username }}</strong></td>
-                  <td><span class="pill">#{{ data.jugador.numero_camiseta }}</span></td>
+                  <td><span class="tag">#{{ data.jugador.numero_camiseta }}</span></td>
                   <td>{{ data.jugador.posicion }}</td>
                   <td>{{ data.jugador.edad }} años</td>
                   <td>
@@ -163,7 +163,7 @@
             <div class="player-card">
               <div class="row">
                 <div><strong>{{ data.jugador.usuario.username }}</strong></div>
-                <div><span class="pill">#{{ data.jugador.numero_camiseta }}</span></div>
+                <div><span class="tag">#{{ data.jugador.numero_camiseta }}</span></div>
               </div>
               <div class="row">
                 <div><span class="label">Posición</span></div>
@@ -207,9 +207,9 @@
 
       <div class="has-text-centered mt-5">
         {% if is_jugador_view %}
-          <a href="{% url 'jugador_dashboard' %}" class="button btn-ghost is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Jugador</a>
+          <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Jugador</a>
         {% else %}
-          <a href="{% url 'delegado_dashboard' %}" class="button btn-ghost is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Delegado</a>
+          <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Delegado</a>
         {% endif %}
       </div>
     </div>

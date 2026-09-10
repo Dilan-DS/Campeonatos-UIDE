@@ -38,7 +38,7 @@
                     <td>{{ partido.campeonato.nombre }}</td>
                     <td>{{ partido.lugar }}</td>
                     <td>
-                        <span class="tag {% if partido.estado == 'PROGRAMADO' %}is-info{% elif partido.estado == 'EN_CURSO' %}is-warning{% elif partido.estado == 'FINALIZADO' %}is-success{% endif %}">
+                        <span class="tag {% if partido.estado == 'PROGRAMADO' %}is-info{% elif 'EN_CURSO' %}is-warning{% 'FINALIZADO' %}is-success{% endif %}">
                             {{ partido.get_estado_display }}
                         </span>
                     </td>

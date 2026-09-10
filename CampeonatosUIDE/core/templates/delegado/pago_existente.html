@@ -17,7 +17,7 @@
                         <p><strong>Comprobante:</strong> <a href="{{ pago.comprobante_pago.url }}" target="_blank">Ver Comprobante</a></p>
                     {% endif %}
                 {% endif %}
-                <p class="is-size-4"><strong>Estado:</strong> <span class="tag is-large {% if pago.estado == 'PENDIENTE' %}is-warning{% elif pago.estado == 'APROBADO' %}is-success{% else %}is-danger{% endif %}">{{ pago.get_estado_display }}</span></p>
+                <p class="is-size-4"><strong>Estado:</strong> <span class="tag is-large {% if pago.estado == 'PENDIENTE' %}is-warning{% elif 'APROBADO' %}is-success{% else %}is-danger{% endif %}">{{ pago.get_estado_display }}</span></p>
                 {% if pago.observacion_admin %}
                     <p><strong>Observaciones del Administrador:</strong> {{ pago.observacion_admin }}</p>
                 {% endif %}
