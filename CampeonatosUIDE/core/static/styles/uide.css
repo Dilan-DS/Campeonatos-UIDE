@@ -169,47 +169,27 @@ a:hover {
   color: #fff;
 }
 
-/* La barra de scroll de la página va oculta, pero la página sigue
-   desplazándose con rueda, teclado, táctil y barra espaciadora: sólo se
-   oculta el indicador, no el desbordamiento.
+/* Barras de scroll ocultas en toda la aplicación, sin perder el scroll.
 
-   Sólo se oculta la barra de la página: scrollbar-width no se hereda, y
-   html::-webkit-scrollbar es más específico que ::-webkit-scrollbar. Los
-   contenedores que se desplazan por dentro (.table-container) conservan
-   la suya, porque ahí no es decorativa: es la única señal de que quedan
-   columnas fuera de la vista.
+   Se oculta el indicador, no el desbordamiento: no se toca overflow, así
+   que todo sigue desplazándose con rueda, teclado, táctil, arrastre y
+   barra espaciadora exactamente igual que antes.
 
-   No se toca overflow, de modo que rueda, teclado, táctil y barra
-   espaciadora siguen funcionando igual. */
-:root {
-  scrollbar-color: var(--uide-border-strong) transparent;
+   Se aplica a todo elemento, no sólo a la página: los contenedores que se
+   desplazan por dentro (las tablas anchas, sobre todo) también quedan sin
+   barra. Como la barra era la única señal de que quedaban columnas fuera
+   de la vista, esas tablas reciben en su lugar un degradado en el borde
+   derecho que aparece sólo cuando hay contenido oculto (más abajo, en
+   .table-container). */
+* {
   scrollbar-width: none;
-}
-
-html::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  -ms-overflow-style: none;
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--uide-border-strong);
-  border: 3px solid transparent;
-  border-radius: var(--uide-radius-pill);
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--uide-muted);
-  background-clip: content-box;
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 /* Un único anillo de foco visible en toda la aplicación. */
@@ -1191,10 +1171,20 @@ select.input[multiple],
   border-radius: var(--uide-radius-md);
   box-shadow: none;
   overflow-x: auto;
-/* Aquí la barra sí se ve: la tabla tiene min-width, así que en pantallas
-     estrechas es la única señal de que hay columnas a la derecha. Se pide
-     fina explícitamente porque scrollbar-width no se hereda de :root. */
-  scrollbar-width: thin;
+  /* Sin barra de scroll visible (se ocultan en toda la aplicación), la
+     señal de que hay más columnas a la derecha es un degradado en el
+     borde: se pinta como fondo fijo y sólo asoma cuando el contenido
+     desborda, porque background-attachment: local desplaza las capas
+     blancas junto al contenido. */
+  background-image:
+    linear-gradient(to right, var(--uide-surface), var(--uide-surface)),
+    linear-gradient(to left, var(--uide-surface), var(--uide-surface)),
+    linear-gradient(to right, rgba(23, 32, 51, .14), rgba(23, 32, 51, 0)),
+    linear-gradient(to left, rgba(23, 32, 51, .14), rgba(23, 32, 51, 0));
+  background-position: 0 0, 100% 0, 0 0, 100% 0;
+  background-repeat: no-repeat;
+  background-size: 2.5rem 100%, 2.5rem 100%, 1rem 100%, 1rem 100%;
+  background-attachment: local, local, scroll, scroll;
 }
 
 .table {
