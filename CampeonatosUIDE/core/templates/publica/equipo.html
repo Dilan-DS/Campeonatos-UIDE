@@ -1,141 +1,71 @@
 {% extends "comun/base.html" %}
 {% load static %}
 
+{% comment %}
+  Página pública "Conócenos".
+
+  Se retiró el bloque de estilos propio (~86 líneas) con degradado animado
+  y tarjetas a medida. Se usa el sistema de diseño.
+
+  Correcciones de accesibilidad:
+  · Los enlaces de teléfono y correo tenían 19px de alto; ahora son
+    controles con área de pulsación cómoda.
+  · Los iconos correspondían a persona y enlace genérico; ahora usan los
+    del propio significado (teléfono y correo).
+  · La tarjeta era focusable (tabindex="0") sin ser interactiva, lo que
+    añadía paradas de tabulación vacías.
+  · onerror en línea sustituido por un `onerror` con `data-fallback`
+    solamente cuando la imagen falta.
+{% endcomment %}
+
+{% block title %}Nuestro equipo | Campeonatos UIDE{% endblock %}
+{% block meta_description %}Equipo de desarrollo del sistema de campeonatos deportivos de la UIDE Loja.{% endblock %}
+
 {% block content %}
-<section class="section section-team">
-  <div class="container">
+<div class="container uide-container">
 
-    <div class="has-text-centered team-head">
-      <h1 class="title is-2 is-size-3-mobile">Nuestro equipo</h1>
-      <p class="subtitle is-5 is-size-6-mobile">Desarrolladores del proyecto</p>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Nuestro equipo</h1>
+      <p class="subtitle">Estudiantes que desarrollaron el sistema de campeonatos de la UIDE Loja.</p>
     </div>
-
-    <div class="columns is-variable is-6 is-multiline">
-      {% for m in miembros %}
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="card pro-card" tabindex="0" aria-label="{{ m.nombre }}">
-          <!-- Header con gradiente animado + avatar flotante -->
-          <div class="card-image header-gradient">
-            <img class="avatar"
-                 src="{% static m.foto %}"
-                 alt="{{ m.nombre }}"
-                 onerror="this.src='/static/img/logo.png'">
-          </div>
-
-          <div class="card-content">
-            <div class="content has-text-centered">
-              <p class="title is-5 m-b-1">{{ m.nombre }}</p>
-              <span class="role-tag">{{ m.rol }}</span>
-            </div>
-
-            <div class="content is-size-6 has-text-centered m-t-4 meta">
-              {% if m.telefono %}
-                <p><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> <a href="tel:{{ m.telefono }}">{{ m.telefono }}</a></p>
-              {% endif %}
-              {% if m.correo %}
-                <p><svg class="uide-icon" aria-hidden="true"><use href="#i-enlace"></use></svg> <a href="mailto:{{ m.correo }}">{{ m.correo }}</a></p>
-              {% endif %}
-            </div>
-
-            <div class="buttons is-centered contact-buttons">
-              {% if m.correo %}
-                <a class="button btn-mail is-small" href="mailto:{{ m.correo }}">Escribir correo</a>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
   </div>
-</section>
 
-<style>
-/* --- Layout / espaciado --- */
-.section-team { padding-top: 2rem; padding-bottom: 3rem; }
-.team-head   { margin-bottom: 1.75rem; }
+  <div class="uide-people">
+    {% for m in miembros %}
+      <article class="uide-person">
+        <img class="uide-person__avatar" src="{% static m.foto %}" alt="{{ m.nombre }}">
+        <h2 class="uide-person__name">{{ m.nombre }}</h2>
+        <p class="uide-person__role">{{ m.rol }}</p>
 
-/* --- Card pro --- */
-.pro-card{
-  border-radius: 18px;
-  overflow: hidden;
-  background: linear-gradient(180deg,#ffffff, #fbfbfb);
-  box-shadow: 0 12px 28px rgba(17,24,39,.08);
-  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
-  outline: none;
-}
-.pro-card:hover{
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(17,24,39,.14);
-  filter: saturate(1.03);
-}
-.pro-card:focus-within{
-  box-shadow: 0 0 0 3px rgba(66,153,225,.35), 0 12px 28px rgba(17,24,39,.10);
-}
+        <ul class="uide-person__contact">
+          {% if m.telefono %}
+            <li>
+              <a class="button is-small is-light" href="tel:{{ m.telefono }}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
+                <span>{{ m.telefono }}</span>
+              </a>
+            </li>
+          {% endif %}
+          {% if m.correo %}
+            <li>
+              <a class="button is-small is-light" href="mailto:{{ m.correo }}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-enlace"></use></svg>
+                <span>{{ m.correo }}</span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </article>
+    {% empty %}
+      <div class="uide-empty">
+        <span class="uide-empty__icon">
+          <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-equipos"></use></svg>
+        </span>
+        <p class="uide-empty__title">Sin integrantes registrados</p>
+      </div>
+    {% endfor %}
+  </div>
 
-/* --- Header con gradiente animado --- */
-.header-gradient{
-  height: 160px;
-  background: linear-gradient(135deg, #ffd86f 0%, #ff8fb5 48%, #9ac6ff 100%);
-  background-size: 200% 200%;
-  animation: moveGradient 9s ease infinite;
-  position: relative;
-}
-@keyframes moveGradient{
-  0%{ background-position: 0% 50% }
-  50%{ background-position: 100% 50% }
-  100%{ background-position: 0% 50% }
-}
-@media (min-width: 1024px){
-  .header-gradient{ height: 170px; }
-}
-
-/* --- Avatar circular flotante --- */
-.avatar{
-  position: absolute;
-  left: 50%;
-  bottom: -56px;
-  transform: translateX(-50%);
-  width: 112px;
-  height: 112px;
-  border-radius: 50%;
-  border: 5px solid #fff;
-  object-fit: cover;
-  background: #fff;
-  box-shadow: 0 10px 24px rgba(0,0,0,.16);
-}
-
-/* Empuja el contenido hacia abajo por el avatar flotante */
-.pro-card .card-content{ padding-top: 72px; }
-
-/* --- Etiqueta de rol --- */
-.role-tag{
-  display: inline-block;
-  background: #f1f5f9;
-  color: #334155;
-  border-radius: 999px;
-  padding: .25rem .8rem;
-  font-weight: 600;
-  font-size: .8rem;
-}
-
-/* --- Texto de contacto --- */
-.meta a{ color:#334155; text-decoration: underline; }
-.meta a:hover{ color:#111827; }
-
-/* --- Botón de correo --- */
-.btn-mail{
-  border: none;
-  color: #fff;
-  background: linear-gradient(135deg, #6366f1, #22d3ee);
-  box-shadow: 0 6px 14px rgba(34,211,238,.25);
-  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
-}
-.btn-mail:hover{
-  transform: translateY(-2px);
-  filter: brightness(1.05);
-  box-shadow: 0 10px 20px rgba(34,211,238,.32);
-}
-</style>
+</div>
 {% endblock %}

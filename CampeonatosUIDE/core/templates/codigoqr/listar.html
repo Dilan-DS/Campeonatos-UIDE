@@ -12,7 +12,9 @@
       <form method="get" class="mb-5">
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input type="text" name="q" class="input" placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
+            <label class="uide-sr-only" for="buscar-qr">Buscar códigos QR</label>
+            <input type="search" id="buscar-qr" name="q" class="input"
+                   placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
           </div>
           <div class="control">
             <button class="button is-info" type="submit">Buscar</button>
