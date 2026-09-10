@@ -30,7 +30,7 @@
     {% else %}
       <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
-        
+
         <div class="field">
           <label class="label" for="{{ form.autor.id_for_label }}">Autor</label>
           <div class="control">

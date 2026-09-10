@@ -44,15 +44,15 @@
           <td>
             <div class="buttons are-small">
               <a href="{% url 'detalle_transmision' transmision.id %}" class="button is-info is-light" title="Ver">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> 
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg>
               </a>
               <a href="{% url 'editar_transmision' transmision.id %}" class="button is-warning is-light" title="Editar">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> 
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg>
               </a>
               <form method="post" action="{% url 'eliminar_transmision' transmision.id %}" style="display:inline" onsubmit="return confirm('¿Eliminar esta transmisión?');">
                 {% csrf_token %}
                 <button type="submit" class="button is-danger is-light" title="Eliminar">
-                  <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> 
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
                 </button>
               </form>
             </div>
