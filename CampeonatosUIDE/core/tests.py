@@ -7,7 +7,7 @@ se detectaron once vistas rotas.
 """
 from datetime import date, time, timedelta
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import NoReverseMatch, get_resolver, reverse
 from django.urls.resolvers import URLPattern, URLResolver
 
@@ -18,6 +18,22 @@ from core.models import (
 )
 
 PWD = "Prueba.2026"
+
+
+# Las pruebas piden por HTTP. Con DEBUG desactivado (como en CI)
+# SECURE_SSL_REDIRECT redirige toda peticion a HTTPS y el cuerpo de la
+# respuesta llega vacio, de modo que las comprobaciones fallarian por la
+# configuracion y no por el codigo. Se desactiva solo aqui: la
+# configuracion real de produccion no se toca.
+@override_settings(
+    SECURE_SSL_REDIRECT=False,
+    SESSION_COOKIE_SECURE=False,
+    CSRF_COOKIE_SECURE=False,
+    SECURE_HSTS_SECONDS=0,
+)
+class PruebaBase(TestCase):
+    """Base comun: las subclases heredan estos ajustes."""
+
 
 # Rutas del admin de Django y utilidades que no forman parte de esta interfaz.
 PREFIJOS_IGNORADOS = (
@@ -139,7 +155,7 @@ def _rutas():
     return sorted(set(rutas))
 
 
-class TodasLasRutasResponden(TestCase):
+class TodasLasRutasResponden(PruebaBase):
     """Ninguna ruta debe responder 5xx en ningún rol.
 
     Así se encontraron once vistas rotas: renombres de campo sin actualizar
@@ -182,7 +198,7 @@ class TodasLasRutasResponden(TestCase):
         self._recorrer("jugador_test")
 
 
-class CamposRenombradosPorMigracion0003(TestCase):
+class CamposRenombradosPorMigracion0003(PruebaBase):
     """Las vistas deben ordenar por los nombres nuevos, no por los antiguos.
 
     galeria, noticias y testimonios ordenaban por 'fecha' y
@@ -200,7 +216,7 @@ class CamposRenombradosPorMigracion0003(TestCase):
                 self.assertEqual(self.client.get(reverse(nombre)).status_code, 200)
 
 
-class VisibilidadPublicaDeCampeonatos(TestCase):
+class VisibilidadPublicaDeCampeonatos(PruebaBase):
     """es_publico es 'SI'/'NO': no puede evaluarse como booleano.
 
     La plantilla filtraba con `{% if campeonato.es_publico %}`, cierto
@@ -226,7 +242,7 @@ class VisibilidadPublicaDeCampeonatos(TestCase):
         self.assertNotIn("Campeonato privado", html)
 
 
-class PortadaMuestraDatos(TestCase):
+class PortadaMuestraDatos(PruebaBase):
     """La portada se renderizaba sin contexto y mostraba siempre sus estados
     vacíos, aunque hubiera campeonatos, partidos y noticias."""
 
@@ -243,7 +259,7 @@ class PortadaMuestraDatos(TestCase):
         self.assertNotContains(respuesta, "No hay campeonatos activos")
 
 
-class PanelAdminMuestraMetricas(TestCase):
+class PanelAdminMuestraMetricas(PruebaBase):
     """El panel se renderizaba sin contexto y las cuatro métricas salían
     como un guion."""
 
@@ -260,7 +276,7 @@ class PanelAdminMuestraMetricas(TestCase):
         self.assertEqual(respuesta.context["kpi_equipos"], Equipo.objects.count())
 
 
-class ContratoDelActaDelArbitro(TestCase):
+class ContratoDelActaDelArbitro(PruebaBase):
     """ArbitroActaForm perdió su __init__ al migrar los formularios y la
     carga del acta respondía TypeError: ninguna acta podía registrarse."""
 
@@ -306,7 +322,7 @@ class ContratoDelActaDelArbitro(TestCase):
         self.assertEqual(partido.estado, "PROGRAMADO")
 
 
-class EstadoDePartidoSeMuestraSegunElModelo(TestCase):
+class EstadoDePartidoSeMuestraSegunElModelo(PruebaBase):
     """El calendario mapeaba un valor 'JUGADO' inexistente y enviaba todo lo
     demás a "Suspendido": los partidos finalizados se mostraban suspendidos."""
 
@@ -331,7 +347,7 @@ class EstadoDePartidoSeMuestraSegunElModelo(TestCase):
         self.assertNotIn("JUGADO", valores)
 
 
-class BorradoDeEquipoExigePost(TestCase):
+class BorradoDeEquipoExigePost(PruebaBase):
     """eliminar_equipo estaba registrado dos veces con nombres de argumento
     distintos; reverse() elegía la variante que la vista no acepta y el
     botón Eliminar respondía TypeError."""
@@ -356,7 +372,7 @@ class BorradoDeEquipoExigePost(TestCase):
                          "un POST debe borrar el equipo")
 
 
-class RegistroRenderizaTodosSusCampos(TestCase):
+class RegistroRenderizaTodosSusCampos(PruebaBase):
     """La plantilla de registro agrupa los campos por sección; si se añade
     uno al formulario debe seguir apareciendo."""
 
@@ -367,7 +383,7 @@ class RegistroRenderizaTodosSusCampos(TestCase):
                 self.assertIn(f'name="{nombre}"', html)
 
 
-class PlantillasSinFugasDeSintaxis(TestCase):
+class PlantillasSinFugasDeSintaxis(PruebaBase):
     """Un comentario {# #} de varias líneas no es un comentario en Django y
     termina impreso en la página."""
 
@@ -382,7 +398,7 @@ class PlantillasSinFugasDeSintaxis(TestCase):
                 self.assertNotIn("{#", html)
 
 
-class ExportacionesDeEstadisticas(TestCase):
+class ExportacionesDeEstadisticas(PruebaBase):
     """Las exportaciones leían un campo 'asistencias' que sólo existe en el
     modelo de básquet y respondían AttributeError."""
 
