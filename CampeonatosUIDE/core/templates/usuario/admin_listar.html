@@ -20,7 +20,9 @@
     <!-- Barra de búsqueda -->
     <form method="get" class="field has-addons is-justify-content-center mb-6 max-w-2xl mx-auto">
       <div class="control is-expanded">
-        <input class="input" type="text" name="buscar" placeholder="Buscar por cédula o usuario" value="{{ query|default:'' }}">
+        <label class="uide-sr-only" for="buscar-usuarios">Buscar usuarios</label>
+        <input class="input" id="buscar-usuarios" type="search" name="buscar"
+               placeholder="Buscar por cédula o usuario" value="{{ query|default:'' }}">
       </div>
       <div class="control">
         <button class="button is-danger" type="submit">Buscar</button>
