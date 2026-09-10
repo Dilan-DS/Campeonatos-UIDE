@@ -126,8 +126,10 @@
         </fieldset>
       {% endif %}
 
-      {# Cualquier campo que no encaje en las secciones anteriores se sigue
-         mostrando: así añadir un campo al formulario no lo deja invisible. #}
+      {% comment %}
+        Cualquier campo que no encaje en las secciones anteriores se sigue
+        mostrando: así añadir un campo al formulario no lo deja invisible.
+      {% endcomment %}
       {% with conocidos="first_name last_name carrera genero cedula username email password1 password2 rol" %}
         {% for campo in form %}
           {% if campo.name not in conocidos.split %}

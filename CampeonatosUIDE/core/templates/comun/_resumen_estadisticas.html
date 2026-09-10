@@ -1,0 +1,43 @@
+{% comment %}
+  Resumen de estadísticas de un jugador según su deporte.
+
+  Un único lugar con los nombres de campo correctos por modelo. Antes este
+  bloque estaba duplicado (tabla de escritorio y tarjetas de móvil) en
+  equipo/jugadores_equipo.html, y en la variante de Ping Pong y Futbolín
+  leía partidas_ganadas / partidas_perdidas, campos que sólo existen en
+  Ajedrez y Videojuegos: esas dos disciplinas mostraban las cifras vacías.
+
+  Parámetros: stats (instancia de EstadisticaJugador*), deporte (nombre).
+{% endcomment %}
+{% if stats %}
+  {% if deporte == 'FUTBOL' %}
+    <span class="uide-numeric">{{ stats.goles }} goles</span> ·
+    <span class="uide-numeric">{{ stats.tarjetas_amarillas }} TA</span> ·
+    <span class="uide-numeric">{{ stats.tarjetas_rojas }} TR</span>
+  {% elif deporte == 'BASQUET' %}
+    <span class="uide-numeric">{{ stats.canastas }} canastas</span> ·
+    <span class="uide-numeric">{{ stats.rebotes }} rebotes</span> ·
+    <span class="uide-numeric">{{ stats.asistencias }} asistencias</span>
+  {% elif deporte == 'AJEDREZ' %}
+    <span class="uide-numeric">{{ stats.partidas_ganadas }}G</span> ·
+    <span class="uide-numeric">{{ stats.partidas_empatadas }}E</span> ·
+    <span class="uide-numeric">{{ stats.partidas_perdidas }}P</span>
+  {% elif deporte == 'ECUABOLY' or deporte == 'TENIS' %}
+    <span class="uide-numeric">{{ stats.sets_ganados }}</span> sets ganados ·
+    <span class="uide-numeric">{{ stats.sets_perdidos }}</span> perdidos
+  {% elif deporte == 'VIDEOJUEGOS' %}
+    <span class="uide-numeric">{{ stats.partidas_ganadas }}G</span> ·
+    <span class="uide-numeric">{{ stats.partidas_perdidas }}P</span>
+  {% elif deporte == 'PING PONG' or deporte == 'PINGPONG' %}
+    <span class="uide-numeric">{{ stats.partidos_ganados }}G</span> ·
+    <span class="uide-numeric">{{ stats.partidos_perdidos }}P</span>
+  {% elif deporte == 'FUTBOLIN' %}
+    <span class="uide-numeric">{{ stats.goles }} goles</span> ·
+    <span class="uide-numeric">{{ stats.partidos_ganados }}G</span> ·
+    <span class="uide-numeric">{{ stats.partidos_perdidos }}P</span>
+  {% else %}
+    <span class="uide-numeric">{{ stats.partidos_jugados }}</span> partidos jugados
+  {% endif %}
+{% else %}
+  <span class="has-text-grey">Sin estadísticas</span>
+{% endif %}

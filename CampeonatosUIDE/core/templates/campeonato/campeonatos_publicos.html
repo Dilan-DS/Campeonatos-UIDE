@@ -1,138 +1,126 @@
 {% extends 'comun/base.html' %}
-{% block title %}Campeonatos Públicos{% endblock %}
+
+{% comment %}
+  Listado público de campeonatos.
+
+  Se retiró el bloque de estilos propio (~59 líneas): franja rosa/naranja,
+  botón con degradado violeta y tres estilos de chip paralelos a .tag.
+
+  Correcciones de datos:
+  · El filtro `{% if campeonato.es_publico %}` era cierto también para
+    'NO' (es un CharField), así que se mostraban campeonatos no públicos.
+    Ahora la vista filtra es_publico='SI'.
+  · `campeonato.fin_inscripcion` no existe (el campo es
+    fecha_fin_inscripcion): las tres referencias nunca mostraban nada.
+  · `campeonato.tipo_campeonato.nombre` trataba un CharField con choices
+    como si fuera una relación, así que la etiqueta salía vacía; ahora usa
+    get_tipo_campeonato_display.
+  · Se retiró la lista "Pros / Ventajas": eran cuatro frases genéricas
+    idénticas en todas las tarjetas, sin relación con los datos del
+    campeonato.
+{% endcomment %}
+
+{% block title %}Campeonatos | Campeonatos UIDE{% endblock %}
+{% block meta_description %}Campeonatos deportivos abiertos al público en la UIDE Loja: deporte, fechas y estado de inscripción.{% endblock %}
 
 {% block content %}
+<div class="container uide-container">
 
-<style>
-  /* ——— Estilos del listado público ——— */
-  .hero-strip {
-    background: linear-gradient(90deg, #ff7aa0, #ffb86c);
-    border-radius: 18px;
-    padding: 1.25rem 1.5rem;
-    color: #fff;
-    box-shadow: 0 12px 30px rgba(255, 122, 160, .25);
-  }
-  .pub-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 1.25rem;
-  }
-  .pub-card {
-    border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,.06);
-    box-shadow: 0 10px 24px rgba(19,18,66,.06);
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .pub-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 36px rgba(19,18,66,.10);
-  }
-  .meta-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-  }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .35rem .7rem;
-    border-radius: 999px;
-    font-weight: 600;
-    font-size: .85rem;
-    border: 1px solid #eee;
-    background: #fafafa;
-    color: #444;
-  }
-  .chip-info   { background:#eef6ff; border-color:#d8e9ff; color:#0f5db3; }
-  .chip-okay   { background:#e8fff1; border-color:#baf0d0; color:#0f7a37; }
-  .chip-warn   { background:#fff7e8; border-color:#fde0b3; color:#7a4e0f; }
-  .divider {
-    height: 1px; background: rgba(0,0,0,.06); margin: .75rem 0 1rem;
-  }
-  .pros {
-    margin: 0; padding-left: 1.15rem; color:#444;
-  }
-  .pros li {
-    margin: .25rem 0;
-  }
-  .btn-gradient {
-    background: linear-gradient(90deg,#6157ff,#ee49fd);
-    color:#fff !important; border:none;
-  }
-  .btn-gradient:hover { filter: brightness(1.05); }
-</style>
-
-<section class="section">
-  <div class="container">
-    <div class="hero-strip mb-5">
-      <h1 class="title is-4 mb-0"><svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg> Campeonatos Públicos</h1>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Campeonatos</h1>
+      <p class="subtitle">Competencias internas entre carreras de la UIDE Loja.</p>
     </div>
-
-    <div class="uide-feed">
-      {% for campeonato in campeonatos %}
-        {% if campeonato.es_publico %}
-          <div class="uide-feed__card">
-            <div class="card-content p-5">
-              <h2 class="title is-4 mb-2 has-text-weight-semibold">
-                {{ campeonato.nombre }}
-              </h2>
-              {% if campeonato.descripcion %}
-                <p class="has-text-grey-dark mb-3">
-                  {{ campeonato.descripcion|truncatechars:140 }}
-                </p>
-              {% endif %}
-
-              <div class="uide-toolbar mb-3">
-                {% if campeonato.deporte %}
-                  <span class="tag is-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> {{ campeonato.deporte.nombre }}</span>
-                {% endif %}
-                {% if campeonato.tipo_campeonato %}
-                  <span class="tag is-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-filtro"></use></svg> {{ campeonato.tipo_campeonato.nombre }}</span>
-                {% endif %}
-                <span class="tag is-success"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Inicio: {{ campeonato.fecha_inicio }}</span>
-                <span class="tag is-success"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Fin: {{ campeonato.fecha_fin }}</span>
-                {% if campeonato.fin_inscripcion %}
-                  <span class="tag is-warning"><svg class="uide-icon" aria-hidden="true"><use href="#i-reloj"></use></svg> Cierra: {{ campeonato.fin_inscripcion }}</span>
-                {% endif %}
-                <span class="tag is-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> {{ campeonato.get_estado_display }}</span>
-              </div>
-
-              <div class="divider"></div>
-
-              <!-- Pros / Ventajas (textos genéricos, no rompen si faltan campos) -->
-              <p class="has-text-weight-semibold mb-2">Pros / Ventajas</p>
-              <ul class="pros">
-                <li><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Organización oficial UIDE</li>
-                <li><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Árbitros y reglas estandarizadas</li>
-                <li><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Calendario y resultados visibles para todos</li>
-                {% if campeonato.fin_inscripcion %}
-                  <li><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Inscripciones abiertas hasta {{ campeonato.fin_inscripcion }}</li>
-                {% endif %}
-                {% if campeonato.dias_partido %}
-                  <li><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Días de juego: {{ campeonato.dias_partido }}</li>
-                {% endif %}
-              </ul>
-
-              <!-- Solo ADMIN ve el botón de detalle del campeonato (gestión interna) -->
-              {% if request.user.rol == 'ADMIN' %}
-                <div class="has-text-right mt-4">
-                  <a href="{% url 'detalle_campeonato' campeonato.id %}"
-                     class="button is-primary is-rounded">
-                    Ver Detalles
-                  </a>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        {% endif %}
-      {% empty %}
-        <div class="notification is-info is-light">
-          No hay campeonatos públicos disponibles en este momento.
-        </div>
-      {% endfor %}
+    <div class="uide-page-head__actions">
+      <a class="button is-light" href="{% url 'resultados_publicos' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        <span>Resultados</span>
+      </a>
     </div>
   </div>
-</section>
+
+  <div class="uide-feed">
+    {% for campeonato in campeonatos %}
+      <article class="uide-feed__card">
+        <div class="uide-feed__head">
+          <h2 class="uide-feed__title">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+            {{ campeonato.nombre }}
+          </h2>
+          {% if campeonato.estado == 'INSCRIPCION' %}
+            <span class="tag is-success">Inscripción abierta</span>
+          {% elif campeonato.estado == 'EN_CURSO' %}
+            <span class="tag is-info">En curso</span>
+          {% elif campeonato.estado == 'FINALIZADO' %}
+            <span class="tag is-light">Finalizado</span>
+          {% else %}
+            <span class="tag is-warning">{{ campeonato.get_estado_display }}</span>
+          {% endif %}
+        </div>
+
+        <div class="uide-feed__body">
+          {% if campeonato.descripcion %}
+            <p class="uide-feed__excerpt mb-3">{{ campeonato.descripcion|truncatechars:160 }}</p>
+          {% endif %}
+
+          <dl class="uide-details">
+            {% if campeonato.deporte %}
+              <div>
+                <dt>Deporte</dt>
+                <dd>{{ campeonato.deporte.nombre }}</dd>
+              </div>
+            {% endif %}
+            <div>
+              <dt>Modalidad</dt>
+              <dd>{{ campeonato.get_tipo_campeonato_display }}</dd>
+            </div>
+            <div>
+              <dt>Fechas</dt>
+              <dd>{{ campeonato.fecha_inicio|date:"d M Y" }} – {{ campeonato.fecha_fin|date:"d M Y" }}</dd>
+            </div>
+            {% if campeonato.fecha_fin_inscripcion %}
+              <div>
+                <dt>Cierre de inscripción</dt>
+                <dd>{{ campeonato.fecha_fin_inscripcion|date:"d M Y" }}</dd>
+              </div>
+            {% endif %}
+            {% if campeonato.precio_inscripcion %}
+              <div>
+                <dt>Inscripción</dt>
+                <dd>${{ campeonato.precio_inscripcion }} por equipo</dd>
+              </div>
+            {% endif %}
+          </dl>
+
+          <div class="uide-feed__foot">
+            <a class="button is-small is-light" href="{% url 'tabla_estadisticas' campeonato.id %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+              <span>Tabla de posiciones</span>
+            </a>
+            {% if request.user.rol == 'ADMIN' %}
+              <a class="button is-small is-primary" href="{% url 'detalle_campeonato' campeonato.id %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg>
+                <span>Gestionar</span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="uide-panel">
+        <div class="uide-empty">
+          <span class="uide-empty__icon">
+            <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+          </span>
+          <p class="uide-empty__title">No hay campeonatos publicados</p>
+          <p class="uide-empty__text">
+            Cuando Bienestar Estudiantil abra una convocatoria aparecerá aquí con
+            sus fechas y su cierre de inscripción.
+          </p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
 {% endblock %}
