@@ -169,9 +169,26 @@ a:hover {
   color: #fff;
 }
 
+/* La barra de scroll de la página va oculta, pero la página sigue
+   desplazándose con rueda, teclado, táctil y barra espaciadora: sólo se
+   oculta el indicador, no el desbordamiento.
+
+   Sólo se oculta la barra de la página: scrollbar-width no se hereda, y
+   html::-webkit-scrollbar es más específico que ::-webkit-scrollbar. Los
+   contenedores que se desplazan por dentro (.table-container) conservan
+   la suya, porque ahí no es decorativa: es la única señal de que quedan
+   columnas fuera de la vista.
+
+   No se toca overflow, de modo que rueda, teclado, táctil y barra
+   espaciadora siguen funcionando igual. */
 :root {
   scrollbar-color: var(--uide-border-strong) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 ::-webkit-scrollbar {
@@ -1166,6 +1183,10 @@ select.input[multiple],
   border-radius: var(--uide-radius-md);
   box-shadow: none;
   overflow-x: auto;
+  /* Aquí la barra sí se ve: la tabla tiene min-width, así que en pantallas
+     estrechas es la única señal de que hay columnas a la derecha. Se pide
+     fina explícitamente porque scrollbar-width no se hereda de :root. */
+  scrollbar-width: thin;
 }
 
 .table {
