@@ -100,29 +100,35 @@
 
     /* Evitar doble envío -------------------------------------------------
        Al enviar un formulario válido se bloquea el botón y se muestra el
-       estado de carga de Bulma. Si el navegador restaura la página desde
-       caché (botón atrás) se revierte. */
+       estado de carga de Bulma.
+
+       El bloqueo siempre se libera: al restaurar la página desde caché
+       (botón atrás) y, como red de seguridad, a los 10 s. Sin ese plazo un
+       envío que no llega a navegar (red caída, descarga en la misma
+       pestaña) dejaba el botón inutilizable hasta recargar. */
+    const liberarEnvio = (raiz) => {
+      (raiz || document).querySelectorAll('button[type="submit"], input[type="submit"]')
+        .forEach((btn) => {
+          btn.classList.remove('is-loading');
+          btn.disabled = false;
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('form').forEach((form) => {
         form.addEventListener('submit', () => {
           if (form.dataset.allowResubmit === 'true') return;
-          if (!form.checkValidity || form.checkValidity()) {
-            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((btn) => {
-              btn.classList.add('is-loading');
-              btn.disabled = true;
-            });
-          }
+          if (form.checkValidity && !form.checkValidity()) return;
+          form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((btn) => {
+            btn.classList.add('is-loading');
+            btn.disabled = true;
+          });
+          setTimeout(() => liberarEnvio(form), 10000);
         });
       });
     });
 
-    window.addEventListener('pageshow', (event) => {
-      if (!event.persisted) return;
-      document.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((btn) => {
-        btn.classList.remove('is-loading');
-        btn.disabled = false;
-      });
-    });
+    window.addEventListener('pageshow', () => liberarEnvio(document));
   </script>
   {% block extra_js %}{% endblock %}
 </body>
