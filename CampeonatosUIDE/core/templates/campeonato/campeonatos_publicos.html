@@ -70,10 +70,10 @@
       <h1 class="title is-4 mb-0"><svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg> Campeonatos Públicos</h1>
     </div>
 
-    <div class="pub-grid">
+    <div class="uide-feed">
       {% for campeonato in campeonatos %}
         {% if campeonato.es_publico %}
-          <div class="pub-card">
+          <div class="uide-feed__card">
             <div class="card-content p-5">
               <h2 class="title is-4 mb-2 has-text-weight-semibold">
                 {{ campeonato.nombre }}
@@ -84,19 +84,19 @@
                 </p>
               {% endif %}
 
-              <div class="meta-chips mb-3">
+              <div class="uide-toolbar mb-3">
                 {% if campeonato.deporte %}
-                  <span class="chip chip-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> {{ campeonato.deporte.nombre }}</span>
+                  <span class="tag is-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> {{ campeonato.deporte.nombre }}</span>
                 {% endif %}
                 {% if campeonato.tipo_campeonato %}
-                  <span class="chip chip-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-filtro"></use></svg> {{ campeonato.tipo_campeonato.nombre }}</span>
+                  <span class="tag is-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-filtro"></use></svg> {{ campeonato.tipo_campeonato.nombre }}</span>
                 {% endif %}
-                <span class="chip chip-okay"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Inicio: {{ campeonato.fecha_inicio }}</span>
-                <span class="chip chip-okay"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Fin: {{ campeonato.fecha_fin }}</span>
+                <span class="tag is-success"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Inicio: {{ campeonato.fecha_inicio }}</span>
+                <span class="tag is-success"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Fin: {{ campeonato.fecha_fin }}</span>
                 {% if campeonato.fin_inscripcion %}
-                  <span class="chip chip-warn"><svg class="uide-icon" aria-hidden="true"><use href="#i-reloj"></use></svg> Cierra: {{ campeonato.fin_inscripcion }}</span>
+                  <span class="tag is-warning"><svg class="uide-icon" aria-hidden="true"><use href="#i-reloj"></use></svg> Cierra: {{ campeonato.fin_inscripcion }}</span>
                 {% endif %}
-                <span class="chip chip-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> {{ campeonato.get_estado_display }}</span>
+                <span class="tag is-info"><svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> {{ campeonato.get_estado_display }}</span>
               </div>
 
               <div class="divider"></div>
@@ -119,7 +119,7 @@
               {% if request.user.rol == 'ADMIN' %}
                 <div class="has-text-right mt-4">
                   <a href="{% url 'detalle_campeonato' campeonato.id %}"
-                     class="button btn-gradient is-rounded">
+                     class="button is-primary is-rounded">
                     Ver Detalles
                   </a>
                 </div>

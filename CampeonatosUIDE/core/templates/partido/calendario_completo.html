@@ -29,10 +29,7 @@
           <td>{{ partido.equipo_visitante.nombre }}</td>
           <td>{{ partido.cancha }}</td>
           <td>
-            <span class="tag 
-              {% if partido.estado == 'Finalizado' %}is-success
-              {% elif partido.estado == 'Pendiente' %}is-warning
-              {% else %}is-light{% endif %}">
+            <span class="tag {% if partido.estado == 'Finalizado' %}is-success elif 'Pendiente' %}is-warning else %}is-light{% endif %}">
               {{ partido.estado }}
             </span>
           </td>

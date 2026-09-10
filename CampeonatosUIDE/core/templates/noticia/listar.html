@@ -67,7 +67,7 @@
 
       {% if request.user.rol == 'ADMIN' %}
         <div class="column is-narrow">
-          <a href="{% url 'registrar_noticia' %}" class="button btn-cta is-rounded">
+          <a href="{% url 'registrar_noticia' %}" class="button is-primary is-rounded">
             <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
             <span>Nueva noticia</span>
           </a>
@@ -110,10 +110,10 @@
 <section class="section pt-4">
   <div class="container">
     {% if noticias %}
-      <div class="columns is-multiline news-grid">
+      <div class="columns is-multiline uide-feed">
         {% for noticia in noticias %}
           <div class="column is-12-mobile is-6-tablet is-4-desktop">
-            <article class="news-card">
+            <article class="uide-feed__card">
               <div class="news-cover">
                 <figure class="image">
                   {% if noticia.imagen %}
@@ -140,10 +140,10 @@
                 {# Habilitar cuando exista la ruta detalle_noticia #}
 
                 {% if request.user.rol == 'ADMIN' %}
-                  <a href="{% url 'editar_noticia' noticia.id %}" class="button is-small btn-soft is-info">
+                  <a href="{% url 'editar_noticia' noticia.id %}" class="button is-small is-light is-info">
                     <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg></span><span>Editar</span>
                   </a>
-                  <a href="{% url 'eliminar_noticia' noticia.id %}" class="button is-small btn-soft is-danger">
+                  <a href="{% url 'eliminar_noticia' noticia.id %}" class="button is-small is-light is-danger">
                     <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg></span><span>Eliminar</span>
                   </a>
                 {% endif %}
@@ -193,7 +193,7 @@
         <p class="subtitle is-6 has-text-grey">Cuando publiquemos novedades, aparecerán aquí.</p>
 
         {% if request.user.rol == 'ADMIN' %}
-          <a href="{% url 'registrar_noticia' %}" class="button btn-cta is-rounded mt-2">
+          <a href="{% url 'registrar_noticia' %}" class="button is-primary is-rounded mt-2">
             <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
             <span>Crear primera noticia</span>
           </a>

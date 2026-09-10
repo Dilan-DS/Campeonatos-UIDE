@@ -24,7 +24,7 @@
                     <p><strong>Banco (QR):</strong> {{ pago.codigo_qr.banco }}</p>
                 {% endif %}
                 <p><strong>Estado:</strong> 
-                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif 'RECHAZADO' %}danger{% else %}warning{% endif %}">
                         {{ pago.get_estado_display }}
                     </span>
                 </p>
