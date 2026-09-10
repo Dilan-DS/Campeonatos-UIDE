@@ -5,6 +5,10 @@ from core.models import Partido, Campeonato, Usuario, Equipo, Arbitro
 from collections import defaultdict
 from core.forms import PartidoForm
 from core.views.admin_views import es_admin
+
+# Valores validos de Partido.estado. Se derivan del modelo para que los
+# filtros no vuelvan a validar contra estados inexistentes.
+ESTADOS_DE_PARTIDO = {valor for valor, _ in Partido.ESTADOS}
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django import forms
@@ -17,39 +21,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Función para validar que sea admin
 def es_admin(user):
     return user.rol == 'ADMIN'
-
-
-class EditarPartidoView(LoginRequiredMixin, View):
-    """
-    Actualiza fecha, hora y lugar de un partido. Solo ADMIN.
-    """
-    def post(self, request, pk):
-        if getattr(request.user, "rol", "") != "ADMIN":
-            messages.error(request, "No tienes permiso para realizar esta acción.")
-            return redirect("vista_inicio")
-
-        partido = get_object_or_404(Partido, pk=pk)
-
-        fecha_str = request.POST.get("fecha")
-        hora_str  = request.POST.get("hora")
-        lugar     = (request.POST.get("lugar") or "").strip()
-        next_url  = request.POST.get("next") or request.META.get("HTTP_REFERER")
-
-        # Validaciones simples
-        fecha = parse_date(fecha_str) if fecha_str else None
-        hora  = parse_time(hora_str)  if hora_str  else None
-
-        if not fecha or not hora:
-            messages.error(request, "Fecha y hora son obligatorias y deben tener un formato válido.")
-            return redirect(next_url or reverse("listar_partidos"))
-
-        partido.fecha = fecha
-        partido.hora  = hora
-        partido.lugar = lugar
-        partido.save()
-
-        messages.success(request, "Partido actualizado correctamente.")
-        return redirect(next_url or reverse("listar_partidos"))
 
 
 @login_required
@@ -112,7 +83,7 @@ def editar_partido(request, partido_id):
         qs = qs.filter(campeonato_id=campeonato_id_filter)
     if genero_filter in ('masculino', 'femenino'):
         qs = qs.filter(equipo_local__genero=genero_filter, equipo_visitante__genero=genero_filter)
-    if estado_filter in ('PROGRAMADO', 'JUGADO', 'SUSPENDIDO'):
+    if estado_filter in ESTADOS_DE_PARTIDO:
         qs = qs.filter(estado=estado_filter)
     if desde_filter:
         qs = qs.filter(fecha__gte=desde_filter)
@@ -250,7 +221,7 @@ def calendario_global_view(request):
         qs = qs.filter(campeonato_id=campeonato_id)
     if genero in ('masculino', 'femenino'):
         qs = qs.filter(equipo_local__genero=genero, equipo_visitante__genero=genero)
-    if estado in ('PROGRAMADO', 'JUGADO', 'SUSPENDIDO'):
+    if estado in ESTADOS_DE_PARTIDO:
         qs = qs.filter(estado=estado)
     if desde:
         qs = qs.filter(fecha__gte=desde)

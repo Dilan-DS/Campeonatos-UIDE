@@ -25,7 +25,9 @@ urlpatterns = [
 
     # Delegados
     path('delegados/', ListarDelegadosView.as_view(), name='listar_delegados'),
-    path('delegados/registrar/', RegistrarDelegadoAdminView.as_view(), name='registrar_delegado'),
+    # Alias historico sin nombre: reverse('registrar_delegado') usa
+    # panel/admin/registrar-delegado/ (mas abajo).
+    path('delegados/registrar/', RegistrarDelegadoAdminView.as_view()),
     path('panel/delegado/', DelegadoDashboardView.as_view(), name='delegado_dashboard'),
     path('delegado/jugadores/', ListarJugadoresParaEquipoView.as_view(), name='listar_jugadores_para_equipo'),
     path('delegado/jugadores/agregar/<int:jugador_usuario_id>/', AgregarJugadorAEquipoView.as_view(), name='agregar_jugador_a_equipo'),
@@ -34,7 +36,8 @@ urlpatterns = [
     path('jugador/mis-partidos/', ver_mis_partidos, name='ver_mis_partidos'),
     path('jugador/registrar/', registrar_jugador, name='registrar_jugador'),
     path('jugador/completar-perfil/', completar_perfil_jugador, name='completar_perfil_jugador'),
-    path('equipo/<int:id>/detalle/', detalle_equipo, name='detalle_equipo'),
+    # Alias historico sin nombre: reverse('detalle_equipo') usa equipo/<id>/.
+    path('equipo/<int:id>/detalle/', detalle_equipo),
 
     # Autenticación y perfil
     path('login/', vista_login, name='login'),
@@ -75,7 +78,6 @@ urlpatterns = [
 
 
 
-    path("partidos/<int:pk>/editar/", EditarPartidoView.as_view(), name="editar_partido"),
 
 
 
@@ -104,7 +106,9 @@ urlpatterns = [
 
     # Equipos
     path('equipos/', listar_equipos, name='listar_equipos'),
-    path('equipo/nuevo/', registrar_equipo, name='registrar_equipo'),
+    # Alias historico sin nombre: reverse('registrar_equipo') usa
+    # equipos/registrar/ (mas abajo).
+    path('equipo/nuevo/', registrar_equipo),
     path('equipo/<int:id>/', detalle_equipo, name='detalle_equipo'),
     path('equipo/<int:id>/editar/', editar_equipo, name='editar_equipo'),
     path('equipo/<int:id>/pago/', pago_equipo, name='pago_equipo'),
