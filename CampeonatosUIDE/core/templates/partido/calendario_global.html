@@ -185,16 +185,16 @@
       <a href="{% url 'calendario_global' %}" class="delete" aria-label="close"></a>
     </header>
     <section class="modal-card-body">
-      <form method="post" action="{% url 'editar_partido' partido_a_editar.id %}">
+      <form method="post" action="{% url 'editar_partido' partido_a_editar.id %}" class="uide-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <div class="field is-grouped mt-5">
-          <div class="control">
-            <button type="submit" class="button is-success">Guardar Cambios</button>
-          </div>
-          <div class="control">
-            <a href="{% url 'calendario_global' %}" class="button is-light">Cancelar</a>
-          </div>
+        {% include "comun/_campos_formulario.html" with form=form columnas=1 %}
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>Guardar cambios</span>
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'calendario_global' %}" class="button is-light">Cancelar</a>
         </div>
       </form>
     </section>

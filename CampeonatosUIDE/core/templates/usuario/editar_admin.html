@@ -1,14 +1,52 @@
 {% extends 'comun/base.html' %}
-{% block title %}Editar Usuario{% endblock %}
+
+{% comment %}
+  Editar usuario (admin).
+  Sustituye {{ form.as_p }} por los campos del sistema de diseño.
+{% endcomment %}
+
+{% block title %}Editar usuario | Campeonatos UIDE{% endblock %}
+
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Usuario</h1>
-    <form method="POST">{% csrf_token %}
-      {{ form.as_p }}
-      <button class="button is-success" type="submit">Guardar Cambios</button>
-      <a href="{% url 'listar_usuarios' %}" class="button is-light">Cancelar</a>
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Editar usuario</h1>
+      <p class="subtitle">Datos de la cuenta y rol dentro del sistema.</p>
+    </div>
+  </div>
+
+  <div class="box">
+    {% if form.errors %}
+      <div class="uide-form-errors" role="alert">
+        <strong class="uide-with-icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+          Revisa los datos
+        </strong>
+        <ul>
+          {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+          {% for campo in form %}
+            {% for err in campo.errors %}<li>{{ campo.label }}: {{ err }}</li>{% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" class="uide-form">
+      {% csrf_token %}
+      {% include "comun/_campos_formulario.html" with form=form %}
+
+      <div class="uide-form-actions">
+        <button class="button is-primary" type="submit">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar cambios</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'listar_usuarios' %}" class="button is-light">Cancelar</a>
+      </div>
     </form>
   </div>
-</section>
+
+</div>
 {% endblock %}
