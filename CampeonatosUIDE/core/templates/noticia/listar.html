@@ -84,7 +84,9 @@
         <div class="column">
           <div class="field has-addons">
             <div class="control is-expanded">
-              <input class="input is-rounded" type="search" name="q" value="{{ request.GET.q }}"
+              <label class="uide-sr-only" for="buscar-noticias">Buscar noticias</label>
+              <input class="input is-rounded" id="buscar-noticias" type="search" name="q"
+                     value="{{ request.GET.q }}"
                      placeholder="Buscar por título o contenido…">
             </div>
             <div class="control">
