@@ -129,6 +129,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
+# Sin STATIC_ROOT, collectstatic aborta con ImproperlyConfigured y no se
+# pueden preparar los estáticos para un despliegue.
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
