@@ -1,243 +1,234 @@
 {% extends "comun/base.html" %}
-{% block title %}Dashboard Jugador{% endblock %}
+
+{% comment %}
+  Panel del jugador.
+
+  Se retiró el <style> propio (~130 líneas) con un degradado ajeno a la
+  marca. Se conservan el mismo contexto y la misma lógica por deporte:
+  jugador, equipo, campeonato, upcoming_matches, player_stats,
+  deporte_nombre, team_rank y team_points.
+
+  Las tarjetas no disponibles dejaron de anunciarse como role="button".
+  Las tablas usan estados vacíos con acción en lugar de un párrafo gris.
+{% endcomment %}
+
+{% block title %}Panel del jugador | Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<div class="container uide-container">
 
-<!-- Encabezado -->
-<section class="section p-0">
-  <div class="p-hero">
-    <div class="container">
-      <div class="p-hero__inner">
-        <div>
-          <h1 class="title is-3 is-size-4-mobile has-text-white"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Panel del Jugador</h1>
-          <p class="subtitle is-6 has-text-white-bis m-t-2">
-            Hola, <strong>{{ user.first_name|default:user.username }}</strong>.
-          </p>
-        </div>
-
-        <div class="p-chips">
-          {% if equipo %}<span class="p-chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> {{ equipo.nombre }}</span>{% endif %}
-          {% if campeonato %}<span class="p-chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> {{ campeonato.nombre }}</span>{% endif %}
-          {% if deporte_nombre %}<span class="p-chip"><svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg> {{ deporte_nombre|title }}</span>{% endif %}
-          {% if team_rank %}<span class="p-chip p-chip--success"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> Puesto: {{ team_rank }}</span>{% endif %}
-        </div>
-      </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Panel del jugador</h1>
+      <p class="subtitle">Hola, <strong>{{ user.first_name|default:user.username }}</strong>.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      {% if equipo %}<span class="tag is-light">{{ equipo.nombre }}</span>{% endif %}
+      {% if campeonato %}<span class="tag is-light">{{ campeonato.nombre }}</span>{% endif %}
+      {% if team_rank %}<span class="tag is-success">Puesto {{ team_rank }}</span>{% endif %}
     </div>
   </div>
-</section>
 
-<!-- Acciones rápidas -->
-<section class="section pt-5 pb-3">
-  <div class="container">
-    <div class="columns is-variable is-6 is-multiline">
-
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        {% if equipo %}
-          <a class="p-card" href="{% url 'ver_equipo_jugador' equipo_id=equipo.id %}">
-            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> </div>
-            <h3>Mi Equipo</h3><p>Ver detalles del equipo</p>
-          </a>
-        {% else %}
-          <div class="p-card is-disabled" role="button" aria-disabled="true">
-            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> </div>
-            <h3>Mi Equipo</h3><p>No asignado</p>
-          </div>
-        {% endif %}
-      </div>
-
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        {% if campeonato %}
-          <a class="p-card" href="{% url 'tabla_estadisticas' campeonato_id=campeonato.id %}">
-            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
-            <h3>Tabla de Posiciones</h3><p>Cómo va tu campeonato</p>
-          </a>
-        {% else %}
-          <div class="p-card is-disabled" role="button" aria-disabled="true">
-            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
-            <h3>Tabla de Posiciones</h3><p>Sin campeonato</p>
-          </div>
-        {% endif %}
-      </div>
-
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        {% if jugador %}
-          <a class="p-card" href="{% url 'ver_estadisticas_jugador' jugador_id=jugador.id %}">
-            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
-            <h3>Mis Estadísticas</h3><p>Tu rendimiento</p>
-          </a>
-        {% else %}
-          <div class="p-card is-disabled" role="button" aria-disabled="true">
-            <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg> </div>
-            <h3>Mis Estadísticas</h3><p>Jugador no asignado</p>
-          </div>
-        {% endif %}
-      </div>
-
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        <a class="p-card" href="{% url 'ver_mis_partidos' %}">
-          <div class="p-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> </div>
-          <h3>Mis Partidos</h3><p>Próximos encuentros</p>
-        </a>
-      </div>
-
+  {% if not equipo %}
+    <div class="notification is-info">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+      <span>
+        Todavía no estás asignado a un equipo. El delegado de tu carrera debe
+        inscribirte para que puedas ver partidos y estadísticas.
+      </span>
     </div>
+  {% endif %}
+
+  {# --- Accesos --- #}
+  <div class="uide-nav-grid">
+    {% if equipo %}
+      <a class="uide-nav-card" href="{% url 'ver_equipo_jugador' equipo_id=equipo.id %}">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Mi equipo</span>
+          <span class="uide-nav-card__text">Compañeros y datos del equipo</span>
+        </span>
+      </a>
+    {% else %}
+      <span class="uide-nav-card" aria-disabled="true">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Mi equipo</span>
+          <span class="uide-nav-card__text">Sin equipo asignado</span>
+        </span>
+      </span>
+    {% endif %}
+
+    {% if campeonato %}
+      <a class="uide-nav-card" href="{% url 'tabla_estadisticas' campeonato_id=campeonato.id %}">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Tabla de posiciones</span>
+          <span class="uide-nav-card__text">Cómo va {{ campeonato.nombre }}</span>
+        </span>
+      </a>
+    {% else %}
+      <span class="uide-nav-card" aria-disabled="true">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Tabla de posiciones</span>
+          <span class="uide-nav-card__text">Sin campeonato</span>
+        </span>
+      </span>
+    {% endif %}
+
+    {% if jugador %}
+      <a class="uide-nav-card" href="{% url 'ver_estadisticas_jugador' jugador_id=jugador.id %}">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-medalla"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Mis estadísticas</span>
+          <span class="uide-nav-card__text">Tu rendimiento en detalle</span>
+        </span>
+      </a>
+    {% endif %}
+
+    <a class="uide-nav-card" href="{% url 'ver_mis_partidos' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Mis partidos</span>
+        <span class="uide-nav-card__text">Todos tus encuentros</span>
+      </span>
+    </a>
   </div>
-</section>
 
-<!-- Próximos partidos -->
-<section class="section pt-2">
-  <div class="container">
-    <div class="box">
-      <h2 class="title is-5 has-text-link">Próximos Partidos</h2>
-
-      {% if upcoming_matches %}
-        <div class="table-container">
-          <table class="table is-fullwidth is-striped is-hoverable">
-            <thead>
-              <tr>
-                <th>Fecha</th><th>Hora</th><th>Local</th><th>Visitante</th><th>Lugar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for partido in upcoming_matches %}
-              <tr>
-                <td>{{ partido.fecha|date:"d/m/Y" }}</td>
-                <td>{{ partido.hora|time:"H:i" }}</td>
-                <td>{{ partido.equipo_local.nombre }}</td>
-                <td>{{ partido.equipo_visitante.nombre }}</td>
-                <td>{{ partido.lugar }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <p class="has-text-grey">No hay partidos próximos registrados para tu equipo.</p>
-      {% endif %}
+  {# --- Próximos partidos --- #}
+  <h2 class="uide-section-title">Próximos partidos</h2>
+  {% if upcoming_matches %}
+    <div class="table-container">
+      <table class="table is-fullwidth">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Hora</th>
+            <th scope="col">Local</th>
+            <th scope="col">Visitante</th>
+            <th scope="col">Lugar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for partido in upcoming_matches %}
+            <tr>
+              <td>{{ partido.fecha|date:"d/m/Y" }}</td>
+              <td>{{ partido.hora|time:"H:i" }}</td>
+              <td class="{% if partido.equipo_local == equipo %}uide-cell-strong{% endif %}">
+                {{ partido.equipo_local.nombre }}
+              </td>
+              <td class="{% if partido.equipo_visitante == equipo %}uide-cell-strong{% endif %}">
+                {{ partido.equipo_visitante.nombre }}
+              </td>
+              <td class="uide-cell-muted">{{ partido.lugar|default:"Por confirmar" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </div>
-</section>
-
-<!-- Estadísticas rápidas -->
-<section class="section pt-1">
-  <div class="container">
-    <div class="box">
-      <h2 class="title is-5 has-text-link">Tus Estadísticas Rápidas{% if deporte_nombre %} ({{ deporte_nombre }}){% endif %}</h2>
-
-      {% if player_stats %}
-        <div class="table-container">
-          <table class="table is-fullwidth is-striped is-hoverable">
-            <thead>
-              <tr>
-                <th>Partidos Jugados</th>
-                {% if deporte_nombre == 'FUTBOL' %}
-                  <th>Goles</th><th>Tarjetas Amarillas</th><th>Tarjetas Rojas</th>
-                {% elif deporte_nombre == 'BASQUET' %}
-                  <th>Canastas</th><th>Rebotes</th><th>Asistencias</th>
-                {% elif deporte_nombre == 'AJEDREZ' %}
-                  <th>Ganadas</th><th>Empatadas</th><th>Perdidas</th>
-                {% elif deporte_nombre == 'ECUABOLY' or deporte_nombre == 'TENIS' %}
-                  <th>Sets Ganados</th><th>Sets Perdidos</th>
-                {% elif deporte_nombre == 'PING PONG' or deporte_nombre == 'FUTBOLIN' or deporte_nombre == 'VIDEOJUEGOS' %}
-                  <th>Ganados</th><th>Perdidos</th>
-                  {% if deporte_nombre == 'FUTBOLIN' %}<th>Goles</th>{% endif %}
-                {% endif %}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ player_stats.partidos_jugados }}</td>
-                {% if deporte_nombre == 'FUTBOL' %}
-                  <td>{{ player_stats.goles }}</td>
-                  <td>{{ player_stats.tarjetas_amarillas }}</td>
-                  <td>{{ player_stats.tarjetas_rojas }}</td>
-                {% elif deporte_nombre == 'BASQUET' %}
-                  <td>{{ player_stats.canastas }}</td>
-                  <td>{{ player_stats.rebotes }}</td>
-                  <td>{{ player_stats.asistencias }}</td>
-                {% elif deporte_nombre == 'AJEDREZ' %}
-                  <td>{{ player_stats.partidas_ganadas }}</td>
-                  <td>{{ player_stats.partidas_empatadas }}</td>
-                  <td>{{ player_stats.partidas_perdidas }}</td>
-                {% elif deporte_nombre == 'ECUABOLY' or deporte_nombre == 'TENIS' %}
-                  <td>{{ player_stats.sets_ganados }}</td>
-                  <td>{{ player_stats.sets_perdidos }}</td>
-                {% elif deporte_nombre == 'PING PONG' or deporte_nombre == 'FUTBOLIN' or deporte_nombre == 'VIDEOJUEGOS' %}
-                  <td>{{ player_stats.partidos_ganados }}</td>
-                  <td>{{ player_stats.partidos_perdidos }}</td>
-                  {% if deporte_nombre == 'FUTBOLIN' %}<td>{{ player_stats.goles }}</td>{% endif %}
-                {% endif %}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <p class="has-text-grey">No hay estadísticas disponibles para tu deporte en este campeonato.</p>
-      {% endif %}
-    </div>
-  </div>
-</section>
-
-<!-- Posición del equipo -->
-<section class="section pt-1">
-  <div class="container">
-    <div class="box">
-      <h2 class="title is-5 has-text-link">Posición de tu Equipo</h2>
-      {% if team_rank %}
-        <p class="subtitle is-6">
-          Tu equipo <strong>{{ equipo.nombre }}</strong> está en la posición
-          <strong>{{ team_rank }}</strong> con <strong>{{ team_points }}</strong> puntos.
+  {% else %}
+    <div class="uide-panel">
+      <div class="uide-empty">
+        <span class="uide-empty__icon">
+          <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-calendario"></use></svg>
+        </span>
+        <p class="uide-empty__title">Sin partidos programados</p>
+        <p class="uide-empty__text">
+          {% if equipo %}
+            Cuando se genere el fixture de tu campeonato verás aquí tus próximos encuentros.
+          {% else %}
+            Necesitas estar en un equipo para tener partidos asignados.
+          {% endif %}
         </p>
-        <p class="is-size-7">Para ver la tabla completa, usa “Tabla de Posiciones”.</p>
-      {% else %}
-        <p class="has-text-grey">La tabla aún no está disponible o no hay partidos finalizados.</p>
-      {% endif %}
+        {% if campeonato %}
+          <div class="uide-empty__actions">
+            <a class="button is-light" href="{% url 'calendario_global' %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-lista"></use></svg>
+              <span>Ver calendario global</span>
+            </a>
+          </div>
+        {% endif %}
+      </div>
     </div>
-  </div>
-</section>
+  {% endif %}
 
-<style>
-/* Hero */
-.p-hero{
-  background: linear-gradient(135deg,#7c3aed 0%, #22d3ee 50%, #38bdf8 100%);
-  padding: 2.25rem 0 1.75rem;
-}
-.p-hero__inner{ display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
-@media (max-width: 768px){ .p-hero__inner{ flex-direction:column; } }
+  {# --- Estadísticas rápidas (columnas según el deporte) --- #}
+  <h2 class="uide-section-title">
+    Mis estadísticas{% if deporte_nombre %} · {{ deporte_nombre|title }}{% endif %}
+  </h2>
+  {% if player_stats %}
+    <div class="table-container">
+      <table class="table is-fullwidth">
+        <thead>
+          <tr>
+            <th scope="col">Partidos jugados</th>
+            {% if deporte_nombre == 'FUTBOL' %}
+              <th scope="col">Goles</th><th scope="col">Amarillas</th><th scope="col">Rojas</th>
+            {% elif deporte_nombre == 'BASQUET' %}
+              <th scope="col">Canastas</th><th scope="col">Rebotes</th><th scope="col">Asistencias</th>
+            {% elif deporte_nombre == 'AJEDREZ' %}
+              <th scope="col">Ganadas</th><th scope="col">Empatadas</th><th scope="col">Perdidas</th>
+            {% elif deporte_nombre == 'ECUABOLY' or deporte_nombre == 'TENIS' %}
+              <th scope="col">Sets ganados</th><th scope="col">Sets perdidos</th>
+            {% elif deporte_nombre == 'PING PONG' or deporte_nombre == 'FUTBOLIN' or deporte_nombre == 'VIDEOJUEGOS' %}
+              <th scope="col">Ganados</th><th scope="col">Perdidos</th>
+              {% if deporte_nombre == 'FUTBOLIN' %}<th scope="col">Goles</th>{% endif %}
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="uide-cell-strong">{{ player_stats.partidos_jugados }}</td>
+            {% if deporte_nombre == 'FUTBOL' %}
+              <td>{{ player_stats.goles }}</td>
+              <td>{{ player_stats.tarjetas_amarillas }}</td>
+              <td>{{ player_stats.tarjetas_rojas }}</td>
+            {% elif deporte_nombre == 'BASQUET' %}
+              <td>{{ player_stats.canastas }}</td>
+              <td>{{ player_stats.rebotes }}</td>
+              <td>{{ player_stats.asistencias }}</td>
+            {% elif deporte_nombre == 'AJEDREZ' %}
+              <td>{{ player_stats.partidas_ganadas }}</td>
+              <td>{{ player_stats.partidas_empatadas }}</td>
+              <td>{{ player_stats.partidas_perdidas }}</td>
+            {% elif deporte_nombre == 'ECUABOLY' or deporte_nombre == 'TENIS' %}
+              <td>{{ player_stats.sets_ganados }}</td>
+              <td>{{ player_stats.sets_perdidos }}</td>
+            {% elif deporte_nombre == 'PING PONG' or deporte_nombre == 'FUTBOLIN' or deporte_nombre == 'VIDEOJUEGOS' %}
+              <td>{{ player_stats.partidos_ganados }}</td>
+              <td>{{ player_stats.partidos_perdidos }}</td>
+              {% if deporte_nombre == 'FUTBOLIN' %}<td>{{ player_stats.goles }}</td>{% endif %}
+            {% endif %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="uide-panel">
+      <div class="uide-empty">
+        <span class="uide-empty__icon">
+          <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        </span>
+        <p class="uide-empty__title">Todavía sin estadísticas</p>
+        <p class="uide-empty__text">
+          Tus números aparecerán aquí cuando el árbitro registre el acta de tu primer partido.
+        </p>
+      </div>
+    </div>
+  {% endif %}
 
-/* Chips */
-.p-chips{ display:flex; flex-wrap:wrap; gap:.5rem; }
-.p-chip{
-  display:inline-flex; align-items:center; gap:.35rem;
-  background: rgba(255,255,255,.18); color:#fff;
-  padding:.35rem .7rem; border-radius:999px; font-weight:600; font-size:.85rem;
-  backdrop-filter: blur(2px);
-}
-.p-chip--success{ background: rgba(12,160,44,.28); }
-
-/* Cards */
-.p-card{
-  display:block; text-decoration:none; color:inherit;
-  border-radius:18px; padding:1.1rem 1rem; background:#fff;
-  box-shadow: 0 10px 24px rgba(17,24,39,.06);
-  border: 1px solid rgba(17,24,39,.06);
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-  height:100%;
-}
-.p-card:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(17,24,39,.12); border-color: rgba(17,24,39,.12); }
-.p-card h3{ font-weight:700; margin-top:.65rem; margin-bottom:.15rem; }
-.p-card p{ color:#4b5563; font-size:.95rem; }
-.p-icon{
-  width:52px; height:52px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  background: linear-gradient(135deg,#f5f3ff,#ecfeff);
-  box-shadow: inset 0 0 0 1px rgba(17,24,39,.06);
-  font-size:1.35rem;
-}
-.is-disabled{ position:relative; cursor:not-allowed; opacity:.72; background:#f8fafc; }
-
-/* Tables */
-.table-container{ overflow-x:auto; }
-</style>
-
+</div>
 {% endblock %}
