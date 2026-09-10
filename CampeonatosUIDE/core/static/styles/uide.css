@@ -712,19 +712,27 @@ body.uide-app {
   min-height: 2.25em;
 }
 
-/* Área táctil mínima sin agrandar visualmente el control. */
-.button.is-small,
-.uide-actions .button.is-small {
-  position: relative;
-}
+/* En pantallas táctiles los controles crecen hasta un área cómoda.
+   Los enlaces dentro de un párrafo quedan exentos: WCAG 2.5.8 excluye
+   los enlaces en línea y estirarlos rompería el interlineado. */
+@media (pointer: coarse) {
+  .button,
+  .button.is-small,
+  .select select,
+  .input,
+  .textarea {
+    min-height: 2.75rem;
+  }
 
-.button.is-small::after {
-  content: "";
-  position: absolute;
-  inset: 50% 0 auto;
-  height: 44px;
-  transform: translateY(-50%);
-  pointer-events: none;
+  .uide-actions .button {
+    min-height: 2.5rem;
+  }
+
+  a.uide-footer__link,
+  a.see-all,
+  .uide-toolbar a:not(.button) {
+    padding-block: var(--uide-space-2);
+  }
 }
 
 /* =========================== 8. Formularios ============================== */
@@ -749,18 +757,54 @@ body.uide-app {
   font-size: .8rem;
 }
 
+/* `select.select` (con la clase en el propio <select>) aparece en 44
+   widgets de core/forms/. En Bulma `.select` es el envoltorio y el control
+   se estiliza con `.select select`, así que esos desplegables quedaban sin
+   estilo y más bajos que los inputs. Se cubren ambas formas. */
 .input,
 .textarea,
 .select select,
+select.select,
+select.input,
 .file-cta {
   background: var(--uide-surface);
-  border-color: var(--uide-border-strong);
+  border: 1px solid var(--uide-border-strong);
   border-radius: var(--uide-radius-sm);
   box-shadow: none;
   color: var(--uide-text);
   min-height: 2.75em;
   transition: border-color var(--uide-fast) var(--uide-ease),
               box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+/* Flecha propia para los <select>, en lugar de la del sistema. */
+select.select,
+select.input,
+.select select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 100%;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .65rem center;
+  background-size: 1.1em;
+}
+
+/* Bulma dibuja su propia flecha en el envoltorio; con la nuestra sobra. */
+.select:not(.is-multiple):not(.is-loading)::after {
+  display: none;
+}
+
+select.select[multiple],
+select.input[multiple],
+.select select[multiple] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  background-image: none;
+  padding-right: var(--uide-space-3);
+  min-height: 7rem;
 }
 
 .textarea {
@@ -1249,6 +1293,443 @@ td.uide-empty-cell .uide-empty {
   color: var(--uide-muted);
   font-size: .8rem;
   font-weight: 600;
+}
+
+/* ======================= 13b. Portada pública ============================
+
+   Único lugar de la aplicación donde la presentación pesa más que la
+   densidad: es la primera pantalla que ve un estudiante. Aun así usa los
+   mismos tokens que el resto, en granate institucional.                 */
+
+.uide-hero {
+  background: linear-gradient(112deg, var(--uide-primary-strong), var(--uide-primary));
+  color: #fff;
+  padding: var(--uide-space-7) var(--uide-space-4);
+  text-align: center;
+}
+
+.uide-hero__inner {
+  max-width: 48rem;
+  margin: 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: var(--uide-space-4);
+}
+
+.uide-hero__logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.uide-hero h1 {
+  color: #fff;
+  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.uide-hero__lead {
+  color: rgba(255, 255, 255, .88);
+  font-size: 1.05rem;
+  margin: 0;
+  max-width: 44ch;
+  text-wrap: pretty;
+}
+
+.uide-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uide-space-3);
+  justify-content: center;
+  margin-top: var(--uide-space-2);
+}
+
+.uide-hero .button.is-light {
+  background: #fff;
+  border-color: #fff;
+  color: var(--uide-primary-strong);
+}
+
+.uide-hero .button.is-light:hover {
+  background: var(--uide-primary-soft);
+  border-color: var(--uide-primary-soft);
+  color: var(--uide-primary-strong);
+}
+
+.uide-hero .button.is-outline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .6);
+  color: #fff;
+}
+
+.uide-hero .button.is-outline:hover {
+  background: rgba(255, 255, 255, .14);
+  border-color: #fff;
+  color: #fff;
+}
+
+.uide-hero :focus-visible {
+  outline-color: #fff;
+}
+
+/* Rejilla de tarjetas de contenido público. */
+.uide-feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--uide-space-4);
+}
+
+.uide-feed__card {
+  display: flex;
+  flex-direction: column;
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  overflow: hidden;
+}
+
+.uide-feed__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uide-space-3);
+  padding: var(--uide-space-4);
+  border-bottom: 1px solid var(--uide-border);
+}
+
+.uide-feed__title {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--uide-text);
+}
+
+.uide-feed__title .uide-icon {
+  color: var(--uide-primary);
+}
+
+/* Enlace "Ver todo" de la cabecera de una tarjeta. */
+.see-all {
+  flex: 0 0 auto;
+  color: var(--uide-primary);
+  font-size: .82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: var(--uide-radius-sm);
+}
+
+.see-all:hover {
+  color: var(--uide-primary-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.uide-feed__body {
+  padding: var(--uide-space-2) var(--uide-space-4) var(--uide-space-4);
+  flex: 1 1 auto;
+}
+
+/* Lista compacta de elementos dentro de una tarjeta del feed. */
+.uide-feed__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.uide-feed__list > li {
+  padding: var(--uide-space-3) 0;
+  border-bottom: 1px solid var(--uide-border);
+}
+
+.uide-feed__list > li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.uide-feed__item-title {
+  font-weight: 600;
+  margin: 0 0 .15rem;
+}
+
+.uide-feed__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uide-space-1) var(--uide-space-3);
+  color: var(--uide-muted);
+  font-size: .82rem;
+  margin: 0;
+}
+
+.uide-feed__meta .uide-icon {
+  width: 1em;
+  height: 1em;
+}
+
+/* Miniaturas de galería. */
+.uide-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: var(--uide-space-2);
+}
+
+.uide-thumbs a {
+  display: block;
+  border-radius: var(--uide-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--uide-border);
+  background: var(--uide-surface-sunken);
+}
+
+.uide-thumbs img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+/* Cita de testimonio. */
+.uide-quote {
+  margin: 0;
+  color: var(--uide-text);
+  text-wrap: pretty;
+}
+
+.uide-quote footer {
+  color: var(--uide-muted);
+  font-size: .82rem;
+  font-weight: 600;
+  margin-top: var(--uide-space-1);
+}
+
+/* Recorte de texto a n líneas. */
+.uide-clamp-1,
+.uide-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.uide-clamp-1 { -webkit-line-clamp: 1; }
+.uide-clamp-2 { -webkit-line-clamp: 2; }
+
+/* ===================== 14a. Paneles: accesos por sección ================
+
+   Los dashboards son lanzadores: agrupan destinos por área en lugar de
+   una única rejilla plana. Cada acceso es un enlace completo, no una
+   tarjeta con un botón dentro (un solo objetivo de clic, un solo tab).  */
+
+.uide-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  margin: var(--uide-space-6) 0 var(--uide-space-3);
+  color: var(--uide-muted);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.uide-section-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--uide-border);
+}
+
+.uide-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--uide-space-3);
+}
+
+.uide-nav-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uide-space-3);
+  padding: var(--uide-space-4);
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  color: var(--uide-text);
+  transition: border-color var(--uide-fast) var(--uide-ease),
+              box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+.uide-nav-card:hover {
+  border-color: var(--uide-primary-border);
+  box-shadow: var(--uide-shadow-md);
+  color: var(--uide-text);
+}
+
+.uide-nav-card[aria-disabled="true"] {
+  opacity: .6;
+  pointer-events: none;
+}
+
+.uide-nav-card__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--uide-radius-sm);
+  background: var(--uide-primary-soft);
+  color: var(--uide-primary);
+}
+
+.uide-nav-card__body {
+  min-width: 0;
+}
+
+.uide-nav-card__title {
+  display: block;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.uide-nav-card__text {
+  display: block;
+  color: var(--uide-muted);
+  font-size: .85rem;
+  margin-top: .1rem;
+}
+
+.uide-nav-card__extra {
+  margin-top: var(--uide-space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uide-space-2);
+}
+
+/* ===================== 14b. Pantallas de autenticación ===================
+
+   Login, registro y recuperación de contraseña: una sola tarea por
+   pantalla, centrada y estrecha para que el formulario sea el foco.      */
+
+.uide-auth {
+  display: grid;
+  place-items: center;
+  padding: var(--uide-space-6) var(--uide-space-4);
+}
+
+.uide-auth__card {
+  width: 100%;
+  max-width: 27rem;
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  padding: var(--uide-space-6);
+}
+
+.uide-auth__card--wide {
+  max-width: 42rem;
+}
+
+.uide-auth__head {
+  display: grid;
+  justify-items: center;
+  gap: var(--uide-space-2);
+  margin-bottom: var(--uide-space-5);
+  text-align: center;
+}
+
+.uide-auth__logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.uide-auth__head h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--uide-text);
+  margin: 0;
+  letter-spacing: -.02em;
+}
+
+.uide-auth__head p {
+  color: var(--uide-muted);
+  margin: 0;
+  font-size: .9rem;
+}
+
+.uide-auth__actions {
+  display: grid;
+  gap: var(--uide-space-2);
+  margin-top: var(--uide-space-5);
+  padding-top: var(--uide-space-4);
+  border-top: 1px solid var(--uide-border);
+  text-align: center;
+  font-size: .88rem;
+  color: var(--uide-muted);
+}
+
+.uide-auth__actions a {
+  color: var(--uide-primary);
+  font-weight: 600;
+}
+
+/* Los enlaces que ocupan su propio párrafo son controles, no texto en
+   línea: reciben un área de pulsación cómoda. */
+.uide-auth__actions p > a:only-child {
+  display: inline-block;
+  padding: var(--uide-space-2) var(--uide-space-3);
+  border-radius: var(--uide-radius-sm);
+}
+
+.uide-auth__actions p > a:only-child:hover {
+  background: var(--uide-primary-soft);
+  text-decoration: none;
+}
+
+.uide-auth__actions a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Campo de contraseña con botón mostrar/ocultar. */
+.uide-password {
+  display: flex;
+  gap: var(--uide-space-2);
+}
+
+.uide-password .input {
+  flex: 1 1 auto;
+}
+
+.uide-password__toggle {
+  flex: 0 0 auto;
+  border: 1px solid var(--uide-border-strong);
+  border-radius: var(--uide-radius-sm);
+  background: var(--uide-surface);
+  color: var(--uide-muted);
+  cursor: pointer;
+  padding-inline: var(--uide-space-3);
+  min-width: 2.75rem;
+  display: grid;
+  place-items: center;
+  transition: border-color var(--uide-fast) var(--uide-ease),
+              color var(--uide-fast) var(--uide-ease);
+}
+
+.uide-password__toggle:hover {
+  border-color: var(--uide-muted);
+  color: var(--uide-text);
+}
+
+.uide-password__toggle[aria-pressed="true"] {
+  border-color: var(--uide-primary);
+  color: var(--uide-primary);
 }
 
 /* ============================ 15. Modales ================================ */

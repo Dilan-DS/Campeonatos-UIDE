@@ -9,7 +9,7 @@ from core.models import (
     Usuario, Equipo, Jugador, Campeonato, Partido,
     # Arbitro y EstadisticaJugadorFutbol se usaban sin importar: las vistas de
     # gestión de árbitros y de exportación fallaban con NameError.
-    Arbitro, EstadisticaJugadorFutbol,
+    Arbitro, EstadisticaJugadorFutbol, Pago,
 )
 from django.http import HttpResponse
 from openpyxl import Workbook
@@ -28,13 +28,20 @@ def es_admin(user):
 @user_passes_test(es_admin)
 # función para el dashboard del administrador
 def admin_dashboard(request):
-    # Las tarjetas de la plantilla usan |default:"—"; sin contexto mostraban
-    # siempre "—" en lugar de las cuentas reales.
+    # La plantilla se renderizaba sin contexto: las cuatro métricas mostraban
+    # un guion y la tarjeta de fixture decía siempre "Aún no disponible".
     return render(request, 'dashboard/admin.html', {
         'kpi_usuarios': Usuario.objects.count(),
         'kpi_campeonatos': Campeonato.objects.filter(activo='SI').count(),
         'kpi_equipos': Equipo.objects.count(),
         'kpi_arbitros': Arbitro.objects.filter(estado=True).count(),
+        'kpi_pagos_pendientes': Pago.objects.filter(estado='PENDIENTE').count(),
+        'campeonato': (
+            Campeonato.objects
+            .filter(activo='SI')
+            .order_by('-fecha_inicio')
+            .first()
+        ),
     })
 
 @login_required
