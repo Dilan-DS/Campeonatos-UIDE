@@ -304,6 +304,14 @@ body.uide-app {
   padding: var(--uide-space-6) 0 var(--uide-space-7);
 }
 
+/* Un hero a sangre pegado a la navbar: sin esto, el padding superior de
+   .uide-main dejaba una franja del fondo claro de la página entre la
+   navbar granate y el hero granate, que se veía como una línea blanca
+   cruzando la portada. El hero ya trae su propio padding interno. */
+.uide-main:has(> .uide-hero:first-child) {
+  padding-top: 0;
+}
+
 .uide-main > .container,
 .uide-container {
   max-width: var(--uide-page-max);
@@ -1183,7 +1191,7 @@ select.input[multiple],
   border-radius: var(--uide-radius-md);
   box-shadow: none;
   overflow-x: auto;
-  /* Aquí la barra sí se ve: la tabla tiene min-width, así que en pantallas
+/* Aquí la barra sí se ve: la tabla tiene min-width, así que en pantallas
      estrechas es la única señal de que hay columnas a la derecha. Se pide
      fina explícitamente porque scrollbar-width no se hereda de :root. */
   scrollbar-width: thin;
