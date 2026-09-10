@@ -1,67 +1,27 @@
-{% extends 'comun/base.html' %}
-{% load static %}
+{% extends 'estadisticas/_base_estadisticas.html' %}
 
+{% comment %}
+  Solo declara lo que cambia respecto a _base_estadisticas.html: el
+  nombre del deporte, las tres URLs y las columnas propias.
+{% endcomment %}
 
+{% block deporte %}Fútbol{% endblock %}
+{% block deporte_titulo %}Fútbol{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Estadísticas de Fútbol</h2>
+{% block url_filtro %}{% url 'estadisticas_futbol' %}{% endblock %}
+{% block url_pdf %}{% url 'exportar_estadisticas_pdf' %}{% endblock %}
+{% block url_excel %}{% url 'exportar_estadisticas_excel' %}{% endblock %}
 
-    <div class="row mb-3">
-        <div class="col-md-6 offset-md-3">
-            <form method="GET" action="{% url 'estadisticas_futbol' %}" class="d-flex">
-                <select name="campeonato_id" class="form-select me-2" onchange="this.form.submit()">
-                    <option value="">Todos los Campeonatos</option>
-                    {% for camp in campeonatos %}
-                        <option value="{{ camp.id }}" {% if camp.id == selected_campeonato_id %}selected{% endif %}>
-                            {{ camp.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
-    </div>
+{% block columnas %}
+  <th>Partidos jugados</th>
+  <th>Goles</th>
+  <th>Amarillas</th>
+  <th>Rojas</th>
+{% endblock %}
 
-    <div class="row mb-3">
-        <div class="col-md-12 text-center">
-            <a href="{% url 'exportar_estadisticas_pdf' %}" class="button is-danger"> Exportar PDF</a>
-            <a href="{% url 'exportar_estadisticas_excel' %}" class="button is-success"> Exportar Excel</a>
-        </div>
-    </div>
-
-    {% if estadisticas %}
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Jugador</th>
-                    <th>Equipo</th>
-                    <th>Campeonato</th>
-                    <th>Partidos Jugados</th>
-                    <th>Goles</th>
-                    <th>Tarjetas Amarillas</th>
-                    <th>Tarjetas Rojas</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stat in estadisticas %}
-                <tr>
-                    <td>{{ stat.jugador.usuario.username }}</td>
-                    <td>{{ stat.jugador.equipo.nombre }}</td>
-                    <td>{{ stat.campeonato.nombre }}</td>
-                    <td>{{ stat.partidos_jugados }}</td>
-                    <td>{{ stat.goles }}</td>
-                    <td>{{ stat.tarjetas_amarillas }}</td>
-                    <td>{{ stat.tarjetas_rojas }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="alert alert-info text-center" role="alert">
-        No hay estadísticas de fútbol disponibles.
-    </div>
-    {% endif %}
-</div>
+{% block celdas %}
+  <td>{{ stat.partidos_jugados }}</td>
+  <td>{{ stat.goles }}</td>
+  <td>{{ stat.tarjetas_amarillas }}</td>
+  <td>{{ stat.tarjetas_rojas }}</td>
 {% endblock %}
