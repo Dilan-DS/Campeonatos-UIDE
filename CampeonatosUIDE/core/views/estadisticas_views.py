@@ -172,31 +172,95 @@ def estadisticas_videojuegos(request):
     }
     return render(request, 'estadisticas/estadisticas_videojuegos.html', context)
 
+# Deportes con estadistica individual, con la etiqueta y el campo real de
+# cada columna. Se declara aqui para que la plantilla sea un solo bucle en
+# lugar de ocho bloques de tabla repetidos, y para que los nombres de campo
+# salgan de un unico sitio: las plantillas de ajedrez y de videojuegos
+# pedian stat.partidas_jugadas, que no existe en esos modelos (el campo es
+# partidos_jugados), asi que esa columna aparecia siempre vacia.
+DEPORTES_CON_ESTADISTICA = (
+    ("Futbol", EstadisticaJugadorFutbol, (
+        ("Partidos jugados", "partidos_jugados"),
+        ("Goles", "goles"),
+        ("Amarillas", "tarjetas_amarillas"),
+        ("Rojas", "tarjetas_rojas"),
+    )),
+    ("Baloncesto", EstadisticaJugadorBasquet, (
+        ("Partidos jugados", "partidos_jugados"),
+        ("Canastas", "canastas"),
+        ("Rebotes", "rebotes"),
+        ("Asistencias", "asistencias"),
+    )),
+    ("Ajedrez", EstadisticaJugadorAjedrez, (
+        ("Partidas jugadas", "partidos_jugados"),
+        ("Ganadas", "partidas_ganadas"),
+        ("Empatadas", "partidas_empatadas"),
+        ("Perdidas", "partidas_perdidas"),
+    )),
+    ("Ecuaboly", EstadisticaJugadorEcuaboly, (
+        ("Partidos jugados", "partidos_jugados"),
+        ("Sets ganados", "sets_ganados"),
+        ("Sets perdidos", "sets_perdidos"),
+    )),
+    ("Ping Pong", EstadisticaJugadorPingPong, (
+        ("Partidos jugados", "partidos_jugados"),
+        ("Ganados", "partidos_ganados"),
+        ("Perdidos", "partidos_perdidos"),
+    )),
+    ("Tenis", EstadisticaJugadorTenis, (
+        ("Partidos jugados", "partidos_jugados"),
+        ("Sets ganados", "sets_ganados"),
+        ("Sets perdidos", "sets_perdidos"),
+    )),
+    ("Futbolin", EstadisticaJugadorFutbolin, (
+        ("Partidos jugados", "partidos_jugados"),
+        ("Ganados", "partidos_ganados"),
+        ("Perdidos", "partidos_perdidos"),
+        ("Goles", "goles"),
+    )),
+    ("Videojuegos", EstadisticaJugadorVideojuegos, (
+        ("Partidas jugadas", "partidos_jugados"),
+        ("Ganadas", "partidas_ganadas"),
+        ("Perdidas", "partidas_perdidas"),
+    )),
+)
+
+
 @login_required
 def mis_estadisticas(request):
-    jugador = get_object_or_404(Jugador, usuario=request.user)
-    
-    estadisticas_futbol = EstadisticaJugadorFutbol.objects.filter(jugador=jugador)
-    estadisticas_basquet = EstadisticaJugadorBasquet.objects.filter(jugador=jugador)
-    estadisticas_ajedrez = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador)
-    estadisticas_ecuaboly = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador)
-    estadisticas_pingpong = EstadisticaJugadorPingPong.objects.filter(jugador=jugador)
-    estadisticas_tenis = EstadisticaJugadorTenis.objects.filter(jugador=jugador)
-    estadisticas_futbolin = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador)
-    estadisticas_videojuegos = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador)
+    """Estadisticas del jugador que ha iniciado sesion.
 
-    context = {
-        'jugador': jugador,
-        'estadisticas_futbol': estadisticas_futbol,
-        'estadisticas_basquet': estadisticas_basquet,
-        'estadisticas_ajedrez': estadisticas_ajedrez,
-        'estadisticas_ecuaboly': estadisticas_ecuaboly,
-        'estadisticas_pingpong': estadisticas_pingpong,
-        'estadisticas_tenis': estadisticas_tenis,
-        'estadisticas_futbolin': estadisticas_futbolin,
-        'estadisticas_videojuegos': estadisticas_videojuegos,
-    }
-    return render(request, 'estadisticas/mis_estadisticas.html', context)
+    Solo se envian los deportes en los que tiene registros. Antes la
+    plantilla mostraba las ocho secciones siempre, de modo que un jugador
+    de un solo deporte veia su tabla y siete avisos de "no tienes
+    estadisticas registradas".
+    """
+    jugador = get_object_or_404(Jugador, usuario=request.user)
+
+    bloques = []
+    for deporte, modelo, columnas in DEPORTES_CON_ESTADISTICA:
+        registros = (modelo.objects
+                     .filter(jugador=jugador)
+                     .select_related("campeonato")
+                     .order_by("campeonato__nombre"))
+        filas = [
+            {
+                "campeonato": registro.campeonato,
+                "valores": [getattr(registro, campo) for _, campo in columnas],
+            }
+            for registro in registros
+        ]
+        if filas:
+            bloques.append({
+                "deporte": deporte,
+                "columnas": [etiqueta for etiqueta, _ in columnas],
+                "filas": filas,
+            })
+
+    return render(request, "estadisticas/mis_estadisticas.html", {
+        "jugador": jugador,
+        "bloques": bloques,
+    })
 
 
 @login_required

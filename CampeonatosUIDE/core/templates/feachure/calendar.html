@@ -1,5 +1,7 @@
 {% extends 'comun/base.html' %}
 
+{% block title %}Calendario{% if campeonato %} · {{ campeonato.nombre }}{% endif %} | Campeonatos UIDE{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
   {% if campeonato %}
@@ -88,7 +90,7 @@
 <!-- MODAL EDITAR PARTIDO (solo admin) -->
 <div id="modal-editar" class="modal">
   <div class="modal-background"></div>
-  <div class="modal-card" style="border-radius:14px;">
+  <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">Editar partido</p>
       <button class="delete" aria-label="close"></button>

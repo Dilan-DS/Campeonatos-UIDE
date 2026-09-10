@@ -13,23 +13,17 @@
   <div class="container">
 
     <!-- Decorative header -->
-    <div class="hero-strip mb-5">
+    <div class="mb-5">
       <div class="is-flex is-justify-content-space-between is-align-items-center">
-        <h2 class="title is-4 mb-0">
+        <h1 class="title is-4 mb-0">
           {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Registrar Pago (Admin){% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Pago (Admin){% endif %}
-        </h2>
+        </h1>
         <span class="tag is-light is-medium">Módulo Pagos</span>
       </div>
     </div>
 
     <!-- Main card -->
     <div class="box">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="notification is-{{ message.tags }} is-light">{{ message }}</div>
-        {% endfor %}
-        <div class="uide-divider"></div>
-      {% endif %}
 
       <form method="POST" enctype="multipart/form-data" class="box">
         {% csrf_token %}

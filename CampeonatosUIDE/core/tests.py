@@ -5,7 +5,9 @@ no vuelva a colarse. La primera clase es un barrido: recorre todas las
 rutas con nombre en cada rol y falla si alguna responde 5xx, que es como
 se detectaron once vistas rotas.
 """
+import re
 from datetime import date, time, timedelta
+from pathlib import Path
 
 from django.test import TestCase, override_settings
 from django.urls import NoReverseMatch, get_resolver, reverse
@@ -763,3 +765,224 @@ class AprobacionDePagosRespetaRolYEstado(PruebaBase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(list(respuesta.context["pagos"]), [],
                          "un delegado no debe ver pagos de equipos que no son suyos")
+
+
+# ---------------------------------------------------------------------------
+# Diseño de la interfaz.
+#
+# Estas revisan las plantillas como ficheros, no las vistas: son las que
+# evitan que vuelvan a colarse clases sin estilo, paginas sin titulo o
+# encabezados mal jerarquizados. Todo lo que comprueban aparecio de verdad
+# en la auditoria.
+# ---------------------------------------------------------------------------
+
+RAIZ_PLANTILLAS = Path(__file__).resolve().parent / "templates"
+
+
+def _plantillas_de_pagina():
+    """Plantillas que son una pagina completa (extienden comun/base.html).
+
+    Se excluyen los parciales incluidos con {% include %} y los correos,
+    que no heredan de la base.
+    """
+    for ruta in sorted(RAIZ_PLANTILLAS.rglob("*.html")):
+        texto = ruta.read_text(encoding="utf-8")
+        if "extends 'comun/base.html'" in texto or 'extends "comun/base.html"' in texto:
+            yield ruta, texto
+
+
+class PlantillasSinClasesDeBootstrap(PruebaBase):
+    """Ninguna clase de Bootstrap ni de Tailwind en las plantillas.
+
+    El proyecto usa Bulma. Habia 248 usos de clases que no existian en
+    ninguna de las dos hojas cargadas, asi que las tablas salian sin
+    cebreado, las rejillas no rejillaban y los avisos sin recuadro.
+    """
+
+    # Solo clases que no existen en Bulma. Ojo con los prefijos: Bulma si
+    # tiene has-text-centered, por eso se ancla el token completo.
+    PROHIBIDAS = (
+        "row", "col-md-6", "col-md-12", "col-sm-6", "offset-md-3",
+        "d-flex", "form-select", "form-control", "me-2", "ms-2",
+        "table-responsive", "table-striped", "table-hover", "table-bordered",
+        "table-dark", "alert-info", "alert-danger", "text-muted", "bg-info",
+        "btn-primary", "hero-strip", "section-pad", "max-w-2xl",
+        "mt-2-mobile", "is-256x256", "text-center",
+    )
+
+    def test_ninguna_clase_de_otro_framework(self):
+        encontradas = []
+        for ruta in sorted(RAIZ_PLANTILLAS.rglob("*.html")):
+            texto = ruta.read_text(encoding="utf-8")
+            for valor in re.findall(r'class\s*=\s*"([^"]*)"', texto):
+                # quitar las etiquetas de Django antes de partir en tokens
+                limpio = re.sub(r"\{[{%].*?[%}]\}", " ", valor)
+                for token in limpio.split():
+                    if token in self.PROHIBIDAS:
+                        encontradas.append(
+                            f"{ruta.relative_to(RAIZ_PLANTILLAS).as_posix()}: {token}")
+        self.assertEqual(encontradas, [],
+                         "clases sin ningun estilo detras:\n" + "\n".join(encontradas))
+
+
+class CadaPaginaTieneTituloPropio(PruebaBase):
+    """Diez paginas caian en el titulo por defecto de base.html.
+
+    Con varias pestanas abiertas no habia forma de distinguirlas, y un
+    lector de pantalla anuncia el mismo nombre en todas.
+    """
+
+    def test_todas_declaran_block_title(self):
+        sin_titulo = [
+            ruta.relative_to(RAIZ_PLANTILLAS).as_posix()
+            for ruta, texto in _plantillas_de_pagina()
+            if "block title" not in texto
+        ]
+        self.assertEqual(sin_titulo, [],
+                         "paginas sin titulo propio: " + ", ".join(sin_titulo))
+
+
+class CadaPaginaTieneUnEncabezadoPrincipal(PruebaBase):
+    """Dieciocho paginas empezaban en <h2> sin ningun <h1>."""
+
+    def test_todas_tienen_h1(self):
+        sin_h1 = [
+            ruta.relative_to(RAIZ_PLANTILLAS).as_posix()
+            for ruta, texto in _plantillas_de_pagina()
+            if "<h1" not in texto
+        ]
+        self.assertEqual(sin_h1, [], "paginas sin <h1>: " + ", ".join(sin_h1))
+
+
+class LosMensajesNoSeDuplican(PruebaBase):
+    """comun/base.html ya pinta los mensajes.
+
+    Catorce plantillas repetian su propio bucle, asi que cada aviso salia
+    dos veces; las que usaban is-{{ message.tags }} generaban is-error,
+    que no existe en Bulma, y los errores quedaban sin recuadro.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_solo_base_recorre_los_mensajes(self):
+        repiten = [
+            ruta.relative_to(RAIZ_PLANTILLAS).as_posix()
+            for ruta in sorted(RAIZ_PLANTILLAS.rglob("*.html"))
+            if ruta.name != "base.html"
+            and "for message in messages" in ruta.read_text(encoding="utf-8")
+        ]
+        self.assertEqual(repiten, [],
+                         "plantillas que repiten el bucle de mensajes: " + ", ".join(repiten))
+
+    def test_un_aviso_aparece_una_sola_vez(self):
+        pago = Pago.objects.get(equipo=self.datos["equipo"])
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.post(
+            reverse("aprobar_pago_admin", args=[pago.pk]),
+            {"observacion_admin": "Comprobante correcto."}, follow=True)
+        cuerpo = respuesta.content.decode()
+        self.assertEqual(cuerpo.count("aprobado correctamente"), 1,
+                         "el mensaje de exito no debe salir dos veces")
+
+    def test_un_error_usa_is_danger_y_no_is_error(self):
+        """El nivel ERROR de Django tiene el tag 'error', no 'danger'."""
+        self.client.force_login(self.datos["delegado"])
+        respuesta = self.client.get(reverse("listar_pagos_admin"), follow=True)
+        cuerpo = respuesta.content.decode()
+        self.assertNotIn("notification is-error", cuerpo,
+                         "is-error no existe en Bulma: el aviso saldria sin recuadro")
+        self.assertIn("notification is-danger", cuerpo)
+
+
+class EtiquetaDeEstadoDePago(PruebaBase):
+    """El elif comparaba una cadena literal, siempre verdadera.
+
+    Cualquier pago que no estuviera APROBADO se pintaba de rojo como
+    rechazado, incluidos los PENDIENTE.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+        cls.pago = Pago.objects.get(equipo=cls.datos["equipo"])
+
+    def _color(self, estado):
+        self.pago.estado = estado
+        self.pago.save()
+        self.client.force_login(self.datos["admin"])
+        cuerpo = self.client.get(
+            reverse("detalle_pago_admin", args=[self.pago.pk])).content.decode()
+        for color in ("success", "danger", "warning"):
+            if f'class="tag is-{color}"' in cuerpo:
+                return color
+        return None
+
+    def test_cada_estado_con_su_color(self):
+        self.assertEqual(self._color("APROBADO"), "success")
+        self.assertEqual(self._color("RECHAZADO"), "danger")
+        self.assertEqual(self._color("PENDIENTE"), "warning",
+                         "un pago pendiente no debe pintarse como rechazado")
+
+
+class EstadisticasDeCadaDeporteUsanCamposQueExisten(PruebaBase):
+    """Ajedrez y videojuegos pedian stat.partidas_jugadas, inexistente.
+
+    El campo de esos modelos es partidos_jugados, asi que la columna
+    "Partidas jugadas" salia siempre vacia.
+    """
+
+    def test_los_campos_declarados_existen_en_su_modelo(self):
+        from core.views.estadisticas_views import DEPORTES_CON_ESTADISTICA
+        for deporte, modelo, columnas in DEPORTES_CON_ESTADISTICA:
+            nombres = {f.name for f in modelo._meta.get_fields() if f.concrete}
+            for etiqueta, campo in columnas:
+                with self.subTest(deporte=deporte, campo=campo):
+                    self.assertIn(campo, nombres,
+                                  f"{modelo.__name__} no tiene {campo}")
+
+    def test_las_plantillas_por_deporte_no_dejan_celdas_vacias(self):
+        from django.template.loader import render_to_string
+
+        class Camp:
+            nombre = "Copa de prueba"
+
+        class Us:
+            username = "jugador1"
+
+        class Eq:
+            nombre = "Titanes TI"
+
+        class Jug:
+            usuario = Us()
+            equipo = Eq()
+
+        class Stat:
+            jugador = Jug()
+            campeonato = Camp()
+            partidos_jugados = 7
+            goles = 3
+            tarjetas_amarillas = 1
+            tarjetas_rojas = 0
+            canastas = 22
+            rebotes = 9
+            asistencias = 4
+            partidas_ganadas = 5
+            partidas_empatadas = 1
+            partidas_perdidas = 1
+            sets_ganados = 6
+            sets_perdidos = 2
+            partidos_ganados = 4
+            partidos_perdidos = 3
+
+        contexto = {"estadisticas": [Stat()], "campeonatos": [],
+                    "selected_campeonato_id": None}
+        for deporte in ("futbol", "basquet", "ajedrez", "ecuaboly",
+                        "pingpong", "tenis", "futbolin", "videojuegos"):
+            with self.subTest(deporte=deporte):
+                html = render_to_string(
+                    f"estadisticas/estadisticas_{deporte}.html", contexto)
+                self.assertNotIn("<td></td>", html,
+                                 "ninguna columna debe quedar vacia")
+                self.assertNotIn("None", html)

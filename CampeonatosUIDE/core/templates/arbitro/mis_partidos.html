@@ -7,13 +7,6 @@
     <h1 class="title">Mis Partidos Asignados</h1>
     <hr>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="notification is-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
 
     {% if partidos %}
         <div class="table-container">

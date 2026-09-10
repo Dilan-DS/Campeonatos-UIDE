@@ -1,263 +1,92 @@
 {% extends 'comun/base.html' %}
-{% load static %}
 
+{% comment %}
+  Estadísticas del jugador que ha iniciado sesión.
 
+  Estaba escrita en clases de Bootstrap (row, col-md-12, table-responsive,
+  table-striped, table-hover, table-bordered, table-dark, alert-info) que
+  no existen en este proyecto: 59 usos en total. Las tablas salían sin
+  cebreado ni cabecera oscura y los avisos, sin recuadro.
+
+  Eran además ocho bloques de tabla repetidos, uno por deporte, cada uno
+  con su propio "no tienes estadísticas": un jugador de un solo deporte
+  veía su tabla y siete avisos. Ahora la vista envía en `bloques` sólo los
+  deportes con registros, así que esto es un único bucle.
+{% endcomment %}
+
+{% block title %}Mis estadísticas | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Mis Estadísticas</h2>
+<div class="container uide-container">
 
-    <div class="row">
-        <div class="col-md-12">
-            <h3 class="mb-3">Estadísticas de Fútbol</h3>
-            {% if estadisticas_futbol %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidos Jugados</th>
-                            <th>Goles</th>
-                            <th>Tarjetas Amarillas</th>
-                            <th>Tarjetas Rojas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_futbol %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidos_jugados }}</td>
-                            <td>{{ stat.goles }}</td>
-                            <td>{{ stat.tarjetas_amarillas }}</td>
-                            <td>{{ stat.tarjetas_rojas }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de fútbol registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Baloncesto</h3>
-            {% if estadisticas_basquet %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidos Jugados</th>
-                            <th>Canastas</th>
-                            <th>Rebotes</th>
-                            <th>Asistencias</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_basquet %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidos_jugados }}</td>
-                            <td>{{ stat.canastas }}</td>
-                            <td>{{ stat.rebotes }}</td>
-                            <td>{{ stat.asistencias }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de baloncesto registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Ajedrez</h3>
-            {% if estadisticas_ajedrez %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidas Jugadas</th>
-                            <th>Partidas Ganadas</th>
-                            <th>Partidas Empatadas</th>
-                            <th>Partidas Perdidas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_ajedrez %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidas_jugadas }}</td>
-                            <td>{{ stat.partidas_ganadas }}</td>
-                            <td>{{ stat.partidas_empatadas }}</td>
-                            <td>{{ stat.partidas_perdidas }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de ajedrez registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Ecuaboly</h3>
-            {% if estadisticas_ecuaboly %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidos Jugados</th>
-                            <th>Sets Ganados</th>
-                            <th>Sets Perdidos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_ecuaboly %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidos_jugados }}</td>
-                            <td>{{ stat.sets_ganados }}</td>
-                            <td>{{ stat.sets_perdidos }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de Ecuaboly registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Ping Pong</h3>
-            {% if estadisticas_pingpong %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidos Jugados</th>
-                            <th>Partidos Ganados</th>
-                            <th>Partidos Perdidos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_pingpong %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidos_jugados }}</td>
-                            <td>{{ stat.partidos_ganados }}</td>
-                            <td>{{ stat.partidos_perdidos }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de Ping Pong registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Tenis</h3>
-            {% if estadisticas_tenis %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidos Jugados</th>
-                            <th>Sets Ganados</th>
-                            <th>Sets Perdidos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_tenis %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidos_jugados }}</td>
-                            <td>{{ stat.sets_ganados }}</td>
-                            <td>{{ stat.sets_perdidos }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de Tenis registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Futbolín</h3>
-            {% if estadisticas_futbolin %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidos Jugados</th>
-                            <th>Partidos Ganados</th>
-                            <th>Partidos Perdidos</th>
-                            <th>Goles</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_futbolin %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidos_jugados }}</td>
-                            <td>{{ stat.partidos_ganados }}</td>
-                            <td>{{ stat.partidos_perdidos }}</td>
-                            <td>{{ stat.goles }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de Futbolín registradas.
-            </div>
-            {% endif %}
-
-            <h3 class="mb-3">Estadísticas de Videojuegos</h3>
-            {% if estadisticas_videojuegos %}
-            <div class="table-responsive mb-4">
-                <table class="table table-striped table-hover table-bordered">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Campeonato</th>
-                            <th>Partidas Jugadas</th>
-                            <th>Partidas Ganadas</th>
-                            <th>Partidas Perdidas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stat in estadisticas_videojuegos %}
-                        <tr>
-                            <td>{{ stat.campeonato.nombre }}</td>
-                            <td>{{ stat.partidas_jugadas }}</td>
-                            <td>{{ stat.partidas_ganadas }}</td>
-                            <td>{{ stat.partidas_perdidas }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                No tienes estadísticas de Videojuegos registradas.
-            </div>
-            {% endif %}
-
-        </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Mis estadísticas</h1>
+      <p class="subtitle">
+        {% if jugador.equipo %}
+          {{ jugador.usuario.username }} · {{ jugador.equipo.nombre }}
+        {% else %}
+          {{ jugador.usuario.username }}
+        {% endif %}
+      </p>
     </div>
+  </div>
+
+  {% for bloque in bloques %}
+    <section class="mb-5">
+      {% comment %}
+        El titulo va fuera de .table-container: ese contenedor ya es una
+        tarjeta con borde propio, asi que meterlo dentro de un .uide-panel
+        dibujaria dos bordes concentricos.
+      {% endcomment %}
+      <h2 class="title is-5 uide-titulo-seccion">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        {{ bloque.deporte }}
+      </h2>
+
+      <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable">
+          <thead>
+            <tr>
+              <th>Campeonato</th>
+              {% for columna in bloque.columnas %}
+                <th>{{ columna }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in bloque.filas %}
+              <tr>
+                <td>{{ fila.campeonato.nombre }}</td>
+                {% for valor in fila.valores %}
+                  <td>{{ valor }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% empty %}
+    <div class="uide-panel">
+      <div class="uide-empty">
+        <span class="uide-empty__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        </span>
+        <p class="uide-empty__title">Todavía no tienes estadísticas</p>
+        <p class="uide-empty__text">
+          Tus números aparecerán aquí en cuanto el árbitro cierre el acta de
+          un partido en el que hayas jugado.
+        </p>
+        <div class="uide-empty__actions">
+          <a class="button is-primary" href="{% url 'ver_mis_partidos' %}">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg>
+            <span>Mis partidos</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
 </div>
 {% endblock %}

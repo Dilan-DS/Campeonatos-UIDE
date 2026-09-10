@@ -6,17 +6,10 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Gestión de Pagos</h2>
+        <h1 class="title is-3 has-text-centered mb-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Gestión de Pagos</h1>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="notification is-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
 
-        <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div class="uide-panel uide-panel--pad">
             <div class="buttons is-right mb-4">
                 <a href="{% url 'registrar_pago_admin' %}" class="button is-primary is-rounded">
                     <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
@@ -41,13 +34,13 @@
                             <td>{{ pago.equipo.nombre }}</td>
                             <td>{{ pago.get_metodo_display }}</td>
                             <td>
-                                <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+                                <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
                                     {{ pago.get_estado_display }}
                                 </span>
                             </td>
                             <td>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</td>
                             <td>
-                                <form action="{% url 'cambiar_estado_pago_admin' pago.pk %}" method="post" style="display: inline;">
+                                <form action="{% url 'cambiar_estado_pago_admin' pago.pk %}" method="post" class="is-inline">
                                     {% csrf_token %}
                                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                     <div class="select is-small is-rounded">
@@ -61,7 +54,7 @@
                                 <a href="{% url 'detalle_pago_admin' pago.pk %}" class="button is-small is-info is-rounded ml-2">Ver Detalle</a>
                                 {% if request.user.rol == 'ADMIN' %}
                                 <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-small is-warning is-rounded ml-2">Editar</a>
-                                <form action="{% url 'eliminar_pago_admin' pago.pk %}" method="post" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago?');">
+                                <form action="{% url 'eliminar_pago_admin' pago.pk %}" method="post" class="is-inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago?');">
                                     {% csrf_token %}
                                     <button type="submit" class="button is-small is-danger is-rounded ml-2">Eliminar</button>
                                 </form>

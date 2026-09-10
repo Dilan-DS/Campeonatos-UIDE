@@ -169,47 +169,27 @@ a:hover {
   color: #fff;
 }
 
-/* La barra de scroll de la página va oculta, pero la página sigue
-   desplazándose con rueda, teclado, táctil y barra espaciadora: sólo se
-   oculta el indicador, no el desbordamiento.
+/* Barras de scroll ocultas en toda la aplicación, sin perder el scroll.
 
-   Sólo se oculta la barra de la página: scrollbar-width no se hereda, y
-   html::-webkit-scrollbar es más específico que ::-webkit-scrollbar. Los
-   contenedores que se desplazan por dentro (.table-container) conservan
-   la suya, porque ahí no es decorativa: es la única señal de que quedan
-   columnas fuera de la vista.
+   Se oculta el indicador, no el desbordamiento: no se toca overflow, así
+   que todo sigue desplazándose con rueda, teclado, táctil, arrastre y
+   barra espaciadora exactamente igual que antes.
 
-   No se toca overflow, de modo que rueda, teclado, táctil y barra
-   espaciadora siguen funcionando igual. */
-:root {
-  scrollbar-color: var(--uide-border-strong) transparent;
+   Se aplica a todo elemento, no sólo a la página: los contenedores que se
+   desplazan por dentro (las tablas anchas, sobre todo) también quedan sin
+   barra. Como la barra era la única señal de que quedaban columnas fuera
+   de la vista, esas tablas reciben en su lugar un degradado en el borde
+   derecho que aparece sólo cuando hay contenido oculto (más abajo, en
+   .table-container). */
+* {
   scrollbar-width: none;
-}
-
-html::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  -ms-overflow-style: none;
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--uide-border-strong);
-  border: 3px solid transparent;
-  border-radius: var(--uide-radius-pill);
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--uide-muted);
-  background-clip: content-box;
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 /* Un único anillo de foco visible en toda la aplicación. */
@@ -304,6 +284,14 @@ body.uide-app {
   padding: var(--uide-space-6) 0 var(--uide-space-7);
 }
 
+/* Un hero a sangre pegado a la navbar: sin esto, el padding superior de
+   .uide-main dejaba una franja del fondo claro de la página entre la
+   navbar granate y el hero granate, que se veía como una línea blanca
+   cruzando la portada. El hero ya trae su propio padding interno. */
+.uide-main:has(> .uide-hero:first-child) {
+  padding-top: 0;
+}
+
 .uide-main > .container,
 .uide-container {
   max-width: var(--uide-page-max);
@@ -349,6 +337,72 @@ body.uide-app {
 
 .uide-toolbar__spacer {
   flex: 1 1 auto;
+}
+
+/* Título que encabeza una sección dentro de una página (por ejemplo cada
+   deporte en "Mis estadísticas"), con su icono alineado al texto. */
+.uide-titulo-seccion {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  margin-bottom: var(--uide-space-3);
+}
+
+.uide-titulo-seccion .uide-icon {
+  color: var(--uide-primary);
+}
+
+/* Limita el ancho de un bloque centrado (un buscador suelto, por ejemplo)
+   para que no se estire de lado a lado en pantallas anchas. Sustituye a la
+   clase max-w-2xl que había en usuario/admin_listar.html, que es de
+   Tailwind y aquí no existía. */
+.uide-ancho-limitado {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.uide-ancho-limitado--holgado {
+  max-width: 52rem;
+}
+
+/* Imagen recortada dentro de su hueco sin deformarse: se usaba con
+   object-fit en línea en la miniatura del QR. */
+.uide-encajar {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Imagen con las esquinas redondeadas del sistema, recortando lo que
+   sobresalga (portada de una noticia, por ejemplo). */
+.uide-recortada {
+  overflow: hidden;
+  border-radius: var(--uide-radius-md);
+}
+
+/* Un fieldset deshabilitado (formulario en modo solo lectura) se atenúa
+   desde aquí en lugar de con opacity en línea. */
+fieldset[disabled] {
+  opacity: .85;
+}
+
+/* Icono de relleno cuando un testimonio no tiene foto. */
+.uide-avatar__inicial {
+  font-size: 4rem;
+}
+
+/* Cuerpo del testimonio: reserva algo de alto para que las tarjetas de la
+   misma fila no queden desiguales cuando un texto es muy corto. */
+.uide-testimonio__texto {
+  min-height: 6rem;
+}
+
+/* Foto de perfil redonda (testimonios). Iba con border-radius: 50% y
+   overflow: hidden en línea, repetido en dos ramas de la misma plantilla. */
+.uide-avatar {
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--uide-surface-sunken);
 }
 
 .uide-toolbar__count {
@@ -890,6 +944,7 @@ body.uide-app {
 .select select,
 select.select,
 select.input,
+.control > select,
 .file-cta {
   background: var(--uide-surface);
   border: 1px solid var(--uide-border-strong);
@@ -901,9 +956,42 @@ select.input,
               box-shadow var(--uide-fast) var(--uide-ease);
 }
 
+/* Ningun <select> debe pasar de su hueco. Su ancho intrinseco lo marca
+   el texto de la opcion mas larga, y los que llegan sin clase (widgets de
+   Django sin retocar) no entraban en las reglas de arriba: en el registro
+   de transmisiones uno media 423px dentro de un contenedor de 292 y se
+   salia de la pantalla en movil. */
+select {
+  max-width: 100%;
+}
+
+/* Subida de ficheros.
+
+   Cuando el campo ya tiene un archivo, el ClearableFileInput de Django no
+   renderiza sólo el <input type="file">: añade delante un enlace al
+   archivo actual, una casilla "Limpiar" con su etiqueta y un <br>. Las
+   ocho plantillas que montan el widget de Bulma lo hacen con
+   {{ field|add_class:"file-input" }} dentro de <label class="file-label">,
+   que es una fila flex sin envoltura, así que esos tres elementos (222px
+   medidos) empujaban el botón y el nombre del archivo fuera de la
+   pantalla: en un móvil de 390px el nombre quedaba entero invisible.
+
+   Dejar que la fila envuelva lo resuelve en las ocho de una vez, y no
+   cambia nada cuando el campo está vacío, porque entonces sólo hay dos
+   elementos y caben. */
+.file-label {
+  flex-wrap: wrap;
+  gap: var(--uide-space-2);
+}
+
+.file-name {
+  max-width: 100%;
+}
+
 /* Flecha propia para los <select>, en lugar de la del sistema. */
 select.select,
 select.input,
+.control > select,
 .select select {
   appearance: none;
   -webkit-appearance: none;
@@ -1148,6 +1236,20 @@ select.input[multiple],
   padding: 0;
 }
 
+/* Panel de una sola pieza, sin cabecera ni cuerpo separados: lleva el
+   padding él mismo. Sustituye a las cajas que cada pantalla de gestión se
+   definía con style= en línea, cada una con su propio fondo crema, su
+   radio (12, 16, 18 o 20px), su padding y su sombra. */
+.uide-panel--pad {
+  padding: var(--uide-space-5);
+}
+
+@media (max-width: 768px) {
+  .uide-panel--pad {
+    padding: var(--uide-space-4);
+  }
+}
+
 /* Lista de pares dato/valor (pantallas de detalle). */
 .uide-details {
   display: grid;
@@ -1183,10 +1285,20 @@ select.input[multiple],
   border-radius: var(--uide-radius-md);
   box-shadow: none;
   overflow-x: auto;
-  /* Aquí la barra sí se ve: la tabla tiene min-width, así que en pantallas
-     estrechas es la única señal de que hay columnas a la derecha. Se pide
-     fina explícitamente porque scrollbar-width no se hereda de :root. */
-  scrollbar-width: thin;
+  /* Sin barra de scroll visible (se ocultan en toda la aplicación), la
+     señal de que hay más columnas a la derecha es un degradado en el
+     borde: se pinta como fondo fijo y sólo asoma cuando el contenido
+     desborda, porque background-attachment: local desplaza las capas
+     blancas junto al contenido. */
+  background-image:
+    linear-gradient(to right, var(--uide-surface), var(--uide-surface)),
+    linear-gradient(to left, var(--uide-surface), var(--uide-surface)),
+    linear-gradient(to right, rgba(23, 32, 51, .14), rgba(23, 32, 51, 0)),
+    linear-gradient(to left, rgba(23, 32, 51, .14), rgba(23, 32, 51, 0));
+  background-position: 0 0, 100% 0, 0 0, 100% 0;
+  background-repeat: no-repeat;
+  background-size: 2.5rem 100%, 2.5rem 100%, 1rem 100%, 1rem 100%;
+  background-attachment: local, local, scroll, scroll;
 }
 
 .table {
@@ -1606,6 +1718,27 @@ td.uide-empty-cell .uide-empty {
 .uide-feed__body {
   padding: var(--uide-space-2) var(--uide-space-4) var(--uide-space-4);
   flex: 1 1 auto;
+}
+
+/* Descripción resumida de una tarjeta del feed. */
+.uide-feed__excerpt {
+  margin: 0;
+  color: var(--uide-text-soft);
+  font-size: .9rem;
+  text-wrap: pretty;
+}
+
+/* Fila de acciones al pie de una tarjeta del feed. Iba sin definir, así
+   que los botones quedaban pegados entre sí y sin separación del cuerpo
+   de la tarjeta. */
+.uide-feed__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uide-space-2);
+  margin-top: var(--uide-space-4);
+  padding-top: var(--uide-space-3);
+  border-top: 1px solid var(--uide-border);
 }
 
 /* Lista compacta de elementos dentro de una tarjeta del feed. */
@@ -2623,6 +2756,39 @@ td.uide-empty-cell .uide-empty {
     min-width: 0;
     border: 0;
     background: transparent;
+  }
+
+  /* Las etiquetas de Bulma llevan white-space: nowrap porque estan
+     pensadas para una palabra, pero aqui algunas llevan una frase con un
+     dato dentro ("Ya inscrito en: Titanes TI"). En movil eso sacaba 75px
+     de la pantalla en el listado de jugadores, asi que se les permite
+     ocupar varias lineas. */
+  .tag:not(.is-delete) {
+    height: auto;
+    min-height: 2em;
+    white-space: normal;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  /* Filas de cabecera y de acciones: en el proyecto se maquetan con
+     .is-flex.is-justify-content-space-between (once usos), y esa
+     combinación de Bulma no envuelve. Con dos botones ("Guardar cambios"
+     + "Volver al listado" suman 381px) la fila se salía de un móvil de
+     390px y arrastraba la página con ella. Aquí sí deben envolver. */
+  .is-flex.is-justify-content-space-between {
+    flex-wrap: wrap;
+    gap: var(--uide-space-3);
+  }
+
+  /* Una tabla sin <thead> no recibe el tratamiento de ficha, porque el
+     script de base.html construye los data-label a partir de los
+     encabezados. Sin él conserva el min-width de 640px, y si además no
+     está dentro de un .table-container no hay dónde desplazarla: empuja
+     la página entera. En el detalle de campeonato eso daba 292px de
+     desbordamiento horizontal en móvil. */
+  .table:not(.uide-responsive-table) {
+    min-width: 0;
   }
 
   .uide-responsive-table thead {

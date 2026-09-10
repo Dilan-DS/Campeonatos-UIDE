@@ -1,0 +1,114 @@
+{% extends 'comun/base.html' %}
+
+{% comment %}
+  Base común de las ocho páginas de estadísticas por deporte.
+
+  Las ocho eran el mismo fichero copiado, y las ocho estaban escritas en
+  clases de Bootstrap que no existen en este proyecto (row, col-md-6,
+  offset-md-3, d-flex, form-select, me-2, table-responsive, table-striped,
+  table-hover, table-bordered, table-dark, alert-info): 18 usos por
+  fichero. Las tablas salían sin cebreado ni cabecera, el select sin
+  estilo y el aviso de "no hay datos" sin recuadro.
+
+  Cada plantilla de deporte rellena sólo lo que cambia: el nombre, las
+  tres URLs y las columnas propias. Las columnas van dentro del bucle de
+  filas a propósito: un bloque declarado dentro de un {% templatetag openblock %} for {% templatetag closeblock %} se
+  renderiza en cada iteración con el `stat` de esa fila.
+
+  Contexto que esperan las vistas de estadisticas_views.py:
+  estadisticas, campeonatos y selected_campeonato_id.
+{% endcomment %}
+
+{% block title %}Estadísticas de {% block deporte %}{% endblock %} | Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Estadísticas de {% block deporte_titulo %}{% endblock %}</h1>
+      <p class="subtitle">Rendimiento individual de los jugadores.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      <a class="button is-light" href="{% block url_pdf %}{% endblock %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-descargar"></use></svg>
+        <span>PDF</span>
+      </a>
+      <a class="button is-light" href="{% block url_excel %}{% endblock %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-descargar"></use></svg>
+        <span>Excel</span>
+      </a>
+    </div>
+  </div>
+
+  <form method="get" action="{% block url_filtro %}{% endblock %}" class="uide-toolbar">
+    <label class="uide-sr-only" for="campeonato_id">Filtrar por campeonato</label>
+    <div class="select">
+      <select name="campeonato_id" id="campeonato_id" onchange="this.form.submit()">
+        <option value="">Todos los campeonatos</option>
+        {% for camp in campeonatos %}
+          <option value="{{ camp.id }}"{% if camp.id == selected_campeonato_id %} selected{% endif %}>
+            {{ camp.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% comment %}
+      El select se envía solo al cambiar, pero sin JavaScript ese onchange
+      no hace nada; el botón deja el filtro usable en ese caso.
+    {% endcomment %}
+    <noscript>
+      <button type="submit" class="button is-primary">Filtrar</button>
+    </noscript>
+    <span class="uide-toolbar__spacer"></span>
+    {% if estadisticas %}
+      <span class="uide-toolbar__count">
+        {{ estadisticas|length }} registro{{ estadisticas|length|pluralize:"s" }}
+      </span>
+    {% endif %}
+  </form>
+
+  {% if estadisticas %}
+    <div class="table-container">
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Equipo</th>
+            <th>Campeonato</th>
+            {% block columnas %}{% endblock %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for stat in estadisticas %}
+            <tr>
+              <td>{{ stat.jugador.usuario.username }}</td>
+              <td>{{ stat.jugador.equipo.nombre|default:"—" }}</td>
+              <td>{{ stat.campeonato.nombre }}</td>
+              {% block celdas %}{% endblock %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="uide-panel">
+      <div class="uide-empty">
+        <span class="uide-empty__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        </span>
+        <p class="uide-empty__title">Sin estadísticas que mostrar</p>
+        <p class="uide-empty__text">
+          {% if selected_campeonato_id %}
+            Este campeonato todavía no tiene estadísticas registradas.
+            Prueba a quitar el filtro.
+          {% else %}
+            Los números se registran al cerrar el acta de cada partido.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

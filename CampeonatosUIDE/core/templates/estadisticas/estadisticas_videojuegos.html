@@ -1,65 +1,29 @@
-{% extends 'comun/base.html' %}
-{% load static %}
+{% extends 'estadisticas/_base_estadisticas.html' %}
 
+{% comment %}
+  Solo declara lo que cambia respecto a _base_estadisticas.html: el
+  nombre del deporte, las tres URLs y las columnas propias.
 
+  La primera columna usa partidos_jugados: la plantilla anterior
+  pedia partidas_jugadas, que este modelo no tiene, asi que la
+  columna salia siempre vacia.
+{% endcomment %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Estadísticas de Videojuegos</h2>
+{% block deporte %}Videojuegos{% endblock %}
+{% block deporte_titulo %}Videojuegos{% endblock %}
 
-    <div class="row mb-3">
-        <div class="col-md-6 offset-md-3">
-            <form method="GET" action="{% url 'estadisticas_videojuegos' %}" class="d-flex">
-                <select name="campeonato_id" class="form-select me-2" onchange="this.form.submit()">
-                    <option value="">Todos los Campeonatos</option>
-                    {% for camp in campeonatos %}
-                        <option value="{{ camp.id }}" {% if camp.id == selected_campeonato_id %}selected{% endif %}>
-                            {{ camp.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
-    </div>
+{% block url_filtro %}{% url 'estadisticas_videojuegos' %}{% endblock %}
+{% block url_pdf %}{% url 'export_estadisticas_videojuegos_pdf' %}{% endblock %}
+{% block url_excel %}{% url 'export_estadisticas_videojuegos_excel' %}{% endblock %}
 
-    <div class="row mb-3">
-        <div class="col-md-12 text-center">
-            <a href="{% url 'export_estadisticas_videojuegos_pdf' %}{% if selected_campeonato_id %}?campeonato_id={{ selected_campeonato_id }}{% endif %}" class="button is-danger is-rounded mr-2">Exportar a PDF</a>
-            <a href="{% url 'export_estadisticas_videojuegos_excel' %}{% if selected_campeonato_id %}?campeonato_id={{ selected_campeonato_id }}{% endif %}" class="button is-success is-rounded">Exportar a Excel</a>
-        </div>
-    </div>
+{% block columnas %}
+  <th>Partidas jugadas</th>
+  <th>Ganadas</th>
+  <th>Perdidas</th>
+{% endblock %}
 
-    {% if estadisticas %}
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Jugador</th>
-                    <th>Equipo</th>
-                    <th>Campeonato</th>
-                    <th>Partidas Jugadas</th>
-                    <th>Partidas Ganadas</th>
-                    <th>Partidas Perdidas</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stat in estadisticas %}
-                <tr>
-                    <td>{{ stat.jugador.usuario.username }}</td>
-                    <td>{{ stat.jugador.equipo.nombre }}</td>
-                    <td>{{ stat.campeonato.nombre }}</td>
-                    <td>{{ stat.partidas_jugadas }}</td>
-                    <td>{{ stat.partidas_ganadas }}</td>
-                    <td>{{ stat.partidas_perdidas }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="alert alert-info text-center" role="alert">
-        No hay estadísticas de videojuegos disponibles.
-    </div>
-    {% endif %}
-</div>
+{% block celdas %}
+  <td>{{ stat.partidos_jugados }}</td>
+  <td>{{ stat.partidas_ganadas }}</td>
+  <td>{{ stat.partidas_perdidas }}</td>
 {% endblock %}

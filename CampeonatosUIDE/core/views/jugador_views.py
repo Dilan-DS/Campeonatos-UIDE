@@ -264,21 +264,3 @@ def tabla_estadisticas(request, campeonato_id):
     return render(request, 'campeonato/tabla_estadisticas.html', context)
 
 
-@login_required
-@user_passes_test(es_jugador)
-def detalle_equipo(request, id):
-    jugador = get_object_or_404(Jugador, usuario=request.user)
-    equipo = get_object_or_404(Equipo, id=id)
-
-    if jugador.equipo != equipo:
-        messages.error(request, "No tienes permiso para ver ese equipo.")
-        return redirect('jugador_dashboard')
-
-    jugadores = equipo.jugadores.all()  # Cambia 'jugadores' si tu related_name es otro
-
-    context = {
-        'equipo': equipo,
-        'jugadores': jugadores,
-    }
-    return render(request, 'equipo/detalle_equipo.html', context)
-

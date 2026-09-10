@@ -13,23 +13,16 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    <div class="uide-panel uide-panel--pad">
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
+      <h1 class="title is-3 has-text-centered mb-5">
         {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Registrar Nuevo Árbitro
         {% elif modo == 'editar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Árbitro
         {% elif modo == 'eliminar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Confirmar Eliminación de Árbitro
         {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> Detalle del Árbitro
         {% endif %}
-      </h2>
+      </h1>
 
-      {% if messages %}
-        <div class="notification is-info">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
 
       {% if modo == 'crear' or modo == 'editar' %}
         {% if errores_json %}

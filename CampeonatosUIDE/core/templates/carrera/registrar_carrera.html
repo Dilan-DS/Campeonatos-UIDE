@@ -13,22 +13,15 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <div class="box has-background-light" style="border-radius: 12px; padding: 2rem;">
-      <h2 class="title is-4 has-text-centered has-text-danger-dark">
+    <div class="uide-panel uide-panel--pad">
+      <h1 class="title is-4 has-text-centered has-text-danger-dark">
         {% if modo == 'crear' %}Registrar Nueva Carrera
         {% elif modo == 'editar' %}Editar Carrera
         {% elif modo == 'eliminar' %}Confirmar Eliminación de Carrera
         {% else %}Detalle de Carrera
         {% endif %}
-      </h2>
+      </h1>
 
-      {% if messages %}
-        <div class="notification is-info">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
 
       {% if modo == 'crear' or modo == 'editar' %}
         <form method="post" action="{% if modo == 'editar' %}{% url 'editar_carrera' id=carrera.id %}{% else %}{% url 'registrar_carrera' %}{% endif %}">

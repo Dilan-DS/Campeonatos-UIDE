@@ -5,8 +5,8 @@
 
 {% block content %}
 <section class="section">
-  <div class="container" style="max-width: 820px">
-    <div class="box" style="border-radius:16px;">
+  <div class="container uide-ancho-limitado uide-ancho-limitado--holgado">
+    <div class="uide-panel uide-panel--pad">
       <h1 class="title is-4"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar noticia</h1>
 
       <article class="message is-danger">
@@ -20,7 +20,7 @@
       </article>
 
       {% if noticia.imagen %}
-        <figure class="image is-16by9 mb-4" style="border-radius:12px; overflow:hidden;">
+        <figure class="image is-16by9 mb-4 uide-recortada">
           <img src="{{ noticia.imagen.url }}" alt="{{ noticia.titulo }}">
         </figure>
       {% endif %}

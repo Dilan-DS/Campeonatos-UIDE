@@ -6,22 +6,15 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">Mi Pago de Equipo</h2>
+        <h1 class="title is-3 has-text-centered mb-5">Mi Pago de Equipo</h1>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="notification is-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
 
-        <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <div class="uide-panel uide-panel--pad">
             <div class="content">
                 <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
                 <p><strong>Método de Pago:</strong> {{ pago.get_metodo_display }}</p>
                 {% if pago.codigo_qr %}
-                <div class="box has-background-info-light" style="border-radius:12px;">
+                <div class="box has-background-info-light">
                     <p><strong>Banco:</strong> {{ pago.codigo_qr.banco }}</p>
                     <p><strong>Titular:</strong> {{ pago.codigo_qr.titular }}</p>
                     <p><strong>Identificación:</strong> {{ pago.codigo_qr.identificacion|default:"-" }}</p>
@@ -33,7 +26,7 @@
                 </div>
                 {% endif %}
                 <p><strong>Estado:</strong>
-                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
                         {{ pago.get_estado_display }}
                     </span>
                 </p>

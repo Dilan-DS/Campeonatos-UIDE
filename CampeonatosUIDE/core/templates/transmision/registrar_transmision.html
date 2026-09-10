@@ -1,6 +1,8 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
+{% block title %}{% if solo_lectura %}Detalle de transmisión{% elif es_edicion %}Editar transmisión{% else %}Registrar transmisión{% endif %} | Campeonatos UIDE{% endblock %}
+
 {% block content %}
 <section class="section">
   <div class="container">
@@ -30,13 +32,13 @@
         </nav>
 
         <!-- Card -->
-        <div class="card" style="border-radius: 16px; overflow: hidden;">
+        <div class="card">
           <header class="card-header has-background-link-light">
-            <p class="card-header-title">
+            <h1 class="card-header-title">
               {% if solo_lectura %}<svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> Ver transmisión
               {% elif es_edicion %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar transmisión
               {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Registrar transmisión{% endif %}
-            </p>
+            </h1>
           </header>
 
           <div class="card-content">
@@ -52,7 +54,7 @@
             <form method="post" enctype="multipart/form-data">
               {% csrf_token %}
 
-              {% if solo_lectura %}<fieldset disabled style="opacity:.85;">{% endif %}
+              {% if solo_lectura %}<fieldset disabled>{% endif %}
                 {% for field in form.visible_fields %}
                   <div class="field">
                     <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -72,7 +74,7 @@
               {% if solo_lectura %}</fieldset>{% endif %}
 
               {% if not solo_lectura %}
-              <div class="is-divider" style="height:1px;background:#eee;margin:1rem 0;"></div>
+              <hr>
               <div class="field is-grouped is-justify-content-flex-end">
                 <p class="control">
                   <button type="submit" class="button is-link">
