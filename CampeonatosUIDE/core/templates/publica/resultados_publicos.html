@@ -1,30 +1,124 @@
 {% extends 'comun/base.html' %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Resultados de Partidos Finalizados</h2>
+{% comment %}
+  Resultados públicos de partidos finalizados.
 
-    {% if partidos_finalizados %}
-        <div class="row">
-            {% for partido in partidos_finalizados %}
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">{{ partido.campeonato.nombre }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <h6 class="card-subtitle mb-2 text-muted">{{ partido.fecha }} - {{ partido.hora }}</h6>
-                            <p class="card-text">
-                                <strong>{{ partido.equipo_local.nombre }}</strong> {{ partido.resultado_local }} - {{ partido.resultado_visitante }} <strong>{{ partido.equipo_visitante.nombre }}</strong>
-                            </p>
-                            <p class="card-text"><small class="text-muted">Lugar: {{ partido.lugar }}</small></p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+  La plantilla estaba escrita en clases de Bootstrap (row, col-md-6,
+  card-header, card-body, card-text, bg-info, text-muted, text-white) y
+  este proyecto usa Bulma, así que ninguna de ellas existía: no había
+  rejilla ni tarjeta y cada partido salía como una banda blanca a todo lo
+  ancho con el texto sin jerarquía.
+
+  Ahora usa la misma rejilla .uide-feed que el listado público de
+  campeonatos, y el resultado se presenta como marcador (.uide-score) en
+  lugar de una frase corrida, resaltando al ganador.
+{% endcomment %}
+
+{% block title %}Resultados | Campeonatos UIDE{% endblock %}
+{% block meta_description %}Resultados de los partidos finalizados de los campeonatos internos de la UIDE Loja.{% endblock %}
+
+{% block content %}
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Resultados</h1>
+      <p class="subtitle">Marcadores de los partidos ya finalizados.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      <a class="button is-light" href="{% url 'campeonatos_publicos' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+        <span>Campeonatos</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="uide-feed uide-feed--ancha">
+    {% for partido in partidos_finalizados %}
+      <article class="uide-feed__card">
+        <div class="uide-feed__head">
+          <h2 class="uide-feed__title">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+            {{ partido.campeonato.nombre }}
+          </h2>
+          {% if partido.campeonato.deporte %}
+            <span class="tag is-light">{{ partido.campeonato.deporte.nombre }}</span>
+          {% endif %}
         </div>
-    {% else %}
-        <p>No hay partidos finalizados para mostrar.</p>
-    {% endif %}
+
+        <div class="uide-feed__body">
+          <p class="uide-feed__meta mb-3">
+            <span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+              {{ partido.fecha|date:"d M Y" }}
+            </span>
+            <span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-reloj"></use></svg>
+              {{ partido.hora|time:"H:i" }}
+            </span>
+          </p>
+
+          {% comment %}
+            Se comparan los marcadores para resaltar al ganador. Son
+            opcionales en el modelo, así que un partido finalizado sin
+            marcador cae en el bloque de "sin registrar" en lugar de
+            mostrar un "None - None".
+          {% endcomment %}
+          {% if partido.resultado_local != None and partido.resultado_visitante != None %}
+            <div class="uide-score">
+              <span class="uide-score__team{% if partido.resultado_local > partido.resultado_visitante %} is-ganador{% endif %}">
+                {{ partido.equipo_local.nombre }}
+              </span>
+              <span class="uide-score__marker">
+                <b>{{ partido.resultado_local }}</b><i>–</i><b>{{ partido.resultado_visitante }}</b>
+              </span>
+              <span class="uide-score__team{% if partido.resultado_visitante > partido.resultado_local %} is-ganador{% endif %}">
+                {{ partido.equipo_visitante.nombre }}
+              </span>
+            </div>
+            {% if partido.resultado_local == partido.resultado_visitante %}
+              <p class="uide-score__nota">Empate</p>
+            {% endif %}
+          {% else %}
+            <div class="uide-score">
+              <span class="uide-score__team">{{ partido.equipo_local.nombre }}</span>
+              <span class="uide-score__marker is-vacio">vs</span>
+              <span class="uide-score__team">{{ partido.equipo_visitante.nombre }}</span>
+            </div>
+            <p class="uide-score__nota">Marcador sin registrar</p>
+          {% endif %}
+
+          {% if partido.lugar %}
+            <p class="uide-feed__meta uide-score__lugar">
+              <span>
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg>
+                {{ partido.lugar }}
+              </span>
+            </p>
+          {% endif %}
+        </div>
+      </article>
+    {% empty %}
+      <div class="uide-panel">
+        <div class="uide-empty">
+          <span class="uide-empty__icon">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+          </span>
+          <p class="uide-empty__title">Todavía no hay resultados</p>
+          <p class="uide-empty__text">
+            Cuando los árbitros cierren las actas de los primeros partidos,
+            los marcadores aparecerán aquí.
+          </p>
+          <div class="uide-empty__actions">
+            <a class="button is-primary" href="{% url 'campeonatos_publicos' %}">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+              <span>Ver campeonatos</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
 </div>
 {% endblock %}
