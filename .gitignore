@@ -1,0 +1,23 @@
+# Configuración local de herramientas de desarrollo (no debe versionarse)
+.claude/
+.vscode/
+.idea/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales y comprimidos del proyecto
+*.zip
+*.log
