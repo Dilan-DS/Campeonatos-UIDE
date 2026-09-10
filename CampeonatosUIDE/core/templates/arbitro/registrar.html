@@ -15,13 +15,13 @@
   <div class="container">
     <div class="uide-panel uide-panel--pad">
 
-      <h2 class="title is-3 has-text-centered mb-5">
+      <h1 class="title is-3 has-text-centered mb-5">
         {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Registrar Nuevo Árbitro
         {% elif modo == 'editar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Árbitro
         {% elif modo == 'eliminar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Confirmar Eliminación de Árbitro
         {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> Detalle del Árbitro
         {% endif %}
-      </h2>
+      </h1>
 
 
       {% if modo == 'crear' or modo == 'editar' %}

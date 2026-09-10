@@ -17,12 +17,12 @@
     <div class="box">
 
       <!-- TÍTULO PRINCIPAL -->
-      <h2 class="title is-3 has-text-centered mb-5">
+      <h1 class="title is-3 has-text-centered mb-5">
         {% if modo == "crear" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Crear nuevo campeonato{% endif %}
         {% if modo == "editar" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar campeonato: {{ campeonato.nombre }}{% endif %}
         {% if modo == "detalle" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Detalles del campeonato: {{ campeonato.nombre }}{% endif %}
         {% if modo == "eliminar" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg> Eliminar campeonato: {{ campeonato.nombre }}{% endif %}
-      </h2>
+      </h1>
 
       <!-- FORMULARIO -->
       {% if modo == "crear" or modo == "editar" %}

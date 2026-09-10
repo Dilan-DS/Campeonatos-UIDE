@@ -17,9 +17,9 @@
 
     {% if modo == 'crear' or modo == 'editar' %}
       <div class="uide-panel uide-panel--pad uide-ancho-limitado">
-        <h2 class="title is-3 has-text-centered has-text-danger mb-5">
+        <h1 class="title is-3 has-text-centered has-text-danger mb-5">
           {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Registrar Deporte{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Deporte{% endif %}
-        </h2>
+        </h1>
 
         <form method="post">
           {% csrf_token %}
