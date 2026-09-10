@@ -14,7 +14,7 @@
     {% if modo == 'detalle' %}
       <div class="box">
         <h2 class="subtitle">{{ imagen.titulo }}</h2>
-        <figure class="image is-256x256 mb-4">
+        <figure class="image is-128x128 mb-4">
           <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
         </figure>
         <p><strong>Descripción:</strong> {{ imagen.descripcion|default:"-" }}</p>

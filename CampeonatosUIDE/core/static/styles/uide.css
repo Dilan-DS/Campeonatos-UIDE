@@ -339,6 +339,72 @@ body.uide-app {
   flex: 1 1 auto;
 }
 
+/* Título que encabeza una sección dentro de una página (por ejemplo cada
+   deporte en "Mis estadísticas"), con su icono alineado al texto. */
+.uide-titulo-seccion {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-2);
+  margin-bottom: var(--uide-space-3);
+}
+
+.uide-titulo-seccion .uide-icon {
+  color: var(--uide-primary);
+}
+
+/* Limita el ancho de un bloque centrado (un buscador suelto, por ejemplo)
+   para que no se estire de lado a lado en pantallas anchas. Sustituye a la
+   clase max-w-2xl que había en usuario/admin_listar.html, que es de
+   Tailwind y aquí no existía. */
+.uide-ancho-limitado {
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.uide-ancho-limitado--holgado {
+  max-width: 52rem;
+}
+
+/* Imagen recortada dentro de su hueco sin deformarse: se usaba con
+   object-fit en línea en la miniatura del QR. */
+.uide-encajar {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Imagen con las esquinas redondeadas del sistema, recortando lo que
+   sobresalga (portada de una noticia, por ejemplo). */
+.uide-recortada {
+  overflow: hidden;
+  border-radius: var(--uide-radius-md);
+}
+
+/* Un fieldset deshabilitado (formulario en modo solo lectura) se atenúa
+   desde aquí en lugar de con opacity en línea. */
+fieldset[disabled] {
+  opacity: .85;
+}
+
+/* Icono de relleno cuando un testimonio no tiene foto. */
+.uide-avatar__inicial {
+  font-size: 4rem;
+}
+
+/* Cuerpo del testimonio: reserva algo de alto para que las tarjetas de la
+   misma fila no queden desiguales cuando un texto es muy corto. */
+.uide-testimonio__texto {
+  min-height: 6rem;
+}
+
+/* Foto de perfil redonda (testimonios). Iba con border-radius: 50% y
+   overflow: hidden en línea, repetido en dos ramas de la misma plantilla. */
+.uide-avatar {
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--uide-surface-sunken);
+}
+
 .uide-toolbar__count {
   color: var(--uide-muted);
   font-size: .85rem;
@@ -1136,6 +1202,20 @@ select.input[multiple],
   padding: 0;
 }
 
+/* Panel de una sola pieza, sin cabecera ni cuerpo separados: lleva el
+   padding él mismo. Sustituye a las cajas que cada pantalla de gestión se
+   definía con style= en línea, cada una con su propio fondo crema, su
+   radio (12, 16, 18 o 20px), su padding y su sombra. */
+.uide-panel--pad {
+  padding: var(--uide-space-5);
+}
+
+@media (max-width: 768px) {
+  .uide-panel--pad {
+    padding: var(--uide-space-4);
+  }
+}
+
 /* Lista de pares dato/valor (pantallas de detalle). */
 .uide-details {
   display: grid;
@@ -1604,6 +1684,27 @@ td.uide-empty-cell .uide-empty {
 .uide-feed__body {
   padding: var(--uide-space-2) var(--uide-space-4) var(--uide-space-4);
   flex: 1 1 auto;
+}
+
+/* Descripción resumida de una tarjeta del feed. */
+.uide-feed__excerpt {
+  margin: 0;
+  color: var(--uide-text-soft);
+  font-size: .9rem;
+  text-wrap: pretty;
+}
+
+/* Fila de acciones al pie de una tarjeta del feed. Iba sin definir, así
+   que los botones quedaban pegados entre sí y sin separación del cuerpo
+   de la tarjeta. */
+.uide-feed__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uide-space-2);
+  margin-top: var(--uide-space-4);
+  padding-top: var(--uide-space-3);
+  border-top: 1px solid var(--uide-border);
 }
 
 /* Lista compacta de elementos dentro de una tarjeta del feed. */

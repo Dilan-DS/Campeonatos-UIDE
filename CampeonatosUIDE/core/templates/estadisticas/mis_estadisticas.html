@@ -33,8 +33,13 @@
   </div>
 
   {% for bloque in bloques %}
-    <section class="uide-panel mb-5">
-      <h2 class="uide-panel__title">
+    <section class="mb-5">
+      {% comment %}
+        El titulo va fuera de .table-container: ese contenedor ya es una
+        tarjeta con borde propio, asi que meterlo dentro de un .uide-panel
+        dibujaria dos bordes concentricos.
+      {% endcomment %}
+      <h2 class="title is-5 uide-titulo-seccion">
         <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
         {{ bloque.deporte }}
       </h2>

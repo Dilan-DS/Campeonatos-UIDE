@@ -46,7 +46,7 @@
                <td>
                   {% if codigo.imagen_qr %}
                     <figure class="image is-64x64 is-square">
-                      <img src="{{ codigo.imagen_qr.url }}" alt="QR" style="object-fit: contain; width: 100%; height: 100%;">
+                      <img src="{{ codigo.imagen_qr.url }}" alt="QR" class="uide-encajar">
                     </figure>
                   {% else %}
                     <span class="has-text-grey-light">No disponible</span>

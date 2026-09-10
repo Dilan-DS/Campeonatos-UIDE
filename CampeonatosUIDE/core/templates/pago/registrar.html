@@ -9,10 +9,10 @@
 {% block content %}
 
 
-<section class="section section-pad">
+<section class="section">
   <div class="container">
 
-    <div class="hero-strip mb-5">
+    <div class="mb-5">
       <div class="is-flex is-justify-content-space-between is-align-items-center">
         <h1 class="title is-4 mb-0">
           <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> {% if pago_existente %}Editar Pago{% else %}Registrar Pago{% endif %}
@@ -108,9 +108,9 @@
         </div>
 
         {# ——— Tarjeta Transferencia (solo cuando método = TRANSFERENCIA) ——— #}
-        <div class="notification is-info is-light is-hidden" data-transferencia-info style="border-radius:12px;">
+        <div class="notification is-info is-light is-hidden" data-transferencia-info>
           <p><strong>Por favor, realiza la transferencia y sube el comprobante.</strong></p>
-          <div class="box is-hidden" data-bank-card style="border-radius:16px;">
+          <div class="box is-hidden" data-bank-card>
             <p><strong>Banco:</strong> <span data-bank-info="banco">{% if qr_principal %}{{ qr_principal.banco }}{% endif %}</span></p>
             <p><strong>Titular:</strong> <span data-bank-info="titular">{% if qr_principal %}{{ qr_principal.titular }}{% endif %}</span></p>
             <p><strong>Identificación:</strong> <span data-bank-info="identificacion">{% if qr_principal %}{{ qr_principal.identificacion }}{% endif %}</span></p>

@@ -21,12 +21,12 @@
             <div class="card">
               <div class="card-image has-text-centered pt-4">
                 {% if testimonio.foto %}
-                  <figure class="image is-128x128 is-inline-block" style="border-radius: 50%; overflow: hidden;">
+                  <figure class="image is-128x128 is-inline-block uide-avatar">
                     <img src="{{ testimonio.foto.url }}" alt="{{ testimonio.autor }}">
                   </figure>
                 {% else %}
-                  <figure class="image is-128x128 is-inline-block" style="border-radius: 50%; overflow: hidden; background: #f0f0f0;">
-                    <span class="icon is-large has-text-grey-light" style="font-size: 5rem;">
+                  <figure class="image is-128x128 is-inline-block uide-avatar">
+                    <span class="icon is-large has-text-grey-light uide-avatar__inicial">
                       <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
                     </span>
                   </figure>
@@ -34,7 +34,7 @@
               </div>
               <div class="card-content">
                 <p class="title is-5 has-text-centered">{{ testimonio.autor }}</p>
-                <div class="content" style="min-height: 100px;">
+                <div class="content uide-testimonio__texto">
                   {{ testimonio.contenido|truncatewords:30 }}
                 </div>
               </div>
