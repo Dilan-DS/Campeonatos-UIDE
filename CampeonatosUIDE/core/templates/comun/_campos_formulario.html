@@ -1,0 +1,36 @@
+{% comment %}
+  Campos de un formulario con el tratamiento del sistema de diseño:
+  etiqueta asociada, marca de obligatorio, texto de ayuda y errores junto
+  al campo. Sustituye a {{ form.as_p }}, que no aplica ningún estilo.
+
+  Uso:
+    {% include "comun/_campos_formulario.html" with form=form %}
+    {% include "comun/_campos_formulario.html" with form=form columnas=1 %}
+
+  Parámetros: form (obligatorio), columnas (1 para una sola columna).
+{% endcomment %}
+<div class="{% if columnas == 1 %}{% else %}uide-form-grid{% endif %}">
+  {% for campo in form %}
+    {% if campo.is_hidden %}
+      {{ campo }}
+    {% else %}
+      <div class="field">
+        <label class="label" for="{{ campo.id_for_label }}">
+          {{ campo.label }}
+          {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+        </label>
+        <div class="control">{{ campo }}</div>
+        {% if campo.errors %}
+          {% for err in campo.errors %}
+            <p class="help is-danger">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+              <span>{{ err }}</span>
+            </p>
+          {% endfor %}
+        {% elif campo.help_text %}
+          <p class="help">{{ campo.help_text|safe }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
