@@ -944,6 +944,7 @@ fieldset[disabled] {
 .select select,
 select.select,
 select.input,
+.control > select,
 .file-cta {
   background: var(--uide-surface);
   border: 1px solid var(--uide-border-strong);
@@ -953,6 +954,15 @@ select.input,
   min-height: 2.75em;
   transition: border-color var(--uide-fast) var(--uide-ease),
               box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+/* Ningun <select> debe pasar de su hueco. Su ancho intrinseco lo marca
+   el texto de la opcion mas larga, y los que llegan sin clase (widgets de
+   Django sin retocar) no entraban en las reglas de arriba: en el registro
+   de transmisiones uno media 423px dentro de un contenedor de 292 y se
+   salia de la pantalla en movil. */
+select {
+  max-width: 100%;
 }
 
 /* Subida de ficheros.
@@ -981,6 +991,7 @@ select.input,
 /* Flecha propia para los <select>, en lugar de la del sistema. */
 select.select,
 select.input,
+.control > select,
 .select select {
   appearance: none;
   -webkit-appearance: none;
