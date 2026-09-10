@@ -22,7 +22,10 @@ jobs:
       # Sólo SECRET_KEY es obligatoria; el resto de la configuración toma
       # sus valores por defecto (SQLite, sin SMTP), así que no hace falta
       # preparar un .env en CI.
-      SECRET_KEY: clave-solo-para-ci-no-usar-en-produccion
+      # 50+ caracteres y variada a proposito: `check --deploy` (security.W009)
+      # rechaza claves cortas, y esta comprobacion bloquea el PR. No es un
+      # secreto, solo relleno para que la configuracion se pueda cargar.
+      SECRET_KEY: ci-placeholder-sin-valor-real-x7Kq2mZ9pL4vT8wR3nJ6bY1cH5sD0aFgU2eW
       DEBUG: "False"
 
     steps:
