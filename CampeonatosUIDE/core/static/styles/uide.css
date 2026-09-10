@@ -955,6 +955,29 @@ select.input,
               box-shadow var(--uide-fast) var(--uide-ease);
 }
 
+/* Subida de ficheros.
+
+   Cuando el campo ya tiene un archivo, el ClearableFileInput de Django no
+   renderiza sólo el <input type="file">: añade delante un enlace al
+   archivo actual, una casilla "Limpiar" con su etiqueta y un <br>. Las
+   ocho plantillas que montan el widget de Bulma lo hacen con
+   {{ field|add_class:"file-input" }} dentro de <label class="file-label">,
+   que es una fila flex sin envoltura, así que esos tres elementos (222px
+   medidos) empujaban el botón y el nombre del archivo fuera de la
+   pantalla: en un móvil de 390px el nombre quedaba entero invisible.
+
+   Dejar que la fila envuelva lo resuelve en las ocho de una vez, y no
+   cambia nada cuando el campo está vacío, porque entonces sólo hay dos
+   elementos y caben. */
+.file-label {
+  flex-wrap: wrap;
+  gap: var(--uide-space-2);
+}
+
+.file-name {
+  max-width: 100%;
+}
+
 /* Flecha propia para los <select>, en lugar de la del sistema. */
 select.select,
 select.input,
@@ -2722,6 +2745,39 @@ td.uide-empty-cell .uide-empty {
     min-width: 0;
     border: 0;
     background: transparent;
+  }
+
+  /* Las etiquetas de Bulma llevan white-space: nowrap porque estan
+     pensadas para una palabra, pero aqui algunas llevan una frase con un
+     dato dentro ("Ya inscrito en: Titanes TI"). En movil eso sacaba 75px
+     de la pantalla en el listado de jugadores, asi que se les permite
+     ocupar varias lineas. */
+  .tag:not(.is-delete) {
+    height: auto;
+    min-height: 2em;
+    white-space: normal;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  /* Filas de cabecera y de acciones: en el proyecto se maquetan con
+     .is-flex.is-justify-content-space-between (once usos), y esa
+     combinación de Bulma no envuelve. Con dos botones ("Guardar cambios"
+     + "Volver al listado" suman 381px) la fila se salía de un móvil de
+     390px y arrastraba la página con ella. Aquí sí deben envolver. */
+  .is-flex.is-justify-content-space-between {
+    flex-wrap: wrap;
+    gap: var(--uide-space-3);
+  }
+
+  /* Una tabla sin <thead> no recibe el tratamiento de ficha, porque el
+     script de base.html construye los data-label a partir de los
+     encabezados. Sin él conserva el min-width de 640px, y si además no
+     está dentro de un .table-container no hay dónde desplazarla: empuja
+     la página entera. En el detalle de campeonato eso daba 292px de
+     desbordamiento horizontal en móvil. */
+  .table:not(.uide-responsive-table) {
+    min-width: 0;
   }
 
   .uide-responsive-table thead {
