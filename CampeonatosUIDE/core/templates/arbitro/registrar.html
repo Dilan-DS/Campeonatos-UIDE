@@ -23,13 +23,6 @@
         {% endif %}
       </h2>
 
-      {% if messages %}
-        <div class="notification is-info">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
 
       {% if modo == 'crear' or modo == 'editar' %}
         {% if errores_json %}

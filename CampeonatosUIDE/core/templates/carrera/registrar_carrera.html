@@ -22,13 +22,6 @@
         {% endif %}
       </h2>
 
-      {% if messages %}
-        <div class="notification is-info">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
 
       {% if modo == 'crear' or modo == 'editar' %}
         <form method="post" action="{% if modo == 'editar' %}{% url 'editar_carrera' id=carrera.id %}{% else %}{% url 'registrar_carrera' %}{% endif %}">

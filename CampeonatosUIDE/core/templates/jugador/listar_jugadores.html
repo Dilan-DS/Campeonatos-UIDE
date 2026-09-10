@@ -11,13 +11,6 @@
         {% endif %}
     </h1>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="notification is-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
 
     {% if not is_admin_view and not pago_aprobado %}
         <div class="notification is-warning">

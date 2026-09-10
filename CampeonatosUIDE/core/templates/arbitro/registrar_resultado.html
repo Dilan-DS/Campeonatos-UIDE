@@ -9,13 +9,6 @@
     <h2 class="subtitle has-text-centered">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</h2>
     <p class="has-text-centered">Fecha: {{ partido.fecha|date:"d/m/Y" }} | Hora: {{ partido.hora|time:"H:i" }} | Lugar: {{ partido.lugar }}</p>
 
-    {% if messages %}
-        <div class="notification is-info">
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
-        </div>
-    {% endif %}
 
     <div class="box">
         <form method="post">

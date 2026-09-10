@@ -22,13 +22,6 @@
         </div>
       </form>
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="notification is-{{ message.tags }}">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
 
       <div class="mb-4">
         <a href="{% url 'registrar_codigo_qr' %}" class="button is-primary">

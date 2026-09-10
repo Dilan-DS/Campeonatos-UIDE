@@ -24,12 +24,6 @@
 
     <!-- Main card -->
     <div class="box">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="notification is-{{ message.tags }} is-light">{{ message }}</div>
-        {% endfor %}
-        <div class="uide-divider"></div>
-      {% endif %}
 
       <form method="POST" enctype="multipart/form-data" class="box">
         {% csrf_token %}
