@@ -8,26 +8,6 @@
 
 {% block content %}
 
-<style>
-  .hero-strip{
-    background: linear-gradient(90deg,#ff7aa0,#ffb86c);
-    border-radius:18px; padding:1.25rem 1.5rem; color:#fff;
-    box-shadow:0 12px 30px rgba(255,122,160,.25);
-  }
-  .glass-card{
-    background:rgba(255,255,255,.85); backdrop-filter:blur(8px);
-    border:1px solid rgba(0,0,0,.06); border-radius:20px;
-    box-shadow:0 16px 30px rgba(19,18,66,.06);
-  }
-  .form-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.25rem 1.5rem; }
-  .file.has-name .file-name{ max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .btn-gradient{ background:linear-gradient(90deg,#6157ff,#ee49fd); color:#fff!important; border:none; }
-  .btn-gradient:hover{ filter:brightness(1.05); }
-  .btn-ghost{ background:#f7f8fb; border:1px solid #e7e9f3; color:#4a4a4a; }
-  .chip{ display:inline-flex; align-items:center; gap:.5rem; padding:.4rem .75rem; border-radius:999px;
-         background:#fff3f6; color:#b71d56; font-weight:600; border:1px solid #ffd3e1; }
-  .section-pad{ padding-top:2rem; }
-</style>
 
 <section class="section section-pad">
   <div class="container">
@@ -41,13 +21,13 @@
             {% elif equipo_nombre %} — {{ equipo_nombre }}{% endif %}
           </span>
         </h1>
-        <span class="chip" id="equipo-chip">
+        <span class="tag" id="equipo-chip">
           {% if equipo and equipo.id %}Equipo #{{ equipo.id }}{% else %}Equipo{% endif %}
         </span>
       </div>
     </div>
 
-    <div class="box glass-card p-5">
+    <div class="box p-5">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -55,7 +35,7 @@
           <div class="notification is-danger is-light mb-4">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        <div class="form-grid">
+        <div class="uide-form-grid">
 
           {# ——— EQUIPO (la vista filtra el queryset según rol) ——— #}
           {% if form.equipo %}
@@ -121,7 +101,7 @@
 
         <div class="field mt-5">
           <div class="buttons is-right">
-            <button type="submit" class="button btn-gradient is-rounded is-medium">
+            <button type="submit" class="button is-primary is-rounded is-medium">
               {% if pago_existente %}Guardar Cambios{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Registrar Pago{% endif %}
             </button>
           </div>
@@ -147,7 +127,7 @@
       </form>
 
       <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
-        <a href="{% url 'delegado_dashboard' %}" class="button btn-ghost is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard</a>
+        <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard</a>
       </div>
 
     </div>

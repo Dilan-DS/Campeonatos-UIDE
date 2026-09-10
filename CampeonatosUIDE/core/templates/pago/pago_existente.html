@@ -34,7 +34,7 @@
                     {% endif %}
                 </p>
                 <p><strong>Estado:</strong> 
-                    <span class="tag {% if pago.estado == 'APROBADO' %}is-success{% elif pago.estado == 'PENDIENTE' %}is-warning{% else %}is-danger{% endif %}">
+                    <span class="tag {% if pago.estado == 'APROBADO' %}is-success{% elif 'PENDIENTE' %}is-warning{% else %}is-danger{% endif %}">
                         {{ pago.get_estado_display }}
                     </span>
                 </p>

@@ -41,7 +41,7 @@
                             <td>{{ pago.equipo.nombre }}</td>
                             <td>{{ pago.get_metodo_display }}</td>
                             <td>
-                                <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+                                <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif 'RECHAZADO' %}danger{% else %}warning{% endif %}">
                                     {{ pago.get_estado_display }}
                                 </span>
                             </td>
