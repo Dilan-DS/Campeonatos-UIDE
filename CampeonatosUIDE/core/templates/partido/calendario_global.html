@@ -6,52 +6,77 @@
         <h1 class="title">Listado de Partidos</h1>
 
         {% comment %} Filtros {% endcomment %}
-        <form method="get" class="box mb-4">
-            <div class="columns is-multiline">
-                <div class="column is-3">
-                    <label class="label">Campeonato</label>
-                    <div class="select is-fullwidth">
-                        <select name="campeonato">
-                            <option value="">Todos</option>
-                            {% for c in campeonatos %}
-                                <option value="{{ c.id }}" {% if request.GET.campeonato|default:'' == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="column is-2">
-                    <label class="label">Género</label>
-                    <div class="select is-fullwidth">
-                        <select name="genero">
-                            <option value="">Todos</option>
-                            <option value="masculino" {% if request.GET.genero == "masculino" %}selected{% endif %}>Masculino</option>
-                            <option value="femenino" {% if request.GET.genero == "femenino" %}selected{% endif %}>Femenino</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="column is-2">
-                    <label class="label">Estado</label>
-                    <div class="select is-fullwidth">
-                        <select name="estado">
-                            <option value="">Todos</option>
-                            <option value="PROGRAMADO" {% if request.GET.estado == "PROGRAMADO" %}selected{% endif %}>Programado</option>
-                            <option value="JUGADO" {% if request.GET.estado == "JUGADO" %}selected{% endif %}>Jugado</option>
-                            <option value="SUSPENDIDO" {% if request.GET.estado == "SUSPENDIDO" %}selected{% endif %}>Suspendido</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="column is-2">
-                    <label class="label">Desde</label>
-                    <input class="input" type="date" name="desde" value="{{ request.GET.desde|default:'' }}">
-                </div>
-                <div class="column is-2">
-                    <label class="label">Hasta</label>
-                    <input class="input" type="date" name="hasta" value="{{ request.GET.hasta|default:'' }}">
-                </div>
-                <div class="column is-1" style="padding-top:2rem">
-                    <button class="button is-primary is-light is-fullwidth">Filtrar</button>
-                </div>
+        <form method="get" class="uide-form box mb-4">
+          <div class="uide-form-grid">
+            <div class="field">
+              <label class="label" for="filtro-campeonato">Campeonato</label>
+              <div class="control">
+                <select class="select" id="filtro-campeonato" name="campeonato">
+                  <option value="">Todos</option>
+                  {% for c in campeonatos %}
+                    <option value="{{ c.id }}"
+                      {% if request.GET.campeonato == c.id|stringformat:"s" %}selected{% endif %}>
+                      {{ c.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
             </div>
+
+            <div class="field">
+              <label class="label" for="filtro-genero">Género</label>
+              <div class="control">
+                <select class="select" id="filtro-genero" name="genero">
+                  <option value="">Todos</option>
+                  {% for valor, etiqueta in generos_equipo %}
+                    <option value="{{ valor }}"
+                      {% if request.GET.genero == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="filtro-estado">Estado</label>
+              <div class="control">
+                <select class="select" id="filtro-estado" name="estado">
+                  <option value="">Todos</option>
+                  {% for valor, etiqueta in estados_partido %}
+                    <option value="{{ valor }}"
+                      {% if request.GET.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="filtro-desde">Desde</label>
+              <div class="control">
+                <input class="input" id="filtro-desde" type="date" name="desde"
+                       value="{{ request.GET.desde|default:'' }}">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="filtro-hasta">Hasta</label>
+              <div class="control">
+                <input class="input" id="filtro-hasta" type="date" name="hasta"
+                       value="{{ request.GET.hasta|default:'' }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="uide-toolbar mt-3">
+            <button class="button is-primary" type="submit">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-filtro"></use></svg>
+              <span>Filtrar</span>
+            </button>
+            <a class="button is-light" href="{% url 'calendario_global' %}">Limpiar</a>
+            <span class="uide-toolbar__spacer"></span>
+            <span class="uide-toolbar__count">
+              {{ partidos|length }} partido{{ partidos|length|pluralize:"s" }}
+            </span>
+          </div>
         </form>
 
         {% comment %} Tabla {% endcomment %}
