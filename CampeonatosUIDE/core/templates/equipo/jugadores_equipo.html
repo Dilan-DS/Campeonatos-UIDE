@@ -1,220 +1,141 @@
 {% extends 'comun/base.html' %}
+{% load static %}
 
-{% block title %}Jugadores del Equipo - Campeonatos UIDE{% endblock %}
+{% comment %}
+  Plantel de un equipo.
+
+  Se retiró el bloque de estilos propio (~61 líneas) con degradado y
+  tarjetas a medida.
+
+  Se eliminó la duplicación: el bloque de estadísticas por deporte estaba
+  escrito dos veces (tabla para escritorio y tarjetas para móvil). Ahora
+  hay una sola tabla, que comun/base.html convierte en fichas por debajo
+  de 768px, y el resumen sale de comun/_resumen_estadisticas.html.
+
+  Corrección: la variante de Ping Pong y Futbolín leía partidas_ganadas /
+  partidas_perdidas, campos que esos modelos no tienen (usan partidos_*),
+  así que sus cifras salían vacías.
+{% endcomment %}
+
+{% block title %}Jugadores de {{ equipo.nombre }} | Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<div class="container uide-container">
 
-<style>
-  /* ====== Look & Feel Pro (solo CSS, sin tocar tu lógica) ====== */
-  .hero-strip {
-    background: linear-gradient(90deg,#ff7aa0,#ffb86c);
-    color:#fff;
-    border-radius:18px;
-    padding:1.25rem 1.5rem;
-    box-shadow:0 16px 40px rgba(255,122,160,.25);
-  }
-  .hero-strip .team-logo {
-    width:72px;height:72px;object-fit:cover;border-radius:50%;
-    border:3px solid rgba(255,255,255,.85);
-    box-shadow:0 6px 16px rgba(0,0,0,.15);
-  }
-  .chip {
-    display:inline-flex;align-items:center;gap:.5rem;
-    padding:.35rem .75rem;border-radius:999px;
-    font-weight:700;font-size:.85rem;
-    background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);
-  }
-  .glass-card {
-    background:rgba(255,255,255,.9);
-    backdrop-filter:blur(8px);
-    border:1px solid rgba(0,0,0,.06);
-    border-radius:16px;
-    box-shadow:0 16px 28px rgba(20,20,43,.06);
-    padding:1.5rem;
-  }
-  .btn-ghost {
-    background:#f7f8fb;border:1px solid #e7e9f3;color:#4a4a4a;
-  }
-
-  /* Tabla elegante + responsive */
-  .table thead th { white-space: nowrap; }
-  .table.is-striped tbody tr:nth-child(2n) {
-    background: #fbfbfd;
-  }
-  .table.is-hoverable tbody tr:hover {
-    background: #f4f6ff;
-  }
-  .pill {
-    display:inline-block;
-    padding:.15rem .5rem;border-radius:999px;font-size:.85rem;
-    background:#eef2ff;color:#3b5bdb;border:1px solid #e1e7ff;
-  }
-
-  /* Cards en móvil */
-  @media (max-width: 900px) {
-    .table-wrapper { display:none; }
-    .player-cards { display:grid; grid-template-columns: 1fr; gap: .75rem; }
-    .player-card {
-      border:1px solid #eef0f5; border-radius:14px; padding:.9rem 1rem;
-      background:#fff; box-shadow:0 8px 18px rgba(20,20,43,.04);
-    }
-    .player-card .row { display:flex; justify-content:space-between; gap:.75rem; }
-    .player-card .row + .row { margin-top:.35rem; }
-    .player-card .label { color:#7a7a7a; font-size:.85rem; }
-  }
-  @media (min-width: 901px) {
-    .player-cards { display:none; }
-  }
-</style>
-
-<section class="section">
-  <div class="container">
-
-    <!-- Cabecera/hero del equipo -->
-    <div class="hero-strip mb-5">
-      <div class="is-flex is-align-items-center is-justify-content-space-between">
-        <div class="is-flex is-align-items-center" style="gap:1rem;">
-          {% if equipo.logo %}
-            <img class="team-logo" src="{{ equipo.logo.url }}" alt="Logo de {{ equipo.nombre }}">
-          {% else %}
-            <div class="team-logo is-flex is-justify-content-center is-align-items-center"
-                 style="background:rgba(255,255,255,.2);"><span><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> </span></div>
-          {% endif %}
-          <div>
-            <h2 class="title is-4 mb-1" style="color:#fff;">{{ equipo.nombre }}</h2>
-            <div class="is-flex" style="gap:.5rem;">
-              <span class="tag"><svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg> Jugadores: {{ jugadores_data|length }}</span>
-              {% if equipo.aprobado %}
-                <span class="tag"><svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Aprobado</span>
-              {% else %}
-                <span class="tag">⏳ En revisión</span>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-
-        <div class="is-hidden-touch">
-          {% if is_jugador_view %}
-            <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Dashboard Jugador</a>
-          {% else %}
-            <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Dashboard Delegado</a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <div class="box">
-      {% if not equipo.aprobado %}
-        <div class="notification is-warning is-light has-text-centered mb-4">
-          Tu equipo aún <strong>no está aprobado</strong>. No podrás registrar jugadores hasta que el pago sea aprobado.
-        </div>
-      {% endif %}
-
-      {% if jugadores_data %}
-        <!-- ===== Tabla (desktop/tablet) ===== -->
-        <div class="table-wrapper">
-          <table class="table is-striped is-hoverable is-fullwidth">
-            <thead>
-              <tr>
-                <th>Nombre de Usuario</th>
-                <th>N.º Camiseta</th>
-                <th>Posición</th>
-                <th>Edad</th>
-                <th>Estadísticas</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for data in jugadores_data %}
-                <tr>
-                  <td><strong>{{ data.jugador.usuario.username }}</strong></td>
-                  <td><span class="tag">#{{ data.jugador.numero_camiseta }}</span></td>
-                  <td>{{ data.jugador.posicion }}</td>
-                  <td>{{ data.jugador.edad }} años</td>
-                  <td>
-                    {% if data.stats %}
-                      {% if data.deporte_nombre == 'FUTBOL' %}
-                        <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Goles: {{ data.stats.goles }}, TA: {{ data.stats.tarjetas_amarillas }}, TR: {{ data.stats.tarjetas_rojas }}
-                      {% elif data.deporte_nombre == 'BASQUET' %}
-                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Canastas: {{ data.stats.canastas }}, Rebotes: {{ data.stats.rebotes }}, Asistencias: {{ data.stats.asistencias }}
-                      {% elif data.deporte_nombre == 'AJEDREZ' %}
-                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Ganadas: {{ data.stats.partidas_ganadas }}, Empatadas: {{ data.stats.partidas_empatadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
-                      {% elif data.deporte_nombre == 'ECUABOLY' or data.deporte_nombre == 'TENIS' %}
-                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Sets Ganados: {{ data.stats.sets_ganados }}, Sets Perdidos: {{ data.stats.sets_perdidos }}
-                      {% elif data.deporte_nombre == 'PING PONG' or data.deporte_nombre == 'VIDEOJUEGOS' %}
-                        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> Ganadas: {{ data.stats.partidas_ganadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
-                      {% elif data.deporte_nombre == 'FUTBOLIN' %}
-                        <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Goles: {{ data.stats.goles }}, Ganadas: {{ data.stats.partidas_ganadas }}, Perdidas: {{ data.stats.partidas_perdidas }}
-                      {% else %}
-                        Estadísticas no disponibles para este deporte.
-                      {% endif %}
-                    {% else %}
-                      <span class="has-text-grey">Sin estadísticas</span>
-                    {% endif %}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- ===== Cards (móvil) ===== -->
-        <div class="player-cards">
-          {% for data in jugadores_data %}
-            <div class="player-card">
-              <div class="row">
-                <div><strong>{{ data.jugador.usuario.username }}</strong></div>
-                <div><span class="tag">#{{ data.jugador.numero_camiseta }}</span></div>
-              </div>
-              <div class="row">
-                <div><span class="label">Posición</span></div>
-                <div>{{ data.jugador.posicion }}</div>
-              </div>
-              <div class="row">
-                <div><span class="label">Edad</span></div>
-                <div>{{ data.jugador.edad }} años</div>
-              </div>
-              <div class="row">
-                <div><span class="label">Estadísticas</span></div>
-                <div class="has-text-right">
-                  {% if data.stats %}
-                    {% if data.deporte_nombre == 'FUTBOL' %}
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> {{ data.stats.goles }} · TA {{ data.stats.tarjetas_amarillas }} · TR {{ data.stats.tarjetas_rojas }}
-                    {% elif data.deporte_nombre == 'BASQUET' %}
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> {{ data.stats.canastas }} · Rb {{ data.stats.rebotes }} · Ast {{ data.stats.asistencias }}
-                    {% elif data.deporte_nombre == 'AJEDREZ' %}
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> G {{ data.stats.partidas_ganadas }} · E {{ data.stats.partidas_empatadas }} · P {{ data.stats.partidas_perdidas }}
-                    {% elif data.deporte_nombre == 'ECUABOLY' or data.deporte_nombre == 'TENIS' %}
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> SG {{ data.stats.sets_ganados }} · SP {{ data.stats.sets_perdidos }}
-                    {% elif data.deporte_nombre == 'PING PONG' or data.deporte_nombre == 'VIDEOJUEGOS' %}
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg> G {{ data.stats.partidas_ganadas }} · P {{ data.stats.partidas_perdidas }}
-                    {% elif data.deporte_nombre == 'FUTBOLIN' %}
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> G {{ data.stats.goles }} · W {{ data.stats.partidas_ganadas }} · L {{ data.stats.partidas_perdidas }}
-                    {% else %}
-                      <span class="has-text-grey">No disponible</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="has-text-grey">Sin estadísticas</span>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-
-      {% else %}
-        <p class="has-text-centered has-text-grey">No hay jugadores registrados en este equipo.</p>
-      {% endif %}
-
-      <div class="has-text-centered mt-5">
-        {% if is_jugador_view %}
-          <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Jugador</a>
-        {% else %}
-          <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard del Delegado</a>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <div class="uide-with-icon" style="gap: var(--uide-space-4);">
+        {% if equipo.logo %}
+          <img class="uide-team-logo" src="{{ equipo.logo.url }}" alt="Escudo de {{ equipo.nombre }}">
         {% endif %}
+        <div>
+          <h1 class="title is-3">{{ equipo.nombre }}</h1>
+          <p class="subtitle">
+            {{ jugadores_data|length }} jugador{{ jugadores_data|length|pluralize:"es" }}
+            {% if equipo.campeonato %}· {{ equipo.campeonato.nombre }}{% endif %}
+          </p>
+        </div>
       </div>
     </div>
-
+    <div class="uide-page-head__actions">
+      {% if equipo.aprobado %}
+        <span class="tag is-success">Equipo aprobado</span>
+      {% else %}
+        <span class="tag is-warning">En revisión</span>
+      {% endif %}
+      {% if is_jugador_view %}
+        <a href="{% url 'jugador_dashboard' %}" class="button is-light">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+          <span>Mi panel</span>
+        </a>
+      {% else %}
+        <a href="{% url 'delegado_dashboard' %}" class="button is-light">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+          <span>Mi panel</span>
+        </a>
+      {% endif %}
+    </div>
   </div>
-</section>
 
+  {% if not equipo.aprobado %}
+    <div class="notification is-warning">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg>
+      <span>
+        Este equipo <strong>aún no está aprobado</strong>. No podrás registrar jugadores
+        hasta que administración apruebe el pago de inscripción.
+      </span>
+    </div>
+  {% endif %}
+
+  <div class="table-container">
+    <table class="table is-fullwidth">
+      <thead>
+        <tr>
+          <th scope="col">Jugador</th>
+          <th scope="col">N.º</th>
+          <th scope="col">Posición</th>
+          <th scope="col">Edad</th>
+          <th scope="col">Estadísticas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for data in jugadores_data %}
+          <tr>
+            <td class="uide-cell-strong">
+              {{ data.jugador.usuario.get_full_name|default:data.jugador.usuario.username }}
+            </td>
+            <td>
+              {% if data.jugador.numero_camiseta %}
+                <span class="tag is-light uide-numeric">#{{ data.jugador.numero_camiseta }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ data.jugador.posicion|default:"—" }}</td>
+            <td class="uide-numeric">{{ data.jugador.edad|default:"—" }}</td>
+            <td class="uide-cell-muted">
+              {% include "comun/_resumen_estadisticas.html" with stats=data.stats deporte=data.deporte_nombre %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="uide-empty-cell">
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-equipos"></use></svg>
+                </span>
+                <p class="uide-empty__title">Este equipo no tiene jugadores</p>
+                <p class="uide-empty__text">
+                  {% if is_jugador_view %}
+                    El delegado de tu carrera es quien inscribe a los jugadores del equipo.
+                  {% elif equipo.aprobado %}
+                    Añade a los jugadores de tu carrera para completar el plantel.
+                  {% else %}
+                    Podrás añadir jugadores cuando el equipo quede aprobado.
+                  {% endif %}
+                </p>
+                {% if not is_jugador_view and equipo.aprobado %}
+                  <div class="uide-empty__actions">
+                    <a class="button is-primary" href="{% url 'listar_jugadores_para_equipo' %}">
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
+                      <span>Añadir jugadores</span>
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if jugadores_data and not is_jugador_view and equipo.aprobado %}
+    <div class="uide-toolbar mt-4">
+      <a class="button is-primary" href="{% url 'listar_jugadores_para_equipo' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
+        <span>Añadir jugadores</span>
+      </a>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

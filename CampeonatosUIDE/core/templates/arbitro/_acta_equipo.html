@@ -1,0 +1,82 @@
+{% comment %}
+  Tabla de estadísticas por jugador de un equipo dentro del acta.
+
+  Se incluye dos veces (local y visitante) para no duplicar el markup y
+  sin tocar el contexto que ya envía la vista (filas_local / filas_vis).
+
+  Parámetros: equipo_nombre, filas, lado ("local" | "visitante").
+{% endcomment %}
+<div class="uide-panel mb-4">
+  <div class="uide-panel__head">
+    <h3 class="uide-panel__title">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>
+      {{ equipo_nombre }}
+    </h3>
+    <p class="help is-danger" id="aviso-{{ lado }}" role="status" aria-live="polite" hidden>
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg>
+      <span>La suma de goles no coincide con el marcador.</span>
+    </p>
+  </div>
+  <div class="uide-panel__body--flush">
+    <table class="table is-fullwidth" id="tabla-{{ lado }}">
+      <thead>
+        <tr>
+          <th scope="col">Jugador</th>
+          <th scope="col">Goles</th>
+          <th scope="col">Amarillas</th>
+          <th scope="col">Roja</th>
+          <th scope="col">Suspensión</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for j, goles, ama, roja, susp, susp_ini, susp_fin, susp_mot in filas %}
+          <tr>
+            <td class="uide-cell-strong">
+              {{ j.usuario.get_full_name|default:j.usuario.username }}
+              {% if j.numero_camiseta %}
+                <span class="uide-cell-muted">#{{ j.numero_camiseta }}</span>
+              {% endif %}
+            </td>
+            <td>{{ goles }}</td>
+            <td>{{ ama }}</td>
+            <td>{{ roja }}</td>
+            <td>
+              <label class="checkbox uide-with-icon">
+                {{ susp }}
+                <span>Suspender</span>
+              </label>
+              <div class="uide-susp" hidden>
+                <div class="field">
+                  <label class="label is-small" for="{{ susp_ini.id_for_label }}">Desde</label>
+                  {{ susp_ini }}
+                </div>
+                <div class="field">
+                  <label class="label is-small" for="{{ susp_fin.id_for_label }}">Hasta</label>
+                  {{ susp_fin }}
+                </div>
+                <div class="field">
+                  <label class="label is-small" for="{{ susp_mot.id_for_label }}">Motivo</label>
+                  {{ susp_mot }}
+                </div>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="uide-empty-cell">
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-equipos"></use></svg>
+                </span>
+                <p class="uide-empty__title">Este equipo no tiene jugadores inscritos</p>
+                <p class="uide-empty__text">
+                  Puedes registrar el marcador, pero no habrá estadísticas por jugador.
+                </p>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
