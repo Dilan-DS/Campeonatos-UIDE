@@ -37,7 +37,7 @@
             <strong>Errores del formulario:</strong>
             <ul>
                 {% for campo, lista in errores_json.items %}
-                <li><b>{{ campo }}</b>: 
+                <li><b>{{ campo }}</b>:
                     {% for err in lista %}
                         {{ err.message }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
