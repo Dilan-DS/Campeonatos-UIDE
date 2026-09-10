@@ -52,7 +52,7 @@
                     {% elif field.name == "reglamento" %}
                       <div class="file has-name is-fullwidth">
                         {{ field|add_class:"file-input" }}
-                        <label class="file-label">
+                        <label class="file-label" for="{{ field.id_for_label }}">
                           <span class="file-cta">
                             <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> </span>
                             <span class="file-label">Seleccionar archivo</span>
