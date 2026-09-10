@@ -23,8 +23,8 @@
                 {% if pago.codigo_qr %}
                     <p><strong>Banco (QR):</strong> {{ pago.codigo_qr.banco }}</p>
                 {% endif %}
-                <p><strong>Estado:</strong> 
-                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+                <p><strong>Estado:</strong>
+                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif 'RECHAZADO' %}danger{% else %}warning{% endif %}">
                         {{ pago.get_estado_display }}
                     </span>
                 </p>
@@ -46,9 +46,9 @@
                 <form method="POST" action="{% url 'aprobar_pago_admin' pago.pk %}" class="mb-3">
                     {% csrf_token %}
                     <div class="field">
-                        <label class="label">Observaciones (Opcional):</label>
+                        <label class="label" for="obs-aprobar">Observaciones (opcional)</label>
                         <div class="control">
-                            <textarea class="textarea" name="observacion_admin" placeholder="Añadir observaciones al aprobar"></textarea>
+                            <textarea class="textarea" id="obs-aprobar" name="observacion_admin" placeholder="Motivo o comentario de la aprobación"></textarea>
                         </div>
                     </div>
                     <div class="control">
@@ -59,9 +59,9 @@
                 <form method="POST" action="{% url 'rechazar_pago_admin' pago.pk %}">
                     {% csrf_token %}
                     <div class="field">
-                        <label class="label">Observaciones (Opcional):</label>
+                        <label class="label" for="obs-rechazar">Motivo del rechazo</label>
                         <div class="control">
-                            <textarea class="textarea" name="observacion_admin" placeholder="Añadir observaciones al rechazar"></textarea>
+                            <textarea class="textarea" id="obs-rechazar" name="observacion_admin" placeholder="Explica al delegado qué debe corregir"></textarea>
                         </div>
                     </div>
                     <div class="control">
@@ -83,7 +83,7 @@
 
             <div class="has-text-centered mt-5">
                 <a href="{% url 'listar_pagos_admin' %}" class="button is-light is-rounded">
-                    ← Volver a Pagos
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
                 </a>
             </div>
         </div>

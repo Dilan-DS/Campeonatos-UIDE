@@ -12,7 +12,7 @@
           <div class="level-left">
             <div class="level-item">
               <a href="{% url 'listar_transmisiones' %}" class="button is-light">
-                ← Volver al listado
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
               </a>
             </div>
           </div>
@@ -33,9 +33,9 @@
         <div class="card" style="border-radius: 16px; overflow: hidden;">
           <header class="card-header has-background-link-light">
             <p class="card-header-title">
-              {% if solo_lectura %}👁️ Ver transmisión
-              {% elif es_edicion %}✏️ Editar transmisión
-              {% else %}📡 Registrar transmisión{% endif %}
+              {% if solo_lectura %}<svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> Ver transmisión
+              {% elif es_edicion %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar transmisión
+              {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Registrar transmisión{% endif %}
             </p>
           </header>
 
@@ -55,7 +55,7 @@
               {% if solo_lectura %}<fieldset disabled style="opacity:.85;">{% endif %}
                 {% for field in form.visible_fields %}
                   <div class="field">
-                    <label class="label">{{ field.label }}</label>
+                    <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     <div class="control">
                       {{ field }}
                     </div>
@@ -95,7 +95,7 @@
                     onsubmit="return confirm('¿Eliminar esta transmisión?');">
                 {% csrf_token %}
                 <button type="submit" class="button is-danger is-outlined">
-                  🗑️ Eliminar
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar
                 </button>
               </form>
             </div>

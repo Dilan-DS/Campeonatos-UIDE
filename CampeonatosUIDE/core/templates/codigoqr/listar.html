@@ -12,7 +12,9 @@
       <form method="get" class="mb-5">
         <div class="field has-addons">
           <div class="control is-expanded">
-            <input type="text" name="q" class="input" placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
+            <label class="uide-sr-only" for="buscar-qr">Buscar códigos QR</label>
+            <input type="search" id="buscar-qr" name="q" class="input"
+                   placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
           </div>
           <div class="control">
             <button class="button is-info" type="submit">Buscar</button>
@@ -30,7 +32,7 @@
 
       <div class="mb-4">
         <a href="{% url 'registrar_codigo_qr' %}" class="button is-primary">
-          <i class="fas fa-plus mr-2"></i> Nuevo Código QR
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Nuevo Código QR
         </a>
       </div>
 

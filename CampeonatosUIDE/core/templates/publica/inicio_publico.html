@@ -1,332 +1,318 @@
 {% extends "comun/base.html" %}
 {% load static %}
 
-{% block title %}Campeonatos UIDE — Inicio{% endblock %}
+{% comment %}
+  Portada pública.
+
+  Se retiró el <style> propio (~95 líneas): degradado salmón/naranja
+  (#ff7aa0 → #ffd86f), burbujas animadas, cinco tonos pastel distintos
+  para las seis tarjetas y títulos rosa (#ff6685) que quedaban en 2.6:1
+  sobre su propio fondo, por debajo del mínimo AA para texto grande.
+
+  Ahora las seis tarjetas comparten un único tratamiento y el granate
+  institucional marca la jerarquía.
+
+  Corrección de datos: las noticias mostraban n.fecha_publicacion, campo
+  renombrado a creado_en por la migración 0003, así que la fecha nunca
+  aparecía. Los estados vacíos explican qué falta en lugar de decir
+  sólo "No hay".
+{% endcomment %}
+
+{% block title %}Campeonatos UIDE Loja{% endblock %}
+{% block meta_description %}Calendarios, resultados y tablas de posiciones de los campeonatos deportivos internos de la UIDE Loja.{% endblock %}
 
 {% block content %}
 
-<style>
-  :root{
-    --radius-lg: 16px;
-    --radius-xl: 22px;
-    --shadow-sm: 0 8px 20px rgba(15, 23, 42, .08);
-    --shadow-md: 0 14px 34px rgba(15, 23, 42, .14);
-    --grad-hero: linear-gradient(135deg,#ff7aa0 0%,#ff9f68 45%,#ffd86f 100%);
-    --grad-chip: linear-gradient(90deg,#6157ff,#ee49fd);
-  }
-
-  /* HERO */
-  .dashboard-hero{
-    background: var(--grad-hero);
-    color:#fff;
-    padding: 3.75rem 0 3rem;
-    position:relative;
-    overflow:hidden;
-  }
-  .dashboard-hero .logo{
-    width:96px;height:96px;border-radius:20px;background:#fff;
-    box-shadow: var(--shadow-sm);
-    object-fit:contain;
-  }
-  .hero-bubble{
-    position:absolute; border-radius:50%; opacity:.18; filter: blur(2px);
-    animation: float 12s ease-in-out infinite;
-  }
-  .hero-bubble.b1{ width:160px;height:160px; background:#fff; left:8%; top:6%; }
-  .hero-bubble.b2{ width:240px;height:240px; background:#000; right:-80px; bottom:-80px; opacity:.08;}
-  @keyframes float{ 0%{transform:translateY(0)} 50%{transform:translateY(-10px)} 100%{transform:translateY(0)} }
-
-  /* CARDS */
-  .info-card{
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-sm);
-    background:#fff;
-    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
-    height:100%;
-  }
-  .info-card:hover{ transform: translateY(-6px); box-shadow: var(--shadow-md); filter:saturate(1.03); }
-  .card-head{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:.75rem;
-  }
-  .card-head .title{ margin:0; }
-  .see-all{
-    font-weight:700; font-size:.85rem; opacity:.9;
-  }
-
-  /* CHIPS / BADGES */
-  .chip{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.4rem .75rem; border-radius:999px;
-    background:#ffffff; color:#0f172a; font-weight:700;
-    border:1px solid rgba(255,255,255,.55);
-    box-shadow:0 6px 16px rgba(255,255,255,.15) inset;
-  }
-  .chip-grad{
-    background: var(--grad-chip);
-    color:#fff; border-color: transparent;
-  }
-
-  /* TONOS */
-  .card--warn{    background: #fff7e6; }
-  .card--info{    background: #eef7ff; }
-  .card--neutral{ background:#f7f7f9; }
-  .card--primary{ background:#e8fbff; }
-  .card--success{ background:#e8fff4; }
-
-  /* LISTA COMPACTA */
-  .list-compact > li{ padding:.5rem 0; border-bottom:1px dashed rgba(0,0,0,.06); }
-  .list-compact > li:last-child{ border-bottom:0; }
-
-  /* GALERÍA */
-  .galeria-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:.75rem; }
-  @media(min-width:1024px){ .galeria-grid{ grid-template-columns: repeat(3,1fr); } }
-  .thumb{
-    position:relative; overflow:hidden; border-radius:14px; background:#fff;
-    box-shadow: 0 6px 14px rgba(17,24,39,.06);
-  }
-  .thumb img{ width:100%; height:100%; aspect-ratio: 4/3; object-fit:cover; transition: transform .25s ease; }
-  .thumb:hover img{ transform: scale(1.03); }
-
-  /* UTILIDADES */
-  .mt-2{ margin-top:.5rem; } .mb-2{ margin-bottom:.5rem; }
-  .mb-3{ margin-bottom:1rem; } .mt-3{ margin-top:1rem; }
-  .truncate-1{ display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
-  .truncate-2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .soft-border{ border-radius: var(--radius-lg); }
-
-  /* Botones sociales */
-  .btn-social{ box-shadow: 0 8px 18px rgba(17,24,39,.08); transition: transform .15s ease; }
-  .btn-social:hover{ transform: translateY(-2px); }
-</style>
-
-<!-- HERO -->
-<section class="dashboard-hero">
-  <span class="hero-bubble b1" aria-hidden="true"></span>
-  <span class="hero-bubble b2" aria-hidden="true"></span>
-  <div class="container has-text-centered">
-    <figure class="image is-inline-block mb-3" aria-hidden="true">
-      <img class="logo" src="{% static 'img/logo.png' %}" alt="Logo UIDE">
-    </figure>
-    <h1 class="title is-2 is-size-3-mobile">¡Bienvenidos a la UIDE! 🎓</h1>
-    <p class="subtitle is-5 is-size-6-mobile">
-      Anima a tu equipo favorito y vibra con los campeonatos universitarios.
+<section class="uide-hero">
+  <div class="uide-hero__inner">
+    <img class="uide-hero__logo" src="{% static 'img/logo.png' %}" alt="UIDE Loja">
+    <h1>Campeonatos internos UIDE Loja</h1>
+    <p class="uide-hero__lead">
+      Calendarios, resultados y tablas de posiciones de las competencias entre carreras.
     </p>
-    <div class="is-flex is-justify-content-center is-align-items-center mt-2" role="group" aria-label="Estado del sitio">
-      <span class="chip">🏟️ Público</span>
-      <span class="chip chip-grad ml-2">🔥 Activo</span>
+    <div class="uide-hero__actions">
+      <a class="button is-light" href="{% url 'campeonatos_publicos' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+        <span>Ver campeonatos</span>
+      </a>
+      <a class="button is-outline" href="{% url 'resultados_publicos' %}">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        <span>Últimos resultados</span>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- DASHBOARD -->
-<section class="section">
-  <div class="container">
-    <div class="columns is-multiline is-variable is-6">
+<div class="container uide-container mt-6">
+  <div class="uide-feed">
 
-      <!-- CAMPEONATOS ACTIVOS -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="info-card card--warn p-4">
-          <div class="card-head">
-            <h2 class="title is-5 has-text-danger">🏆 Campeonatos activos</h2>
-            <a class="see-all has-text-weight-semibold" href="{% url 'campeonatos_publicos' %}">Ver todo</a>
-          </div>
-
-          <ul class="list-compact">
-            {% for campeonato in campeonatos %}
-              <li>
-                <p class="truncate-1 has-text-weight-semibold">{{ campeonato.nombre }}</p>
-                <p class="is-size-7">
-                  Inicio: {{ campeonato.fecha_inicio|date:"d/m/Y" }}
-                  · Fin: {{ campeonato.fecha_fin|date:"d/m/Y" }}
-                  {% if campeonato.deporte %} · <span class="has-text-grey">{{ campeonato.deporte.nombre }}</span>{% endif %}
-                </p>
-                <div class="buttons mt-2">
-                  <a class="button is-link is-light is-small"
-                     href="{% url 'tabla_estadisticas' campeonato.id %}">
-                    Tabla de posiciones
-                  </a>
-                  <a class="button is-dark is-light is-small"
-                     href="{% url 'campeonatos_publicos' %}">
-                    Ver campeonatos
-                  </a>
-                </div>
-              </li>
-            {% empty %}
-              <li>No hay campeonatos activos.</li>
-            {% endfor %}
-          </ul>
-        </div>
+    {# --- Campeonatos activos --- #}
+    <div class="uide-feed__card">
+      <div class="uide-feed__head">
+        <h2 class="uide-feed__title">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+          Campeonatos activos
+        </h2>
+        <a class="see-all" href="{% url 'campeonatos_publicos' %}">Ver todo</a>
       </div>
+      <div class="uide-feed__body">
+        <ul class="uide-feed__list">
+          {% for campeonato in campeonatos %}
+            <li>
+              <p class="uide-feed__item-title">{{ campeonato.nombre }}</p>
+              <p class="uide-feed__meta">
+                {% if campeonato.deporte %}<span>{{ campeonato.deporte.nombre }}</span>{% endif %}
+                <span class="uide-with-icon">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+                  {{ campeonato.fecha_inicio|date:"d M Y" }} – {{ campeonato.fecha_fin|date:"d M Y" }}
+                </span>
+              </p>
+              <p class="mt-2">
+                <a class="button is-small is-light" href="{% url 'tabla_estadisticas' campeonato.id %}">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+                  <span>Tabla de posiciones</span>
+                </a>
+              </p>
+            </li>
+          {% empty %}
+            <li>
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+                </span>
+                <p class="uide-empty__title">Sin campeonatos en curso</p>
+                <p class="uide-empty__text">Cuando se abra una nueva convocatoria aparecerá aquí.</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
 
-      <!-- PRÓXIMOS PARTIDOS -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="info-card card--info p-4">
-          <div class="card-head">
-            <h2 class="title is-5 has-text-link">📅 Próximos partidos</h2>
-            <a class="see-all" href="{% url 'listar_partidos' %}">Ver todo</a>
-          </div>
-          <ul class="list-compact">
-            {% for partido in proximos_partidos %}
-              <li>
-                <p class="truncate-2">
-                  <strong>{{ partido.equipo_local.nombre }}</strong> vs
-                  <strong>{{ partido.equipo_visitante.nombre }}</strong>
-                  {% if partido.campeonato and partido.campeonato.deporte %}
-                    — <span class="has-text-grey">{{ partido.campeonato.deporte.nombre }}</span>
-                  {% endif %}
-                </p>
-                <p class="is-size-7">⏰ {{ partido.fecha|date:"d/m/Y" }} · {{ partido.hora|time:"H:i" }}</p>
+    {# --- Próximos partidos --- #}
+    <div class="uide-feed__card">
+      <div class="uide-feed__head">
+        <h2 class="uide-feed__title">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+          Próximos partidos
+        </h2>
+        <a class="see-all" href="{% url 'campeonatos_publicos' %}">Ver todo</a>
+      </div>
+      <div class="uide-feed__body">
+        <ul class="uide-feed__list">
+          {% for partido in proximos_partidos %}
+            <li>
+              <p class="uide-feed__item-title">
+                {{ partido.equipo_local.nombre }} <span class="has-text-grey">vs</span> {{ partido.equipo_visitante.nombre }}
+              </p>
+              <p class="uide-feed__meta">
+                <span class="uide-with-icon">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+                  {{ partido.fecha|date:"d M" }}
+                </span>
+                <span class="uide-with-icon">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-reloj"></use></svg>
+                  {{ partido.hora|time:"H:i" }}
+                </span>
                 {% if partido.lugar %}
-                  <p class="is-size-7">📍 {{ partido.lugar }}</p>
+                  <span class="uide-with-icon">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-lugar"></use></svg>
+                    {{ partido.lugar }}
+                  </span>
                 {% endif %}
-              </li>
-            {% empty %}
-              <li>No hay partidos programados.</li>
-            {% endfor %}
-          </ul>
-        </div>
+              </p>
+            </li>
+          {% empty %}
+            <li>
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-calendario"></use></svg>
+                </span>
+                <p class="uide-empty__title">Sin partidos programados</p>
+                <p class="uide-empty__text">
+                  El calendario se publica cuando se genera el fixture del campeonato.
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
+    </div>
 
-      <!-- TRANSMISIONES -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="info-card card--neutral p-4">
-          <div class="card-head">
-            <h2 class="title is-5">🎥 Transmisiones</h2>
-            <a class="see-all" href="{% url 'listar_transmisiones' %}">Ver todo</a>
-          </div>
-          <ul class="list-compact">
-            {% for t in transmisiones %}
-              <li class="is-flex is-justify-content-space-between is-align-items-center">
-                <div class="pr-3">
-                  <p class="truncate-1 has-text-weight-semibold">
-                    {% if t.nombre %}{{ t.nombre }}{% else %}Transmisión{% endif %}
-                  </p>
-                  {% if t.descripcion %}
-                    <p class="is-size-7 truncate-1 has-text-grey">{{ t.descripcion }}</p>
-                  {% endif %}
-                </div>
-                {% if t.enlace %}
-                  <a class="button is-dark is-light is-small"
-                     href="{{ t.enlace }}" target="_blank" rel="noopener">
-                    Ver
-                  </a>
-                {% elif t.url %}
-                  <a class="button is-dark is-light is-small"
-                     href="{{ t.url }}" target="_blank" rel="noopener">
-                    Ver
-                  </a>
+    {# --- Transmisiones --- #}
+    <div class="uide-feed__card">
+      <div class="uide-feed__head">
+        <h2 class="uide-feed__title">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>
+          Transmisiones
+        </h2>
+        <a class="see-all" href="{% url 'listar_transmisiones' %}">Ver todo</a>
+      </div>
+      <div class="uide-feed__body">
+        <ul class="uide-feed__list">
+          {% for t in transmisiones %}
+            <li>
+              <p class="uide-feed__item-title uide-clamp-1">
+                {% if t.partido %}
+                  {{ t.partido.equipo_local.nombre }} vs {{ t.partido.equipo_visitante.nombre }}
+                {% else %}
+                  Transmisión
                 {% endif %}
-              </li>
-            {% empty %}
-              <li>No hay transmisiones disponibles.</li>
-            {% endfor %}
-          </ul>
-        </div>
+              </p>
+              {% if t.descripcion %}
+                <p class="uide-feed__meta uide-clamp-1">{{ t.descripcion }}</p>
+              {% endif %}
+              {% if t.enlace %}
+                <p class="mt-2">
+                  <a class="button is-small is-light" href="{{ t.enlace }}" target="_blank" rel="noopener">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>
+                    <span>Ver en vivo</span>
+                  </a>
+                </p>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li>
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-transmision"></use></svg>
+                </span>
+                <p class="uide-empty__title">Nada en vivo ahora</p>
+                <p class="uide-empty__text">Aquí verás los enlaces cuando haya partidos transmitidos.</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
+    </div>
 
-      <!-- GALERÍA -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="info-card card--primary p-4">
-          <div class="card-head">
-            <h2 class="title is-5">📸 Galería</h2>
-            <a class="see-all" href="{% url 'listar_imagenes_galeria' %}">Ver todo</a>
-          </div>
-
-          <div class="galeria-grid" role="list">
+    {# --- Galería --- #}
+    <div class="uide-feed__card">
+      <div class="uide-feed__head">
+        <h2 class="uide-feed__title">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>
+          Galería
+        </h2>
+        <a class="see-all" href="{% url 'listar_imagenes_galeria' %}">Ver todo</a>
+      </div>
+      <div class="uide-feed__body">
+        {% if imagenes_galeria %}
+          <div class="uide-thumbs">
             {% for imagen in imagenes_galeria %}
-              <a class="thumb" href="{% url 'listar_imagenes_galeria' %}" aria-label="Ver galería" role="listitem">
+              <a href="{% url 'listar_imagenes_galeria' %}">
                 {% if imagen.imagen %}
                   <img src="{{ imagen.imagen.url }}" loading="lazy"
-                       alt="{{ imagen.titulo|default:'Imagen de galería' }}">
-                {% elif imagen.url %}
-                  <img src="{{ imagen.url }}" loading="lazy"
-                       alt="{{ imagen.titulo|default:'Imagen de galería' }}"
-                       data-fallback="{% static 'img/logo.png' %}"
-                       onerror="this.onerror=null; this.src=this.dataset.fallback;">
+                       alt="{{ imagen.titulo|default:'Imagen de la galería' }}">
                 {% else %}
-                  <img src="{% static 'img/logo.png' %}" loading="lazy"
-                       alt="Imagen de galería">
+                  <img src="{% static 'img/logo.png' %}" loading="lazy" alt="">
                 {% endif %}
               </a>
-            {% empty %}
-              <p class="mb-0">No hay imágenes.</p>
             {% endfor %}
           </div>
-        </div>
-      </div>
-
-      <!-- NOTICIAS -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="info-card p-4">
-          <div class="card-head">
-            <h2 class="title is-5 has-text-danger">📰 Noticias</h2>
-            <a class="see-all" href="{% url 'listar_noticias' %}">Ver todo</a>
+        {% else %}
+          <div class="uide-empty">
+            <span class="uide-empty__icon">
+              <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-imagen"></use></svg>
+            </span>
+            <p class="uide-empty__title">Galería vacía</p>
+            <p class="uide-empty__text">Las fotos de los partidos se publican al terminar cada jornada.</p>
           </div>
-
-          <ul class="list-compact">
-            {% for n in noticias %}
-              <li>
-                <p class="truncate-1 has-text-weight-semibold">{{ n.titulo }}</p>
-                {% if n.contenido %}
-                  <p class="is-size-7 truncate-2 has-text-grey">{{ n.contenido|striptags|truncatechars:120 }}</p>
-                {% endif %}
-                {% if n.fecha_publicacion %}
-                  <small class="is-size-7">📅 {{ n.fecha_publicacion|date:"d/m/Y" }}</small>
-                {% endif %}
-              </li>
-            {% empty %}
-              <li>No hay noticias por el momento.</li>
-            {% endfor %}
-          </ul>
-        </div>
+        {% endif %}
       </div>
-
-      <!-- TESTIMONIOS -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="info-card card--success p-4">
-          <div class="card-head">
-            <h2 class="title is-5">💬 Testimonios</h2>
-            <a class="see-all" href="{% url 'listar_testimonios' %}">Ver todo</a>
-          </div>
-
-          <ul class="list-compact">
-            {% for t in testimonios %}
-              <li>
-                {% if t.contenido %}
-                  <p class="truncate-2">“{{ t.contenido }}”</p>
-                {% elif t.texto %}
-                  <p class="truncate-2">“{{ t.texto }}”</p>
-                {% endif %}
-                {% if t.autor %}<p class="is-size-7 has-text-weight-semibold">– {{ t.autor }}</p>{% endif %}
-              </li>
-            {% empty %}
-              <li>No hay testimonios aún.</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-
     </div>
-  </div>
-</section>
 
-<!-- REDES -->
-<section class="section">
-  <div class="container has-text-centered">
-    <h2 class="title is-5">📱 Síguenos</h2>
-    <div class="buttons is-centered">
-      <a href="https://instagram.com/uide" class="button is-danger is-light btn-social" target="_blank" rel="noopener">
-        <span class="icon"><i class="fab fa-instagram" aria-hidden="true"></i></span><span>Instagram</span>
-      </a>
-      <a href="https://facebook.com/uide" class="button is-link is-light btn-social" target="_blank" rel="noopener">
-        <span class="icon"><i class="fab fa-facebook" aria-hidden="true"></i></span><span>Facebook</span>
-      </a>
-      <a href="https://youtube.com/uide" class="button is-dark is-light btn-social" target="_blank" rel="noopener">
-        <span class="icon"><i class="fab fa-youtube" aria-hidden="true"></i></span><span>YouTube</span>
-      </a>
+    {# --- Noticias --- #}
+    <div class="uide-feed__card">
+      <div class="uide-feed__head">
+        <h2 class="uide-feed__title">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg>
+          Noticias
+        </h2>
+        <a class="see-all" href="{% url 'listar_noticias' %}">Ver todo</a>
+      </div>
+      <div class="uide-feed__body">
+        <ul class="uide-feed__list">
+          {% for n in noticias %}
+            <li>
+              <p class="uide-feed__item-title uide-clamp-2">{{ n.titulo }}</p>
+              {% if n.contenido %}
+                <p class="uide-feed__meta uide-clamp-2">{{ n.contenido|striptags|truncatechars:120 }}</p>
+              {% endif %}
+              {% if n.creado_en %}
+                <p class="uide-feed__meta mt-1">
+                  <span class="uide-with-icon">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+                    {{ n.creado_en|date:"d M Y" }}
+                  </span>
+                </p>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li>
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-noticia"></use></svg>
+                </span>
+                <p class="uide-empty__title">Sin noticias</p>
+                <p class="uide-empty__text">Los anuncios de Bienestar Estudiantil aparecerán aquí.</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-  </div>
-</section>
 
+    {# --- Testimonios --- #}
+    <div class="uide-feed__card">
+      <div class="uide-feed__head">
+        <h2 class="uide-feed__title">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-testimonio"></use></svg>
+          Testimonios
+        </h2>
+        <a class="see-all" href="{% url 'listar_testimonios' %}">Ver todo</a>
+      </div>
+      <div class="uide-feed__body">
+        <ul class="uide-feed__list">
+          {% for t in testimonios %}
+            <li>
+              <blockquote class="uide-quote">
+                <p class="uide-clamp-2">{{ t.contenido }}</p>
+                {% if t.autor %}<footer>{{ t.autor }}</footer>{% endif %}
+              </blockquote>
+            </li>
+          {% empty %}
+            <li>
+              <div class="uide-empty">
+                <span class="uide-empty__icon">
+                  <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-testimonio"></use></svg>
+                </span>
+                <p class="uide-empty__title">Sin testimonios</p>
+                <p class="uide-empty__text">Pronto compartiremos experiencias de jugadores y delegados.</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  {# --- Redes --- #}
+  <h2 class="uide-section-title">Síguenos</h2>
+  <div class="uide-toolbar">
+    <a class="button is-light" href="https://instagram.com/uide" target="_blank" rel="noopener">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-instagram"></use></svg>
+      <span>Instagram</span>
+    </a>
+    <a class="button is-light" href="https://facebook.com/uide" target="_blank" rel="noopener">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-facebook"></use></svg>
+      <span>Facebook</span>
+    </a>
+    <a class="button is-light" href="https://youtube.com/uide" target="_blank" rel="noopener">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-youtube"></use></svg>
+      <span>YouTube</span>
+    </a>
+  </div>
+
+</div>
 {% endblock %}

@@ -5,7 +5,12 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from core.forms import *
 
-from core.models import Usuario, Equipo, Jugador, Campeonato, Partido
+from core.models import (
+    Usuario, Equipo, Jugador, Campeonato, Partido,
+    # Arbitro y EstadisticaJugadorFutbol se usaban sin importar: las vistas de
+    # gestión de árbitros y de exportación fallaban con NameError.
+    Arbitro, EstadisticaJugadorFutbol, Pago,
+)
 from django.http import HttpResponse
 from openpyxl import Workbook
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
@@ -23,8 +28,21 @@ def es_admin(user):
 @user_passes_test(es_admin)
 # función para el dashboard del administrador
 def admin_dashboard(request):
-    # Renderiza la plantilla 'admin.html' para el dashboard del administrador
-    return render(request, 'dashboard/admin.html')
+    # La plantilla se renderizaba sin contexto: las cuatro métricas mostraban
+    # un guion y la tarjeta de fixture decía siempre "Aún no disponible".
+    return render(request, 'dashboard/admin.html', {
+        'kpi_usuarios': Usuario.objects.count(),
+        'kpi_campeonatos': Campeonato.objects.filter(activo='SI').count(),
+        'kpi_equipos': Equipo.objects.count(),
+        'kpi_arbitros': Arbitro.objects.filter(estado=True).count(),
+        'kpi_pagos_pendientes': Pago.objects.filter(estado='PENDIENTE').count(),
+        'campeonato': (
+            Campeonato.objects
+            .filter(activo='SI')
+            .order_by('-fecha_inicio')
+            .first()
+        ),
+    })
 
 @login_required
 @user_passes_test(es_admin)
@@ -162,7 +180,6 @@ class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
                 return redirect('listar_arbitros')
             else:
                 errores_json = form.errors.get_json_data()
-                print('FORM ERRORS JSON =>', errores_json)
                 messages.error(request, 'Revisa los errores del formulario.')
             modo = 'editar'
         else: # Create new
@@ -173,7 +190,6 @@ class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
                 return redirect('listar_arbitros')
             else:
                 errores_json = form.errors.get_json_data()
-                print('FORM ERRORS JSON =>', errores_json)
                 messages.error(request, 'Revisa los errores del formulario.')
             modo = 'crear'
 
@@ -213,12 +229,6 @@ def eliminar_usuario(request, usuario_id):
 
 @login_required
 @user_passes_test(es_admin)
-def generar_calendario(request, campeonato_id):
-    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
-    return render(request, 'campeonato/generar_calendario.html', {'campeonato': campeonato})
-
-@login_required
-@user_passes_test(es_admin)
 def exportar_estadisticas_pdf(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="estadisticas.pdf"'
@@ -226,9 +236,14 @@ def exportar_estadisticas_pdf(request):
     doc = SimpleDocTemplate(response, pagesize=A4)
     elements = []
 
-    data = [['Jugador', 'Goles', 'Asistencias']]
-    for stat in EstadisticaJugadorFutbol.objects.all():
-        data.append([str(stat.jugador), stat.goles, stat.asistencias])
+    data = [['Jugador', 'Campeonato', 'PJ', 'Goles', 'Amarillas', 'Rojas']]
+    for stat in (EstadisticaJugadorFutbol.objects
+                 .select_related('jugador__usuario', 'campeonato')
+                 .order_by('-goles', 'jugador__usuario__username')):
+        data.append([
+            str(stat.jugador), str(stat.campeonato), stat.partidos_jugados,
+            stat.goles, stat.tarjetas_amarillas, stat.tarjetas_rojas,
+        ])
 
     table = Table(data)
     table.setStyle(TableStyle([
@@ -254,10 +269,15 @@ def exportar_estadisticas_excel(request):
     sheet = workbook.active
     sheet.title = "Estadísticas de Fútbol"
 
-    sheet.append(['Jugador', 'Goles', 'Asistencias'])
+    sheet.append(['Jugador', 'Campeonato', 'PJ', 'Goles', 'Amarillas', 'Rojas'])
 
-    for stat in EstadisticaJugadorFutbol.objects.all():
-        sheet.append([str(stat.jugador), stat.goles, stat.asistencias])
+    for stat in (EstadisticaJugadorFutbol.objects
+                 .select_related('jugador__usuario', 'campeonato')
+                 .order_by('-goles', 'jugador__usuario__username')):
+        sheet.append([
+            str(stat.jugador), str(stat.campeonato), stat.partidos_jugados,
+            stat.goles, stat.tarjetas_amarillas, stat.tarjetas_rojas,
+        ])
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="estadisticas.xlsx"'

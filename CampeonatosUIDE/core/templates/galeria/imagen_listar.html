@@ -10,7 +10,7 @@
     <!-- Botón subir imagen -->
     <div class="has-text-right mb-5">
       <a href="{% url 'registrar_imagen_galeria' %}" class="button is-primary">
-        <span class="icon"><i class="fas fa-plus"></i></span>
+        <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
         <span>Subir Imagen</span>
       </a>
     </div>
@@ -36,10 +36,10 @@
           </div>
           <footer class="card-footer">
             <a href="{% url 'editar_imagen_galeria' imagen.id %}" class="card-footer-item has-text-info">
-              <span class="icon"><i class="fas fa-edit"></i></span>&nbsp;Editar
+              <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg></span>&nbsp;Editar
             </a>
             <a href="{% url 'eliminar_imagen_galeria' imagen.id %}" class="card-footer-item has-text-danger">
-              <span class="icon"><i class="fas fa-trash"></i></span>&nbsp;Eliminar
+              <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg></span>&nbsp;Eliminar
             </a>
           </footer>
         </div>

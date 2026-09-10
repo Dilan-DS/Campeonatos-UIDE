@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
+from core.utils.tabla_posiciones import calcular_tabla_posiciones
 from core.models import (
     Jugador,
     Partido,
@@ -223,72 +224,42 @@ def ver_mis_partidos(request):
 @login_required
 @user_passes_test(es_jugador)
 def tabla_estadisticas(request, campeonato_id):
+    """Tabla de posiciones resaltando el equipo del jugador.
+
+    Esta vista sombrea a la homónima de estadisticas_views (core/views/
+    __init__.py importa jugador_views después), así que es la que resuelve
+    la ruta 'tabla_estadisticas'. Recorría los partidos equipo por equipo
+    para acumular las cifras pero nunca llegaba a construir la tabla:
+    referenciaba `tabla_ordenada`, que no existía, y la ruta respondía
+    NameError.
+
+    Ahora reutiliza calcular_tabla_posiciones -- el mismo cálculo que usan
+    las otras tablas, con dos consultas en lugar de dos por equipo -- y
+    sólo añade la posición del equipo del jugador.
+    """
     campeonato = get_object_or_404(Campeonato, id=campeonato_id)
-    
-    try:
-        jugador = Jugador.objects.get(usuario=request.user)
+
+    equipo_jugador = None
+    jugador = Jugador.objects.filter(usuario=request.user).select_related('equipo').first()
+    if jugador:
         equipo_jugador = jugador.equipo
-    except Jugador.DoesNotExist:
-        equipo_jugador = None
-        messages.warning(request, "No se encontró tu perfil de jugador. No se podrá resaltar tu equipo.")
+    elif getattr(request.user, 'rol', '') == 'JUGADOR':
+        messages.warning(request, "No encontramos tu perfil de jugador, así que no podemos resaltar tu equipo.")
 
-    equipos = Equipo.objects.filter(campeonato=campeonato, aprobado=True)
+    tabla_ordenada = calcular_tabla_posiciones(campeonato)
 
-    tabla = []
-    for equipo in equipos:
-        pj = 0  # Partidos Jugados
-        pg = 0  # Partidos Ganados
-        pe = 0  # Partidos Empatados
-        pp = 0  # Partidos Perdidos
-        gf = 0  # Goles a Favor
-        gc = 0  # Goles en Contra
-        puntos = 0
-
-        # Partidos como local
-        partidos_local = Partido.objects.filter(
-            campeonato=campeonato,
-            equipo_local=equipo,
-            estado='FINALIZADO'
-        )
-        for p in partidos_local:
-            pj += 1
-            gf += p.resultado_local
-            gc += p.resultado_visitante
-            if p.resultado_local > p.resultado_visitante:
-                pg += 1
-                puntos += 3
-            elif p.resultado_local == p.resultado_visitante:
-                pe += 1
-                puntos += 1
-            else:
-                pp += 1
-
-        # Partidos como visitante
-        partidos_visitante = Partido.objects.filter(
-            campeonato=campeonato,
-            equipo_visitante=equipo,
-            estado='FINALIZADO'
-        )
-        for p in partidos_visitante:
-            pj += 1
-            gf += p.resultado_visitante
-            gc += p.resultado_local
-            if p.resultado_visitante > p.resultado_local:
-                pg += 1
-                puntos += 3
-            elif p.resultado_visitante == p.resultado_local:
-                pe += 1
-                puntos += 1
-            else:
-                pp += 1
-            
-            
+    posicion_equipo_jugador = None
+    if equipo_jugador:
+        for indice, fila in enumerate(tabla_ordenada, start=1):
+            if fila['equipo'].id == equipo_jugador.id:
+                posicion_equipo_jugador = indice
+                break
 
     context = {
         'campeonato': campeonato,
         'tabla': tabla_ordenada,
         'equipo_jugador': equipo_jugador,
-        'posicion_equipo_jugador': posicion_equipo_jugador
+        'posicion_equipo_jugador': posicion_equipo_jugador,
     }
     return render(request, 'campeonato/tabla_estadisticas.html', context)
 

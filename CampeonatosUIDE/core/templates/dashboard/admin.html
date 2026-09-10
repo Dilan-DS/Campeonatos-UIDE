@@ -1,456 +1,322 @@
-{% extends "comun/base.html" %}
-{% load static %}
+{% extends 'comun/base.html' %}
 
-{% block title %}Dashboard Admin | Campeonatos UIDE{% endblock %}
+{% comment %}
+  Panel de administración.
+
+  Cambios respecto a la versión anterior:
+  · Se retiró el <style> propio (~115 líneas) con una paleta turquesa que no
+    correspondía al granate institucional.
+  · Se retiró la barra de filtros Género/Año/Deporte: los <select> no tenían
+    atributo name, no estaban dentro de un <form> y "Limpiar"/"Aplicar" eran
+    <a> sin href. Prometía filtrar y no hacía nada; además ofrecía deportes
+    ("Voleibol", "Basket") que no coinciden con el catálogo real.
+  · Se retiraron las barras de progreso con anchos fijos (65%, 48%, 72%):
+    no representaban ningún dato.
+  · Las 14 tarjetas planas se agrupan por área para que el panel se pueda
+    recorrer de un vistazo.
+  · Cada acceso es un enlace completo en lugar de una tarjeta con un botón
+    dentro: un solo objetivo de clic y una sola parada de tabulación.
+  · "Delegados" apuntaba a registrar_delegado; ahora abre el listado.
+{% endcomment %}
+
+{% block title %}Panel de administración | Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<div class="container uide-container">
 
-<!-- ======= Estilos del tablero (claro, tipo analytics) – solo CSS ======= -->
-<style>
-  :root{
-    --brand-1:#06b6d4;    /* cyan-500 */
-    --brand-2:#0ea5a4;    /* teal-500 */
-    --success:#10b981;    /* emerald-500 */
-    --danger:#ef4444;     /* red-500   */
-    --ink:#0f172a;        /* slate-900 */
-    --muted:#64748b;      /* slate-500 */
-    --line:#e5e7eb;       /* gray-200  */
-    --ring:0 0 0 3px rgba(14,165,164,.18);
-    --shadow:0 12px 28px rgba(2,6,23,.08);
-    --shadow-sm:0 6px 14px rgba(2,6,23,.06);
-  }
-
-  /* Fondo absolutamente BLANCO */
-  html, body { background:#ffffff !important; }
-  .section { background:#ffffff !important; padding-top:2.25rem; padding-bottom:2.25rem; }
-
-  /* Contenedor del dashboard */
-  .dash-shell{
-    background: linear-gradient(180deg, #ffffff, #ffffff);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:1.25rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .dash-title.title{ color:var(--ink); letter-spacing:.2px; }
-  .dash-sub.subtitle{ color:var(--muted); }
-
-  /* Barra de filtros */
-  .filters.bar{ display:flex; gap:.75rem; flex-wrap:wrap; }
-  .filters .box{
-    background:#ffffff; border:1px solid var(--line); border-radius:12px;
-    padding:.75rem 1rem; margin:0; box-shadow: var(--shadow-sm);
-    transition: transform .12s ease, box-shadow .12s ease;
-  }
-  .filters .box:hover{ transform:translateY(-1px); box-shadow:var(--shadow); }
-  .filters .select select,.filters .input{
-    background:#fff; border:1px solid var(--line); border-radius:.65rem;
-  }
-  .filters .select select:focus,.filters .input:focus{ outline:none; box-shadow:var(--ring); border-color:#99f6e4; }
-
-  /* KPI cards (claras) */
-  .kpi{
-    background:#ffffff; color:var(--ink); border:1px solid var(--line);
-    border-radius:14px; padding:1rem 1.25rem; display:flex; gap:1rem; align-items:center; height:100%;
-    box-shadow:var(--shadow-sm); transition:transform .12s, box-shadow .12s;
-  }
-  .kpi:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
-  .kpi .icon{
-    display:grid; place-items:center; width:44px; height:44px; border-radius:999px;
-    background: radial-gradient(85% 85% at 30% 20%, #a5f3fc 0%, #22d3ee 55%, #0ea5a4 100%);
-    color:#ffffff; font-size:1.15rem; text-shadow:0 1px 0 rgba(0,0,0,.15);
-  }
-  .kpi .label{ color:var(--muted); font-size:.85rem; }
-  .kpi .value{ font-weight:800; font-size:1.55rem; letter-spacing:.3px; }
-  .kpi .chip{
-    font-size:.78rem; border-radius:999px; padding:.2rem .6rem;
-    background:#f8fafc; border:1px solid var(--line); color:#334155;
-  }
-
-  /* Tarjetas de módulos */
-  .dash-card.box{
-    background:#ffffff; border:1px solid var(--line); border-radius:14px; height:100%;
-    display:flex; flex-direction:column; justify-content:space-between;
-    box-shadow:var(--shadow-sm);
-    transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;
-  }
-  .dash-card.box:hover{ transform:translateY(-3px); box-shadow:var(--shadow); border-color:#d1d5db; }
-  .dash-card .title{ color:var(--ink); }
-  .dash-card .subtitle{ color:var(--muted); }
-
-  /* Mini barras decorativas */
-  .mini-bars{ margin-top:.5rem; }
-  .mini-bars .bar{
-    height:8px; border-radius:6px; background:#eef2f7; overflow:hidden; position:relative;
-  }
-  .mini-bars .bar > span{
-    display:block; height:100%;
-    background: linear-gradient(90deg, #99f6e4, #22d3ee, #0ea5a4);
-    box-shadow: inset 0 0 1px rgba(255,255,255,.6);
-  }
-
-  /* Botones */
-  .btn-accent.button{
-    background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-    color:#ffffff; border:none; box-shadow:0 10px 20px rgba(14,165,164,.18);
-    transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
-  }
-  .btn-accent.button:hover{ transform:translateY(-1px); filter:saturate(1.03); box-shadow:0 16px 28px rgba(14,165,164,.26); }
-  .btn-ghost.button{
-    background:#f8fafc; color:var(--ink); border:1px solid var(--line);
-    transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
-  }
-  .btn-ghost.button:hover{ transform:translateY(-1px); background:#ffffff; box-shadow:var(--shadow-sm); }
-
-  /* Tags suaves */
-  .tag-soft{ background:#0ea5a412; color:#0f766e; border:1px solid #99f6e4; }
-  .tag-alert{ background:#ef44441a; color:#b91c1c; border:1px solid #fecaca; }
-
-  /* Accesibilidad: focus visible en botones/links */
-  .button:focus, a.button:focus{ outline:none; box-shadow:var(--ring); }
-  a:focus-visible{ outline: none; box-shadow:var(--ring); border-radius:10px; }
-
-  /* Responsive tweaks */
-  @media (max-width: 768px){
-    .dash-title.title{ font-size:1.35rem; }
-    .kpi .value{ font-size:1.35rem; }
-  }
-</style>
-
-<section class="section">
-  <div class="container dash-shell">
-    <!-- Encabezado -->
-    <div class="level">
-      <div class="level-left">
-        <div>
-          <h1 class="title dash-title">📊 Panel de Administración</h1>
-          <p class="subtitle dash-sub">
-            Bienvenido, <strong>{{ user.first_name|default:user.username }}</strong>. Gestiona todo el sistema desde aquí.
-          </p>
-        </div>
-      </div>
-      <div class="level-right">
-        <span class="tag tag-soft is-medium">Estado actual:
-          {% if campeonato and campeonato.fixture_generado %} Fixture generado
-          {% else %} En inscripción {% endif %}
-        </span>
-      </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Panel de administración</h1>
+      <p class="subtitle">
+        Hola, <strong>{{ user.first_name|default:user.username }}</strong>. Desde aquí gestionas
+        toda la competencia.
+      </p>
     </div>
-
-    <!-- Barra de filtros (UI, opcional) -->
-    <div class="filters bar mb-4">
-      <div class="box">
-        <span class="icon-text">
-          <span class="icon">🧑‍🤝‍🧑</span><span>Género</span>
+    <div class="uide-page-head__actions">
+      {% if campeonato %}
+        <span class="tag {% if campeonato.fixture_generado %}is-success{% else %}is-warning{% endif %}">
+          {{ campeonato.nombre }} ·
+          {% if campeonato.fixture_generado %}fixture generado{% else %}en inscripción{% endif %}
         </span>
-        <div class="select is-small ml-2">
-          <select>
-            <option>Todos</option>
-            <option>Masculino</option>
-            <option>Femenino</option>
-          </select>
-        </div>
-      </div>
-      <div class="box">
-        <span class="icon-text">
-          <span class="icon">📅</span><span>Año</span>
-        </span>
-        <input class="input is-small ml-2" type="number" min="2020" max="2100" placeholder="2025">
-      </div>
-      <div class="box">
-        <span class="icon-text">
-          <span class="icon">🏅</span><span>Deporte</span>
-        </span>
-        <div class="select is-small ml-2">
-          <select>
-            <option>Todos</option>
-            <option>Fútbol</option>
-            <option>Voleibol</option>
-            <option>Basket</option>
-          </select>
-        </div>
-      </div>
-      <div class="box">
-        <a class="button btn-ghost is-small">Limpiar</a>
-        <a class="button btn-accent is-small ml-2">Aplicar</a>
-      </div>
-    </div>
-
-    <!-- KPIs superiores -->
-    <div class="columns is-multiline">
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        <div class="kpi">
-          <span class="icon">👥</span>
-          <div>
-            <div class="label">Usuarios Totales</div>
-            <div class="value">{{ kpi_usuarios|default:"—" }}</div>
-          </div>
-          <span class="chip ml-auto">Admin</span>
-        </div>
-      </div>
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        <div class="kpi">
-          <span class="icon">🏆</span>
-          <div>
-            <div class="label">Campeonatos</div>
-            <div class="value">{{ kpi_campeonatos|default:"—" }}</div>
-          </div>
-          <span class="chip ml-auto">Activos</span>
-        </div>
-      </div>
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        <div class="kpi">
-          <span class="icon">👥</span>
-          <div>
-            <div class="label">Equipos</div>
-            <div class="value">{{ kpi_equipos|default:"—" }}</div>
-          </div>
-          <span class="chip ml-auto">Inscritos</span>
-        </div>
-      </div>
-      <div class="column is-12-mobile is-6-tablet is-3-desktop">
-        <div class="kpi">
-          <span class="icon">⚖️</span>
-          <div>
-            <div class="label">Árbitros</div>
-            <div class="value">{{ kpi_arbitros|default:"—" }}</div>
-          </div>
-          <span class="chip ml-auto">Disponibles</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Grid de módulos (enlaza a tus vistas) -->
-    <div class="columns is-multiline mt-2">
-
-      <!-- Usuarios -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">👥 Usuarios</p>
-            <p class="subtitle is-6">Administrar usuarios del sistema</p>
-            <div class="mini-bars">
-              <div class="bar"><span style="width:65%"></span></div>
-            </div>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_usuarios' %}" class="button btn-accent is-rounded">Ver Usuarios</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Campeonatos -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">🏆 Campeonatos</p>
-            <p class="subtitle is-6">Crear, editar y revisar campeonatos</p>
-            <div class="mini-bars">
-              <div class="bar"><span style="width:48%"></span></div>
-            </div>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_campeonatos' %}" class="button btn-accent is-rounded">Ver Campeonatos</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Calendario -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">📅 Calendario</p>
-            <p class="subtitle is-6">Fixture del campeonato actual</p>
-            {% if not campeonato or not campeonato.fixture_generado %}
-              <span class="tag tag-alert is-light">Aún no disponible</span>
-            {% endif %}
-          </div>
-          <div class="mt-3">
-            {% if campeonato and campeonato.fixture_generado %}
-              <a href="{% url 'calendario_campeonato' campeonato.id %}" class="button btn-accent is-rounded">Ver Calendario</a>
-            {% else %}
-              <a class="button btn-ghost is-rounded" disabled>Esperando cierre</a>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-
-      <!-- Equipos -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">👥 Equipos</p>
-            <p class="subtitle is-6">Listar y editar equipos inscritos</p>
-            <div class="mini-bars">
-              <div class="bar"><span style="width:72%"></span></div>
-            </div>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_equipos' %}" class="button btn-accent is-rounded">Ver Equipos</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pagos -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">💰 Pagos</p>
-            <p class="subtitle is-6">Control de pagos de equipos</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_pagos_admin' %}" class="button btn-accent is-rounded">Ver Pagos</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Árbitros -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">⚖️ Árbitros</p>
-            <p class="subtitle is-6">Gestión de árbitros registrados</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_arbitros' %}" class="button btn-accent is-rounded">Ver Árbitros</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Transmisiones -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">📺 Transmisiones</p>
-            <p class="subtitle is-6">Enlaces y control en vivo</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_transmisiones' %}" class="button btn-accent is-rounded">Ver Transmisiones</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Suspensiones -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">🚫 Suspensiones</p>
-            <p class="subtitle is-6">Historial y sanciones</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_suspensiones' %}" class="button btn-accent is-rounded">Ver Suspensiones</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estadísticas -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">📈 Estadísticas</p>
-            <p class="subtitle is-6">Resumen general por deporte</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'estadisticas_futbol' %}" class="button btn-accent is-rounded">Ver</a>
-            <a href="{% url 'exportar_estadisticas_pdf' %}" class="button btn-ghost is-rounded ml-2">⬇ PDF</a>
-            <a href="{% url 'exportar_estadisticas_excel' %}" class="button btn-ghost is-rounded ml-1">⬇ Excel</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Deportes -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">🏅 Deportes</p>
-            <p class="subtitle is-6">Tipos de deporte</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_deportes' %}" class="button btn-accent is-rounded">Ver Deportes</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Carreras -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">🏫 Carreras</p>
-            <p class="subtitle is-6">Programas académicos</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_carreras' %}" class="button btn-accent is-rounded">Ver Carreras</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Códigos QR -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">🧾 Códigos QR</p>
-            <p class="subtitle is-6">Pagos y validaciones</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_codigos_qr' %}" class="button btn-accent is-rounded">Ver Códigos</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delegados -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">👤 Delegados</p>
-            <p class="subtitle is-6">Registro y control</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'registrar_delegado' %}" class="button btn-accent is-rounded">Ver Delegados</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Noticias -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">📰 Noticias</p>
-            <p class="subtitle is-6">Publicación y edición</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_noticias' %}" class="button btn-accent is-rounded">Ver Noticias</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Testimonios -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">💬 Testimonios</p>
-            <p class="subtitle is-6">Aprobación de comentarios</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_testimonios' %}" class="button btn-accent is-rounded">Ver Testimonios</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Galería -->
-      <div class="column is-12-mobile is-6-tablet is-4-desktop">
-        <div class="box dash-card">
-          <div>
-            <p class="title is-5">🖼 Galería</p>
-            <p class="subtitle is-6">Imágenes del evento</p>
-          </div>
-          <div class="mt-3">
-            <a href="{% url 'listar_imagenes_galeria' %}" class="button btn-accent is-rounded">Ver Galería</a>
-          </div>
-        </div>
-      </div>
-
+      {% endif %}
     </div>
   </div>
-</section>
 
+  {# --- Métricas --- #}
+  <div class="uide-stats">
+    <div class="uide-stat">
+      <span class="uide-stat__icon">
+        <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-equipos"></use></svg>
+      </span>
+      <span class="uide-stat__body">
+        <span class="uide-stat__value">{{ kpi_usuarios }}</span>
+        <span class="uide-stat__label">Usuarios registrados</span>
+      </span>
+    </div>
+    <div class="uide-stat">
+      <span class="uide-stat__icon">
+        <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+      </span>
+      <span class="uide-stat__body">
+        <span class="uide-stat__value">{{ kpi_campeonatos }}</span>
+        <span class="uide-stat__label">Campeonatos activos</span>
+      </span>
+    </div>
+    <div class="uide-stat">
+      <span class="uide-stat__icon">
+        <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-escudo"></use></svg>
+      </span>
+      <span class="uide-stat__body">
+        <span class="uide-stat__value">{{ kpi_equipos }}</span>
+        <span class="uide-stat__label">Equipos inscritos</span>
+      </span>
+    </div>
+    <div class="uide-stat">
+      <span class="uide-stat__icon">
+        <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-arbitro"></use></svg>
+      </span>
+      <span class="uide-stat__body">
+        <span class="uide-stat__value">{{ kpi_arbitros }}</span>
+        <span class="uide-stat__label">Árbitros disponibles</span>
+      </span>
+    </div>
+  </div>
+
+  {% if kpi_pagos_pendientes %}
+    <div class="notification is-warning">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg>
+      <span>
+        Hay <strong>{{ kpi_pagos_pendientes }}</strong> pago{{ kpi_pagos_pendientes|pluralize:"s" }}
+        pendiente{{ kpi_pagos_pendientes|pluralize:"s" }} de revisión.
+        <a href="{% url 'listar_pagos_admin' %}">Revisar pagos</a>
+      </span>
+    </div>
+  {% endif %}
+
+  {# --- Competencia --- #}
+  <h2 class="uide-section-title">Competencia</h2>
+  <div class="uide-nav-grid">
+    <a class="uide-nav-card" href="{% url 'listar_campeonatos' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Campeonatos</span>
+        <span class="uide-nav-card__text">Crear, editar y generar fixtures</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_equipos' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Equipos</span>
+        <span class="uide-nav-card__text">Equipos inscritos y sus jugadores</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'calendario_global' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Partidos</span>
+        <span class="uide-nav-card__text">Calendario global y resultados</span>
+      </span>
+    </a>
+
+    {% if campeonato and campeonato.fixture_generado %}
+      <a class="uide-nav-card" href="{% url 'calendario_campeonato' campeonato.id %}">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Fixture actual</span>
+          <span class="uide-nav-card__text">{{ campeonato.nombre }}</span>
+        </span>
+      </a>
+    {% else %}
+      <span class="uide-nav-card" aria-disabled="true">
+        <span class="uide-nav-card__icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+        </span>
+        <span class="uide-nav-card__body">
+          <span class="uide-nav-card__title">Fixture actual</span>
+          <span class="uide-nav-card__text">Disponible al cerrar las inscripciones</span>
+        </span>
+      </span>
+    {% endif %}
+
+    <a class="uide-nav-card" href="{% url 'listar_suspensiones' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Suspensiones</span>
+        <span class="uide-nav-card__text">Sanciones vigentes e historial</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'estadisticas_futbol' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Estadísticas</span>
+        <span class="uide-nav-card__text">Resumen por deporte (fútbol)</span>
+      </span>
+    </a>
+  </div>
+
+  {# --- Personas --- #}
+  <h2 class="uide-section-title">Personas</h2>
+  <div class="uide-nav-grid">
+    <a class="uide-nav-card" href="{% url 'listar_usuarios' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Usuarios</span>
+        <span class="uide-nav-card__text">Cuentas y roles del sistema</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_delegados' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Delegados</span>
+        <span class="uide-nav-card__text">Responsables por carrera</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_arbitros' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Árbitros</span>
+        <span class="uide-nav-card__text">Registro y asignación a partidos</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_jugadores_admin' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Jugadores</span>
+        <span class="uide-nav-card__text">Inscripción en equipos</span>
+      </span>
+    </a>
+  </div>
+
+  {# --- Pagos --- #}
+  <h2 class="uide-section-title">Pagos</h2>
+  <div class="uide-nav-grid">
+    <a class="uide-nav-card" href="{% url 'listar_pagos_admin' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Pagos de inscripción</span>
+        <span class="uide-nav-card__text">Aprobar o rechazar comprobantes</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_codigos_qr' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-qr"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Códigos QR</span>
+        <span class="uide-nav-card__text">Cuentas bancarias para transferencias</span>
+      </span>
+    </a>
+  </div>
+
+  {# --- Contenido público --- #}
+  <h2 class="uide-section-title">Contenido público</h2>
+  <div class="uide-nav-grid">
+    <a class="uide-nav-card" href="{% url 'listar_noticias' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Noticias</span>
+        <span class="uide-nav-card__text">Publicaciones de la portada</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_imagenes_galeria' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Galería</span>
+        <span class="uide-nav-card__text">Imágenes de los campeonatos</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_testimonios' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-testimonio"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Testimonios</span>
+        <span class="uide-nav-card__text">Comentarios de participantes</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_transmisiones' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Transmisiones</span>
+        <span class="uide-nav-card__text">Enlaces en vivo por partido</span>
+      </span>
+    </a>
+  </div>
+
+  {# --- Catálogos --- #}
+  <h2 class="uide-section-title">Catálogos</h2>
+  <div class="uide-nav-grid">
+    <a class="uide-nav-card" href="{% url 'listar_deportes' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Deportes</span>
+        <span class="uide-nav-card__text">Disciplinas de la competencia</span>
+      </span>
+    </a>
+
+    <a class="uide-nav-card" href="{% url 'listar_carreras' %}">
+      <span class="uide-nav-card__icon">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-carrera"></use></svg>
+      </span>
+      <span class="uide-nav-card__body">
+        <span class="uide-nav-card__title">Carreras</span>
+        <span class="uide-nav-card__text">Programas académicos participantes</span>
+      </span>
+    </a>
+  </div>
+
+  {# --- Exportaciones --- #}
+  <h2 class="uide-section-title">Exportar</h2>
+  <div class="uide-toolbar">
+    <a class="button is-light" href="{% url 'exportar_estadisticas_pdf' %}">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-descargar"></use></svg>
+      <span>Estadísticas en PDF</span>
+    </a>
+    <a class="button is-light" href="{% url 'exportar_estadisticas_excel' %}">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-descargar"></use></svg>
+      <span>Estadísticas en Excel</span>
+    </a>
+  </div>
+
+</div>
 {% endblock %}

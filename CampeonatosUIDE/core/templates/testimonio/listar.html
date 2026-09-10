@@ -9,7 +9,7 @@
 
     <div class="mb-5 has-text-right">
       <a href="{% url 'registrar_testimonio' %}" class="button is-primary is-medium">
-        <span class="icon"><i class="fas fa-plus"></i></span>
+        <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
         <span>Agregar Testimonio</span>
       </a>
     </div>
@@ -27,7 +27,7 @@
                 {% else %}
                   <figure class="image is-128x128 is-inline-block" style="border-radius: 50%; overflow: hidden; background: #f0f0f0;">
                     <span class="icon is-large has-text-grey-light" style="font-size: 5rem;">
-                      <i class="fas fa-user"></i>
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
                     </span>
                   </figure>
                 {% endif %}
@@ -44,10 +44,10 @@
                 </p>
                 <p class="card-footer-item">
                   <a href="{% url 'editar_testimonio' testimonio.id %}" class="button is-small is-info mr-2" title="Editar">
-                    <span class="icon is-small"><i class="fas fa-edit"></i></span>
+                    <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg></span>
                   </a>
                   <a href="{% url 'eliminar_testimonio' testimonio.id %}" class="button is-small is-danger" title="Eliminar">
-                    <span class="icon is-small"><i class="fas fa-trash"></i></span>
+                    <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg></span>
                   </a>
                 </p>
               </footer>

@@ -1,21 +1,94 @@
 {% extends 'comun/base.html' %}
-{% block title %}Registrar Jugador{% endblock %}
+
+{% comment %}
+  Registrar jugador.
+
+  El enlace de volver apuntaba a 'listar_jugadores', un nombre de URL que
+  no existe: la página respondía NoReverseMatch. Ahora vuelve al listado
+  que corresponde al rol.
+
+  El formulario se renderizaba con {{ form.as_p }}, sin etiquetas
+  asociadas ni estilos del sistema; ahora se recorre campo a campo.
+{% endcomment %}
+
+{% block title %}Registrar jugador | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<!-- VISTA: REGISTRAR NUEVO JUGADOR -->
-<div class="box mt-6">
-  <!-- Título de la sección -->
-  <h2 class="title is-4">Registrar Nuevo Jugador</h2>
-  <!-- Formulario para registrar un jugador -->
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %} 
-    {{ form.as_p }} 
-    <!-- Botón para enviar el formulario -->
-    <button class="button is-success is-rounded mt-4">Guardar</button>
-  </form>
-  <!--  Enlace para volver al listado de jugadores -->
-  <a href="{% url 'listar_jugadores' %}" class="button is-light mt-4">
-    ← Volver al listado
-  </a>
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Registrar jugador</h1>
+      <p class="subtitle">Añade un jugador al plantel de un equipo inscrito.</p>
+    </div>
+  </div>
+
+  <div class="box">
+    {% if form.errors %}
+      <div class="uide-form-errors" role="alert">
+        <strong class="uide-with-icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+          Revisa los datos del jugador
+        </strong>
+        <ul>
+          {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+          {% for campo in form %}
+            {% for err in campo.errors %}<li>{{ campo.label }}: {{ err }}</li>{% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="uide-form">
+      {% csrf_token %}
+
+      <div class="uide-form-grid">
+        {% for campo in form %}
+          <div class="field">
+            <label class="label" for="{{ campo.id_for_label }}">
+              {{ campo.label }}
+              {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+            </label>
+            <div class="control">{{ campo }}</div>
+            {% if campo.errors %}
+              {% for err in campo.errors %}
+                <p class="help is-danger">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                  <span>{{ err }}</span>
+                </p>
+              {% endfor %}
+            {% elif campo.help_text %}
+              <p class="help">{{ campo.help_text|safe }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="uide-form-actions">
+        <button type="submit" class="button is-primary">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar jugador</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        {% if request.user.rol == 'DELEGADO' %}
+          <a href="{% url 'mis_jugadores_delegado' %}" class="button is-light">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+            <span>Volver a mis jugadores</span>
+          </a>
+        {% elif request.user.rol == 'ADMIN' %}
+          <a href="{% url 'listar_jugadores_admin' %}" class="button is-light">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+            <span>Volver al listado</span>
+          </a>
+        {% else %}
+          <a href="{% url 'jugador_dashboard' %}" class="button is-light">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+            <span>Volver a mi panel</span>
+          </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
 </div>
 {% endblock %}

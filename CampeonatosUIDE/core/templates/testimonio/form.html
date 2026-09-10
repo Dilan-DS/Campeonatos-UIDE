@@ -30,9 +30,9 @@
     {% else %}
       <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
-        
+
         <div class="field">
-          <label class="label">Autor</label>
+          <label class="label" for="{{ form.autor.id_for_label }}">Autor</label>
           <div class="control">
             {{ form.autor }}
           </div>
@@ -42,7 +42,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Contenido</label>
+          <label class="label" for="{{ form.contenido.id_for_label }}">Contenido</label>
           <div class="control">
             {{ form.contenido }}
           </div>
@@ -52,7 +52,7 @@
         </div>
 
         <div class="field">
-          <label class="label">Foto
+          <label class="label" for="{{ form.foto.id_for_label }}">Foto
             {% if modo == 'editar' %} <small class="has-text-grey">(Opcional: deja vacío para conservar la actual)</small> {% endif %}
           </label>
           <div class="control">
@@ -61,7 +61,7 @@
                 {{ form.foto }}
                 <span class="file-cta">
                   <span class="file-icon">
-                    <i class="fas fa-upload"></i>
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
                   </span>
                   <span class="file-label">
                     Elegir archivo…

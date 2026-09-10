@@ -39,7 +39,7 @@
 
         <!-- Título -->
         <div class="field">
-          <label class="label">Título</label>
+          <label class="label" for="{{ form.titulo.id_for_label }}">Título</label>
           <div class="control">
             {{ form.titulo }}
           </div>
@@ -50,7 +50,7 @@
 
         <!-- Imagen -->
         <div class="field">
-          <label class="label">Imagen
+          <label class="label" for="{{ form.imagen.id_for_label }}">Imagen
             {% if modo == 'editar' %} (opcional) {% endif %}
           </label>
 
@@ -59,7 +59,7 @@
               {{ form.imagen }}
               <span class="file-cta">
                 <span class="file-icon">
-                  <i class="fas fa-upload"></i>
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
                 </span>
                 <span class="file-label">Elegir archivo…</span>
               </span>
@@ -81,7 +81,7 @@
 
         <!-- Descripción -->
         <div class="field">
-          <label class="label">Descripción</label>
+          <label class="label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
           <div class="control">
             {{ form.descripcion }}
           </div>

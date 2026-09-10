@@ -23,24 +23,24 @@
             <h3 class="title is-5">Tarjetas Amarillas</h3>
             <div class="field is-horizontal">
                 <div class="field-label is-normal">
-                    <label class="label">{{ partido.equipo_local.nombre }}</label>
+                    <label class="label" for="tarjetas_amarillas_local">{{ partido.equipo_local.nombre }}</label>
                 </div>
                 <div class="field-body">
                     <div class="field">
                         <div class="control">
-                            <input class="input" type="number" name="tarjetas_amarillas_local" value="{{ partido.tarjetas_amarillas_local|default:0 }}" min="0">
+                            <input class="input" id="tarjetas_amarillas_local" type="number" name="tarjetas_amarillas_local" value="{{ partido.tarjetas_amarillas_local|default:0 }}" min="0">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="field is-horizontal">
                 <div class="field-label is-normal">
-                    <label class="label">{{ partido.equipo_visitante.nombre }}</label>
+                    <label class="label" for="tarjetas_amarillas_visitante">{{ partido.equipo_visitante.nombre }}</label>
                 </div>
                 <div class="field-body">
                     <div class="field">
                         <div class="control">
-                            <input class="input" type="number" name="tarjetas_amarillas_visitante" value="{{ partido.tarjetas_amarillas_visitante|default:0 }}" min="0">
+                            <input class="input" id="tarjetas_amarillas_visitante" type="number" name="tarjetas_amarillas_visitante" value="{{ partido.tarjetas_amarillas_visitante|default:0 }}" min="0">
                         </div>
                     </div>
                 </div>
@@ -49,24 +49,24 @@
             <h3 class="title is-5 mt-5">Tarjetas Rojas</h3>
             <div class="field is-horizontal">
                 <div class="field-label is-normal">
-                    <label class="label">{{ partido.equipo_local.nombre }}</label>
+                    <label class="label" for="tarjetas_rojas_local">{{ partido.equipo_local.nombre }}</label>
                 </div>
                 <div class="field-body">
                     <div class="field">
                         <div class="control">
-                            <input class="input" type="number" name="tarjetas_rojas_local" value="{{ partido.tarjetas_rojas_local|default:0 }}" min="0">
-                            </div>
+                            <input class="input" id="tarjetas_rojas_local" type="number" name="tarjetas_rojas_local" value="{{ partido.tarjetas_rojas_local|default:0 }}" min="0">
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="field is-horizontal">
                 <div class="field-label is-normal">
-                    <label class="label">{{ partido.equipo_visitante.nombre }}</label>
+                    <label class="label" for="tarjetas_rojas_visitante">{{ partido.equipo_visitante.nombre }}</label>
                 </div>
                 <div class="field-body">
                     <div class="field">
                         <div class="control">
-                            <input class="input" type="number" name="tarjetas_rojas_visitante" value="{{ partido.tarjetas_rojas_visitante|default:0 }}" min="0">
+                            <input class="input" id="tarjetas_rojas_visitante" type="number" name="tarjetas_rojas_visitante" value="{{ partido.tarjetas_rojas_visitante|default:0 }}" min="0">
                         </div>
                     </div>
                 </div>

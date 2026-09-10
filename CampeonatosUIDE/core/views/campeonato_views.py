@@ -61,7 +61,6 @@ class CrearCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
             messages.success(request, "Campeonato creado correctamente.")
             return redirect("listar_campeonatos")
         else:
-            print("CampeonatoForm errors:", form.errors)
             messages.error(request, "Revisa los campos del formulario.")
             return render(request, 'campeonato/crear.html', {'form': form, 'modo': 'crear'})
 
@@ -132,16 +131,23 @@ class FixtureCampeonato(LoginRequiredMixin, View):
 
 # Clase para mostrar campeonatos públicos y activos
 class CampeonatosPublicos(View):
-    # Método GET que obtiene solo campeonatos activos
+    """Listado público de campeonatos.
+
+    es_publico es un CharField 'SI'/'NO', así que la plantilla lo filtraba
+    con `{% if campeonato.es_publico %}`, cierto también para 'NO': los
+    campeonatos marcados como no públicos se mostraban igualmente. El
+    filtro se hace aquí, en la consulta.
+    """
+
     def get(self, request):
-        campeonatos = Campeonato.objects.filter(activo='SI').order_by('-fecha_inicio')
-        return render(request, 'campeonato/campeonatos_publicos.html', {'campeonatos': campeonatos})
-
-
-# Función alternativa para listar campeonatos públicos activos
-def campeonatos_publicos(request):
-    campeonatos = Campeonato.objects.filter(activo='SI').order_by('-fecha_inicio')
-    return render(request, 'campeonato/campeonatos_publicos.html', {'campeonatos': campeonatos})
+        campeonatos = (
+            Campeonato.objects
+            .filter(activo='SI', es_publico='SI')
+            .select_related('deporte')
+            .order_by('-fecha_inicio')
+        )
+        return render(request, 'campeonato/campeonatos_publicos.html',
+                      {'campeonatos': campeonatos})
 
 
 # Clase para eliminar un campeonato

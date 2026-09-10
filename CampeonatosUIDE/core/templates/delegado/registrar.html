@@ -9,7 +9,7 @@
   <div class="container">
     <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
 
-      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">👤 Registrar Delegado</h2>
+      <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Registrar Delegado</h2>
 
       <form method="POST">
         {% csrf_token %}
@@ -17,7 +17,7 @@
           {% for field in form %}
             <div class="column is-12-mobile is-6-tablet mb-4">
               <div class="field">
-                <label class="label has-text-grey-dark">{{ field.label }}</label>
+                <label class="label has-text-grey-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="control">
                   {% if field|widget_type == 'textarea' %}
                     {{ field|add_class:"textarea is-rounded is-medium is-light" }}
@@ -48,7 +48,7 @@
 
       <div class="has-text-centered mt-5">
         <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">
-          ← Volver al Dashboard
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
         </a>
       </div>
 

@@ -16,10 +16,10 @@
     <div class="box" style="border-radius: 18px; background-color: #fffdf8; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
 
       <h2 class="title is-3 has-text-centered mb-5" style="color: #5a0035;">
-        {% if modo == 'crear' %}🧑‍⚖️ Registrar Nuevo Árbitro
-        {% elif modo == 'editar' %}✏️ Editar Árbitro
-        {% elif modo == 'eliminar' %}🗑️ Confirmar Eliminación de Árbitro
-        {% else %}ℹ️ Detalle del Árbitro
+        {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Registrar Nuevo Árbitro
+        {% elif modo == 'editar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Árbitro
+        {% elif modo == 'eliminar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Confirmar Eliminación de Árbitro
+        {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> Detalle del Árbitro
         {% endif %}
       </h2>
 
@@ -37,7 +37,7 @@
             <strong>Errores del formulario:</strong>
             <ul>
                 {% for campo, lista in errores_json.items %}
-                <li><b>{{ campo }}</b>: 
+                <li><b>{{ campo }}</b>:
                     {% for err in lista %}
                         {{ err.message }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
@@ -51,7 +51,7 @@
             {% csrf_token %}
             {% for field in form %}
             <div class="field">
-                <label class="label">{{ field.label }}</label>
+                <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="control">{{ field }}</div>
                 {% if field.errors %}
                 <p class="help is-danger">
@@ -110,7 +110,7 @@
 
       <div class="has-text-centered mt-5">
         <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">
-          ← Volver al Dashboard
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
         </a>
       </div>
 

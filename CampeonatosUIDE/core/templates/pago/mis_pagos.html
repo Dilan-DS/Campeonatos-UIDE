@@ -1,140 +1,161 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
-{% block title %}Mis Pagos — Delegado{% endblock %}
+{% comment %}
+  Pagos registrados por el delegado.
+
+  Se retiró el bloque de estilos propio (~36 líneas) con degradado
+  azul/violeta/rosa y tres estilos de chip paralelos a .tag.
+
+  Corrección: la etiqueta de estado se construía con
+    {% templatetag openblock %} if p.estado == 'APROBADO' {% templatetag closeblock %}ok elif 'RECHAZADO' …
+  a la que le faltaban las aperturas de elif y else. El resultado era que
+  un pago aprobado recibía ese texto suelto como clases CSS y ningún
+  estado se coloreaba nunca.
+
+  "Ver / Editar" apuntaba a registrar_pago_delegado con ?pago_id=, un
+  parámetro que la vista no lee; ahora abre detalle_pago_delegado.
+{% endcomment %}
+
+{% block title %}Mis pagos | Campeonatos UIDE{% endblock %}
 
 {% block content %}
+<div class="container uide-container">
 
-<style>
-  :root{
-    --radius-xl: 18px;
-    --shadow-sm: 0 12px 24px rgba(17,24,39,.08);
-    --shadow-md: 0 20px 44px rgba(17,24,39,.14);
-    --grad: linear-gradient(135deg,#6f7cff 0%,#9a66ff 45%,#ff7aa0 100%);
-  }
-  .hero{
-    background: var(--grad);
-    color:#fff;
-    padding: 2.4rem 0 2rem;
-    border-radius: 0 0 26px 26px;
-    box-shadow: var(--shadow-sm);
-  }
-  .grid{ display:grid; gap:1rem; }
-  @media(min-width:768px){ .grid{ grid-template-columns: repeat(2,1fr); } }
-  @media(min-width:1024px){ .grid{ grid-template-columns: repeat(3,1fr); } }
-
-  .card-pay{
-    background:#fff; border-radius: var(--radius-xl); padding:1rem 1rem 0.85rem;
-    box-shadow: var(--shadow-sm); transition: transform .18s ease, box-shadow .18s ease;
-  }
-  .card-pay:hover{ transform: translateY(-4px); box-shadow: var(--shadow-md); }
-
-  .meta{ font-size:.9rem; color:#4b5563; }
-  .chip{
-    display:inline-flex; align-items:center; gap:.35rem; font-weight:700; font-size:.8rem;
-    padding:.35rem .6rem; border-radius:999px;
-  }
-  .chip.pending{ background:#fff7ed; color:#9a3412; }
-  .chip.ok{ background:#ecfdf5; color:#065f46; }
-  .chip.bad{ background:#fef2f2; color:#991b1b; }
-  .actions{ display:flex; gap:.5rem; margin-top:.85rem; }
-  .empty{
-    background:#fff; border-radius:18px; padding:2rem; box-shadow: var(--shadow-sm);
-  }
-</style>
-
-<section class="hero">
-  <div class="container is-flex is-justify-content-space-between is-align-items-center">
-    <div>
-      <h1 class="title is-3 is-size-4-mobile">💳 Mis pagos</h1>
-      <p class="is-size-6">Consulta y gestiona los pagos registrados por tus equipos.</p>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Mis pagos</h1>
+      <p class="subtitle">Comprobantes de inscripción de tus equipos y su estado de revisión.</p>
     </div>
-    <div>
-      <a href="{% url 'registrar_pago_delegado' %}" class="button is-light is-rounded">
-        <span class="icon">➕</span><span>Registrar nuevo pago</span>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'registrar_pago_delegado' %}" class="button is-primary">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>
+        <span>Registrar pago</span>
       </a>
     </div>
   </div>
-</section>
 
-<section class="section">
-  <div class="container">
-    {% if pagos and pagos|length %}
-      <div class="grid">
-        {% for p in pagos %}
-          <article class="card-pay">
-            <div class="is-flex is-justify-content-space-between is-align-items-center mb-2">
-              <h3 class="title is-6 mb-0">{{ p.equipo.nombre }}</h3>
-              <span class="chip
-                {% if p.estado == 'APROBADO' %}ok
-                {% elif p.estado == 'RECHAZADO' %}bad
-                {% else %}pending{% endif %}">
-                {{ p.get_estado_display }}
-              </span>
-            </div>
+  {% if pagos %}
+    <div class="uide-toolbar">
+      <span class="uide-toolbar__count">
+        {{ page_obj.paginator.count }} pago{{ page_obj.paginator.count|pluralize:"s" }} registrado{{ page_obj.paginator.count|pluralize:"s" }}
+      </span>
+    </div>
 
-            <p class="meta">Método: <strong>{{ p.get_metodo_display }}</strong></p>
-            {% if p.codigo_qr %}
-              <p class="meta">Banco: <strong>{{ p.codigo_qr.banco }}</strong></p>
+    <div class="uide-feed">
+      {% for p in pagos %}
+        <article class="uide-feed__card">
+          <div class="uide-feed__head">
+            <h2 class="uide-feed__title">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>
+              {{ p.equipo.nombre }}
+            </h2>
+            {% if p.estado == 'APROBADO' %}
+              <span class="tag is-success">Aprobado</span>
+            {% elif p.estado == 'RECHAZADO' %}
+              <span class="tag is-danger">Rechazado</span>
+            {% else %}
+              <span class="tag is-warning">En revisión</span>
             {% endif %}
-            <p class="meta">Fecha: {{ p.fecha_pago|date:"d/m/Y H:i" }}</p>
+          </div>
 
-            <div class="actions">
-              {# Si tienes una vista de detalle del pago del delegado, úsala. Si no, deja el editor: #}
-              <a class="button is-small is-link is-light"
-                 href="{% url 'registrar_pago_delegado' %}?pago_id={{ p.id }}">
-                Ver / Editar
+          <div class="uide-feed__body">
+            <dl class="uide-details">
+              <div>
+                <dt>Método</dt>
+                <dd>{{ p.get_metodo_display }}</dd>
+              </div>
+              {% if p.codigo_qr %}
+                <div>
+                  <dt>Banco</dt>
+                  <dd>{{ p.codigo_qr.banco }}</dd>
+                </div>
+              {% endif %}
+              <div>
+                <dt>Registrado</dt>
+                <dd>{{ p.fecha_pago|date:"d/m/Y H:i" }}</dd>
+              </div>
+            </dl>
+
+            {% if p.estado == 'RECHAZADO' and p.observacion_admin %}
+              <div class="notification is-danger mt-3">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                <span><strong>Motivo del rechazo:</strong> {{ p.observacion_admin }}</span>
+              </div>
+            {% endif %}
+
+            <div class="uide-feed__foot">
+              <a class="button is-small is-light" href="{% url 'detalle_pago_delegado' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg>
+                <span>Ver detalle</span>
               </a>
-
               {% if p.comprobante_pago %}
-                <a class="button is-small is-dark is-light" target="_blank" href="{{ p.comprobante_pago.url }}">
-                  Comprobante
+                <a class="button is-small is-light" target="_blank" rel="noopener"
+                   href="{{ p.comprobante_pago.url }}">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg>
+                  <span>Comprobante</span>
+                </a>
+              {% endif %}
+              {% if p.estado == 'RECHAZADO' %}
+                <a class="button is-small is-primary" href="{% url 'registrar_pago_delegado' %}">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
+                  <span>Corregir</span>
                 </a>
               {% endif %}
             </div>
-          </article>
-        {% endfor %}
-      </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
 
-      {% if page_obj %}
-        <nav class="pagination is-centered mt-5" role="navigation" aria-label="pagination">
-          {% if page_obj.has_previous %}
-            <a class="pagination-previous" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
-          {% else %}
-            <a class="pagination-previous" disabled>Anterior</a>
-          {% endif %}
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="pagination is-centered mt-5" role="navigation" aria-label="Paginación de pagos">
+        {% if page_obj.has_previous %}
+          <a class="pagination-previous" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+        {% else %}
+          <span class="pagination-previous" aria-disabled="true">Anterior</span>
+        {% endif %}
 
-          {% if page_obj.has_next %}
-            <a class="pagination-next" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
-          {% else %}
-            <a class="pagination-next" disabled>Siguiente</a>
-          {% endif %}
+        {% if page_obj.has_next %}
+          <a class="pagination-next" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+        {% else %}
+          <span class="pagination-next" aria-disabled="true">Siguiente</span>
+        {% endif %}
 
-          <ul class="pagination-list">
-            {% for num in page_obj.paginator.page_range %}
-              {% if num == page_obj.number %}
-                <li><a class="pagination-link is-current">{{ num }}</a></li>
-              {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
-                <li><a class="pagination-link" href="?page={{ num }}">{{ num }}</a></li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </nav>
-      {% endif %}
-
-    {% else %}
-      <div class="empty has-text-centered">
-        <figure class="image is-128x128 is-inline-block mb-3">
-          <img src="{% static 'img/placeholder_news.png' %}" alt="Sin pagos" loading="lazy">
-        </figure>
-        <p class="title is-5">Aún no tienes pagos registrados</p>
-        <p class="subtitle is-6 has-text-grey">Cuando crees uno, aparecerá aquí.</p>
-        <a href="{% url 'registrar_pago_delegado' %}" class="button is-link is-light is-rounded mt-2">
-          Registrar pago
-        </a>
-      </div>
+        <ul class="pagination-list">
+          {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+              <li>
+                <span class="pagination-link is-current" aria-current="page">{{ num }}</span>
+              </li>
+            {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+              <li><a class="pagination-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
     {% endif %}
-  </div>
-</section>
 
+  {% else %}
+    <div class="uide-panel">
+      <div class="uide-empty">
+        <span class="uide-empty__icon">
+          <svg class="uide-icon uide-icon--lg" aria-hidden="true"><use href="#i-pago"></use></svg>
+        </span>
+        <p class="uide-empty__title">Todavía no has registrado pagos</p>
+        <p class="uide-empty__text">
+          El pago de inscripción habilita a tu equipo para competir. Súbelo con el
+          comprobante de la transferencia y administración lo revisará.
+        </p>
+        <div class="uide-empty__actions">
+          <a href="{% url 'registrar_pago_delegado' %}" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>
+            <span>Registrar pago</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

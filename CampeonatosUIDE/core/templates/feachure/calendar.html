@@ -61,7 +61,7 @@
                       data-lugar="{{ partido.lugar|default_if_none:''|escape }}"
                       data-next="{{ request.get_full_path }}"
                     >
-                      ✏️ Editar
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar
                     </button>
                   </td>
                   {% endif %}
@@ -100,7 +100,7 @@
         <div class="columns is-multiline">
           <div class="column is-4">
             <div class="field">
-              <label class="label">Fecha</label>
+              <label class="label" for="f-fecha">Fecha</label>
               <div class="control">
                 <input class="input" type="date" name="fecha" id="f-fecha" required>
               </div>
@@ -109,7 +109,7 @@
 
           <div class="column is-4">
             <div class="field">
-              <label class="label">Hora</label>
+              <label class="label" for="f-hora">Hora</label>
               <div class="control">
                 <input class="input" type="time" name="hora" id="f-hora" required>
               </div>
@@ -118,7 +118,7 @@
 
           <div class="column is-12">
             <div class="field">
-              <label class="label">Lugar</label>
+              <label class="label" for="f-lugar">Lugar</label>
               <div class="control">
                 <input class="input" type="text" name="lugar" id="f-lugar" maxlength="120" placeholder="Ej. Cancha UIDE">
               </div>

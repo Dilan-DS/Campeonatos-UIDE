@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Comprobaciones y pruebas
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: CampeonatosUIDE
+
+    env:
+      # Sólo SECRET_KEY es obligatoria; el resto de la configuración toma
+      # sus valores por defecto (SQLite, sin SMTP), así que no hace falta
+      # preparar un .env en CI.
+      SECRET_KEY: clave-solo-para-ci-no-usar-en-produccion
+      DEBUG: "False"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: CampeonatosUIDE/requirements.txt
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Comprobaciones del proyecto
+        run: python manage.py check
+
+      - name: Comprobaciones de despliegue
+        # Informativas: señalan lo que falta endurecer para producción sin
+        # bloquear el PR (SECURE_HSTS_SECONDS, SESSION_COOKIE_SECURE...).
+        continue-on-error: true
+        run: python manage.py check --deploy
+
+      - name: Migraciones sin cambios pendientes
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Estaticos (build)
+        run: python manage.py collectstatic --noinput
+
+      - name: Pruebas
+        run: python manage.py test core --verbosity 2
+
+      - name: Plantillas sin errores de sintaxis
+        run: |
+          python - <<'PY'
+          import os, sys
+          import django
+
+          sys.path.insert(0, ".")
+          os.environ.setdefault("DJANGO_SETTINGS_MODULE", "CampeonatosUIDE.settings")
+          django.setup()
+
+          from pathlib import Path
+          from django.template.loader import get_template
+          from django.template import TemplateSyntaxError
+
+          raiz = Path("core/templates")
+          fallos = []
+          for plantilla in sorted(raiz.rglob("*.html")):
+              nombre = plantilla.relative_to(raiz).as_posix()
+              try:
+                  get_template(nombre)
+              except TemplateSyntaxError as exc:
+                  fallos.append(f"{nombre}: {exc}")
+          if fallos:
+              print("Plantillas con errores de sintaxis:")
+              for f in fallos:
+                  print("  -", f)
+              sys.exit(1)
+          print(f"{len(list(raiz.rglob('*.html')))} plantillas compilan correctamente")
+          PY
+
+      - name: Comentarios {# #} de varias lineas
+        # Django sólo trata {# #} como comentario en una línea; repartido en
+        # varias termina impreso en la página.
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+
+          fugas = []
+          for plantilla in sorted(Path("core/templates").rglob("*.html")):
+              for numero, linea in enumerate(plantilla.read_text(encoding="utf-8").splitlines(), 1):
+                  if linea.count("{#") != linea.count("#}"):
+                      fugas.append(f"{plantilla}:{numero}")
+          if fugas:
+              print("Comentarios {# #} repartidos en varias lineas:")
+              for f in fugas:
+                  print("  -", f)
+              sys.exit(1)
+          print("Sin comentarios multilinea")
+          PY

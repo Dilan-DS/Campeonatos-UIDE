@@ -177,7 +177,6 @@ urlpatterns = [
     path('admin/exportar/excel/', exportar_estadisticas_excel, name='exportar_estadisticas_excel'),
 
 
-    path('partidos/generar/<int:campeonato_id>/', generar_calendario, name='generar_calendario'),
     path('partidos/calendario/', calendario_global_view, name='calendario_global'),
     # Pagos Admin
     path('panel/admin/pagos/', pago_views.ListarPagosAdminView.as_view(), name='listar_pagos_admin'),
@@ -222,7 +221,6 @@ urlpatterns = [
     path('carreras/<int:id>/eliminar/', GestionCarreraView.as_view(), {'action': 'eliminar'}, name='eliminar_carrera'),
 
 
-    path('equipos/eliminar/<int:equipo_id>/', eliminar_equipo, name='eliminar_equipo'),
     path('equipos/registrar/', equipo_views.registrar_equipo, name='registrar_equipo'),
     path('campeonatos/<int:campeonato_id>/calendario/', calendar_view, name='calendario_campeonato'),
 

@@ -10,29 +10,29 @@
 {{ form.non_field_errors }}
 <div class="columns">
 <div class="column">
-<label class="label">Nombre</label>
+<label class="label" for="{{ form.first_name.id_for_label }}">Nombre</label>
 {{ form.first_name|add_class:"input is-rounded" }}
 {% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
 </div>
 <div class="column">
-<label class="label">Apellido</label>
+<label class="label" for="{{ form.last_name.id_for_label }}">Apellido</label>
 {{ form.last_name|add_class:"input is-rounded" }}
 {% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
 </div>
 </div>
 <div class="field">
-<label class="label">Correo</label>
+<label class="label" for="{{ form.email.id_for_label }}">Correo</label>
 {{ form.email|add_class:"input is-rounded" }}
 {% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
 </div>
 <div class="columns">
 <div class="column">
-<label class="label">Cédula</label>
+<label class="label" for="{{ form.cedula.id_for_label }}">Cédula</label>
 {{ form.cedula|add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
 {% if form.cedula.errors %}<p class="help is-danger">{{ form.cedula.errors.0 }}</p>{% endif %}
 </div>
 <div class="column">
-<label class="label">Carrera</label>
+<label class="label" for="{{ form.carrera.id_for_label }}">Carrera</label>
 <div class="select is-fullwidth is-rounded">
 {{ form.carrera }}
 </div>
@@ -40,7 +40,7 @@
 </div>
 </div>
 <div class="field">
-<label class="label">Género</label>
+<label class="label" for="{{ form.genero.id_for_label }}">Género</label>
 <div class="select is-fullwidth is-rounded">
 {{ form.genero }}
 </div>

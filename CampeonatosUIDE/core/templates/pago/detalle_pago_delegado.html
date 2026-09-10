@@ -32,8 +32,8 @@
                     {% endif %}
                 </div>
                 {% endif %}
-                <p><strong>Estado:</strong> 
-                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+                <p><strong>Estado:</strong>
+                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif 'RECHAZADO' %}danger{% else %}warning{% endif %}">
                         {{ pago.get_estado_display }}
                     </span>
                 </p>
@@ -60,7 +60,7 @@
 
             <div class="has-text-centered mt-5">
                 <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">
-                    ← Volver al Dashboard
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
                 </a>
             </div>
         </div>

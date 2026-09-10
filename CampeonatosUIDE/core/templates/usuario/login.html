@@ -2,199 +2,109 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %}Iniciar sesión{% endblock %}
+{% comment %}
+  Inicio de sesión.
+
+  La versión anterior traía ~120 líneas de <style> con una tercera paleta
+  (#6c2943 → #ff8da1 → #9ac6ff), burbujas animadas y tarjeta de cristal, y
+  usaba iconos de Font Awesome que nunca se cargaban (campos con hueco a la
+  izquierda y ojo invisible). Ahora usa el sistema de diseño y el sprite SVG.
+
+  El toggle de contraseña pasó de un onclick en línea a un botón con
+  aria-pressed que además cambia de icono.
+{% endcomment %}
+
+{% block title %}Iniciar sesión | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<style>
-  /* Fondo con gradiente animado + burbujas */
-  .auth-hero {
-    position: relative;
-    min-height: calc(100vh - 6rem);
-    display: grid;
-    place-items: center;
-    background: radial-gradient(1200px 600px at 10% -10%, #ffe3ec 0%, transparent 60%),
-                radial-gradient(1200px 600px at 110% 10%, #e3f2ff 0%, transparent 60%),
-                linear-gradient(135deg, #fff7f0 0%, #f7fbff 100%);
-    overflow: hidden;
-  }
-  .auth-blob {
-    position: absolute; inset: -20% auto auto -10%;
-    width: 40vmax; height: 40vmax; border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #ffd5e5 0%, #ffb3c7 35%, transparent 60%);
-    filter: blur(40px); opacity: .35; animation: float1 16s ease-in-out infinite;
-  }
-  .auth-blob.b2 {
-    inset: auto -12% -12% auto; width: 45vmax; height: 45vmax;
-    background: radial-gradient(circle at 70% 60%, #c9e7ff 0%, #a8d3ff 35%, transparent 60%);
-    animation: float2 18s ease-in-out infinite;
-  }
-  @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(12px)} }
-  @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+<section class="uide-auth">
+  <div class="uide-auth__card">
 
-  /* Tarjeta vidrio pro */
-  .auth-card {
-    width: 100%;
-    max-width: 520px;
-    border-radius: 22px;
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 60px rgba(17, 24, 39, 0.15);
-    border: 1px solid rgba(148,163,184,.2);
-    overflow: hidden;
-  }
-  .auth-head {
-    padding: 1.25rem 1.5rem;
-    background: linear-gradient(135deg, #6c2943 0%, #ff8da1 45%, #9ac6ff 100%);
-    color: #fff;
-  }
-  .auth-head .brand {
-    display: flex; align-items: center; justify-content: center; gap: .75rem;
-  }
-  .auth-head .brand img {
-    width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.9);
-    box-shadow: 0 6px 16px rgba(0,0,0,.12);
-  }
-
-  .auth-body { padding: 1.75rem; }
-
-  .field + .field { margin-top: 1rem; }
-
-  /* Inputs pro */
-  .input.is-neo {
-    border-radius: 14px !important;
-    border: 1px solid rgba(148,163,184,.35);
-    box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
-    transition: box-shadow .15s ease, border-color .15s ease, transform .02s ease;
-  }
-  .input.is-neo:focus {
-    border-color: #6c2943;
-    box-shadow: 0 0 0 3px rgba(108, 41, 67, .18);
-  }
-  .control.has-icons-left .icon,
-  .control.has-icons-right .icon { color: #94a3b8; }
-
-  /* Botón CTA */
-  .btn-primary {
-    background: linear-gradient(135deg, #6c2943, #8a3b5b);
-    color: #fff; border: 0; border-radius: 14px;
-    box-shadow: 0 10px 20px rgba(108,41,67,.25);
-    transition: transform .1s ease, box-shadow .12s ease, filter .12s ease;
-  }
-  .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.03); }
-  .btn-primary:active { transform: translateY(0); box-shadow: 0 6px 14px rgba(108,41,67,.22); }
-
-  /* Notificaciones */
-  .notice {
-    border-radius: 14px;
-    border: 1px solid rgba(248,113,113,.3);
-    background: #fff1f2;
-    color: #991b1b;
-  }
-
-  /* Link actions */
-  .auth-actions a {
-    font-weight: 700; text-decoration: none;
-  }
-  .auth-actions a:hover { text-decoration: underline; }
-
-  /* Toggle password button */
-  .toggle-pass {
-    border: 0; background: transparent; cursor: pointer;
-    color: #6b7280; padding: 0 .5rem;
-  }
-</style>
-
-<section class="auth-hero">
-  <span class="auth-blob"></span>
-  <span class="auth-blob b2"></span>
-
-  <div class="auth-card">
-    <!-- Header -->
-    <div class="auth-head">
-      <div class="brand">
-        <img src="{% static 'img/logo.png' %}" alt="Logo">
-        <div>
-          <h2 class="title is-5 m-0">Iniciar sesión</h2>
-          <p class="is-size-7 m-0" style="opacity:.95;">Bienvenido de nuevo 👋</p>
-        </div>
-      </div>
+    <div class="uide-auth__head">
+      <img class="uide-auth__logo" src="{% static 'img/logo.png' %}" alt="UIDE Loja">
+      <h1>Iniciar sesión</h1>
+      <p>Accede con tu cuenta institucional para gestionar equipos, partidos y pagos.</p>
     </div>
 
-    <!-- Body -->
-    <div class="auth-body">
-      {% if messages %}
-        <div class="notification notice is-light is-size-7">
-          {% for message in messages %}{{ message }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+    {% if form.non_field_errors %}
+      <div class="uide-form-errors" role="alert">
+        <strong class="uide-with-icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+          No pudimos iniciar tu sesión
+        </strong>
+        <ul>
+          {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="field">
+        <label class="label" for="{{ form.username.id_for_label }}">
+          {{ form.username.label }}
+        </label>
+        <div class="control">
+          {{ form.username|add_class:"input"|attr:"autocomplete:username"|attr:"autofocus" }}
         </div>
-      {% endif %}
-
-      {% if form.non_field_errors %}
-        <div class="notification notice is-light is-size-7">
-          {% for err in form.non_field_errors %}{{ err }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
-        </div>
-      {% endif %}
-
-      <form method="POST" novalidate>
-        {% csrf_token %}
-
-        {% for field in form %}
-          <div class="field">
-            <label class="label is-size-6 has-text-grey-dark">{{ field.label }}</label>
-
-            {% if field.name == 'username' %}
-              <div class="control has-icons-left">
-                {{ field|add_class:"input is-medium is-neo" }}
-                <span class="icon is-left">
-                  <i class="fas fa-user"></i>
-                </span>
-              </div>
-            {% elif field.name == 'password' %}
-              <div class="control has-icons-left has-icons-right">
-                {{ field|add_class:"input is-medium is-neo" }}
-                <span class="icon is-left">
-                  <i class="fas fa-lock"></i>
-                </span>
-                <span class="icon is-right">
-                  <button type="button" class="toggle-pass" aria-label="Mostrar/ocultar contraseña"
-                          onclick="(function(){
-                            const i=document.getElementById('{{ field.id_for_label }}');
-                            if(!i) return;
-                            i.type = i.type==='password' ? 'text' : 'password';
-                          })()">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                </span>
-              </div>
-            {% else %}
-              <div class="control">
-                {{ field|add_class:"input is-medium is-neo" }}
-              </div>
-            {% endif %}
-
-            {% for error in field.errors %}
-              <p class="help is-danger">{{ error }}</p>
-            {% endfor %}
-          </div>
+        {% for error in form.username.errors %}
+          <p class="help is-danger">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+            <span>{{ error }}</span>
+          </p>
         {% endfor %}
+      </div>
 
-        <div class="field mt-5">
-          <button type="submit" class="button is-medium is-fullwidth btn-primary">
-            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
-            <span>Entrar</span>
+      <div class="field">
+        <label class="label" for="{{ form.password.id_for_label }}">
+          {{ form.password.label }}
+        </label>
+        <div class="control uide-password">
+          {{ form.password|add_class:"input"|attr:"autocomplete:current-password" }}
+          <button type="button" class="uide-password__toggle" data-toggle-password
+                  aria-pressed="false" aria-label="Mostrar contraseña"
+                  aria-controls="{{ form.password.id_for_label }}">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg>
           </button>
         </div>
-      </form>
-
-      <div class="auth-actions has-text-centered mt-4">
-        <p class="is-size-7 mb-2">
-          ¿No tienes cuenta?
-          <a href="{% url 'registro' %}" class="has-text-link">Regístrate aquí</a>
-        </p>
-        <p class="is-size-7">
-          <a href="{% url 'password_reset' %}" class="has-text-warning-dark">¿Olvidaste tu contraseña?</a>
-        </p>
+        {% for error in form.password.errors %}
+          <p class="help is-danger">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+            <span>{{ error }}</span>
+          </p>
+        {% endfor %}
       </div>
+
+      <div class="field mt-5">
+        <button type="submit" class="button is-primary is-fullwidth">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-salir"></use></svg>
+          <span>Entrar</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="uide-auth__actions">
+      <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
+      <p><a href="{% url 'password_reset' %}">Olvidé mi contraseña</a></p>
     </div>
+
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.getAttribute('aria-controls'));
+      if (!input) return;
+      const mostrar = input.type === 'password';
+      input.type = mostrar ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(mostrar));
+      btn.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      btn.querySelector('use').setAttribute('href', mostrar ? '#i-prohibido' : '#i-ver');
+    });
+  });
+</script>
 {% endblock %}

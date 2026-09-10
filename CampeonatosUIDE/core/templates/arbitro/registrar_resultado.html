@@ -21,15 +21,15 @@
         <form method="post">
             {% csrf_token %}
             <div class="field">
-                <label class="label">{{ partido.equipo_local.nombre }} (Local)</label>
+                <label class="label" for="res-local">{{ partido.equipo_local.nombre }} (Local)</label>
                 <div class="control">
-                    <input class="input" type="number" name="resultado_local" value="{{ partido.resultado_local|default:0 }}" min="0">
+                    <input class="input" id="res-local" type="number" name="resultado_local" value="{{ partido.resultado_local|default:0 }}" min="0">
                 </div>
             </div>
             <div class="field">
-                <label class="label">{{ partido.equipo_visitante.nombre }} (Visitante)</label>
+                <label class="label" for="res-visitante">{{ partido.equipo_visitante.nombre }} (Visitante)</label>
                 <div class="control">
-                    <input class="input" type="number" name="resultado_visitante" value="{{ partido.resultado_visitante|default:0 }}" min="0">
+                    <input class="input" id="res-visitante" type="number" name="resultado_visitante" value="{{ partido.resultado_visitante|default:0 }}" min="0">
                 </div>
             </div>
             <div class="field is-grouped">

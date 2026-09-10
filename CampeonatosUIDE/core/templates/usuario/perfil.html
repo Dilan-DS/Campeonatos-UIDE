@@ -4,106 +4,6 @@
 
 {% block content %}
 
-<style>
-/* =======================================================
-   Estilo claro PRO — sin cambiar tu HTML (solo CSS)
-   ======================================================= */
-
-/* Forzamos fondo claro global por si base.html trae uno oscuro */
-html, body { background: #f7fafc !important; }
-
-/* Paleta */
-:root{
-  --brand-1:#e11d48;   /* rosa */
-  --brand-2:#f43f5e;
-  --accent:#0ea5e9;    /* celeste */
-  --ink:#0f172a;       /* texto oscuro */
-  --muted:#475569;     /* texto tenue */
-  --paper:#ffffff;     /* tarjetas */
-  --ring:0 0 0 3px rgba(14,165,233,.18);
-  --shadow:0 10px 30px rgba(2,6,23,.08);
-}
-
-/* Sección con degradé MUY suave claro (no negro) */
-.section{
-  position: relative;
-  padding-top: 4.5rem;
-  padding-bottom: 5rem;
-  background:
-    radial-gradient(1200px 600px at 90% -10%, rgba(244,63,94,.06), transparent 55%),
-    radial-gradient(1000px 500px at -10% 110%, rgba(14,165,233,.10), transparent 55%),
-    linear-gradient(180deg, #ffffff, #f7fafc);
-}
-
-/* Título */
-.title{
-  color: var(--ink);
-  letter-spacing:.2px;
-  margin-bottom: 2rem !important;
-  text-shadow: 0 1px 0 rgba(255,255,255,.65);
-  animation: fadeDown .45s ease both;
-}
-
-/* Tarjeta estilo “paper + sombra suave” */
-.box{
-  background: var(--paper);
-  border: 1px solid rgba(2,6,23,.06);
-  border-radius: 16px !important;
-  box-shadow: var(--shadow);
-  transition: transform .18s ease, box-shadow .18s ease;
-}
-.box:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(2,6,23,.10);
-}
-
-/* Subtítulo con “badge” */
-.subtitle{
-  color: var(--brand-1) !important;
-  display:flex; align-items:center; gap:.55rem;
-}
-.subtitle:before{
-  content:"";
-  width:10px;height:10px;border-radius:999px;
-  background: linear-gradient(135deg,var(--brand-1),var(--brand-2));
-  box-shadow: 0 0 0 6px rgba(225,29,72,.10);
-}
-
-/* Texto del contenido */
-.content p{
-  color: var(--muted);
-  line-height: 1.55;
-  margin-bottom:.6rem;
-}
-.content p strong{ color: var(--ink); }
-
-/* Botón principal dorado con micro-interacción */
-.button.is-primary{
-  border-color: transparent;
-  color:#1f2937;
-  background: linear-gradient(135deg, #fde047, #f59e0b);
-  box-shadow: 0 10px 22px rgba(245,158,11,.22);
-  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
-}
-.button.is-primary:hover{
-  transform: translateY(-1px);
-  filter: saturate(1.05);
-  box-shadow: 0 16px 30px rgba(245,158,11,.28);
-}
-.button.is-primary:focus{ box-shadow: var(--ring); }
-
-/* Espaciados suaves en móvil */
-@media (max-width: 768px){
-  .title{ font-size:1.8rem; }
-  .box{ padding:1.5rem !important; }
-}
-
-/* Animaciones */
-@keyframes fadeDown{
-  from{ opacity:0; transform: translateY(-8px); }
-  to  { opacity:1; transform: translateY(0); }
-}
-</style>
 
 <section class="section">
   <div class="container">
@@ -124,7 +24,7 @@ html, body { background: #f7fafc !important; }
 
         <div class="has-text-centered mt-5">
           <a href="{% url 'editar_perfil' %}" class="button is-primary is-rounded is-fullwidth">
-            ✏️ Editar Perfil
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Perfil
           </a>
         </div>
       </div>

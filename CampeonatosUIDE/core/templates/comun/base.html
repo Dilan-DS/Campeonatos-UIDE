@@ -1,54 +1,82 @@
-{% load static %}
-<!-- Carga archivos estáticos (CSS, imágenes, JS) -->
+{% load static %}<!DOCTYPE html>
+{% comment %}
+  Plantilla base — Campeonatos UIDE
 
-<!DOCTYPE html>
-<html lang="es">
+  data-theme="light" es obligatorio: Bulma 1.x cambia a su paleta oscura
+  con `prefers-color-scheme: dark`, pero las pantallas de este proyecto
+  asumen fondo claro. Sin este atributo el texto de las tablas quedaba
+  en 1.18:1 sobre blanco (ilegible) para los usuarios con el sistema en
+  modo oscuro.
+{% endcomment %}
+<html lang="es" data-theme="light">
 <head>
-  <!-- Configuración general de la página -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Sistema de Campeonatos Deportivos UIDE Loja" />
-  <meta name="author" content="Tu equipo UIDE" />
-  <meta name="theme-color" content="#d32f2f" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}Sistema de campeonatos deportivos universitarios de la UIDE Loja: inscripción de equipos, calendarios, resultados y tablas de posiciones.{% endblock %}">
+  <meta name="theme-color" content="#a6192e">
   <title>{% block title %}Campeonatos UIDE{% endblock %}</title>
-  <!-- Título dinámico, definido por cada plantilla hija -->
 
-  <!-- Ícono del navegador -->
-  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
-  <!-- Framework CSS Bulma -->
+  <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png">
+  <link rel="apple-touch-icon" href="{% static 'img/logo.png' %}">
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
-  <!-- Fuente Roboto desde Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="{% static 'styles/uide.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
 
 <body class="uide-app is-flex is-flex-direction-column">
-<!-- Cuerpo con fondo blanco y texto negro -->
+  {% include "comun/iconos.html" %}
 
-  <!--  NAVBAR INCLUIDO -->
+  <a class="uide-skip-link" href="#contenido">Saltar al contenido principal</a>
+
   {% include "comun/navbar.html" %}
 
-  <!--  Contenido dinámico -->
-  <main class="uide-main">
+  <main class="uide-main" id="contenido">
     {% if messages %}
-    <div class="container uide-alerts mb-5">
-    {% for message in messages %}
-    <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %}">
-    {{ message }}
-    </div>
-    {% endfor %}
-    </div>
+      <div class="container uide-container mb-5">
+        <div class="uide-alerts" role="status" aria-live="polite">
+          {% for message in messages %}
+            {% if message.level_tag == 'success' %}
+              <div class="notification is-success">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% elif message.level_tag == 'warning' %}
+              <div class="notification is-warning">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% elif message.level_tag == 'error' %}
+              <div class="notification is-danger">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% else %}
+              <div class="notification is-info">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
     {% endif %}
-    {% block content %}
-    {% endblock %}
+
+    {% block content %}{% endblock %}
   </main>
 
-  <!--  Footer común -->
   {% include "comun/footer.html" %}
 
-  <!-- JS para el menú hamburguesa en dispositivos móviles -->
   <script>
+    /* Tablas de datos en móvil ------------------------------------------
+       Cada celda recibe data-label con el encabezado de su columna para
+       que uide.css pueda presentar el registro como ficha por debajo de
+       768px sin perder la semántica de tabla. */
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('table.table, table.jugadores-tabla').forEach((table) => {
         const headers = Array.from(table.querySelectorAll('thead th'))
@@ -62,12 +90,46 @@
         }
         rows.forEach((row) => {
           Array.from(row.children).forEach((cell, index) => {
-            if (cell.tagName === 'TD' && headers[index]) cell.dataset.label = headers[index];
+            if (cell.tagName !== 'TD') return;
+            if (cell.hasAttribute('colspan')) return;
+            if (headers[index]) cell.dataset.label = headers[index];
           });
         });
       });
     });
-  </script>
 
+    /* Evitar doble envío -------------------------------------------------
+       Al enviar un formulario válido se bloquea el botón y se muestra el
+       estado de carga de Bulma.
+
+       El bloqueo siempre se libera: al restaurar la página desde caché
+       (botón atrás) y, como red de seguridad, a los 10 s. Sin ese plazo un
+       envío que no llega a navegar (red caída, descarga en la misma
+       pestaña) dejaba el botón inutilizable hasta recargar. */
+    const liberarEnvio = (raiz) => {
+      (raiz || document).querySelectorAll('button[type="submit"], input[type="submit"]')
+        .forEach((btn) => {
+          btn.classList.remove('is-loading');
+          btn.disabled = false;
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('form').forEach((form) => {
+        form.addEventListener('submit', () => {
+          if (form.dataset.allowResubmit === 'true') return;
+          if (form.checkValidity && !form.checkValidity()) return;
+          form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((btn) => {
+            btn.classList.add('is-loading');
+            btn.disabled = true;
+          });
+          setTimeout(() => liberarEnvio(form), 10000);
+        });
+      });
+    });
+
+    window.addEventListener('pageshow', () => liberarEnvio(document));
+  </script>
+  {% block extra_js %}{% endblock %}
 </body>
 </html>
