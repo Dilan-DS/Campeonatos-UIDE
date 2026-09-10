@@ -1,5 +1,7 @@
 {% extends 'comun/base.html' %}
 
+{% block title %}Calendario{% if campeonato %} · {{ campeonato.nombre }}{% endif %} | Campeonatos UIDE{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
   {% if campeonato %}

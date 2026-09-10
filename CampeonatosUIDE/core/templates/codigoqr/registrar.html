@@ -1,6 +1,8 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
+{% block title %}{% if form.instance.pk %}Editar código QR{% else %}Registrar código QR{% endif %} | Campeonatos UIDE{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
 {% endblock %}
