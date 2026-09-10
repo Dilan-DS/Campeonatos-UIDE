@@ -27,6 +27,9 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+#
+# Sólo SECRET_KEY es obligatoria; el resto tiene valores por defecto para
+# que el proyecto arranque tras un clon y en CI sin preparar un .env.
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
@@ -34,7 +37,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 
 # Application definition
@@ -83,8 +86,10 @@ WSGI_APPLICATION = "CampeonatosUIDE.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# Si no hay DATABASE_URL definido se usa el SQLite del proyecto, para que
+# el proyecto arranque tras un clon (y en CI) sin preparar un .env antes.
 DATABASES = {
-    'default': env.db(),
+    'default': env.db('DATABASE_URL', default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
 }
 
 
@@ -140,8 +145,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env("SMTP_USER")
-EMAIL_HOST_PASSWORD = env("SMTP_PASS")
+EMAIL_HOST_USER = env("SMTP_USER", default="")
+EMAIL_HOST_PASSWORD = env("SMTP_PASS", default="")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "no-reply@uide.local"
 
 # Reset de contraseña
@@ -149,4 +154,4 @@ PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
 EMAIL_TIMEOUT = 20
 
 
-CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS')
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
