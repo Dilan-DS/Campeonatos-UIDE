@@ -100,9 +100,6 @@
                       Este estado se actualiza automáticamente cuando se valida el pago. No es editable en este formulario.
                     </p>
                   </div>
-                  <label class="checkbox" style="opacity:.55; pointer-events:none;">
-                    {{ field|add_class:"" }} <span class="ml-1">Aprobado</span>
-                  </label>
                 </div>
                 {# Mantener el valor en el POST sin permitir cambios #}
                 {% if edit_mode %}
@@ -115,7 +112,7 @@
                 {% if request.user.rol == "DELEGADO" %}
                   <input type="hidden" name="delegado" value="{{ request.user.id }}">
                   <div class="control">
-                    <input class="input is-rounded is-medium" value="{{ request.user.username }}" disabled>
+                    <p class="input is-static">{{ request.user.get_full_name|default:request.user.username }}</p>
                   </div>
                 {% else %}
                   <div class="control">

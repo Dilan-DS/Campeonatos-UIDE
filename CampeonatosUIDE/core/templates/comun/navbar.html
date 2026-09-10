@@ -41,24 +41,13 @@
       {% if request.user.is_authenticated %}
         {% if request.user.rol == "ADMIN" %}
 
-          <div class="navbar-item has-dropdown" data-dropdown>
-            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
-              <svg class="uide-icon" aria-hidden="true"><use href="#i-ajustes"></use></svg>
-              <span>Gestión</span>
-              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
-            </button>
-            <div class="navbar-dropdown">
-              <a class="navbar-item {% if url_name == 'admin_dashboard' %}is-current{% endif %}" href="{% url 'admin_dashboard' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-panel"></use></svg>Panel Admin
-              </a>
-              <a class="navbar-item {% if url_name == 'listar_usuarios' %}is-current{% endif %}" href="{% url 'listar_usuarios' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>Usuarios
-              </a>
-              <a class="navbar-item {% if url_name == 'listar_arbitros' %}is-current{% endif %}" href="{% url 'listar_arbitros' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg>Árbitros
-              </a>
-            </div>
-          </div>
+          {# Cinco secciones en lugar de siete entradas: con las anteriores la barra desbordaba 68px a 1280px. #}
+          <a class="navbar-item {% if url_name == 'admin_dashboard' %}is-current{% endif %}"
+             href="{% url 'admin_dashboard' %}"
+             {% if url_name == 'admin_dashboard' %}aria-current="page"{% endif %}>
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-panel"></use></svg>
+            <span>Panel</span>
+          </a>
 
           <div class="navbar-item has-dropdown" data-dropdown>
             <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
@@ -73,35 +62,57 @@
               <a class="navbar-item {% if url_name == 'listar_equipos' %}is-current{% endif %}" href="{% url 'listar_equipos' %}">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>Equipos
               </a>
+              <a class="navbar-item {% if url_name == 'calendario_global' %}is-current{% endif %}" href="{% url 'calendario_global' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Partidos
+              </a>
               {% if campeonato_listo_para_ver %}
                 <a class="navbar-item {% if url_name == 'calendario_campeonato' %}is-current{% endif %}" href="{% url 'calendario_campeonato' campeonato_listo_para_ver.id %}">
-                  <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Calendario
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>Fixture actual
                 </a>
               {% endif %}
+              <a class="navbar-item {% if url_name == 'listar_suspensiones' %}is-current{% endif %}" href="{% url 'listar_suspensiones' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg>Suspensiones
+              </a>
               <a class="navbar-item {% if url_name == 'listar_transmisiones' %}is-current{% endif %}" href="{% url 'listar_transmisiones' %}">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>Transmisiones
-              </a>
-              <a class="navbar-item {% if url_name == 'listar_suspensiones' %}is-current{% endif %}" href="{% url 'listar_suspensiones' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-suspension"></use></svg>Suspensiones
               </a>
             </div>
           </div>
 
           <div class="navbar-item has-dropdown" data-dropdown>
             <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
-              <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
-              <span>Catálogos</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>
+              <span>Personas</span>
               <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
             </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item {% if url_name == 'listar_deportes' %}is-current{% endif %}" href="{% url 'listar_deportes' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg>Deportes
+              <a class="navbar-item {% if url_name == 'listar_usuarios' %}is-current{% endif %}" href="{% url 'listar_usuarios' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>Usuarios
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_delegados' %}is-current{% endif %}" href="{% url 'listar_delegados' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>Delegados
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_arbitros' %}is-current{% endif %}" href="{% url 'listar_arbitros' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg>Árbitros
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_jugadores_admin' %}is-current{% endif %}" href="{% url 'listar_jugadores_admin' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-camiseta"></use></svg>Jugadores
+              </a>
+            </div>
+          </div>
+
+          <div class="navbar-item has-dropdown" data-dropdown>
+            <button type="button" class="uide-navbar__trigger" aria-expanded="false" data-dropdown-trigger>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg>
+              <span>Pagos</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
+            </button>
+            <div class="navbar-dropdown">
+              <a class="navbar-item {% if url_name == 'listar_pagos_admin' %}is-current{% endif %}" href="{% url 'listar_pagos_admin' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg>Inscripciones
               </a>
               <a class="navbar-item {% if url_name == 'listar_codigos_qr' %}is-current{% endif %}" href="{% url 'listar_codigos_qr' %}">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-qr"></use></svg>Códigos QR
-              </a>
-              <a class="navbar-item {% if url_name == 'listar_carreras' %}is-current{% endif %}" href="{% url 'listar_carreras' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-carrera"></use></svg>Carreras
               </a>
             </div>
           </div>
@@ -113,30 +124,24 @@
               <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-abajo"></use></svg>
             </button>
             <div class="navbar-dropdown">
-              <a class="navbar-item {% if url_name == 'listar_imagenes_galeria' %}is-current{% endif %}" href="{% url 'listar_imagenes_galeria' %}">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>Galería
-              </a>
               <a class="navbar-item {% if url_name == 'listar_noticias' %}is-current{% endif %}" href="{% url 'listar_noticias' %}">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-noticia"></use></svg>Noticias
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_imagenes_galeria' %}is-current{% endif %}" href="{% url 'listar_imagenes_galeria' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>Galería
               </a>
               <a class="navbar-item {% if url_name == 'listar_testimonios' %}is-current{% endif %}" href="{% url 'listar_testimonios' %}">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-testimonio"></use></svg>Testimonios
               </a>
+              <hr class="navbar-divider">
+              <a class="navbar-item {% if url_name == 'listar_deportes' %}is-current{% endif %}" href="{% url 'listar_deportes' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-deporte"></use></svg>Deportes
+              </a>
+              <a class="navbar-item {% if url_name == 'listar_carreras' %}is-current{% endif %}" href="{% url 'listar_carreras' %}">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-carrera"></use></svg>Carreras
+              </a>
             </div>
           </div>
-
-          <a class="navbar-item {% if url_name == 'listar_pagos_admin' %}is-current{% endif %}"
-             href="{% url 'listar_pagos_admin' %}"
-             {% if url_name == 'listar_pagos_admin' %}aria-current="page"{% endif %}>
-            <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg>
-            <span>Pagos</span>
-          </a>
-          <a class="navbar-item {% if url_name == 'calendario_global' %}is-current{% endif %}"
-             href="{% url 'calendario_global' %}"
-             {% if url_name == 'calendario_global' %}aria-current="page"{% endif %}>
-            <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
-            <span>Partidos</span>
-          </a>
 
         {% elif request.user.rol == "ARBITRO" %}
 
