@@ -16,6 +16,7 @@ from core.models import (
     Arbitro, Campeonato, Carrera, CodigoQR, Deporte, Equipo, ImagenGaleria,
     Jugador, Noticia, Pago, Partido, Suspension, Testimonio, Usuario,
 )
+from core.utils.tabla_posiciones import calcular_tabla_posiciones
 
 PWD = "Prueba.2026"
 
@@ -512,3 +513,253 @@ class RutasHistoricasSiguenResolviendo(PruebaBase):
             with self.subTest(url=url):
                 self.assertNotEqual(self.client.get(url).status_code, 404,
                                     f"{url} deberia seguir existiendo")
+
+
+# ---------------------------------------------------------------------------
+# Logica de negocio.
+#
+# Las clases anteriores son de regresion de rutas y de interfaz: comprueban
+# que las paginas responden y que muestran lo que deben. Estas cubren los
+# calculos y los permisos, que es donde un fallo no se ve en pantalla pero
+# deja mal clasificado un campeonato o expone datos de otro equipo.
+# ---------------------------------------------------------------------------
+
+
+def _campeonato_vacio(nombre, deporte):
+    """Campeonato aparte, sin equipos ni partidos previos.
+
+    Las pruebas de la tabla necesitan controlar todas las filas: si
+    reutilizaran el campeonato de _datos_base, sus dos equipos aprobados
+    apareceran con ceros y desordenan las comprobaciones.
+    """
+    hoy = date.today()
+    return Campeonato.objects.create(
+        nombre=nombre, tipo_campeonato="LIGA", deporte=deporte,
+        descripcion="Campeonato para pruebas de calculo.",
+        fecha_inicio=hoy - timedelta(days=10), fecha_fin=hoy + timedelta(days=30),
+        fecha_fin_inscripcion=hoy - timedelta(days=15), estado="EN_CURSO",
+        max_jugadores_por_equipo=18, precio_inscripcion=45,
+        activo="SI", es_publico="SI", fixture_generado=True,
+        codigo_qr=CodigoQR.objects.first())
+
+
+class TablaDePosicionesCalculaBien(PruebaBase):
+    """Puntos, diferencia de goles y desempate de calcular_tabla_posiciones.
+
+    Es el calculo que decide quien gana el campeonato, asi que se comprueba
+    con un escenario de resultado conocido en lugar de solo mirar que la
+    pagina responda.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+        cls.camp = _campeonato_vacio("Liga de calculo", cls.datos["deporte"])
+
+        def equipo(nombre, aprobado=True):
+            return Equipo.objects.create(
+                nombre=nombre, campeonato=cls.camp, carrera=cls.datos["carrera"],
+                delegado=cls.datos["delegado"], aprobado=aprobado)
+
+        cls.a, cls.b, cls.c = equipo("Alfa"), equipo("Beta"), equipo("Gamma")
+        cls.sin_aprobar = equipo("Delta", aprobado=False)
+
+        hoy = date.today()
+
+        def partido(local, visitante, gl, gv, estado, dia, hora_):
+            return Partido.objects.create(
+                campeonato=cls.camp, equipo_local=local, equipo_visitante=visitante,
+                fecha=hoy - timedelta(days=dia), hora=time(hora_, 0),
+                lugar="Cancha 1", estado=estado,
+                resultado_local=gl, resultado_visitante=gv)
+
+        partido(cls.a, cls.b, 3, 1, "FINALIZADO", 5, 10)        # gana Alfa
+        partido(cls.b, cls.c, 2, 2, "FINALIZADO", 4, 11)        # empate
+        partido(cls.a, cls.c, 9, 0, "PROGRAMADO", 3, 12)        # no cuenta
+        partido(cls.a, cls.c, None, None, "FINALIZADO", 2, 13)  # sin marcador
+
+    def _fila(self, tabla, equipo):
+        return next(f for f in tabla if f["equipo"].pk == equipo.pk)
+
+    def test_puntos_y_goles_por_equipo(self):
+        tabla = calcular_tabla_posiciones(self.camp)
+
+        alfa = self._fila(tabla, self.a)
+        self.assertEqual(
+            (alfa["pj"], alfa["pg"], alfa["pe"], alfa["pp"], alfa["puntos"]),
+            (1, 1, 0, 0, 3), "una victoria son 3 puntos")
+        self.assertEqual((alfa["gf"], alfa["gc"], alfa["gd"]), (3, 1, 2))
+
+        beta = self._fila(tabla, self.b)
+        self.assertEqual(
+            (beta["pj"], beta["pg"], beta["pe"], beta["pp"], beta["puntos"]),
+            (2, 0, 1, 1, 1), "un empate es 1 punto y la derrota ninguno")
+        self.assertEqual((beta["gf"], beta["gc"], beta["gd"]), (3, 5, -2))
+
+        gamma = self._fila(tabla, self.c)
+        self.assertEqual((gamma["pj"], gamma["puntos"], gamma["gd"]), (1, 1, 0))
+
+    def test_desempata_por_diferencia_de_goles(self):
+        """Beta y Gamma tienen 1 punto; Gamma va delante por diferencia."""
+        orden = [f["equipo"].nombre for f in calcular_tabla_posiciones(self.camp)]
+        self.assertEqual(orden[0], "Alfa", "el lider es quien mas puntos tiene")
+        self.assertLess(orden.index("Gamma"), orden.index("Beta"),
+                        "con los mismos puntos manda la diferencia de goles")
+
+    def test_ignora_partidos_no_finalizados_y_sin_resultado(self):
+        """El 9-0 PROGRAMADO y el FINALIZADO sin marcador no deben sumar."""
+        alfa = self._fila(calcular_tabla_posiciones(self.camp), self.a)
+        self.assertEqual(alfa["pj"], 1, "solo cuenta el partido finalizado con marcador")
+        self.assertEqual(alfa["gf"], 3, "el 9-0 programado no debe sumar goles")
+
+    def test_solo_aparecen_equipos_aprobados(self):
+        nombres = [f["equipo"].nombre for f in calcular_tabla_posiciones(self.camp)]
+        self.assertNotIn("Delta", nombres, "un equipo sin aprobar no va en la tabla")
+        self.assertEqual(len(nombres), 3)
+
+    def test_no_mezcla_campeonatos(self):
+        """Los equipos del campeonato de _datos_base no deben colarse."""
+        nombres = [f["equipo"].nombre for f in calcular_tabla_posiciones(self.camp)]
+        self.assertNotIn("Equipo A", nombres)
+
+
+class FixtureFiltraSegunElRol(PruebaBase):
+    """Cada rol solo debe ver en el fixture los partidos que le tocan.
+
+    El delegado ve los de sus equipos, el jugador los de su equipo y el
+    arbitro los que dirige. Es una regla de privacidad: sin ella un
+    delegado veria el calendario completo del rival.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+        cls.camp = _campeonato_vacio("Liga de roles", cls.datos["deporte"])
+
+        cls.otro_delegado = Usuario.objects.create_user(
+            username="delegado_rival", email="delegado_rival@uide.edu.ec",
+            password=PWD, rol="DELEGADO", carrera=cls.datos["carrera"],
+            genero="masculino")
+
+        def equipo(nombre, delegado):
+            return Equipo.objects.create(
+                nombre=nombre, campeonato=cls.camp, carrera=cls.datos["carrera"],
+                delegado=delegado, aprobado=True)
+
+        cls.mio = equipo("Mi equipo", cls.datos["delegado"])
+        cls.rival = equipo("Rival", cls.otro_delegado)
+        cls.ajeno_a = equipo("Ajeno A", cls.otro_delegado)
+        cls.ajeno_b = equipo("Ajeno B", cls.otro_delegado)
+
+        hoy = date.today()
+        # Partido de un equipo del delegado de _datos_base, con su arbitro.
+        cls.partido_propio = Partido.objects.create(
+            campeonato=cls.camp, equipo_local=cls.mio, equipo_visitante=cls.rival,
+            fecha=hoy + timedelta(days=1), hora=time(10, 0), lugar="Cancha 1",
+            estado="PROGRAMADO", arbitro=cls.datos["arbitro"])
+        # Partido entre dos equipos ajenos y sin arbitro asignado.
+        cls.partido_ajeno = Partido.objects.create(
+            campeonato=cls.camp, equipo_local=cls.ajeno_a,
+            equipo_visitante=cls.ajeno_b, fecha=hoy + timedelta(days=2),
+            hora=time(11, 0), lugar="Cancha 2", estado="PROGRAMADO")
+
+        cls.url = reverse("fixture_campeonato_detalle", args=[cls.camp.pk])
+
+    def _partidos_visibles(self, usuario):
+        self.client.force_login(usuario)
+        respuesta = self.client.get(self.url)
+        self.assertEqual(respuesta.status_code, 200)
+        return {p.pk for p in respuesta.context["partidos"]}
+
+    def test_el_admin_ve_todos(self):
+        visibles = self._partidos_visibles(self.datos["admin"])
+        self.assertEqual(visibles, {self.partido_propio.pk, self.partido_ajeno.pk})
+
+    def test_el_delegado_no_ve_partidos_de_otros_equipos(self):
+        visibles = self._partidos_visibles(self.datos["delegado"])
+        self.assertIn(self.partido_propio.pk, visibles)
+        self.assertNotIn(self.partido_ajeno.pk, visibles,
+                         "un delegado no debe ver el calendario de equipos ajenos")
+
+    def test_el_jugador_solo_ve_los_de_su_equipo(self):
+        jugador = self.datos["jugador"]
+        jugador.equipo = self.mio
+        jugador.save()
+        visibles = self._partidos_visibles(jugador.usuario)
+        self.assertEqual(visibles, {self.partido_propio.pk})
+
+    def test_el_arbitro_solo_ve_los_que_dirige(self):
+        visibles = self._partidos_visibles(self.datos["arbitro"].usuario)
+        self.assertEqual(visibles, {self.partido_propio.pk},
+                         "el partido sin arbitro asignado no es suyo")
+
+    def test_un_genero_invalido_cae_en_masculino(self):
+        """El parametro genero llega de la URL y no debe filtrar a lo loco."""
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.get(self.url, {"genero": "no-existe"})
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.context["genero_seleccionado"], "masculino")
+
+    def test_filtra_por_genero(self):
+        self.rival.genero = "femenino"
+        self.rival.save()
+        visibles = self._partidos_visibles(self.datos["admin"])
+        self.assertNotIn(self.partido_propio.pk, visibles,
+                         "un partido con un equipo femenino no va en el fixture masculino")
+
+
+class AprobacionDePagosRespetaRolYEstado(PruebaBase):
+    """Quien puede aprobar un pago y desde que estado.
+
+    Aprobar es lo que habilita a un equipo, asi que la vista solo debe
+    aceptar ADMIN y solo debe mover un pago que este PENDIENTE.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+        cls.pago = Pago.objects.get(equipo=cls.datos["equipo"])
+
+    def _aprobar(self, usuario):
+        self.client.force_login(usuario)
+        return self.client.post(
+            reverse("aprobar_pago_admin", args=[self.pago.pk]),
+            {"observacion_admin": "Comprobante correcto."})
+
+    def test_el_admin_aprueba_un_pago_pendiente(self):
+        self._aprobar(self.datos["admin"])
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.estado, "APROBADO")
+        self.assertEqual(self.pago.observacion_admin, "Comprobante correcto.")
+
+    def test_el_delegado_no_puede_aprobar_su_propio_pago(self):
+        self._aprobar(self.datos["delegado"])
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.estado, "PENDIENTE",
+                         "solo ADMIN debe poder aprobar un pago")
+
+    def test_no_reaprueba_un_pago_ya_rechazado(self):
+        self.pago.estado = "RECHAZADO"
+        self.pago.save()
+        self._aprobar(self.datos["admin"])
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.estado, "RECHAZADO",
+                         "aprobar solo debe actuar sobre pagos PENDIENTE")
+
+    def test_aprobar_por_get_no_cambia_nada(self):
+        """La aprobacion solo esta implementada en POST."""
+        self.client.force_login(self.datos["admin"])
+        self.client.get(reverse("aprobar_pago_admin", args=[self.pago.pk]))
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.estado, "PENDIENTE")
+
+    def test_el_delegado_solo_ve_los_pagos_de_sus_equipos(self):
+        ajeno = Usuario.objects.create_user(
+            username="delegado_ajeno", email="delegado_ajeno@uide.edu.ec",
+            password=PWD, rol="DELEGADO", carrera=self.datos["carrera"],
+            genero="masculino")
+        self.client.force_login(ajeno)
+        respuesta = self.client.get(reverse("mis_pagos_delegado"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(list(respuesta.context["pagos"]), [],
+                         "un delegado no debe ver pagos de equipos que no son suyos")

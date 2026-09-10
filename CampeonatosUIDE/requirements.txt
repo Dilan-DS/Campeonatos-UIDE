@@ -1,7 +1,29 @@
+# Dependencias directas del proyecto, con version fija.
+#
+# Se fijan a proposito: sin version, un `pip install -r` en otra fecha o en
+# otra maquina puede traer versiones distintas y romper el proyecto sin que
+# nadie haya tocado el codigo. Para subir una version, cambiala aqui y
+# comprueba que CI sigue verde.
+
 Django==5.2.3
-django-environ
-openpyxl
-pandas
-reportlab
-django-multiselectfield
-django-widget-tweaks
+
+# Lee la configuracion desde .env (CampeonatosUIDE/settings.py).
+django-environ==0.14.0
+
+# Clases de Bulma en los widgets de los formularios ({% render_field %}).
+django-widget-tweaks==1.5.1
+
+# MultiSelectField en los modelos de deportes.
+django-multiselectfield==1.0.1
+
+# Exportaciones a Excel (campeonato_views, estadisticas_views).
+openpyxl==3.1.5
+pandas==3.0.5
+
+# Exportaciones a PDF.
+reportlab==5.0.1
+
+# Requerida por los ImageField de los modelos (logos, comprobantes,
+# noticias, galeria). Hasta ahora solo entraba de rebote como dependencia
+# de reportlab; se declara porque el proyecto la usa de forma directa.
+pillow==12.3.0
