@@ -136,20 +136,29 @@
                                                     </span>
                                                 </p>
                                                 <p class="control">
-                                                    <button class="button is-small is-info is-light" type="submit">Asignar</button>
+                                                    <button class="button is-small is-primary" type="submit">Asignar</button>
                                                 </p>
                                             </div>
                                         </form>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if p.estado == "PROGRAMADO" %}<span class="tag is-success is-light">Programado</span>
-                                    {% elif p.estado == "JUGADO" %}<span class="tag is-dark is-light">Jugado</span>
-                                    {% else %}<span class="tag is-warning is-light">Suspendido</span>{% endif %}
+                                    <span class="tag
+                                        {% if p.estado == 'PROGRAMADO' %}is-info
+                                        {% elif p.estado == 'EN_CURSO' %}is-warning
+                                        {% elif p.estado == 'FINALIZADO' %}is-success
+                                        {% else %}is-light{% endif %}">
+                                        {{ p.get_estado_display }}
+                                    </span>
                                 </td>
-                                <td class="has-text-centered">
+                                <td class="uide-cell-actions">
                                     {% if request.user.rol == 'ADMIN' %}
-                                    <a href="{% url 'editar_partido' p.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
+                                      <div class="uide-actions">
+                                        <a href="{% url 'editar_partido' p.id %}" class="button is-small is-light">
+                                          <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg>
+                                          <span>Editar</span>
+                                        </a>
+                                      </div>
                                     {% endif %}
                                 </td>
                             </tr>
