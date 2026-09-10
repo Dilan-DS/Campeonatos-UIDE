@@ -51,6 +51,9 @@ jobs:
       - name: Migraciones sin cambios pendientes
         run: python manage.py makemigrations --check --dry-run
 
+      - name: Estaticos (build)
+        run: python manage.py collectstatic --noinput
+
       - name: Pruebas
         run: python manage.py test core --verbosity 2
 
