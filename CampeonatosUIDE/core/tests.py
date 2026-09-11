@@ -2192,3 +2192,101 @@ class ElArbitroAnotaLaTandaDesdeElActa(PruebaBase):
 # ---------------------------------------------------------------------------
 
 
+def _modulos_de_vistas():
+    import core.views as paquete
+    for info in pkgutil.iter_modules(paquete.__path__):
+        yield info.name, importlib.import_module(f"core.views.{info.name}")
+
+
+def _definidos_en(modulo):
+    """Funciones y clases que define el modulo, no las que importa."""
+    return {
+        nombre for nombre, objeto in vars(modulo).items()
+        if not nombre.startswith("_")
+        and getattr(objeto, "__module__", None) == modulo.__name__
+        and (inspect.isfunction(objeto) or inspect.isclass(objeto))
+    }
+
+
+class SinNombresDeVistaDuplicados(PruebaBase):
+    """Ningun nombre de vista debe estar definido en dos modulos.
+
+    Con los imports explicitos un duplicado ya no rompe las rutas, pero
+    sigue siendo una trampa: al leer urls.py no se ve cual de las dos se
+    usa. Esta prueba lo corta antes de que llegue a main.
+    """
+
+    # es_admin y es_admin_o_delegado los declaran varios modulos por su
+    # cuenta. No son vistas y nadie los importa del paquete, asi que se
+    # admiten mientras no se unifiquen.
+    AUXILIARES_TOLERADOS = {"es_admin", "es_admin_o_delegado"}
+
+    def test_ningun_nombre_en_dos_modulos(self):
+        por_nombre = {}
+        for nombre_modulo, modulo in _modulos_de_vistas():
+            for nombre in _definidos_en(modulo):
+                por_nombre.setdefault(nombre, []).append(nombre_modulo)
+
+        duplicados = {
+            nombre: modulos for nombre, modulos in por_nombre.items()
+            if len(modulos) > 1 and nombre not in self.AUXILIARES_TOLERADOS
+        }
+        detalle = "; ".join(f"{n} en {', '.join(sorted(m))}"
+                            for n, m in sorted(duplicados.items()))
+        self.assertEqual(
+            duplicados, {},
+            "hay vistas con el mismo nombre en varios modulos, y al leer "
+            f"urls.py no se ve cual se usa: {detalle}")
+
+
+class UrlsNoUsaImportsComodin(PruebaBase):
+    """urls.py debe decir de que modulo sale cada vista."""
+
+    def test_sin_import_estrella(self):
+        fuente = Path(__file__).resolve().parent / "urls.py"
+        arbol = ast.parse(fuente.read_text(encoding="utf-8"))
+        comodines = [
+            nodo.module for nodo in ast.walk(arbol)
+            if isinstance(nodo, ast.ImportFrom)
+            and any(alias.name == "*" for alias in nodo.names)
+        ]
+        self.assertEqual(comodines, [],
+                         f"urls.py no debe usar import *: {comodines}")
+
+    def test_el_paquete_de_vistas_tampoco(self):
+        fuente = Path(__file__).resolve().parent / "views" / "__init__.py"
+        arbol = ast.parse(fuente.read_text(encoding="utf-8"))
+        comodines = [
+            nodo.module for nodo in ast.walk(arbol)
+            if isinstance(nodo, ast.ImportFrom)
+            and any(alias.name == "*" for alias in nodo.names)
+        ]
+        self.assertEqual(comodines, [],
+                         f"core/views/__init__.py no debe reexportar con *: {comodines}")
+
+
+class TodaVistaEnrutadaSigueSiendoLaMisma(PruebaBase):
+    """Red de seguridad del cambio de imports.
+
+    Fija la vista concreta que atiende las rutas donde antes hubo un
+    nombre duplicado, para que un import mal puesto no las desvie sin que
+    nadie se entere.
+    """
+
+    ESPERADO = {
+        # Esta gano el sombreado historico y es la version reparada.
+        "tabla_estadisticas": "core.views.jugador_views.tabla_estadisticas",
+        # El nombre de url apunta al acta, no a la funcion homonima.
+        "registrar_resultado_partido": "core.views.arbitro_views.acta_partido_arbitro",
+        "detalle_equipo": "core.views.equipo_views.detalle_equipo",
+    }
+
+    def test_cada_ruta_resuelve_a_la_vista_esperada(self):
+        for nombre, esperado in self.ESPERADO.items():
+            with self.subTest(ruta=nombre):
+                coincidencia = resolve(reverse(nombre, args=[1]))
+                real = (f"{coincidencia.func.__module__}."
+                        f"{coincidencia.func.__name__}")
+                self.assertEqual(real, esperado)
+
+

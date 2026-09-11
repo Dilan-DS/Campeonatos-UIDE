@@ -1,17 +1,180 @@
+"""Rutas de la aplicación.
+
+Los imports son explícitos a propósito. Antes este fichero hacía
+`from .views import *`, y core/views/__init__.py encadenaba otros dieciocho
+comodines: cuando dos módulos definían una función con el mismo nombre, el
+último importado se quedaba con el nombre y el otro dejaba de existir, sin
+ningún aviso. Así se perdieron `detalle_equipo` de jugador_views y
+`registrar_resultado_partido` de arbitro_views, que quedaron inalcanzables
+pareciendo código en uso.
+
+Con los imports escritos uno a uno se ve de qué módulo sale cada vista, y
+la prueba SinNombresDeVistaDuplicados de core/tests.py falla si vuelve a
+aparecer un nombre definido en dos módulos.
+"""
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import *
-from .views.carrera_views import ListarCarrerasView, GestionCarreraView
-from .views.partido_views import listar_partidos, fixture_campeonato_view, calendario_global_view, editar_partido, asignar_arbitro_partido
-from .views.feachure_views import calendar_view
-from .views.arbitro_views import listar_arbitros, ver_tabla_posiciones_arbitro
-from core.views.inicio_views import equipo_publico
-from core.views.admin_views import exportar_estadisticas_pdf, exportar_estadisticas_excel
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import transmision_views
+
 from core.forms import PasswordResetConValidacionForm
+
+from .views import equipo_views, pago_views, transmision_views
 from .views.auth_extra import PasswordResetViewWithEcho, PasswordResetDoneViewWithEcho
+from .views.admin_views import (
+    GestionArbitroView,
+    ListarJugadoresAdminView,
+    RegistrarDelegadoAdminView,
+    admin_dashboard,
+    crear_usuario_admin,
+    editar_usuario,
+    eliminar_usuario,
+    exportar_estadisticas_excel,
+    exportar_estadisticas_pdf,
+    listar_usuarios,
+)
+from .views.arbitro_views import (
+    acta_partido_arbitro,
+    historial_arbitros,
+    listar_arbitros,
+    mis_partidos_arbitro,
+    ver_tabla_posiciones_arbitro,
+)
+from .views.autenticacion_views import (
+    vista_login,
+    vista_logout,
+    vista_registro,
+)
+from .views.carrera_views import GestionCarreraView, ListarCarrerasView
+from .views.feachure_views import calendar_view
+from .views.campeonato_views import (
+    AvanzarRondaEliminatoria,
+    CampeonatosPublicos,
+    CrearCampeonato,
+    DetalleCampeonato,
+    EditarCampeonato,
+    EliminarCampeonato,
+    FixtureCampeonato,
+    GenerarFixtureCampeonato,
+    ListarCampeonatos,
+    TablaPosiciones,
+    export_tabla_posiciones_excel,
+    export_tabla_posiciones_pdf,
+)
+from .views.codigoqr_views import (
+    DetalleCodigoQRView,
+    EditarCodigoQRView,
+    EliminarCodigoQRView,
+    ListarCodigosQRView,
+    RegistrarCodigoQRView,
+)
+from .views.delegado_views import (
+    AgregarJugadorAEquipoView,
+    DelegadoDashboardView,
+    ListarDelegadosView,
+    ListarJugadoresParaEquipoView,
+)
+from .views.deportes_views import (
+    EditarDeporteView,
+    EliminarDeporteView,
+    ListarDeportesView,
+    RegistrarDeporteView,
+)
+from .views.equipo_views import (
+    detalle_equipo,
+    editar_equipo,
+    eliminar_equipo,
+    jugadores_equipo,
+    listar_equipos,
+    mis_jugadores_delegado,
+    pago_equipo,
+    registrar_equipo,
+    ver_equipo_jugador,
+)
+from .views.estadisticas_views import (
+    estadisticas_ajedrez,
+    estadisticas_basquet,
+    estadisticas_ecuaboly,
+    estadisticas_futbol,
+    estadisticas_futbolin,
+    estadisticas_pingpong,
+    estadisticas_tenis,
+    estadisticas_videojuegos,
+    export_estadisticas_ajedrez_excel,
+    export_estadisticas_ajedrez_pdf,
+    export_estadisticas_basquet_excel,
+    export_estadisticas_basquet_pdf,
+    export_estadisticas_ecuaboly_excel,
+    export_estadisticas_ecuaboly_pdf,
+    export_estadisticas_futbol_excel,
+    export_estadisticas_futbol_pdf,
+    export_estadisticas_futbolin_excel,
+    export_estadisticas_futbolin_pdf,
+    export_estadisticas_pingpong_excel,
+    export_estadisticas_pingpong_pdf,
+    export_estadisticas_tenis_excel,
+    export_estadisticas_tenis_pdf,
+    export_estadisticas_videojuegos_excel,
+    export_estadisticas_videojuegos_pdf,
+    mis_estadisticas,
+)
+from .views.galeria_views import (
+    EditarImagenGaleria,
+    EliminarImagenGaleria,
+    ListarImagenGaleria,
+    RegistrarImagenGaleria,
+)
+from .views.inicio_views import (
+    equipo_publico,
+    resultados_publicos,
+    vista_inicio,
+    vista_inicio_publico,
+)
+from .views.jugador_views import (
+    completar_perfil_jugador,
+    jugador_dashboard,
+    registrar_jugador,
+    tabla_estadisticas,
+    ver_estadisticas_jugador,
+    ver_mis_partidos,
+)
+from .views.noticias_views import (
+    EditarNoticia,
+    EliminarNoticia,
+    ListarNoticias,
+    RegistrarNoticia,
+)
+from .views.pago_views import (
+    ListarPagosDelegadoView,
+)
+from .views.partido_views import (
+    asignar_arbitro_partido,
+    calendario_global_view,
+    detalle_partido,
+    editar_partido,
+    fixture_campeonato_view,
+    listar_partidos,
+    registrar_partido,
+)
+from .views.perfil_views import (
+    editar_perfil,
+    vista_perfil_usuario,
+)
+from .views.suspension_views import (
+    detalle_suspension,
+    listar_suspensiones,
+    registrar_suspension,
+)
+from .views.testimonios_views import (
+    EditarTestimonio,
+    EliminarTestimonio,
+    ListarTestimonios,
+    RegistrarTestimonio,
+)
+from .views.transmision_views import (
+    DetalleTransmisionView,
+    ListarTransmisionView,
+)
 
 urlpatterns = [
     # Inicio público y dashboard general
