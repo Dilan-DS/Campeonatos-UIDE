@@ -1,9 +1,13 @@
 """Paginas de error orientadas al usuario final.
 
-Una sola plantilla generica (errores/generico.html) para 403/404/500/CSRF,
-en vez de un archivo por codigo: cambia el titulo/mensaje, no el diseno.
-Se ve como un modal corto (tarjeta centrada), no una pagina distinta por
-cada tipo de fallo.
+Dos plantillas, no una por codigo:
+- errores/generico.html: para 403/404/CSRF. Extiende comun/base.html, asi
+  que se ve como el resto de la app (navbar, logo, pie), no una pantalla
+  en blanco aparte.
+- errores/generico_500.html: standalone, sin navbar ni context processors
+  (que consultan la base de datos). Si el 500 es justo porque la base de
+  datos no responde, no queremos que la propia pagina de error se caiga
+  al intentar dibujar el menu.
 
 CSRF_FAILURE_VIEW (settings.py) apunta a csrf_failure. handler403/404/500
 (CampeonatosUIDE/urls.py) apuntan a las otras tres.
@@ -11,8 +15,8 @@ CSRF_FAILURE_VIEW (settings.py) apunta a csrf_failure. handler403/404/500
 from django.shortcuts import render
 
 
-def _pagina_error(request, status, titulo, mensaje):
-    return render(request, "errores/generico.html", {"titulo": titulo, "mensaje": mensaje}, status=status)
+def _pagina_error(request, status, titulo, mensaje, template="errores/generico.html"):
+    return render(request, template, {"titulo": titulo, "mensaje": mensaje}, status=status)
 
 
 def csrf_failure(request, reason=""):
@@ -34,4 +38,9 @@ def error_404(request, exception=None):
 
 
 def error_500(request):
-    return _pagina_error(request, 500, "Algo falló de nuestro lado", "Ya quedó registrado, intenta de nuevo en unos minutos.")
+    return _pagina_error(
+        request, 500,
+        "Algo falló de nuestro lado",
+        "Ya quedó registrado, intenta de nuevo en unos minutos.",
+        template="errores/generico_500.html",
+    )

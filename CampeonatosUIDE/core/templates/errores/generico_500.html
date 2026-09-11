@@ -1,0 +1,23 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ titulo }} — Campeonatos UIDE</title>
+  <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+  <link rel="stylesheet" href="{% static 'styles/uide.css' %}">
+</head>
+<body class="uide-app">
+  <section class="section">
+    <div class="container has-text-centered" style="max-width: 480px;">
+      <img src="{% static 'img/logo.png' %}" alt="" style="height:48px" class="mb-4">
+      <div class="box">
+        <p class="title is-5">{{ titulo }}</p>
+        <p class="mb-4">{{ mensaje }}</p>
+        <a class="button is-link" href="/">Volver al inicio</a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
