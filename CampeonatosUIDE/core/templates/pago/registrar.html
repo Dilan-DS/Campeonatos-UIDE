@@ -135,9 +135,11 @@
 </section>
 
 {# ——— Catálogo QR ——— #}
-{# json_script escapa <, > y & y genera el <script type="application/json">.
-   Las dos unicas vistas que renderizan esta plantilla envian siempre
-   qr_catalog, asi que no hace falta valor por defecto. #}
+{% comment %}
+  json_script escapa <, > y & y genera el <script type="application/json">.
+  Las dos unicas vistas que renderizan esta plantilla envian siempre
+  qr_catalog, asi que no hace falta valor por defecto.
+{% endcomment %}
 {{ qr_catalog|json_script:"qr-catalog-data" }}
 
 <script>

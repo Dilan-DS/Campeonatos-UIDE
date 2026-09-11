@@ -2351,3 +2351,25 @@ class PermisosEnUnSoloSitio(PruebaBase):
             is_authenticated = True
 
         self.assertFalse(es_admin(SinRol()))
+
+
+class SinComentariosDjangoDeVariasLineas(PruebaBase):
+    """Django solo trata {# #} como comentario dentro de una misma linea.
+
+    Repartido en varias, el texto se imprime en la pagina. Ya habia una
+    comprobacion asi en el workflow de CI, pero no como prueba, asi que el
+    fallo solo se veia despues de subir: para varias lineas hay que usar
+    {% templatetag openblock %} comment {% templatetag closeblock %}.
+    """
+
+    def test_ninguna_plantilla_los_reparte(self):
+        fugas = []
+        for plantilla in sorted(RAIZ_PLANTILLAS.rglob("*.html")):
+            texto = plantilla.read_text(encoding="utf-8")
+            for numero, linea in enumerate(texto.splitlines(), 1):
+                if linea.count("{#") != linea.count("#}"):
+                    fugas.append(
+                        f"{plantilla.relative_to(RAIZ_PLANTILLAS).as_posix()}:{numero}")
+        self.assertEqual(fugas, [],
+                         "comentarios {# #} repartidos en varias lineas: "
+                         + ", ".join(fugas))
