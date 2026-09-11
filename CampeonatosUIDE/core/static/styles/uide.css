@@ -297,6 +297,16 @@ body.uide-app {
   max-width: var(--uide-page-max);
 }
 
+/* 41 plantillas envuelven su contenido en <section class="section">. El
+   padding vertical por defecto de Bulma (3rem arriba y abajo) se suma al
+   de .uide-main y deja una franja de espacio vacío enorme entre la navbar
+   y el título de cada pantalla (Registrar Pago, Código QR, etc.). .uide-main
+   ya aporta el espacio vertical de página; .section solo hace falta aquí
+   por su padding lateral en móvil, así que se anula el vertical. */
+.uide-main .section {
+  padding-block: 0;
+}
+
 /* Cabecera de pantalla: título + acción principal, alineados y responsive. */
 .uide-page-head {
   display: flex;
