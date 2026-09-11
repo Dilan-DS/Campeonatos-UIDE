@@ -8,8 +8,6 @@ class PagoForm(forms.ModelForm):
         widgets = {
             'equipo': forms.Select(attrs={'class': 'select'}),
             'metodo': forms.Select(attrs={'class': 'select'}),
-            'monto': forms.NumberInput(attrs={'class': 'input', 'step': '0.01'}),
-            'fecha_pago': forms.DateInput(attrs={'class': 'input', 'type': 'date'}),
             'comprobante_pago': forms.ClearableFileInput(attrs={'class': 'file-input'}),
             'estado': forms.Select(attrs={'class': 'select'}),
             'observacion_admin': forms.Textarea(attrs={'class': 'textarea', 'placeholder': 'Observaciones del administrador'}),
@@ -41,12 +39,11 @@ class CodigoQRForm(forms.ModelForm):
         model = CodigoQR
         fields = '__all__'
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Nombre del QR'}),
             'imagen_qr': forms.ClearableFileInput(attrs={'class': 'file-input'}),
             'banco': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Banco'}),
             'tipo_cuenta': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Tipo de cuenta'}),
             'numero_cuenta': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Número de cuenta'}),
-            'beneficiario': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Beneficiario'}),
+            'titular': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Titular'}),
             'identificacion': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Identificación'}),
-            'visible_delegado': forms.CheckboxInput(attrs={'class': 'checkbox'}),
+            'activo': forms.CheckboxInput(attrs={'class': 'checkbox'}),
         }

@@ -6,8 +6,6 @@ class TransmisionForm(forms.ModelForm):
         model = Transmision
         fields = '__all__'
         widgets = {
-            'titulo': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Título de la transmisión'}),
-            'url': forms.URLInput(attrs={'class': 'input', 'placeholder': 'URL de la transmisión'}),
-            'fecha_hora': forms.DateTimeInput(attrs={'class': 'input', 'type': 'datetime-local'}),
+            'enlace': forms.URLInput(attrs={'class': 'input', 'placeholder': 'URL de la transmisión'}),
             'partido': forms.Select(attrs={'class': 'select'}),
         }

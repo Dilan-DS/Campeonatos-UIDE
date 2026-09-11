@@ -7,7 +7,4 @@ class CarreraForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Nombre de la carrera'}),
-            'fecha_inicio': forms.DateInput(attrs={'class': 'input', 'type': 'date'}),
-            'fecha_fin': forms.DateInput(attrs={'class': 'input', 'type': 'date'}),
-            'campeonato': forms.Select(attrs={'class': 'select'}),
         }

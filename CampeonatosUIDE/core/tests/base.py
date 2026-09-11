@@ -19,11 +19,14 @@ from django.urls import NoReverseMatch, get_resolver, resolve, reverse
 from django.urls.resolvers import URLPattern, URLResolver
 
 from core.forms import ArbitroActaForm, RegistroUsuarioForm
-from core.forms.arbitro import ArbitroForm
-from core.forms.usuario import PerfilUsuarioForm, UsuarioForm
+from core.forms.arbitro import ArbitroForm, CrearUsuarioArbitroForm
+from core.forms.usuario import (
+    CrearUsuarioDelegadoForm, PasswordResetConValidacionForm, PerfilUsuarioForm,
+    UsuarioForm,
+)
 from core.models import (
     Arbitro, Campeonato, Carrera, CodigoQR, Deporte, Equipo, ImagenGaleria,
-    Jugador, Noticia, Pago, Partido, Suspension, Testimonio, Usuario,
+    Jugador, Noticia, Pago, Partido, Suspension, Testimonio, Transmision, Usuario,
 )
 from core.utils.calendario import dias_permitidos_de
 from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
@@ -272,6 +275,9 @@ __all__ = [
     "ArbitroActaForm",
     "RegistroUsuarioForm",
     "ArbitroForm",
+    "CrearUsuarioArbitroForm",
+    "CrearUsuarioDelegadoForm",
+    "PasswordResetConValidacionForm",
     "PerfilUsuarioForm",
     "UsuarioForm",
     "Arbitro",
@@ -287,6 +293,7 @@ __all__ = [
     "Partido",
     "Suspension",
     "Testimonio",
+    "Transmision",
     "Usuario",
     "dias_permitidos_de",
     "generar_fixture_eliminatoria",

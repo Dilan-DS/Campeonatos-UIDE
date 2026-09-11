@@ -8,7 +8,5 @@ class NoticiaForm(forms.ModelForm):
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Título de la noticia'}),
             'contenido': forms.Textarea(attrs={'class': 'textarea', 'placeholder': 'Contenido de la noticia'}),
-            'fecha_publicacion': forms.DateInput(attrs={'class': 'input', 'type': 'date'}),
-            'autor': forms.Select(attrs={'class': 'select'}),
             'imagen': forms.ClearableFileInput(attrs={'class': 'file-input'}),
         }

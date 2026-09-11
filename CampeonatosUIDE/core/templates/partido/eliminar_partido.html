@@ -1,0 +1,30 @@
+{% extends 'comun/base.html' %}
+
+{% block title %}Eliminar partido | Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <h1 class="title is-4 has-text-danger">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
+      Eliminar partido
+    </h1>
+
+    <div class="box has-background-warning-light uide-ancho-limitado">
+      <p class="has-text-centered mb-4">
+        ¿Estás seguro que deseas eliminar el partido
+        <strong>{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</strong>
+        del {{ partido.fecha }}?
+      </p>
+
+      <form method="post" class="has-text-centered">
+        {% csrf_token %}
+        <button type="submit" class="button is-danger is-rounded">Sí, eliminar</button>
+        <a href="{% url 'listar_partidos' %}" class="button is-light is-rounded ml-3">Cancelar</a>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

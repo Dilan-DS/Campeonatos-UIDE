@@ -65,18 +65,6 @@ class AprobacionDePagosRespetaRolYEstado(PruebaBase):
                          "un delegado no debe ver pagos de equipos que no son suyos")
 
 
-# ---------------------------------------------------------------------------
-# Diseño de la interfaz.
-#
-# Estas revisan las plantillas como ficheros, no las vistas: son las que
-# evitan que vuelvan a colarse clases sin estilo, paginas sin titulo o
-# encabezados mal jerarquizados. Todo lo que comprueban aparecio de verdad
-# en la auditoria.
-# ---------------------------------------------------------------------------
-
-RAIZ_PLANTILLAS = Path(__file__).resolve().parent / "templates"
-
-
 class PagoDeOtroEquipoEsInaccesible(PruebaBase):
     """IDOR: el equipo llegaba por la URL sin comprobar de quien era.
 

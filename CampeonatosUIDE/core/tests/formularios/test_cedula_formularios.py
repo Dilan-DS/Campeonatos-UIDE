@@ -114,14 +114,3 @@ class CedulaNoSePuedeSaltarPorHttp(PruebaBase):
         self.assertTrue(Usuario.objects.filter(username="correcto").exists(),
                         f"deberia haberse creado: {respuesta.status_code}")
 
-
-
-# ---------------------------------------------------------------------------
-# Generacion del calendario.
-#
-# Cada clase fija un fallo que se reprodujo antes de corregirlo: el comando
-# que no arrancaba, el campeonato sin dias que devolvia un error 500, la
-# regeneracion fallida que borraba el calendario y los partidos que caian a
-# la vez en la misma cancha.
-# ---------------------------------------------------------------------------
-

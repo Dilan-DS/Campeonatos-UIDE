@@ -29,11 +29,7 @@ class JugadorForm(forms.ModelForm):
         model = Jugador
         fields = '__all__'
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Nombre del jugador'}),
-            'apellido': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Apellido del jugador'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'class': 'input', 'type': 'date'}),
             'equipo': forms.Select(attrs={'class': 'select'}),
             'posicion': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Posición del jugador'}),
             'numero_camiseta': forms.NumberInput(attrs={'class': 'input', 'placeholder': 'Número de camiseta'}),
-            'foto': forms.ClearableFileInput(attrs={'class': 'file-input'}),
         }

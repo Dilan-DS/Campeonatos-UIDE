@@ -1,0 +1,63 @@
+{% extends 'comun/base.html' %}
+
+{% block title %}Transmisión: {{ transmision.partido }} | Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <h1 class="title is-4 has-text-primary">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>
+      Detalle de la transmisión
+    </h1>
+
+    <div class="uide-panel uide-panel--pad uide-ancho-limitado">
+      <table class="table is-fullwidth">
+        <tbody>
+          <tr>
+            <th><svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Campeonato</th>
+            <td>{{ transmision.campeonato.nombre }}</td>
+          </tr>
+          <tr>
+            <th><svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Partido</th>
+            <td>{{ transmision.partido }}</td>
+          </tr>
+          <tr>
+            <th><svg class="uide-icon" aria-hidden="true"><use href="#i-enlace"></use></svg> Enlace</th>
+            <td>
+              <a href="{{ transmision.enlace }}" target="_blank" rel="noopener noreferrer" class="has-text-link">
+                {{ transmision.enlace }}
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Descripción</th>
+            <td>{{ transmision.descripcion|default:"Sin descripción" }}</td>
+          </tr>
+          <tr>
+            <th><svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Estado</th>
+            <td>
+              <span class="tag is-{{ transmision.activa|yesno:'success,danger' }}">
+                {{ transmision.activa|yesno:"Activa,Inactiva" }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field is-grouped is-grouped-centered mt-5">
+        <div class="control">
+          <a href="{{ transmision.enlace }}" target="_blank" rel="noopener noreferrer" class="button is-primary is-rounded">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>
+            Ver transmisión
+          </a>
+        </div>
+        <div class="control">
+          <a href="{% url 'listar_transmisiones' %}" class="button is-light is-rounded">Volver al listado</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

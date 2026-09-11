@@ -57,9 +57,13 @@
           <!-- Muestra la hora del partido -->
           <td>{{ partido.hora }}</td>
 
-          <!-- Botón que enlaza a la vista de detalle del partido -->
+          <!-- Botones de acciones: ver, editar, aplazar y eliminar -->
           <td>
-            <a href="{% url 'detalle_partido' partido.id %}" class="button is-small is-link">Ver</a>
+            <div class="buttons are-small">
+              <a href="{% url 'detalle_partido' partido.id %}" class="button is-link">Ver</a>
+              <a href="{% url 'aplazar_partido' partido.id %}" class="button is-warning">Aplazar</a>
+              <a href="{% url 'eliminar_partido' partido.id %}" class="button is-danger">Eliminar</a>
+            </div>
           </td>
         </tr>
         {% endfor %}

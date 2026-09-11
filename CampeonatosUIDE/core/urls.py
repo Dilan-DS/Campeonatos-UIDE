@@ -148,10 +148,12 @@ from .views.pago_views import (
     ListarPagosDelegadoView,
 )
 from .views.partido_views import (
+    aplazar_partido,
     asignar_arbitro_partido,
     calendario_global_view,
     detalle_partido,
     editar_partido,
+    eliminar_partido,
     fixture_campeonato_view,
     listar_partidos,
     registrar_partido,
@@ -286,6 +288,8 @@ urlpatterns = [
     path('partidos/registrar/', registrar_partido, name='registrar_partido'),
     path('partidos/<int:partido_id>/', detalle_partido, name='detalle_partido'),
     path('partidos/<int:partido_id>/editar/', editar_partido, name='editar_partido'),
+    path('partidos/<int:partido_id>/eliminar/', eliminar_partido, name='eliminar_partido'),
+    path('partidos/<int:partido_id>/aplazar/', aplazar_partido, name='aplazar_partido'),
     path('partidos/<int:partido_id>/asignar-arbitro/', asignar_arbitro_partido, name='asignar_arbitro_partido'),
 
     # Estadísticas por deporte
