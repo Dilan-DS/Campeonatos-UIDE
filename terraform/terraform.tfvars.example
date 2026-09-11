@@ -1,0 +1,24 @@
+# Copia como terraform.tfvars y ajusta. terraform.tfvars esta en .gitignore.
+
+aws_region        = "us-east-1"
+availability_zone = "us-east-1a"
+
+# Tu IP publica /32. Consiguela con: curl -s https://checkip.amazonaws.com
+ssh_allowed_cidr = "181.233.50.0/24"
+
+# Clave publica SSH ya existente en tu maquina (genera uno con ssh-keygen).
+public_key_path = "C:/Users/steph181.233.50.169/.ssh/campeonatos-uide.pub"
+key_name        = "campeonatos-uide"
+
+# Dominio real (Hostinger).
+domain_name = "campeonatos-uide.shop"
+
+# Repo que la EC2 clona en el arranque.
+repository_url = "https://github.com/Dilan-DS/Campeonatos-UIDE.git"
+
+# Base de datos MySQL en Docker. NOMBRE y USUARIO no son secretos.
+# Las CONTRASENAS (usuario y root) NO se ponen aqui: user-data.sh las genera
+# con openssl dentro de la EC2 y quedan solo en /opt/.../CampeonatosUIDE/.env
+# (nunca en el state de Terraform ni en los datos de user-data).
+db_name = "campeonatos_uide"
+db_user = "campeonatos"

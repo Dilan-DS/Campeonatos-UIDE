@@ -1,0 +1,60 @@
+name: Deploy
+
+# Despliega en la EC2 tras un push a main, SOLO si estan configurados los
+# secretos del repo (EC2_HOST, EC2_USER, EC2_SSH_KEY, EC2_APP_DIR). Sin ellos
+# el job no hace nada y no falla.
+#
+# Terraform crea la infraestructura; este workflow actualiza la aplicacion.
+# Son responsabilidades separadas: aqui NUNCA se ejecuta terraform.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Actualizar EC2
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      EC2_APP_DIR: ${{ secrets.EC2_APP_DIR }}
+    steps:
+      - name: Comprobar que hay secretos de despliegue
+        id: check
+        run: |
+          if [ -z "${EC2_HOST}" ] || [ -z "${EC2_USER}" ] || [ -z "${EC2_APP_DIR}" ] || [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
+            echo "Faltan secretos EC2_*, se omite el despliegue."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configurar clave SSH
+        if: steps.check.outputs.run == 'true'
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${EC2_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: git pull + rebuild + up + migrate
+        if: steps.check.outputs.run == 'true'
+        run: |
+          ssh -i ~/.ssh/deploy_key "${EC2_USER}@${EC2_HOST}" \
+            "set -euo pipefail && \
+             cd '${EC2_APP_DIR}' && git pull --ff-only && \
+             cd CampeonatosUIDE && \
+             docker compose build && \
+             docker compose up -d && \
+             docker compose exec -T web python manage.py migrate --noinput && \
+             docker image prune -f"
