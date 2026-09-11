@@ -70,7 +70,9 @@
     {% block content %}{% endblock %}
   </main>
 
-  {% include "comun/footer.html" %}
+  {% if request.user.rol != "ADMIN" %}
+    {% include "comun/footer.html" %}
+  {% endif %}
 
   <script>
     /* Tablas de datos en móvil ------------------------------------------

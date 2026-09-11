@@ -2736,6 +2736,10 @@ td.uide-empty-cell .uide-empty {
   }
 
   .uide-navbar .navbar-dropdown .navbar-item {
+    /* Bulma pinta cada .navbar-item con fondo blanco por defecto; solo se
+       corregia el color de texto, asi que quedaba blanco sobre blanco
+       (invisible) dentro del desplegable oscuro del menu movil. */
+    background: transparent !important;
     color: rgba(255, 255, 255, .92) !important;
   }
 
