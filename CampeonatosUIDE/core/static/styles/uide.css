@@ -411,6 +411,14 @@ fieldset[disabled] {
   font-weight: 600;
 }
 
+.uide-with-icon--spaced {
+  gap: var(--uide-space-4);
+}
+
+.uide-qr-preview.is-hidden {
+  display: none;
+}
+
 /* ============================= 5. Navbar ================================= */
 
 .navbar.uide-navbar,

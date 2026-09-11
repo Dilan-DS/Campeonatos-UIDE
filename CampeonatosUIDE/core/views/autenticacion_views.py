@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
+from django.core.cache import cache
 from core.forms import RegistroUsuarioForm
 
 def _redir_por_rol(user):
@@ -19,11 +20,20 @@ def vista_login(request):
         return _redir_por_rol(request.user)
 
     # Mostrar formulario en GET / procesar en POST
-    form = AuthenticationForm(request, data=(request.POST if request.method == 'POST' else None))
+    throttle_key = f"login-attempts:{request.META.get('REMOTE_ADDR', 'unknown')}"
+    blocked = (cache.get(throttle_key) or 0) >= 5
+    form = AuthenticationForm(request, data=(request.POST if request.method == 'POST' and not blocked else None))
+    if request.method == 'POST' and blocked:
+        form.add_error(None, 'Demasiados intentos. Inténtalo de nuevo más tarde.')
+        return render(request, 'usuario/login.html', {'form': form})
     if request.method == 'POST' and form.is_valid():
         usuario = form.get_user()
+        cache.delete(throttle_key)
         login(request, usuario)
         return _redir_por_rol(usuario)
+
+    if request.method == 'POST':
+        cache.set(throttle_key, (cache.get(throttle_key) or 0) + 1, timeout=900)
 
     # SIEMPRE devolver algo en GET o POST inválido
     return render(request, 'usuario/login.html', {'form': form})

@@ -11,7 +11,18 @@ class ListarTestimonios(View):
         testimonios = Testimonio.objects.all().order_by('-creado_en')
         return render(request, 'testimonio/listar.html', {'testimonios': testimonios})
 
-class RegistrarTestimonio(View):
+class RegistrarTestimonio(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Solo ADMIN y DELEGADO gestionan testimonios.
+
+    Estas tres vistas eran `View` a secas, sin ninguna comprobacion: un
+    usuario anonimo podia crear, editar y borrar testimonios. Comprobado
+    con peticiones sin sesion antes del arreglo. Se aplica la misma regla
+    que ya tenian noticias y galeria.
+    """
+
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
+
     def get(self, request):
         form = TestimonioForm()
         return render(request, 'testimonio/form.html', {'form': form, 'modo': 'crear'})
@@ -24,7 +35,18 @@ class RegistrarTestimonio(View):
             return redirect('listar_testimonios')
         return render(request, 'testimonio/form.html', {'form': form, 'modo': 'crear'})
 
-class EditarTestimonio(View):
+class EditarTestimonio(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Solo ADMIN y DELEGADO gestionan testimonios.
+
+    Estas tres vistas eran `View` a secas, sin ninguna comprobacion: un
+    usuario anonimo podia crear, editar y borrar testimonios. Comprobado
+    con peticiones sin sesion antes del arreglo. Se aplica la misma regla
+    que ya tenian noticias y galeria.
+    """
+
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
+
     def get(self, request, id):
         testimonio = get_object_or_404(Testimonio, id=id)
         form = TestimonioForm(instance=testimonio)
@@ -39,7 +61,18 @@ class EditarTestimonio(View):
             return redirect('listar_testimonios')
         return render(request, 'testimonio/form.html', {'form': form, 'modo': 'editar', 'testimonio': testimonio})
 
-class EliminarTestimonio(View):
+class EliminarTestimonio(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Solo ADMIN y DELEGADO gestionan testimonios.
+
+    Estas tres vistas eran `View` a secas, sin ninguna comprobacion: un
+    usuario anonimo podia crear, editar y borrar testimonios. Comprobado
+    con peticiones sin sesion antes del arreglo. Se aplica la misma regla
+    que ya tenian noticias y galeria.
+    """
+
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
+
     def get(self, request, id):
         testimonio = get_object_or_404(Testimonio, id=id)
         return render(request, 'testimonio/form.html', {'testimonio': testimonio})

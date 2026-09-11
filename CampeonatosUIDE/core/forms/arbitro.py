@@ -2,8 +2,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from core.models import Usuario, Arbitro
+from core.validators import validate_ecuadorian_cedula
 
 class ArbitroForm(forms.ModelForm):
+    cedula = forms.CharField(required=False, max_length=10, validators=[validate_ecuadorian_cedula])
     class Meta:
         model = Usuario
         fields = ['username', 'email', 'first_name', 'last_name', 'cedula', 'genero', 'is_active']
@@ -21,6 +23,7 @@ from django.db import transaction
 from core.models import Deporte
 
 class CrearUsuarioArbitroForm(forms.ModelForm):
+    cedula = forms.CharField(required=True, max_length=10, validators=[validate_ecuadorian_cedula])
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input'}), label="Contraseña")
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input'}), label="Confirmar Contraseña")
 

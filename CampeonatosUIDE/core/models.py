@@ -7,6 +7,10 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.db.models import Q, Sum
 from django.utils.functional import cached_property
+from core.validators import (
+    normalizar_cedula, validate_ecuadorian_cedula, validate_pdf_upload,
+    validate_upload_size,
+)
 
 # Modelos base reutilizables
 
@@ -36,7 +40,7 @@ class Usuario(AbstractUser):
         ('ARBITRO', 'Árbitro'),
         ('JUGADOR', 'Jugador'),
     ]
-    cedula = models.CharField(max_length=10, unique=True, null=True, blank=True)
+    cedula = models.CharField(max_length=10, unique=True, null=True, blank=True, validators=[validate_ecuadorian_cedula])
     rol = models.CharField(max_length=20, choices=ROLES, default='JUGADOR')
     carrera = models.ForeignKey(Carrera, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ManyToManyField(
@@ -64,6 +68,15 @@ class Usuario(AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.rol})"
 
+    def clean(self):
+        super().clean()
+        # La normalizacion va antes de validar y antes de que Django
+        # compruebe el unique: sin esto un usuario sin cedula se guardaba
+        # con la cadena vacia y el segundo chocaba con el indice unico.
+        self.cedula = normalizar_cedula(self.cedula)
+        if self.cedula:
+            validate_ecuadorian_cedula(self.cedula)
+
 # Modelo de deporte
 class Deporte(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -85,7 +98,7 @@ class Arbitro(models.Model):
 
 class CodigoQR(models.Model):
     banco = models.CharField(max_length=100, verbose_name="Nombre del banco")
-    imagen_qr = models.ImageField(upload_to='codigos_qr/', verbose_name="Imagen del QR")
+    imagen_qr = models.ImageField(upload_to='codigos_qr/', validators=[validate_upload_size], verbose_name="Imagen del QR")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción adicional")
     TIPO_CUENTA_CHOICES = [('AHORROS','Ahorros'),('CORRIENTE','Corriente')]
     tipo_cuenta = models.CharField(max_length=20, choices=TIPO_CUENTA_CHOICES, default='AHORROS')
@@ -147,7 +160,7 @@ class Campeonato(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     tipo_campeonato = models.CharField(max_length=20, choices=TIPO_CAMPEONATO_CHOICES)
     descripcion = models.TextField()
-    reglamento = models.FileField(upload_to='reglamentos/', blank=True, null=True)
+    reglamento = models.FileField(upload_to='reglamentos/', validators=[validate_pdf_upload], blank=True, null=True)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     fecha_fin_inscripcion = models.DateField(null=True, blank=True)
@@ -177,7 +190,7 @@ class Equipo(models.Model):
     campeonato = models.ForeignKey(Campeonato, on_delete=models.CASCADE, related_name='equipos')
     nombre = models.CharField(max_length=100)
     carrera = models.ForeignKey('Carrera', on_delete=models.PROTECT, related_name='equipos')
-    logo = models.ImageField(upload_to='logos_equipos/', null=True, blank=True)
+    logo = models.ImageField(upload_to='logos_equipos/', validators=[validate_upload_size], null=True, blank=True)
     aprobado = models.BooleanField(default=False)
     delegado = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, limit_choices_to={'rol': 'DELEGADO'})
     genero = models.CharField(max_length=20, choices=GENERO_CHOICES, default='masculino')
@@ -290,7 +303,7 @@ class Partido(models.Model):
 class Pago(models.Model):
     equipo = models.OneToOneField(Equipo, on_delete=models.CASCADE, related_name='pago')
     metodo = models.CharField(max_length=20, choices=[('TRANSFERENCIA', 'Transferencia'), ('EFECTIVO', 'Efectivo')])
-    comprobante_pago = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
+    comprobante_pago = models.ImageField(upload_to='comprobantes/', validators=[validate_upload_size], blank=True, null=True)
     estado = models.CharField(max_length=20, choices=[('PENDIENTE', 'Pendiente'), ('APROBADO', 'Aprobado'), ('RECHAZADO', 'Rechazado')], default='PENDIENTE')
     fecha_pago = models.DateTimeField(auto_now_add=True)
     observacion_admin = models.TextField(blank=True, null=True)
@@ -358,7 +371,7 @@ class EstadisticaJugadorFutbolin(BaseEstadistica):
 
 class ImagenGaleria(TimeStampedModel):
     titulo = models.CharField(max_length=100)
-    imagen = models.ImageField(upload_to='galeria/')
+    imagen = models.ImageField(upload_to='galeria/', validators=[validate_upload_size])
     descripcion = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -367,7 +380,7 @@ class ImagenGaleria(TimeStampedModel):
 class Noticia(TimeStampedModel):
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
-    imagen = models.ImageField(upload_to='noticias/', blank=True, null=True)
+    imagen = models.ImageField(upload_to='noticias/', validators=[validate_upload_size], blank=True, null=True)
 
     def __str__(self):
         return self.titulo
@@ -375,7 +388,7 @@ class Noticia(TimeStampedModel):
 class Testimonio(TimeStampedModel):
     autor = models.CharField(max_length=100)
     contenido = models.TextField()
-    foto = models.ImageField(upload_to='testimonios/', blank=True, null=True)
+    foto = models.ImageField(upload_to='testimonios/', validators=[validate_upload_size], blank=True, null=True)
 
     def __str__(self):
         return self.autor

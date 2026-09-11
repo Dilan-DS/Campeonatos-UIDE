@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.contrib.auth import get_user_model
 from core.models import Usuario
+from core.validators import validate_ecuadorian_cedula
 
 class RegistroUsuarioForm(UserCreationForm):
     ROL_CHOICES = [
@@ -10,7 +11,7 @@ class RegistroUsuarioForm(UserCreationForm):
         ('DELEGADO', 'Delegado'),
     ]
     rol = forms.ChoiceField(label='Rol', choices=ROL_CHOICES, widget=forms.RadioSelect)
-    cedula = forms.CharField(required=True, max_length=10, label="Cédula", help_text="10 dígitos.")
+    cedula = forms.CharField(required=True, max_length=10, label="Cédula", help_text="10 dígitos.", validators=[validate_ecuadorian_cedula])
 
     class Meta:
         model = Usuario
@@ -53,8 +54,7 @@ class RegistroUsuarioForm(UserCreationForm):
 
     def clean_cedula(self):
         ced = (self.cleaned_data.get("cedula") or "").strip()
-        if not ced.isdigit() or len(ced) != 10:
-            raise ValidationError("La cédula debe tener exactamente 10 dígitos.")
+        validate_ecuadorian_cedula(ced)
         if Usuario.objects.filter(cedula__iexact=ced).exists():
             raise ValidationError("Esta cédula ya está registrada.")
         return ced
@@ -131,7 +131,7 @@ class UsuarioForm(forms.ModelForm):
 
 
 class PerfilUsuarioForm(forms.ModelForm):
-    cedula = forms.CharField(required=True, max_length=10, label="Cédula")
+    cedula = forms.CharField(required=True, max_length=10, label="Cédula", validators=[validate_ecuadorian_cedula])
 
     class Meta:
         model = Usuario
@@ -139,8 +139,7 @@ class PerfilUsuarioForm(forms.ModelForm):
 
     def clean_cedula(self):
         ced = (self.cleaned_data.get("cedula") or "").strip()
-        if not ced.isdigit() or len(ced) != 10:
-            raise ValidationError("La cédula debe tener exactamente 10 dígitos.")
+        validate_ecuadorian_cedula(ced)
         qs = Usuario.objects.filter(cedula__iexact=ced).exclude(pk=self.instance.pk)
         if qs.exists():
             raise ValidationError("Esta cédula ya está registrada.")

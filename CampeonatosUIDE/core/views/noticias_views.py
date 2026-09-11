@@ -34,7 +34,10 @@ class ListarNoticias(View):
             'q': q,
         })
 
-class RegistrarNoticia(View):
+class RegistrarNoticia(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
+
     def get(self, request):
         form = NoticiaForm()
         return render(request, 'noticia/form.html', {'form': form, 'modo': 'crear'})
@@ -47,7 +50,9 @@ class RegistrarNoticia(View):
             return redirect('listar_noticias')
         return render(request, 'noticia/form.html', {'form': form, 'modo': 'crear'})
 
-class EditarNoticia(View):
+class EditarNoticia(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
     def get(self, request, id):
         noticia = get_object_or_404(Noticia, id=id)
         form = NoticiaForm(instance=noticia)

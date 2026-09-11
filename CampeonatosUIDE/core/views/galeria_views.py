@@ -13,7 +13,10 @@ class ListarImagenGaleria(View):
         imagenes = ImagenGaleria.objects.all().order_by('-creado_en')
         return render(request, 'galeria/imagen_listar.html', {'imagenes': imagenes})
 
-class RegistrarImagenGaleria(View):
+class RegistrarImagenGaleria(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
+
     def get(self, request):
         form = ImagenGaleriaForm()
         return render(request, 'galeria/imagen_form.html', {'form': form, 'modo': 'crear'})
@@ -26,7 +29,9 @@ class RegistrarImagenGaleria(View):
             return redirect('listar_imagenes_galeria')
         return render(request, 'galeria/imagen_form.html', {'form': form, 'modo': 'crear'})
 
-class EditarImagenGaleria(View):
+class EditarImagenGaleria(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        return es_admin_o_delegado(self.request.user)
     def get(self, request, id):
         imagen = get_object_or_404(ImagenGaleria, id=id)
         form = ImagenGaleriaForm(instance=imagen)

@@ -14,13 +14,155 @@ from django.urls import NoReverseMatch, get_resolver, reverse
 from django.urls.resolvers import URLPattern, URLResolver
 
 from core.forms import ArbitroActaForm, RegistroUsuarioForm
+from core.forms.arbitro import ArbitroForm
+from core.forms.usuario import PerfilUsuarioForm, UsuarioForm
 from core.models import (
     Arbitro, Campeonato, Carrera, CodigoQR, Deporte, Equipo, ImagenGaleria,
     Jugador, Noticia, Pago, Partido, Suspension, Testimonio, Usuario,
 )
 from core.utils.tabla_posiciones import calcular_tabla_posiciones
+from core.validators import normalizar_cedula, validate_ecuadorian_cedula
+from django.core.exceptions import ValidationError
 
 PWD = "Prueba.2026"
+
+
+class ValidacionCedulaEcuatoriana(TestCase):
+    """Algoritmo Modulo 10 de la cedula ecuatoriana.
+
+    IMPORTANTE: todos los numeros de estas pruebas son SINTETICOS. Se
+    construyen para que cumplan (o incumplan) el algoritmo; no corresponden
+    a ninguna persona real y no se ha comprobado que esten emitidos.
+    """
+
+    # Ancla calculada a mano, para que la prueba no dependa de la propia
+    # implementacion. Cedula 110544417_ con coeficientes 2,1,2,1,2,1,2,1,2:
+    #   1x2=2  1x1=1  0x2=0  5x1=5  4x2=8  4x1=4  4x2=8  1x1=1  7x2=14->5
+    #   suma = 2+1+0+5+8+4+8+1+5 = 34
+    #   verificador = (10 - 34 % 10) % 10 = 6
+    CEDULA_VALIDA = "1105444176"
+
+    @staticmethod
+    def cedula_sintetica(prefijo):
+        """Completa un prefijo de 9 digitos con su verificador."""
+        total = 0
+        for indice, caracter in enumerate(prefijo):
+            producto = int(caracter) * (2 if indice % 2 == 0 else 1)
+            total += producto - 9 if producto > 9 else producto
+        return prefijo + str((10 - total % 10) % 10)
+
+    def assert_invalida(self, valor):
+        with self.assertRaises(ValidationError):
+            validate_ecuadorian_cedula(valor)
+
+    # --- casos que deben pasar -------------------------------------------
+
+    def test_acepta_la_cedula_ancla_calculada_a_mano(self):
+        self.assertEqual(validate_ecuadorian_cedula(self.CEDULA_VALIDA), "1105444176")
+
+    def test_el_generador_coincide_con_el_ancla(self):
+        self.assertEqual(self.cedula_sintetica("110544417"), self.CEDULA_VALIDA)
+
+    def test_acepta_otras_provincias_validas(self):
+        """Una cedula valida se acepta aunque no exista en la base de datos."""
+        for provincia in ("01", "09", "17", "24"):
+            valor = self.cedula_sintetica(provincia + "3456789"[:7])
+            with self.subTest(provincia=provincia):
+                self.assertEqual(validate_ecuadorian_cedula(valor), valor)
+
+    def test_acepta_verificador_cero(self):
+        """Cuando la suma es multiplo de 10 el verificador es 0, no 10.
+
+        El prefijo 010000009 suma exactamente 10, asi que (10 - 10 % 10) % 10
+        da 0. Sin el modulo final saldria 10, que no es un digito.
+        """
+        valor = self.cedula_sintetica("010000009")
+        self.assertEqual(valor, "0100000090")
+        self.assertEqual(validate_ecuadorian_cedula(valor), valor)
+
+    # --- casos que deben fallar ------------------------------------------
+
+    def test_rechaza_digito_verificador_modificado(self):
+        alterada = self.CEDULA_VALIDA[:-1] + "7"
+        self.assert_invalida(alterada)
+
+    def test_rechaza_cualquier_otro_verificador(self):
+        """Solo un digito de los diez posibles puede cerrar la cedula."""
+        aceptados = []
+        for ultimo in "0123456789":
+            candidata = self.CEDULA_VALIDA[:-1] + ultimo
+            try:
+                validate_ecuadorian_cedula(candidata)
+                aceptados.append(candidata)
+            except ValidationError:
+                pass
+        self.assertEqual(aceptados, [self.CEDULA_VALIDA])
+
+    def test_rechaza_digito_intermedio_modificado(self):
+        self.assert_invalida("1105444276")
+
+    def test_rechaza_diez_digitos_que_no_cumplen_el_algoritmo(self):
+        self.assert_invalida("1234567890")
+
+    def test_rechaza_menos_de_diez_digitos(self):
+        self.assert_invalida("110544417")
+
+    def test_rechaza_mas_de_diez_digitos(self):
+        self.assert_invalida("11054441766")
+
+    def test_rechaza_letras(self):
+        for valor in ("11054441A6", "abcdefghij", "110544417X"):
+            with self.subTest(valor=valor):
+                self.assert_invalida(valor)
+
+    def test_rechaza_caracteres_especiales_y_espacios(self):
+        for valor in ("110544417-", "1105-44417", "110 544 417", " 110544417",
+                      "1105444176 ", "110544417.", "1105444+76"):
+            with self.subTest(valor=valor):
+                self.assert_invalida(valor)
+
+    def test_rechaza_cadena_vacia_y_none(self):
+        for valor in ("", "   ", None):
+            with self.subTest(valor=valor):
+                self.assert_invalida(valor)
+
+    def test_rechaza_tipos_que_no_son_texto(self):
+        """El validador recibe siempre texto; un entero no debe colarse."""
+        for valor in (1105444176, 1.5, [], {}):
+            with self.subTest(valor=valor):
+                self.assert_invalida(valor)
+
+    def test_rechaza_provincia_fuera_de_rango(self):
+        for prefijo in ("00", "25", "30", "99"):
+            valor = self.cedula_sintetica(prefijo + "3456789"[:7])
+            with self.subTest(prefijo=prefijo):
+                self.assert_invalida(valor)
+
+    def test_rechaza_tercer_digito_mayor_que_cinco(self):
+        for tercero in "6789":
+            valor = self.cedula_sintetica("11" + tercero + "544417"[:6])
+            with self.subTest(tercero=tercero):
+                self.assert_invalida(valor)
+
+
+class NormalizacionDeCedula(TestCase):
+    """La cedula vacia se guarda como NULL, no como cadena vacia.
+
+    El campo es unique y admite nulos: al guardar "" el segundo usuario sin
+    cedula chocaba con el indice unico y el formulario respondia "Ya existe
+    Usuario con este Cedula". Comprobado con dos altas de arbitro.
+    """
+
+    def test_normaliza_vacios_a_none(self):
+        for valor in ("", "   ", None):
+            with self.subTest(valor=valor):
+                self.assertIsNone(normalizar_cedula(valor))
+
+    def test_recorta_espacios_alrededor(self):
+        self.assertEqual(normalizar_cedula("  1105444176  "), "1105444176")
+
+    def test_no_toca_una_cedula_ya_limpia(self):
+        self.assertEqual(normalizar_cedula("1105444176"), "1105444176")
 
 
 # Las pruebas piden por HTTP. Con DEBUG desactivado (como en CI)
@@ -986,3 +1128,293 @@ class EstadisticasDeCadaDeporteUsanCamposQueExisten(PruebaBase):
                 self.assertNotIn("<td></td>", html,
                                  "ninguna columna debe quedar vacia")
                 self.assertNotIn("None", html)
+
+
+# ---------------------------------------------------------------------------
+# Control de acceso.
+#
+# Cada clase fija una vulnerabilidad que se comprobo explotable en la
+# auditoria, y comprueba tambien que el uso legitimo sigue funcionando:
+# cerrar un agujero sin dejar fuera a quien si tiene derecho.
+# ---------------------------------------------------------------------------
+
+
+class TestimoniosExigenSesion(PruebaBase):
+    """Registrar/Editar/EliminarTestimonio eran `View` sin comprobacion.
+
+    Comprobado antes del arreglo: un cliente sin sesion creaba, editaba y
+    borraba testimonios.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_un_anonimo_no_puede_crear(self):
+        antes = Testimonio.objects.count()
+        self.client.post(reverse("registrar_testimonio"),
+                         {"autor": "Atacante", "contenido": "Sin sesion."})
+        self.assertEqual(Testimonio.objects.count(), antes,
+                         "un anonimo no debe poder crear testimonios")
+
+    def test_un_anonimo_no_puede_editar_ni_borrar(self):
+        testimonio = Testimonio.objects.first()
+        autor = testimonio.autor
+        self.client.post(reverse("editar_testimonio", args=[testimonio.id]),
+                         {"autor": "Modificado", "contenido": "x"})
+        testimonio.refresh_from_db()
+        self.assertEqual(testimonio.autor, autor, "no debe poder editarlo")
+
+        self.client.post(reverse("eliminar_testimonio", args=[testimonio.id]))
+        self.assertTrue(Testimonio.objects.filter(id=testimonio.id).exists(),
+                        "no debe poder borrarlo")
+
+    def test_un_jugador_tampoco(self):
+        self.client.force_login(self.datos["jugador"].usuario)
+        antes = Testimonio.objects.count()
+        self.client.post(reverse("registrar_testimonio"),
+                         {"autor": "Jugador", "contenido": "x"})
+        self.assertEqual(Testimonio.objects.count(), antes)
+
+    def test_el_admin_si_puede(self):
+        """El arreglo no debe dejar fuera a quien si gestiona testimonios."""
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.get(reverse("registrar_testimonio"))
+        self.assertEqual(respuesta.status_code, 200)
+
+    def test_el_listado_sigue_siendo_publico(self):
+        self.assertEqual(self.client.get(reverse("listar_testimonios")).status_code, 200)
+
+
+class SuspensionesNoSonPublicas(PruebaBase):
+    """El expediente disciplinario llevaba nombre y motivo, y era publico."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_un_anonimo_no_ve_el_listado(self):
+        respuesta = self.client.get(reverse("listar_suspensiones"))
+        self.assertEqual(respuesta.status_code, 302,
+                         "debe redirigir al login, no responder 200")
+
+    def test_un_anonimo_no_ve_el_detalle(self):
+        suspension = Suspension.objects.first()
+        respuesta = self.client.get(reverse("detalle_suspension", args=[suspension.id]))
+        self.assertEqual(respuesta.status_code, 302)
+
+    def test_el_admin_sigue_viendo_todo(self):
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.get(reverse("listar_suspensiones"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(len(respuesta.context["suspensiones"]), Suspension.objects.count())
+
+    def test_un_jugador_solo_ve_la_suya(self):
+        otro = Usuario.objects.create_user(
+            username="jugador_sin_sancion", email="jsn@uide.edu.ec", password=PWD,
+            rol="JUGADOR", carrera=self.datos["carrera"], genero="masculino")
+        Jugador.objects.create(usuario=otro, equipo=self.datos["equipo"],
+                               numero_camiseta=11, posicion="Defensa", edad=20)
+        self.client.force_login(otro)
+        respuesta = self.client.get(reverse("listar_suspensiones"))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(list(respuesta.context["suspensiones"]), [],
+                         "no debe ver expedientes de otros jugadores")
+
+    def test_pedir_un_expediente_ajeno_da_404(self):
+        otro = Usuario.objects.create_user(
+            username="jugador_curioso", email="jc@uide.edu.ec", password=PWD,
+            rol="JUGADOR", carrera=self.datos["carrera"], genero="masculino")
+        Jugador.objects.create(usuario=otro, equipo=self.datos["equipo"],
+                               numero_camiseta=12, posicion="Portero", edad=22)
+        self.client.force_login(otro)
+        suspension = Suspension.objects.first()
+        respuesta = self.client.get(reverse("detalle_suspension", args=[suspension.id]))
+        self.assertEqual(respuesta.status_code, 404,
+                         "404 y no 403: no debe confirmar que el expediente existe")
+
+
+class PagoDeOtroEquipoEsInaccesible(PruebaBase):
+    """IDOR: el equipo llegaba por la URL sin comprobar de quien era.
+
+    La restriccion por queryset del formulario solo se aplicaba al rol
+    DELEGADO, asi que un JUGADOR o un ARBITRO podian abrir y modificar el
+    pago de cualquier equipo. Comprobado explotable antes del arreglo.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+        cls.equipo = cls.datos["equipo"]
+        cls.pago = Pago.objects.get(equipo=cls.equipo)
+
+    def _url(self):
+        return reverse("registrar_pago_equipo", args=[self.equipo.pk])
+
+    def test_un_jugador_no_puede_abrirlo(self):
+        self.client.force_login(self.datos["jugador"].usuario)
+        self.assertEqual(self.client.get(self._url()).status_code, 403)
+
+    def test_un_arbitro_no_puede_abrirlo(self):
+        self.client.force_login(self.datos["arbitro"].usuario)
+        self.assertEqual(self.client.get(self._url()).status_code, 403)
+
+    def test_un_jugador_no_puede_modificarlo(self):
+        self.client.force_login(self.datos["jugador"].usuario)
+        antes = self.pago.metodo
+        self.client.post(self._url(), {"equipo": str(self.equipo.pk), "metodo": "EFECTIVO"})
+        self.pago.refresh_from_db()
+        self.assertEqual(self.pago.metodo, antes,
+                         "un jugador no debe poder cambiar el pago de un equipo")
+
+    def test_un_delegado_ajeno_no_puede(self):
+        ajeno = Usuario.objects.create_user(
+            username="delegado_ajeno_pago", email="dap@uide.edu.ec", password=PWD,
+            rol="DELEGADO", carrera=self.datos["carrera"], genero="masculino")
+        self.client.force_login(ajeno)
+        self.assertEqual(self.client.get(self._url()).status_code, 403)
+
+    def test_el_delegado_del_equipo_si_puede(self):
+        """El arreglo no debe romper el flujo normal del delegado."""
+        self.client.force_login(self.datos["delegado"])
+        self.assertEqual(self.client.get(self._url()).status_code, 200)
+
+    def test_el_admin_puede_con_cualquier_equipo(self):
+        self.client.force_login(self.datos["admin"])
+        self.assertEqual(self.client.get(self._url()).status_code, 200)
+
+
+class CatalogoQrSeSerializaEscapado(PruebaBase):
+    """El catalogo iba con json.dumps y |safe dentro de un <script>.
+
+    json.dumps no escapa < ni >, asi que un "</script>" en cualquier campo
+    del QR (banco, titular, numero de cuenta) cerraba el bloque y el resto
+    se interpretaba como HTML: XSS almacenado contra los delegados.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_una_carga_en_el_banco_no_rompe_el_script(self):
+        qr = CodigoQR.objects.first()
+        qr.banco = '</script><img src=x onerror=alert(1)>'
+        qr.save()
+
+        self.client.force_login(self.datos["delegado"])
+        respuesta = self.client.get(
+            reverse("registrar_pago_equipo", args=[self.datos["equipo"].pk]))
+        self.assertEqual(respuesta.status_code, 200)
+        cuerpo = respuesta.content.decode()
+
+        self.assertNotIn("</script><img", cuerpo,
+                         "la carga no debe salir literal y cerrar el <script>")
+        self.assertIn("\\u003C", cuerpo,
+                      "json_script debe escapar el < como \\u003C")
+
+
+class CedulaEnLosFormularios(PruebaBase):
+    """La validacion se aplica en cada punto de entrada real.
+
+    Se comprueba formulario a formulario, no solo el validador suelto: es
+    donde llegan los datos del usuario.
+    """
+
+    CEDULA_VALIDA = "1105444176"
+    CEDULA_INVALIDA = "1105444177"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _registro(self, cedula):
+        return RegistroUsuarioForm(data={
+            "username": "aspirante", "first_name": "Ana", "last_name": "Lopez",
+            "email": "aspirante@uide.edu.ec", "cedula": cedula,
+            "genero": "masculino", "rol": "JUGADOR",
+            "password1": "Prueba.2026", "password2": "Prueba.2026",
+        })
+
+    def test_el_registro_publico_rechaza_una_cedula_inventada(self):
+        formulario = self._registro(self.CEDULA_INVALIDA)
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("cedula", formulario.errors)
+
+    def test_el_registro_publico_acepta_una_valida_no_almacenada(self):
+        self.assertFalse(Usuario.objects.filter(cedula=self.CEDULA_VALIDA).exists())
+        formulario = self._registro(self.CEDULA_VALIDA)
+        self.assertTrue(formulario.is_valid(), formulario.errors.as_text())
+
+    def test_el_perfil_rechaza_una_cedula_inventada(self):
+        formulario = PerfilUsuarioForm(
+            instance=self.datos["jugador"].usuario,
+            data={"first_name": "A", "last_name": "B", "email": "p@uide.edu.ec",
+                  "cedula": self.CEDULA_INVALIDA, "genero": "masculino",
+                  "carrera": self.datos["carrera"].pk})
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("cedula", formulario.errors)
+
+    def test_el_formulario_de_usuario_rechaza_aunque_no_declare_validador(self):
+        """UsuarioForm no declara el validador: lo hereda del campo del modelo."""
+        formulario = UsuarioForm(data={"username": "otro", "email": "o@uide.edu.ec",
+                                       "cedula": self.CEDULA_INVALIDA, "rol": "JUGADOR"})
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("cedula", formulario.errors)
+
+    def test_el_alta_de_arbitro_rechaza_una_cedula_inventada(self):
+        formulario = ArbitroForm(data={
+            "username": "arb_nuevo", "email": "arb@uide.edu.ec",
+            "first_name": "A", "last_name": "B", "genero": "masculino",
+            "is_active": True, "cedula": self.CEDULA_INVALIDA})
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("cedula", formulario.errors)
+
+    def test_dos_arbitros_sin_cedula_no_chocan(self):
+        base = {"first_name": "A", "last_name": "B", "genero": "masculino",
+                "is_active": True, "cedula": ""}
+        primero = ArbitroForm(data={**base, "username": "arb_uno",
+                                    "email": "uno@uide.edu.ec"})
+        self.assertTrue(primero.is_valid(), primero.errors.as_text())
+        creado = primero.save()
+        self.assertIsNone(creado.cedula, "sin cedula debe guardarse NULL, no ''")
+
+        segundo = ArbitroForm(data={**base, "username": "arb_dos",
+                                    "email": "dos@uide.edu.ec"})
+        self.assertTrue(segundo.is_valid(),
+                        f"el segundo arbitro sin cedula no debe chocar: "
+                        f"{segundo.errors.as_text()}")
+
+
+class CedulaNoSePuedeSaltarPorHttp(PruebaBase):
+    """El backend es la autoridad: no vale con la validacion del navegador.
+
+    Se envia un POST directo al endpoint de registro, como haria curl,
+    saltandose cualquier comprobacion del formulario en el cliente.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_un_post_directo_con_cedula_inventada_no_crea_usuario(self):
+        antes = Usuario.objects.count()
+        respuesta = self.client.post(reverse("registro"), {
+            "username": "colado", "first_name": "Ana", "last_name": "Lopez",
+            "email": "colado@uide.edu.ec", "cedula": "1105444177",
+            "genero": "masculino", "rol": "JUGADOR",
+            "password1": "Prueba.2026", "password2": "Prueba.2026",
+        })
+        self.assertEqual(Usuario.objects.count(), antes,
+                         "una cedula que no cumple el algoritmo no debe crear usuario")
+        self.assertFalse(Usuario.objects.filter(username="colado").exists())
+        self.assertEqual(respuesta.status_code, 200)
+
+    def test_un_post_directo_con_cedula_valida_si_crea_usuario(self):
+        respuesta = self.client.post(reverse("registro"), {
+            "username": "correcto", "first_name": "Ana", "last_name": "Lopez",
+            "email": "correcto@uide.edu.ec", "cedula": "1105444176",
+            "genero": "masculino", "rol": "JUGADOR",
+            "password1": "Prueba.2026", "password2": "Prueba.2026",
+        }, follow=True)
+        self.assertTrue(Usuario.objects.filter(username="correcto").exists(),
+                        f"deberia haberse creado: {respuesta.status_code}")

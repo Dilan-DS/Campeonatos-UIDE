@@ -12,6 +12,7 @@ estaba en uso -- por lo que el comportamiento es idéntico.
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import PermissionDenied
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -144,11 +145,37 @@ class RegistrarPagoParaEquipoAdminView(LoginRequiredMixin, View):
         return render(request, 'pago/registrar_admin.html', {'form': form, 'modo': 'crear', 'equipo': equipo})
 
 class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
+    """Registro del pago de un equipo.
+
+    El equipo llega por la URL, asi que hay que comprobar que quien pide
+    la pagina tenga relacion con el: antes solo se hacia
+    get_object_or_404(Equipo, pk=...) sin mirar de quien es el equipo, y
+    la restriccion por queryset del formulario solo se aplicaba al rol
+    DELEGADO. Comprobado antes del arreglo: un JUGADOR podia abrir el
+    pago de un equipo ajeno y cambiarle el metodo de pago.
+    """
+
+    ROLES_PERMITIDOS = ("ADMIN", "DELEGADO")
+
+    def _equipo_permitido(self, request, equipo_id):
+        """Devuelve el equipo si el usuario puede operar sobre el.
+
+        ADMIN puede con cualquiera; DELEGADO solo con los suyos. El resto
+        de roles no gestiona pagos.
+        """
+        rol = getattr(request.user, "rol", "")
+        if rol not in self.ROLES_PERMITIDOS:
+            raise PermissionDenied("Tu rol no gestiona pagos de equipos.")
+        if not equipo_id:
+            return None
+        equipo = get_object_or_404(Equipo, pk=equipo_id)
+        if rol == "DELEGADO" and equipo.delegado_id != request.user.id:
+            raise PermissionDenied("Ese equipo no esta a tu cargo.")
+        return equipo
+
     def get(self, request, *args, **kwargs):
         equipo_id = kwargs.get("equipo_id") or request.GET.get("equipo_id")
-        equipo = None
-        if equipo_id:
-            equipo = get_object_or_404(Equipo, pk=equipo_id)
+        equipo = self._equipo_permitido(request, equipo_id)
 
         pago_existente = None
         equipo_nombre = ""
@@ -194,7 +221,12 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
         qr_catalog = {qr.pk: qr.to_dict() for qr in qs_qr}
         ctx.update({
             "ocultar_select_qr": ocultar_select_qr,
-            "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
+            # Se envia el diccionario tal cual: la plantilla lo serializa con
+            # json_script, que escapa <, > y & . json.dumps no los escapa,
+            # asi que un "</script>" dentro de cualquier campo del QR
+            # (banco, titular, numero de cuenta) cerraba el bloque y el
+            # resto se interpretaba como HTML.
+            "qr_catalog": qr_catalog,
             "qr_principal": qr_principal,  # ← NUEVO
         })
         
@@ -202,7 +234,7 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         equipo_id = kwargs.get("equipo_id") or request.POST.get("equipo")
-        equipo = get_object_or_404(Equipo, pk=equipo_id) if equipo_id else None
+        equipo = self._equipo_permitido(request, equipo_id)
         es_delegado = getattr(request.user, "rol", "") == "DELEGADO"
         # Si no llegó equipo y es delegado, toma su primer equipo
         if not equipo and es_delegado:
@@ -254,7 +286,7 @@ class RegistrarPagoDelegadoView(LoginRequiredMixin, View):
             "pago_existente": pago_existente,
             "equipo_nombre": equipo.nombre if equipo else "",
             "ocultar_select_qr": ocultar_select_qr,
-            "qr_catalog_json": json.dumps(qr_catalog, cls=DjangoJSONEncoder),
+            "qr_catalog": qr_catalog,
         }
         messages.error(request, "Error al registrar/actualizar el pago. Revisa los campos.")
         return render(request, "pago/registrar.html", ctx)
