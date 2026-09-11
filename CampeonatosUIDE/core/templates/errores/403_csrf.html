@@ -1,0 +1,23 @@
+{% extends "errores/_base_error.html" %}
+{% block title %}No se pudo enviar el formulario — Campeonatos UIDE{% endblock %}
+{% block error_content %}
+  <div class="notification is-warning">
+    <h1 class="title is-4">No se pudo enviar el formulario</h1>
+    <p class="mb-4">
+      No se guardó ningún dato. Esto pasa cuando la página estuvo abierta
+      demasiado tiempo antes de enviar el formulario, o cuando el navegador
+      bloquea las cookies de este sitio (modo incógnito estricto, extensión
+      de privacidad, etc.). Es un mecanismo de seguridad contra sitios
+      falsos que intentan enviar formularios en tu nombre — no un error de
+      la aplicación.
+    </p>
+    <p class="mb-4"><strong>Qué hacer:</strong></p>
+    <ol class="mb-4">
+      <li>Recarga esta página.</li>
+      <li>Vuelve a completar el formulario y envíalo de nuevo, sin dejarlo
+        abierto mucho rato antes.</li>
+      <li>Si se repite, comprueba que las cookies estén habilitadas para
+        este sitio.</li>
+    </ol>
+  </div>
+{% endblock %}

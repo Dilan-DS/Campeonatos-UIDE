@@ -18,4 +18,5 @@ from .deportes_views import *
 from .galeria_views import *
 from .testimonios_views import *
 from .noticias_views import *
+from .errores_views import *
 

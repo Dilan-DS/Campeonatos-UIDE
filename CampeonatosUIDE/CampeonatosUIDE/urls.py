@@ -28,3 +28,10 @@ urlpatterns = [
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Paginas de error propias en vez de las de Django (solo se usan con
+# DEBUG=False, o sea en produccion). CSRF_FAILURE_VIEW (settings.py) cubre
+# el caso de CSRF por separado, estos son los genericos 403/404/500.
+handler403 = "core.views.errores_views.error_403"
+handler404 = "core.views.errores_views.error_404"
+handler500 = "core.views.errores_views.error_500"

@@ -175,6 +175,13 @@ EMAIL_TIMEOUT = 20
 
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
+# Sin esto, un token CSRF caducado o un navegador que bloquea la cookie
+# mostraba la pagina tecnica de Django ("La verificacion CSRF ha fallado...
+# Mas informacion disponible si se establece DEBUG=True"), que no le dice
+# nada util a un usuario real. core/views/errores_views.py explica que
+# hacer en espanol.
+CSRF_FAILURE_VIEW = "core.views.errores_views.csrf_failure"
+
 # Bound request bodies and uploads before application-level validation.
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
