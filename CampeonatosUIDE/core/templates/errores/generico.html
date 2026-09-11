@@ -10,7 +10,8 @@
 {% block content %}
   <div class="container uide-container my-6">
     <div class="box has-text-centered" style="max-width: 480px; margin: 0 auto;">
-      <p class="title is-5">{{ titulo }}</p>
+      {# Encabezado real: es el titulo de la pagina, no un parrafo con aspecto de titulo. #}
+      <h1 class="title is-5">{{ titulo }}</h1>
       <p class="mb-4">{{ mensaje }}</p>
       <a class="button is-link" href="javascript:history.back()">Volver</a>
     </div>
