@@ -7,11 +7,9 @@
 {% load widget_tweaks %}
 <!-- Carga la librería para personalizar widgets de formularios con filtros como add_class. -->
 
-{% block title %}Registro de Usuario - Campeonatos UIDE{% endblock %}
-<!-- Define el contenido del bloque 'title', usado en <title> del navegador. -->
+{% block title %}Crear usuario (panel admin) - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<!-- Inicio del bloque 'content', donde se inserta el contenido principal de la página. -->
 
 <section class="section">
   <!-- Sección principal con estilo Bulma para dar margen y padding. -->
@@ -19,63 +17,121 @@
     <!-- Contenedor centrado de ancho limitado para evitar que el contenido se vea muy extendido. -->
     <div class="columns is-centered">
       <!-- Centra las columnas horizontalmente. -->
-      <div class="column is-6">
-        <!-- Crea una columna de 6 columnas de ancho (en una grilla de 12). -->
+      <div class="column is-10-desktop is-12-tablet">
 
-        <div class="uide-panel uide-panel--pad">
-          <!-- Caja blanca con sombra, bordes redondeados y padding personalizado. -->
-          <h1 class="title is-4 has-text-centered mb-5">
-            <!-- Título centrado, tamaño 4, con margen inferior y color personalizado. -->
-            Registro de Usuario
-          </h1>
+        <h1 class="title is-4 has-text-centered mb-5">
+          Crear usuario
+        </h1>
 
+        <form method="POST" novalidate>
+          {% csrf_token %}
+          {% include "comun/_errores_formulario.html" with form=form %}
 
-          <form method="POST">
-            <!-- Formulario que enviará los datos con método POST (más seguro que GET). -->
-            {% csrf_token %}
-            <!-- Token de seguridad de Django para prevenir ataques CSRF. -->
+          {% comment %}
+            Bento: 2 tarjetas por grupo real, no decorativas.
+            - Cuenta: username, email y contraseña (acceso al sistema)
+            - Datos personales: nombre, apellido, genero, carrera y rol
+            name/id de cada campo no cambian, solo el contenedor.
+          {% endcomment %}
+          <div class="columns is-multiline">
 
-            {% for field in form %}
-              <!-- Itera sobre cada campo del formulario para renderizarlo. -->
-              <div class="field mb-4">
-                <!-- Grupo de campo con margen inferior. -->
-                <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                <!-- Muestra la etiqueta del campo (por ejemplo, 'Nombre de usuario'). -->
-                <div class="control">
-                  {{ field|add_class:"input is-rounded" }}
-                  <!-- Renderiza el campo de entrada con clases extra usando widget_tweaks. -->
-                </div>
-                {% for error in field.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                  <!-- Muestra cada mensaje de error específico de ese campo. -->
+            {# ---------- Card 1: Cuenta ---------- #}
+            <div class="column is-6-desktop is-12-tablet">
+              <div class="box p-5 uide-h-100">
+                <h2 class="title is-6 mb-4">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-candado"></use></svg>
+                  Cuenta
+                </h2>
+                {% for field in form %}
+                  {% if field.name == "username" or field.name == "email" or field.name == "password1" or field.name == "password2" %}
+                    <div class="field mb-4">
+                      <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                      <div class="control">
+                        {{ field|add_class:"input is-rounded" }}
+                      </div>
+                      {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                    </div>
+                  {% endif %}
                 {% endfor %}
               </div>
-            {% endfor %}
+            </div>
 
-            <div class="field mt-5">
-              <!-- Botón para enviar el formulario, con margen superior. -->
-              <div class="control">
-                <button type="submit" class="button is-primary is-fullwidth is-rounded">
-                  <!-- Botón azul, redondeado y de ancho completo. -->
-                  <strong>Registrarse</strong>
-                  <!-- Texto del botón en negrita. -->
-                </button>
+            {# ---------- Card 2: Datos personales ---------- #}
+            <div class="column is-6-desktop is-12-tablet">
+              <div class="box p-5 uide-h-100">
+                <h2 class="title is-6 mb-4">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
+                  Datos personales
+                </h2>
+                {% for field in form %}
+                  {% if field.name == "first_name" or field.name == "last_name" or field.name == "genero" or field.name == "carrera" %}
+                    <div class="field mb-4">
+                      <label class="label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.name == "first_name" or field.name == "last_name" or field.name == "carrera" %}
+                          <span class="uide-optional">(opcional)</span>
+                        {% endif %}
+                      </label>
+                      <div class="control">
+                        {% if field|widget_type == 'select' %}
+                          {# carrera y genero son <select>: el envoltorio de Bulma, no la clase de input. #}
+                          <div class="select is-rounded is-fullwidth">{{ field }}</div>
+                        {% else %}
+                          {{ field|add_class:"input is-rounded" }}
+                        {% endif %}
+                      </div>
+                      {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+
+                {# rol aparte, como radios con descripcion: es la decision de mas peso del formulario (puede otorgar acceso total con ADMIN) y antes se veia identica a "Genero" en un select mas. #}
+                {% for field in form %}
+                  {% if field.name == "rol" %}
+                    <div class="field">
+                      <label class="label">{{ field.label }}</label>
+                      <div class="uide-role-options">
+                        {% for radio in field %}
+                          <label class="uide-role-option{% if radio.data.value == 'ADMIN' %} uide-role-option--admin{% endif %}">
+                            {{ radio.tag }}
+                            <span>
+                              <strong>{{ radio.choice_label }}</strong>
+                              <span class="uide-role-option__desc">
+                                {% if radio.data.value == "ADMIN" %}Acceso total al panel: usuarios, pagos, campeonatos.
+                                {% elif radio.data.value == "DELEGADO" %}Gestiona los equipos y jugadores de su carrera.
+                                {% elif radio.data.value == "ARBITRO" %}Registra resultados de los partidos asignados.
+                                {% else %}Cuenta de jugador, sin acceso a este panel.
+                                {% endif %}
+                              </span>
+                            </span>
+                          </label>
+                        {% endfor %}
+                      </div>
+                      {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
-          </form>
 
-          <div class="has-text-centered mt-4">
-            <!-- Texto centrado con margen superior. -->
-            <p>
-              ¿Ya tienes una cuenta?
-              <!-- Mensaje para redirigir a login si ya está registrado. -->
-              <a href="{% url 'login' %}" class="has-text-link has-text-weight-bold">
-                <!-- Enlace al login con estilo llamativo. -->
-                Inicia sesión
-              </a>
-            </p>
           </div>
-        </div>
+
+          <div class="field mt-5 is-grouped is-grouped-right">
+            <div class="control">
+              <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">Cancelar</a>
+            </div>
+            <div class="control">
+              <button type="submit" name="guardar_y_crear_otro" value="1" class="button is-light is-rounded">
+                Guardar y crear otro
+              </button>
+            </div>
+            <div class="control">
+              <button type="submit" class="button is-primary is-rounded">
+                <strong>Crear usuario</strong>
+              </button>
+            </div>
+          </div>
+        </form>
 
       </div>
     </div>

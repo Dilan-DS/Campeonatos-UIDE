@@ -26,30 +26,126 @@
 
       <!-- FORMULARIO -->
       {% if modo == "crear" or modo == "editar" %}
-        <form method="POST" enctype="multipart/form-data" novalidate>
+        <form method="POST" enctype="multipart/form-data" novalidate id="form-campeonato">
           {% csrf_token %}
+          {% include "comun/_errores_formulario.html" with form=form %}
+
+          {% comment %}
+            Bento: 3 tarjetas por grupo real del campeonato, no decorativas.
+            - Datos generales: identidad y estado del campeonato
+            - Cronograma e inscripcion: fechas, cupos, precio
+            - Reglamento: el unico archivo del formulario
+            name/id de cada campo no cambian: siguen viniendo del widget de
+            Django, solo cambia el contenedor.
+          {% endcomment %}
           <div class="columns is-multiline">
-            {% for field in form %}
-              <div class="column is-12-mobile is-6-tablet">
-                <div class="field">
-                  <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
 
-                  <div class="control">
-                    {# Checkboxes para días de partido (MultiSelectField) #}
-                    {% if field.name == "dias_partido" %}
-                      <div class="field is-grouped is-grouped-multiline">
-                        {% for choice in field.field.choices %}
+            {# ---------- Card 1: Datos generales ---------- #}
+            <div class="column is-6-desktop is-12-tablet">
+              <div class="box p-5 uide-h-100">
+                <h2 class="title is-6 mb-4">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+                  Datos generales
+                </h2>
+                <div class="columns is-multiline">
+                  {% for field in form %}
+                    {% if field.name == "nombre" or field.name == "tipo_campeonato" or field.name == "deporte" or field.name == "estado" or field.name == "delegado" or field.name == "descripcion" %}
+                      <div class="column {% if field|widget_type == 'textarea' %}is-12{% else %}is-6-tablet is-12-mobile{% endif %}">
+                        <div class="field">
+                          <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                           <div class="control">
-                            <label class="checkbox">
-                              <input type="checkbox" name="{{ field.name }}" value="{{ choice.0 }}"
-                                {% if choice.0 in field.value %}checked{% endif %}> {{ choice.1 }}
-                            </label>
+                            {% if field|widget_type == 'textarea' %}
+                              {{ field|add_class:"textarea is-rounded" }}
+                            {% elif field|widget_type == 'select' %}
+                              <div class="select is-fullwidth">{{ field }}</div>
+                            {% else %}
+                              {{ field|add_class:"input is-rounded" }}
+                            {% endif %}
                           </div>
-                        {% endfor %}
+                          {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                        </div>
                       </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
 
-                    {# Campo archivo (reglamento) #}
-                    {% elif field.name == "reglamento" %}
+                {# activo/es_publico aparte: es el estado de publicacion del campeonato, antes se perdia entre otros 6 campos con el mismo peso visual. #}
+                <hr class="my-4">
+                <p class="label mb-2">Visibilidad y estado</p>
+                <div class="columns is-multiline">
+                  {% for field in form %}
+                    {% if field.name == "activo" or field.name == "es_publico" %}
+                      <div class="column is-6-tablet is-12-mobile">
+                        <div class="field">
+                          <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                          <div class="control">
+                            <div class="select is-fullwidth">{{ field }}</div>
+                          </div>
+                          {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            {# ---------- Card 2: Cronograma e inscripcion ---------- #}
+            <div class="column is-6-desktop is-12-tablet">
+              <div class="box p-5 uide-h-100">
+                <h2 class="title is-6 mb-4">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+                  Cronograma e inscripción
+                </h2>
+                <div class="columns is-multiline">
+                  {% for field in form %}
+                    {% if field.name == "fecha_inicio" or field.name == "fecha_fin" or field.name == "fecha_fin_inscripcion" or field.name == "max_jugadores_por_equipo" or field.name == "precio_inscripcion" or field.name == "codigo_qr" %}
+                      <div class="column is-6-tablet is-12-mobile">
+                        <div class="field">
+                          <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                          <div class="control">
+                            {% if field|widget_type == 'select' %}
+                              <div class="select is-fullwidth">{{ field }}</div>
+                            {% else %}
+                              {{ field|add_class:"input is-rounded" }}
+                            {% endif %}
+                          </div>
+                          {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                        </div>
+                      </div>
+                    {% elif field.name == "dias_partido" %}
+                      <div class="column is-12">
+                        <div class="field">
+                          <label class="label">{{ field.label }}</label>
+                          <div class="field is-grouped is-grouped-multiline">
+                            {% for choice in field.field.choices %}
+                              <div class="control">
+                                <label class="checkbox">
+                                  <input type="checkbox" name="{{ field.name }}" value="{{ choice.0 }}"
+                                    {% if choice.0 in field.value %}checked{% endif %}> {{ choice.1 }}
+                                </label>
+                              </div>
+                            {% endfor %}
+                          </div>
+                          {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            {# ---------- Card 3: Reglamento ---------- #}
+            <div class="column is-12">
+              <div class="box p-5">
+                <h2 class="title is-6 mb-4">
+                  <svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg>
+                  Reglamento
+                </h2>
+                {% for field in form %}
+                  {% if field.name == "reglamento" %}
+                    <div class="field">
                       <div class="file has-name is-fullwidth">
                         {{ field|add_class:"file-input" }}
                         <label class="file-label" for="{{ field.id_for_label }}">
@@ -58,39 +154,28 @@
                             <span class="file-label">Seleccionar archivo</span>
                           </span>
                           <span class="file-name" id="file-name-{{ field.id_for_label }}">
-                            {% if field.value %}
-                              {{ field.value.name }}
-                            {% else %}
-                              No se ha seleccionado archivo
-                            {% endif %}
+                            {% if field.value %}{{ field.value.name }}{% else %}No se ha seleccionado archivo{% endif %}
                           </span>
                         </label>
                       </div>
-
-                    {# Campo textarea (descripción) #}
-                    {% elif field|widget_type == 'textarea' %}
-                      {{ field|add_class:"textarea is-rounded" }}
-
-                    {# Otros campos input/select #}
-                    {% else %}
-                      {{ field|add_class:"input is-rounded" }}
-                    {% endif %}
-                  </div>
-
-                  {# Errores de validación del campo #}
-                  {% for error in field.errors %}
-                    <p class="help is-danger">{{ error }}</p>
-                  {% endfor %}
-                </div>
+                      {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
               </div>
-            {% endfor %}
+            </div>
+
           </div>
 
           <!-- BOTÓN GUARDAR -->
-          <div class="field mt-5">
+          <div class="field mt-5 is-grouped is-grouped-right">
             <div class="control">
-              <button type="submit" class="button is-primary is-fullwidth is-rounded is-medium">
-                {% if modo == "crear" %}🌟 Guardar Campeonato{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg> Guardar Cambios{% endif %}
+              <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded is-medium">Cancelar</a>
+            </div>
+            <div class="control">
+              <button type="submit" class="button is-primary is-rounded is-medium">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+                {% if modo == "crear" %}Guardar Campeonato{% else %}Guardar Cambios{% endif %}
               </button>
             </div>
           </div>
@@ -167,6 +252,50 @@
           fileNameSpan.textContent = 'No se ha seleccionado archivo';
         }
       });
+    });
+
+    // Orden de fechas: aviso inmediato en vez de descubrirlo tras un
+    // round-trip al servidor. El form tiene novalidate a proposito (los
+    // campos de Bulma no se llevan bien con el globo nativo del navegador),
+    // asi que la validacion de fechas hay que hacerla a mano aqui. El
+    // servidor sigue siendo la validacion real; esto es solo para avisar
+    // antes de enviar.
+    const form = document.getElementById('form-campeonato');
+    if (!form) return;
+    const $inicio = document.getElementById('id_fecha_inicio');
+    const $fin = document.getElementById('id_fecha_fin');
+    const $limite = document.getElementById('id_fecha_fin_inscripcion');
+
+    const avisoId = 'aviso-fechas-campeonato';
+    function mostrarAviso(mensaje) {
+      let aviso = document.getElementById(avisoId);
+      if (!aviso) {
+        aviso = document.createElement('div');
+        aviso.id = avisoId;
+        aviso.className = 'notification is-danger is-light mt-4';
+        aviso.setAttribute('role', 'alert');
+        form.prepend(aviso);
+      }
+      aviso.textContent = mensaje;
+      aviso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function quitarAviso() {
+      const aviso = document.getElementById(avisoId);
+      if (aviso) aviso.remove();
+    }
+
+    form.addEventListener('submit', (evento) => {
+      quitarAviso();
+      if (!$inicio || !$fin || !$inicio.value || !$fin.value) return;
+      if ($fin.value < $inicio.value) {
+        evento.preventDefault();
+        mostrarAviso('La fecha de fin no puede ser anterior a la fecha de inicio.');
+        return;
+      }
+      if ($limite && $limite.value && $limite.value > $inicio.value) {
+        evento.preventDefault();
+        mostrarAviso('La fecha límite de inscripción debe ser antes de que empiece el campeonato.');
+      }
     });
   });
 </script>

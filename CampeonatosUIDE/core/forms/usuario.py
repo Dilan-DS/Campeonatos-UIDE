@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
 from core.models import Usuario
 from core.validators import validate_ecuadorian_cedula
 
@@ -88,30 +88,71 @@ class CrearUsuarioAdminForm(UserCreationForm):
             'first_name': forms.TextInput(attrs={'class': 'input'}),
             'last_name': forms.TextInput(attrs={'class': 'input'}),
             'email': forms.EmailInput(attrs={'class': 'input'}),
-            'rol': forms.Select(attrs={'class': 'select'}),
+            # RadioSelect en vez de Select: rol decide cuanto acceso tiene la
+            # cuenta (ADMIN incluido) y antes se veia identico a "Genero" en
+            # un <select> mas. Como radios, cada opcion lleva su propia
+            # descripcion de una linea (ver comun/_campos_rol.html).
+            'rol': forms.RadioSelect(attrs={'class': 'uide-role-radio'}),
             'carrera': forms.Select(attrs={'class': 'select'}),
             'genero': forms.Select(attrs={'class': 'select'}),
         }
 
 
 class CrearUsuarioDelegadoForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
+    # Antes: un solo "password" sin confirmar y sin clean_email, a
+    # diferencia de RegistroUsuarioForm/CrearUsuarioAdminForm en este mismo
+    # archivo. Un typo en la contrasena era invisible hasta que el delegado
+    # no podia iniciar sesion, y un correo duplicado probablemente reventaba
+    # en un IntegrityError sin pasar por el formulario.
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input'}), label="Contraseña")
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'input'}), label="Confirmar contraseña")
 
     class Meta:
         model = Usuario
         fields = ['username', 'first_name', 'last_name', 'email', 'carrera', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'input'}),
-            'first_name': forms.TextInput(attrs={'class': 'input'}),
-            'last_name': forms.TextInput(attrs={'class': 'input'}),
-            'email': forms.EmailInput(attrs={'class': 'input'}),
+            'username': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Ej. jlopez'}),
+            'first_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Nombre del delegado'}),
+            'last_name': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Apellidos del delegado'}),
+            'email': forms.EmailInput(attrs={'class': 'input', 'placeholder': 'tucorreo@ejemplo.com'}),
             'carrera': forms.Select(attrs={'class': 'select'}),
-            'password': forms.PasswordInput(attrs={'class': 'input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # nombre/apellido/carrera nunca fueron obligatorios a nivel de
+        # modelo; se marcan explicitamente para que la plantilla pueda
+        # mostrar "(opcional)" en vez de dejarlo ambiguo.
+        self.fields['first_name'].required = False
+        self.fields['last_name'].required = False
+        self.fields['carrera'].required = False
+        self.fields['password'].help_text = (
+            "• Mínimo 8 caracteres.<br>"
+            "• No uses algo muy común.<br>"
+            "• No puede ser completamente numérica."
+        )
+        self.fields['password2'].help_text = "Repite la contraseña exactamente igual."
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if Usuario.objects.filter(email__iexact=email).exists():
+            raise ValidationError('Este correo ya está registrado.')
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password2 = cleaned_data.get('password2')
+        if password and password2 and password != password2:
+            raise ValidationError({'password2': "Las contraseñas no coinciden."})
+        if password:
+            password_validation.validate_password(password, self.instance)
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
+        user.email = (self.cleaned_data.get('email') or '').lower()
         user.rol = 'DELEGADO'
         if commit:
             user.save()
@@ -126,7 +167,7 @@ class UsuarioForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'class': 'input'}),
             'email': forms.EmailInput(attrs={'class': 'input'}),
             'cedula': forms.TextInput(attrs={'class': 'input'}),
-            'rol': forms.Select(attrs={'class': 'input'}),
+            'rol': forms.Select(attrs={'class': 'select'}),
         }
 
 

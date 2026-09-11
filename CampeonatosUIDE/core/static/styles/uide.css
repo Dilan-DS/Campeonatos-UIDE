@@ -1042,6 +1042,46 @@ select.input[multiple],
   line-height: var(--uide-leading);
 }
 
+/* Radios de "rol" al crear un usuario admin (admin_panel/registro_usuario.html).
+   Antes era un <select> igual al de "Genero": la opcion que de verdad
+   importa (ADMIN otorga acceso total) no pesaba mas que elegir el genero.
+   Cada opcion se ve como una tarjeta con su propia descripcion de una linea;
+   ADMIN lleva un borde de aviso para que destaque del resto. */
+.uide-role-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uide-space-2);
+}
+
+.uide-role-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uide-space-3);
+  padding: var(--uide-space-3);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-sm);
+  cursor: pointer;
+}
+
+.uide-role-option:has(input:checked) {
+  border-color: var(--uide-primary);
+  background: color-mix(in srgb, var(--uide-primary) 6%, var(--uide-surface));
+}
+
+.uide-role-option--admin {
+  border-color: var(--uide-warning-strong, var(--uide-warning));
+}
+
+.uide-role-option input {
+  margin-top: .25em;
+}
+
+.uide-role-option__desc {
+  display: block;
+  color: var(--uide-muted);
+  font-size: .85rem;
+}
+
 .input::placeholder,
 .textarea::placeholder {
   color: #98a2b3;
@@ -1201,6 +1241,13 @@ select.input[multiple],
   border: 1px solid var(--uide-border);
   border-radius: var(--uide-radius-md);
   box-shadow: none;
+}
+
+/* Tarjetas de un mismo layout tipo Bento (registrar_equipo.html) a la
+   misma altura dentro de su fila: .columns ya estira los .column por
+   flex, pero la .box de dentro no llena esa altura por si sola. */
+.uide-h-100 {
+  height: 100%;
 }
 
 .box {

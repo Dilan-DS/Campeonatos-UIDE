@@ -1,0 +1,21 @@
+{% comment %}
+  Resumen de errores del formulario, visible arriba del todo. Sin esto, en
+  un formulario con varias tarjetas/columnas un error de validacion en un
+  campo fuera de la vista se pierde entre el resto y el usuario reenvia
+  creyendo que ya esta todo bien.
+  Uso: {% include "comun/_errores_formulario.html" with form=form %}
+{% endcomment %}
+{% if form.errors %}
+  <div class="uide-form-errors" role="alert">
+    <strong class="uide-with-icon">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+      Revisa los datos
+    </strong>
+    <ul>
+      {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+      {% for campo in form %}
+        {% for err in campo.errors %}<li>{{ campo.label }}: {{ err }}</li>{% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

@@ -33,104 +33,163 @@
 
       <form method="post"
             action="{% if edit_mode %}{% url 'editar_equipo' equipo.id %}{% else %}{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}{% endif %}"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data" novalidate>
 
         {% csrf_token %}
 
-        {% if form.non_field_errors %}
-          <div class="notification is-danger is-light mb-4">
-            {{ form.non_field_errors }}
-          </div>
+        {% include "comun/_errores_formulario.html" with form=form %}
+        {% if not view_mode %}
+          <p class="help mb-4"><span class="uide-required" aria-hidden="true">*</span> campo obligatorio</p>
         {% endif %}
 
-        <div class="uide-form-grid">
-          {% for field in form %}
-            <div class="field">
-              <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {% comment %}
+          Bento: 3 tarjetas por grupo real del dominio, no decorativas.
+          - Datos del equipo: identidad (campeonato, nombre, carrera, genero)
+          - Logo: archivo, con su propio espacio y preview
+          - Estado y delegado: informacion administrativa/relacional
+          name/id de cada campo no cambian: siguen viniendo del widget de
+          Django ({{ field }} / field|add_class), solo cambia el contenedor.
+        {% endcomment %}
+        <div class="columns is-multiline">
 
-              {% if field.name == 'logo' %}
-                <div class="file has-name is-fullwidth">
-                  <label class="file-label">
-                    {% if view_mode %}
-                      {% if equipo.logo %}
-                        <a class="button is-info is-light" href="{{ equipo.logo.url }}" target="_blank">Ver Logo Actual</a>
-                      {% else %}
-                        <span class="tag is-light">No hay logo</span>
-                      {% endif %}
-                    {% else %}
-                      {{ field|add_class:"file-input" }}
-                      <span class="file-cta">
-                        <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> </span>
-                        <span class="file-label">Subir Logo</span>
-                      </span>
-                      <span class="file-name">Selecciona un archivo…</span>
-                    {% endif %}
-                  </label>
-                </div>
-                {% if view_mode and equipo.logo %}
-                  <figure class="image is-128x128 mt-3">
-                    <img class="is-rounded" src="{{ equipo.logo.url }}" alt="Logo del equipo">
-                  </figure>
-                {% endif %}
-
-              {% elif field.name == 'documento' %}
-                <div class="control">
-                  {% if view_mode %}
-                    {% if equipo.documento %}
-                      <a class="button is-link is-light" href="{{ equipo.documento.url }}" target="_blank">Ver Documento</a>
-                    {% else %}
-                      <span class="tag is-light">No hay documento</span>
-                    {% endif %}
-                  {% else %}
-                    {{ field|add_class:"file-input" }}
-                    <p class="help is-info">Adjunta un PDF/DOCX con la documentación del equipo.</p>
+          {# ---------- Card 1: Datos del equipo (8/12) ---------- #}
+          <div class="column is-8-desktop is-12-tablet">
+            <div class="box p-5 uide-h-100">
+              <h2 class="title is-6 mb-4">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-escudo"></use></svg>
+                Datos del equipo
+              </h2>
+              <div class="columns is-multiline">
+                {% for field in form %}
+                  {% if field.name == 'campeonato' or field.name == 'nombre' or field.name == 'carrera' or field.name == 'genero' %}
+                    <div class="column is-6-tablet is-12-mobile">
+                      <div class="field">
+                        <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% if field.field.widget.input_type %}
+                          <div class="control">
+                            {{ field|add_class:"input is-rounded is-medium" }}{% if view_mode %} readonly{% endif %}
+                          </div>
+                        {% else %}
+                          <div class="select is-fullwidth">
+                            {{ field }}
+                          </div>
+                        {% endif %}
+                        {% if field.errors %}
+                          <p class="help is-danger">{{ field.errors|striptags }}</p>
+                        {% endif %}
+                      </div>
+                    </div>
                   {% endif %}
-                </div>
-
-              {% elif field.name == 'aprobado' %}
-                {# ——— NO permitir marcar desde aquí ——— #}
-                <div class="is-flex is-align-items-center is-justify-content-space-between">
-                  <div>
-                    {% if field.value %}
-                      <span class="tag is-success">Aprobado</span>
-                    {% else %}
-                      <span class="tag is-warning">No aprobado</span>
-                    {% endif %}
-                    <p class="help is-info mt-2">
-                      Este estado se actualiza automáticamente cuando se valida el pago. No es editable en este formulario.
-                    </p>
-                  </div>
-                </div>
-                {# Mantener el valor en el POST sin permitir cambios #}
-                {% if edit_mode %}
-                  <input type="hidden" name="aprobado" value="{% if field.value %}true{% else %}false{% endif %}">
-                {% else %}
-                  <input type="hidden" name="aprobado" value="false">
-                {% endif %}
-
-              {% elif field.name == "delegado" %}
-                {% if request.user.rol == "DELEGADO" %}
-                  <input type="hidden" name="delegado" value="{{ request.user.id }}">
-                  <div class="control">
-                    <p class="input is-static">{{ request.user.get_full_name|default:request.user.username }}</p>
-                  </div>
-                {% else %}
-                  <div class="control">
-                    {{ field|add_class:"select is-fullwidth" }}
-                  </div>
-                {% endif %}
-
-              {% else %}
-                <div class="control">
-                  {{ field|add_class:"input is-rounded is-medium" }}{% if view_mode %} readonly{% endif %}
-                </div>
-              {% endif %}
-
-              {% if field.errors %}
-                <p class="help is-danger">{{ field.errors|striptags }}</p>
-              {% endif %}
+                {% endfor %}
+              </div>
             </div>
-          {% endfor %}
+          </div>
+
+          {# ---------- Card 2: Logo (4/12) ---------- #}
+          <div class="column is-4-desktop is-12-tablet">
+            <div class="box p-5 uide-h-100 has-text-centered">
+              <h2 class="title is-6 mb-4 has-text-left">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg>
+                Logo
+                {% if not view_mode %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+              </h2>
+              {% for field in form %}
+                {% if field.name == 'logo' %}
+                  {% if view_mode and equipo.logo %}
+                    <figure class="image is-128x128 mx-auto mb-4">
+                      <img class="is-rounded" src="{{ equipo.logo.url }}" alt="Logo del equipo">
+                    </figure>
+                    <a class="button is-info is-light is-fullwidth is-rounded" href="{{ equipo.logo.url }}" target="_blank">Ver Logo Actual</a>
+                  {% elif view_mode %}
+                    <span class="tag is-light">No hay logo</span>
+                  {% else %}
+                    {% if equipo.logo %}
+                      <figure class="image is-96x96 mx-auto mb-4">
+                        <img class="is-rounded" src="{{ equipo.logo.url }}" alt="Logo actual del equipo">
+                      </figure>
+                    {% endif %}
+                    <div class="file has-name is-fullwidth">
+                      <label class="file-label">
+                        {{ field|add_class:"file-input" }}
+                        <span class="file-cta">
+                          <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-imagen"></use></svg> </span>
+                          <span class="file-label">Subir Logo</span>
+                        </span>
+                        <span class="file-name">Selecciona un archivo…</span>
+                      </label>
+                    </div>
+                    <p class="help">Obligatorio, máximo 5 MB.</p>
+                    {% if edit_mode and equipo.logo %}
+                      <label class="checkbox is-size-7 mt-1">
+                        <input type="checkbox" name="logo-clear" id="logo-clear_id"> Quitar el logo actual
+                      </label>
+                    {% endif %}
+                    {% if field.errors %}
+                      <p class="help is-danger">{{ field.errors|striptags }}</p>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+
+          {# ---------- Card 3: Estado y delegado (12/12) ---------- #}
+          <div class="column is-12">
+            <div class="box p-5">
+              <h2 class="title is-6 mb-4">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+                Estado y delegado
+              </h2>
+              <div class="columns is-multiline">
+                {% for field in form %}
+                  {% if field.name == 'aprobado' %}
+                    <div class="column is-6-tablet is-12-mobile">
+                      <p class="label has-text-weight-semibold">Aprobado</p>
+                      {% if field.value %}
+                        <span class="tag is-success">Aprobado</span>
+                      {% else %}
+                        <span class="tag is-warning">No aprobado</span>
+                      {% endif %}
+                      <p class="help is-info mt-2">
+                        Este estado se actualiza automáticamente cuando se valida el pago. No es editable en este formulario.
+                      </p>
+                      {# Mantener el valor en el POST sin permitir cambios #}
+                      {% if edit_mode %}
+                        <input type="hidden" name="aprobado" value="{% if field.value %}true{% else %}false{% endif %}">
+                      {% else %}
+                        <input type="hidden" name="aprobado" value="false">
+                      {% endif %}
+                    </div>
+
+                  {% elif field.name == "delegado" %}
+                    <div class="column is-6-tablet is-12-mobile">
+                      <div class="field">
+                        <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">
+                          {{ field.label }}
+                          {% if request.user.rol != "DELEGADO" %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                        </label>
+                        {% if request.user.rol == "DELEGADO" %}
+                          <input type="hidden" name="delegado" value="{{ request.user.id }}">
+                          <div class="control">
+                            <p class="input is-static">{{ request.user.get_full_name|default:request.user.username }}</p>
+                          </div>
+                        {% else %}
+                          {# Un <select> necesita el div.select de Bulma para pintar bien la flecha y el borde. #}
+                          <div class="select is-fullwidth">
+                            {{ field }}
+                          </div>
+                        {% endif %}
+                        {% if field.errors %}
+                          <p class="help is-danger">{{ field.errors|striptags }}</p>
+                        {% endif %}
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {% if not view_mode %}

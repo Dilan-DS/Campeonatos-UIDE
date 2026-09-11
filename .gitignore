@@ -2,6 +2,7 @@
 .claude/
 .vscode/
 .idea/
+.impeccable/
 
 # Entornos virtuales
 .venv/

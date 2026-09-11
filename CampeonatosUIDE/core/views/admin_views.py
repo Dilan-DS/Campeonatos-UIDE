@@ -102,8 +102,12 @@ def crear_usuario_admin(request):
         if form.is_valid():
             # Si el formulario es válido, guarda el nuevo usuario administrador
             user = form.save()
-            # Asigna el rol de 'ADMIN' al nuevo usuario
-            messages.success(request, 'Usuario creado correctamente.')
+            messages.success(request, f'Usuario "{user.username}" creado correctamente.')
+            # "Guardar y crear otro" vuelve al mismo formulario en vez del
+            # dashboard: un admin dando de alta varias cuentas seguidas no
+            # tiene que renavegar a /panel/admin/crear-usuario/ cada vez.
+            if 'guardar_y_crear_otro' in request.POST:
+                return redirect('crear_usuario_admin')
             return redirect('admin_dashboard')
     else:
         # Si la solicitud no es POST, crea un formulario vacío
@@ -125,8 +129,10 @@ class RegistrarDelegadoAdminView(LoginRequiredMixin, View):
             return redirect('vista_inicio')
         form = CrearUsuarioDelegadoForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Delegado creado exitosamente.')
+            delegado = form.save()
+            messages.success(request, f'Delegado "{delegado.username}" creado exitosamente.')
+            if 'guardar_y_crear_otro' in request.POST:
+                return redirect('registrar_delegado')
             return redirect('listar_delegados')
         messages.error(request, "Error al crear el delegado. Por favor, revisa los campos.")
         return render(request, 'delegado/registrar.html', {'form': form})
@@ -143,7 +149,11 @@ class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
         if id:
             arbitro_obj = get_object_or_404(Arbitro, id=id)
             if action == 'editar':
-                form = ArbitroForm(instance=arbitro_obj)
+                # ArbitroForm es un ModelForm de Usuario (Meta.model = Usuario):
+                # antes se le pasaba el Arbitro por error, asi que el formulario
+                # se abria vacio (model_to_dict no encontraba ni un solo campo
+                # en comun) y guardar no tocaba ni la cuenta ni el perfil.
+                form = ArbitroForm(instance=arbitro_obj.usuario)
                 modo = 'editar'
             elif action == 'eliminar':
                 modo = 'eliminar'
@@ -170,7 +180,7 @@ class GestionArbitroView(LoginRequiredMixin, UserPassesTestMixin, View):
         errores_json = None
         if id: # Edit existing
             arbitro = get_object_or_404(Arbitro, id=id)
-            form = ArbitroForm(request.POST, instance=arbitro)
+            form = ArbitroForm(request.POST, instance=arbitro.usuario)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Árbitro actualizado correctamente.")

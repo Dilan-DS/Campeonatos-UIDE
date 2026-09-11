@@ -31,6 +31,8 @@
                 <!-- Diferenciamos textarea de inputs normales para aplicar clases de Bulma -->
                 {% if field|widget_type == "textarea" %}
                   {{ field|add_class:"textarea is-rounded is-medium" }}
+                {% elif field|widget_type == "select" %}
+                  <div class="select is-rounded is-medium is-fullwidth">{{ field }}</div>
                 {% else %}
                   {{ field|add_class:"input is-rounded is-medium" }}
                 {% endif %}

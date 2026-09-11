@@ -25,34 +25,122 @@
 
 
       {% if modo == 'crear' or modo == 'editar' %}
-        {% if errores_json %}
-        <div class="notification is-danger">
-            <strong>Errores del formulario:</strong>
-            <ul>
-                {% for campo, lista in errores_json.items %}
-                <li><b>{{ campo }}</b>:
-                    {% for err in lista %}
-                        {{ err.message }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% include "comun/_errores_formulario.html" with form=form %}
             {% csrf_token %}
-            {% for field in form %}
-            <div class="field">
-                <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                <div class="control">{{ field }}</div>
-                {% if field.errors %}
-                <p class="help is-danger">
-                    {% for e in field.errors %}{{ e }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                </p>
-                {% endif %}
+
+            {% comment %}
+              Bento: 3 tarjetas por grupo real, no decorativas. Cada
+              formulario (crear/editar) trae un subconjunto distinto de
+              estos campos; la tarjeta que se queda sin ninguno simplemente
+              no se dibuja. name/id no cambian, solo el contenedor.
+            {% endcomment %}
+            <div class="columns is-multiline">
+
+              {# ---------- Card 1: Cuenta (solo al crear) ---------- #}
+              {% if form.password or form.confirm_password %}
+                <div class="column is-4-desktop is-12-tablet">
+                  <div class="box p-5 uide-h-100">
+                    <h2 class="title is-6 mb-4">
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-candado"></use></svg>
+                      Cuenta
+                    </h2>
+                    {% for field in form %}
+                      {% if field.name == "password" or field.name == "confirm_password" %}
+                        <div class="field mb-4">
+                          <label class="label" for="{{ field.id_for_label }}">{{ field.label }} <span class="uide-required" aria-hidden="true">*</span></label>
+                          <div class="control">{{ field|add_class:"input is-rounded" }}</div>
+                          {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+
+              {# ---------- Card 2: Datos personales ---------- #}
+              <div class="column is-4-desktop is-12-tablet">
+                <div class="box p-5 uide-h-100">
+                  <h2 class="title is-6 mb-4">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg>
+                    Datos personales
+                  </h2>
+                  {% for field in form %}
+                    {% if field.name == "username" or field.name == "email" or field.name == "first_name" or field.name == "last_name" or field.name == "cedula" or field.name == "genero" %}
+                      <div class="field mb-4">
+                        <label class="label" for="{{ field.id_for_label }}">
+                          {{ field.label }}
+                          {% if field.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                        </label>
+                        <div class="control">
+                          {% if field|widget_type == 'select' %}
+                            <div class="select is-rounded is-fullwidth">{{ field }}</div>
+                          {% else %}
+                            {{ field|add_class:"input is-rounded" }}
+                          {% endif %}
+                        </div>
+                        {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+
+              {# ---------- Card 3: Perfil de arbitro ---------- #}
+              <div class="column is-4-desktop is-12-tablet">
+                <div class="box p-5 uide-h-100">
+                  <h2 class="title is-6 mb-4">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-arbitro"></use></svg>
+                    Perfil de árbitro
+                  </h2>
+                  {% for field in form %}
+                    {% if field.name == "experiencia" or field.name == "contacto" %}
+                      <div class="field mb-4">
+                        <label class="label" for="{{ field.id_for_label }}">
+                          {{ field.label }}
+                          {% if field.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                        </label>
+                        <div class="control">
+                          {% if field|widget_type == 'textarea' %}
+                            {{ field|add_class:"textarea is-rounded" }}
+                          {% else %}
+                            {{ field|add_class:"input is-rounded" }}
+                          {% endif %}
+                        </div>
+                        {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
+                      </div>
+                    {% elif field.name == "deportes" %}
+                      <div class="field mb-4">
+                        <label class="label">
+                          {{ field.label }}
+                          {% if field.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                        </label>
+                        <label class="checkbox is-size-7 mb-2" style="display:block">
+                          <input type="checkbox" id="deportes-todos"> Seleccionar todos
+                        </label>
+                        <div class="field is-grouped is-grouped-multiline">
+                          {% for checkbox in field %}
+                            <div class="control">
+                              <label class="checkbox">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+                            </div>
+                          {% endfor %}
+                        </div>
+                        {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
+                      </div>
+                    {% elif field.name == "estado" or field.name == "is_active" %}
+                      {# Dos casillas distintas con etiquetas propias (fijadas en el form): cuenta activa (login) y arbitro activo (asignable a partidos) no son lo mismo. #}
+                      <div class="field mb-4">
+                        <label class="checkbox">
+                          {{ field }} {{ field.label }}
+                        </label>
+                        {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+
             </div>
-            {% endfor %}
             <div class="field mt-5">
               <div class="control">
                 <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
@@ -110,4 +198,18 @@
     </div>
   </div>
 </section>
+
+<script>
+  // "Seleccionar todos" para el grupo de deportes: no cambia el name/id de
+  // cada checkbox, solo los marca/desmarca todos de una vez.
+  document.addEventListener('DOMContentLoaded', () => {
+    const todos = document.getElementById('deportes-todos');
+    if (!todos) return;
+    const checks = () => document.querySelectorAll('input[name="deportes"]');
+    todos.addEventListener('change', () => {
+      checks().forEach((c) => { c.checked = todos.checked; });
+    });
+    todos.checked = [...checks()].every((c) => c.checked) && checks().length > 0;
+  });
+</script>
 {% endblock %}
