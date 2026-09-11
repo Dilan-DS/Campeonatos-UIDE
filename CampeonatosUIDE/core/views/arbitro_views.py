@@ -9,6 +9,8 @@ from django.utils import timezone
 from core.forms import ArbitroActaForm
 import datetime # Added datetime
 from django.core.exceptions import ValidationError # Added ValidationError
+def es_admin(user):
+    return user.is_authenticated and getattr(user, "rol", "") == "ADMIN"
 
 # --- ACTA ÁRBITRO HELPERS ---
 def _leer_snapshot(partido):
@@ -134,6 +136,10 @@ def acta_partido_arbitro(request, pk):
             partido.tarjetas_rojas_visitante = int(form.cleaned_data.get("tarjetas_rojas_visitante") or 0)
             obs = form.cleaned_data.get("observaciones") or ""
             partido.observaciones_arbitro = obs
+            # La tanda queda a None cuando el arbitro no la rellena, que es
+            # lo normal en un partido que no acaba empatado.
+            partido.penales_local = form.cleaned_data.get("penales_local")
+            partido.penales_visitante = form.cleaned_data.get("penales_visitante")
             partido.estado = "FINALIZADO"
             partido.save()
             _guardar_snapshot(partido, snap)
@@ -162,10 +168,6 @@ def acta_partido_arbitro(request, pk):
         "filas_local": filas_local,
         "filas_vis": filas_vis
     })
-
-# Permisos helpers
-def es_admin(user):
-    return user.is_authenticated and getattr(user, "rol", "") == "ADMIN"
 
 def es_arbitro(user):
     return user.is_authenticated and getattr(user, "rol", "") == "ARBITRO"

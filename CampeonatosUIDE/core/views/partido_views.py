@@ -5,6 +5,7 @@ from core.models import Partido, Campeonato, Usuario, Equipo, Arbitro
 from collections import defaultdict
 from core.forms import PartidoForm
 from core.views.admin_views import es_admin
+from core.views.admin_views import es_admin
 
 # Valores validos de Partido.estado. Se derivan del modelo para que los
 # filtros no vuelvan a validar contra estados inexistentes.
@@ -16,11 +17,6 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date, parse_time
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-
-# Función para validar que sea admin
-def es_admin(user):
-    return user.rol == 'ADMIN'
 
 
 @login_required
@@ -203,6 +199,13 @@ def fixture_campeonato_view(request, campeonato_id):
         'partidos': partidos,
         'genero_seleccionado': genero,
         'campeonato_sin_fixture': not partidos_qs.exists(),
+        # El boton de avance solo tiene sentido en un cuadro de eliminatoria
+        # ya empezado, y solo para quien gestiona el campeonato.
+        'puede_avanzar_ronda': (
+            campeonato.tipo_campeonato == 'ELIMINATORIA'
+            and partidos_qs.exists()
+            and user_role in ('ADMIN', 'DELEGADO')
+        ),
     })
 
 @login_required

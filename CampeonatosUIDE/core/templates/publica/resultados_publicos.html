@@ -77,7 +77,16 @@
               </span>
             </div>
             {% if partido.resultado_local == partido.resultado_visitante %}
-              <p class="uide-score__nota">Empate</p>
+              {% if partido.hay_penales %}
+                <p class="uide-score__nota">
+                  Empate · penaltis {{ partido.penales_local }}–{{ partido.penales_visitante }}
+                  {% if partido.ganador_por_penales %}
+                    · pasa {{ partido.ganador_por_penales.nombre }}
+                  {% endif %}
+                </p>
+              {% else %}
+                <p class="uide-score__nota">Empate</p>
+              {% endif %}
             {% endif %}
           {% else %}
             <div class="uide-score">

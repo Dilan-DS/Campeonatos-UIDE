@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError as DjangoValidationError
 from core.models import Partido
 
 class PartidoForm(forms.ModelForm):
@@ -44,6 +45,14 @@ class ArbitroActaForm(forms.Form):
         widget=forms.NumberInput(attrs={'class': 'input', 'min': 0}))
     resultado_visitante = forms.IntegerField(
         min_value=0, required=True, label="Goles visitante",
+        widget=forms.NumberInput(attrs={'class': 'input', 'min': 0}))
+    # Tanda de penaltis: solo se rellena si el partido acaba empatado y es
+    # de eliminatoria. Es lo unico que puede decidir quien pasa de ronda.
+    penales_local = forms.IntegerField(
+        min_value=0, required=False, label="Penaltis local",
+        widget=forms.NumberInput(attrs={'class': 'input', 'min': 0}))
+    penales_visitante = forms.IntegerField(
+        min_value=0, required=False, label="Penaltis visitante",
         widget=forms.NumberInput(attrs={'class': 'input', 'min': 0}))
     tarjetas_amarillas_local = forms.IntegerField(
         min_value=0, required=False, initial=0, label="Amarillas local",
@@ -93,6 +102,32 @@ class ArbitroActaForm(forms.Form):
                     required=False, max_length=255, label="Motivo",
                     widget=forms.TextInput(attrs={'class': 'input',
                                                   'placeholder': 'Motivo de la suspensión'}))
+
+
+    def clean(self):
+        """Comprueba la tanda con las mismas reglas que el modelo.
+
+        Se construye un Partido en memoria y se delega en su clean(), asi
+        las reglas viven en un solo sitio: penaltis solo con empate, los dos
+        equipos o ninguno, y la tanda no puede quedar igualada.
+        """
+        limpios = super().clean()
+
+        from core.models import Partido
+
+        provisional = Partido(
+            resultado_local=limpios.get("resultado_local"),
+            resultado_visitante=limpios.get("resultado_visitante"),
+            penales_local=limpios.get("penales_local"),
+            penales_visitante=limpios.get("penales_visitante"),
+        )
+        try:
+            provisional.clean()
+        except DjangoValidationError as error:
+            # El mensaje habla de la tanda, asi que se muestra junto a ella.
+            self.add_error("penales_local", error.messages[0])
+
+        return limpios
 
     def total_goles_por_equipo(self, jugadores):
         """Suma los goles cargados por jugador para validarlos contra el marcador."""

@@ -85,6 +85,42 @@
       </div>
     </div>
 
+    {% if partido.campeonato.tipo_campeonato == 'ELIMINATORIA' %}
+      {% comment %}
+        La tanda solo se pide en eliminatoria: es lo unico que puede decidir
+        quien pasa de ronda si el partido acaba empatado. El bloque se
+        muestra u oculta desde JavaScript segun el marcador, pero quien
+        valida de verdad es el servidor (Partido.clean).
+      {% endcomment %}
+      <div class="uide-panel uide-panel--pad mb-5 is-hidden" data-penales>
+        <h2 class="uide-titulo-seccion">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg>
+          Tanda de penaltis
+        </h2>
+        <p class="help mb-3">
+          El partido ha quedado empatado. Anota la tanda para que el ganador
+          pase a la ronda siguiente.
+        </p>
+        <div class="uide-form-grid">
+          <div class="field">
+            <label class="label" for="{{ form.penales_local.id_for_label }}">
+              Penaltis de {{ partido.equipo_local.nombre }}
+            </label>
+            <div class="control">{{ form.penales_local }}</div>
+            {% if form.penales_local.errors %}
+              <p class="help is-danger">{{ form.penales_local.errors.0 }}</p>
+            {% endif %}
+          </div>
+          <div class="field">
+            <label class="label" for="{{ form.penales_visitante.id_for_label }}">
+              Penaltis de {{ partido.equipo_visitante.nombre }}
+            </label>
+            <div class="control">{{ form.penales_visitante }}</div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
     {# --- Disciplinarias --- #}
     <h2 class="uide-section-title">Disciplinarias</h2>
     <div class="uide-feed">
@@ -164,6 +200,20 @@
       visitante: document.querySelector('[name="resultado_visitante"]'),
     };
 
+    /* Bloque de penaltis: se muestra solo cuando el marcador queda
+       empatado. Es una ayuda visual; quien valida de verdad es el
+       servidor (Partido.clean), asi que ocultarlo no salta ninguna
+       comprobacion. */
+    const panelPenales = document.querySelector('[data-penales]');
+
+    const revisarPenales = () => {
+      if (!panelPenales || !marcador.local || !marcador.visitante) return;
+      const local = parseInt(marcador.local.value, 10);
+      const visitante = parseInt(marcador.visitante.value, 10);
+      const empate = Number.isInteger(local) && local === visitante;
+      panelPenales.classList.toggle('is-hidden', !empate);
+    };
+
     const sumaDeTabla = (lado) => {
       const tabla = document.getElementById('tabla-' + lado);
       if (!tabla) return 0;
@@ -178,6 +228,7 @@
         const esperado = parseInt(marcador[lado].value, 10) || 0;
         aviso.hidden = sumaDeTabla(lado) === esperado;
       });
+      revisarPenales();
     };
 
     document.querySelectorAll('input[name^="goles_"]').forEach(

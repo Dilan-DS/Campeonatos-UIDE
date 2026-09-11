@@ -1,4 +1,5 @@
 from django.db import transaction
+from core.utils.eliminatoria import avanzar_eliminatoria
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -184,6 +185,65 @@ class TablaPosiciones(LoginRequiredMixin, View):
             'tabla': tabla_ordenada
         }
         return render(request, 'campeonato/tabla_posiciones.html', context)
+
+
+class AvanzarRondaEliminatoria(LoginRequiredMixin, EsAdminODelegadoMixin, View):
+    """Boton manual para cruzar a los ganadores en la ronda siguiente.
+
+    El avance normal es automatico: al cerrar el ultimo partido de la ronda
+    salta una senal que crea la siguiente. Esta vista es la red por si eso
+    no ocurriera (un acta corregida a mano en la base de datos, un fallo al
+    guardar), y explica por que no se puede avanzar cuando es el caso.
+
+    Es idempotente: si la ronda ya esta creada no duplica nada, porque el
+    calculo parte del estado de los partidos y no de quien lo pide.
+    """
+
+    def post(self, request, campeonato_id):
+        campeonato = get_object_or_404(Campeonato, id=campeonato_id)
+
+        if campeonato.tipo_campeonato != 'ELIMINATORIA':
+            messages.error(request, "Este campeonato no es de eliminatoria.")
+            return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
+
+        try:
+            with transaction.atomic():
+                resultado = avanzar_eliminatoria(campeonato)
+        except Exception as exc:
+            messages.error(request, f"No se pudo avanzar la ronda: {exc}")
+            return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
+
+        if resultado.creados:
+            messages.success(
+                request, f"Ronda siguiente generada: {resultado.creados} partidos.")
+
+        for genero, equipo in resultado.campeones:
+            messages.success(
+                request, f"El cuadro {genero} ya tiene campeon: {equipo.nombre}.")
+
+        for genero, partido in resultado.empates:
+            messages.warning(
+                request,
+                f"No se puede avanzar el cuadro {genero}: "
+                f"{partido.equipo_local.nombre} vs {partido.equipo_visitante.nombre} "
+                f"quedo empatado y no tiene tanda de penaltis. "
+                f"Anota la tanda en el acta para poder continuar."
+            )
+
+        for genero in resultado.en_curso:
+            messages.info(
+                request,
+                f"El cuadro {genero} todavia tiene partidos sin jugar.")
+
+        for genero in resultado.sin_cuadro:
+            messages.info(
+                request,
+                f"El cuadro {genero} no tiene partidos: genera primero el fixture.")
+
+        if not resultado.hay_algo_que_contar:
+            messages.info(request, "No hay nada que avanzar.")
+
+        return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
 
 
 class _SinPartidos(Exception):

@@ -93,6 +93,7 @@ urlpatterns = [
     path('campeonatos/<int:id>/eliminar/', EliminarCampeonato.as_view(), name='eliminar_campeonato'),
     path('campeonatos/<int:campeonato_id>/tabla-posiciones/', TablaPosiciones.as_view(), name='tabla_posiciones'),
     path('campeonatos/<int:campeonato_id>/generar-fixture/', GenerarFixtureCampeonato.as_view(), name='generar_fixture_campeonato'),
+    path('campeonatos/<int:campeonato_id>/avanzar-ronda/', AvanzarRondaEliminatoria.as_view(), name='avanzar_ronda_eliminatoria'),
     path('campeonatos/<int:campeonato_id>/tabla-posiciones/exportar/pdf/', export_tabla_posiciones_pdf, name='export_tabla_posiciones_pdf'),
     path('campeonatos/<int:campeonato_id>/tabla-posiciones/exportar/excel/', export_tabla_posiciones_excel, name='export_tabla_posiciones_excel'),
  # Rutas de deportes

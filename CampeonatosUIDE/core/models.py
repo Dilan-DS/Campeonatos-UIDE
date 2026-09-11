@@ -285,6 +285,16 @@ class Partido(models.Model):
         ('FINALIZADO', 'Finalizado'),
     ]
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PROGRAMADO')
+    # Numero de ronda del cuadro (1 = primera ronda). Solo lo usan los
+    # campeonatos de tipo ELIMINATORIA, para saber que partidos forman
+    # cada ronda y poder cruzar a los ganadores en la siguiente. En liga
+    # y fase de grupos queda a null.
+    ronda = models.PositiveSmallIntegerField(null=True, blank=True)
+    # Tanda de penaltis. Solo se rellena cuando un partido de eliminatoria
+    # acaba empatado: es lo unico que puede decidir quien pasa de ronda. No
+    # cuenta como goles, asi que no entra en la tabla de posiciones.
+    penales_local = models.PositiveSmallIntegerField(null=True, blank=True)
+    penales_visitante = models.PositiveSmallIntegerField(null=True, blank=True)
     arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True)
     tarjetas_amarillas_local = models.PositiveIntegerField(default=0, null=True, blank=True)
     tarjetas_amarillas_visitante = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -292,6 +302,41 @@ class Partido(models.Model):
     tarjetas_rojas_visitante = models.PositiveIntegerField(default=0, null=True, blank=True)
     observaciones_arbitro = models.TextField(blank=True, null=True)
     suspensiones_json = models.TextField(blank=True, null=True)
+
+    def hay_penales(self):
+        return self.penales_local is not None and self.penales_visitante is not None
+
+    def ganador_por_penales(self):
+        """Equipo que gana la tanda, o None si no la hay o esta igualada."""
+        if not self.hay_penales():
+            return None
+        if self.penales_local > self.penales_visitante:
+            return self.equipo_local
+        if self.penales_visitante > self.penales_local:
+            return self.equipo_visitante
+        return None
+
+    def clean(self):
+        super().clean()
+
+        solo_uno = (self.penales_local is None) != (self.penales_visitante is None)
+        if solo_uno:
+            raise ValidationError(
+                "Anota los penaltis de los dos equipos o de ninguno.")
+
+        if not self.hay_penales():
+            return
+
+        empatado = (self.resultado_local is not None
+                    and self.resultado_local == self.resultado_visitante)
+        if not empatado:
+            raise ValidationError(
+                "Los penaltis solo se anotan cuando el partido acaba empatado.")
+
+        if self.penales_local == self.penales_visitante:
+            raise ValidationError(
+                "La tanda de penaltis no puede quedar empatada: hace falta "
+                "un ganador para pasar de ronda.")
 
     class Meta:
         unique_together = ('campeonato', 'fecha', 'hora', 'equipo_local', 'equipo_visitante')

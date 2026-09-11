@@ -27,6 +27,24 @@
         </ul>
       </div>
 
+      {% comment %}
+        Avance manual del cuadro. El cruce de ganadores es automatico al
+        cerrar el ultimo partido de la ronda; este boton esta por si eso no
+        llegara a ocurrir. Es idempotente: pulsarlo de mas no duplica nada.
+      {% endcomment %}
+      {% if puede_avanzar_ronda %}
+        <div class="uide-toolbar">
+          <span class="uide-toolbar__spacer"></span>
+          <form method="post" action="{% url 'avanzar_ronda_eliminatoria' campeonato.id %}">
+            {% csrf_token %}
+            <button type="submit" class="button is-primary">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg>
+              <span>Avanzar ronda</span>
+            </button>
+          </form>
+        </div>
+      {% endif %}
+
       <!-- Tabla -->
       <div class="box">
         {% if partidos %}

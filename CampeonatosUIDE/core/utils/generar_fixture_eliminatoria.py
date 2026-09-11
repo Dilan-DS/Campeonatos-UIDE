@@ -72,6 +72,7 @@ def generar_fixture_eliminatoria(campeonato_id):
                     fecha=fecha_partido,
                     hora=hora_partido,
                     lugar=lugar,
+                    ronda=1,  # primera ronda del cuadro
                     arbitro=None
                 )
                 partido.save()

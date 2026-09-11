@@ -1711,12 +1711,473 @@ class ElEmparejamientoSigueSiendoCorrecto(PruebaBase):
 # ---------------------------------------------------------------------------
 
 
+def _cerrar(partido, goles_local, goles_visitante):
+    """Cierra un partido con marcador, como hace el acta del arbitro."""
+    partido.resultado_local = goles_local
+    partido.resultado_visitante = goles_visitante
+    partido.estado = "FINALIZADO"
+    partido.save()
+    return partido
+
+
+class CuadroDeEliminatoriaAvanzaSolo(PruebaBase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _cuadro(self, equipos, nombre="Copa"):
+        camp = _campeonato_para_calendario(
+            nombre, self.datos["deporte"], ["LUNES", "MIERCOLES", "VIERNES"],
+            tipo="ELIMINATORIA")
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], equipos)
+        generar_fixture_eliminatoria(camp.id)
+        return camp
+
+    def _ronda(self, camp, numero):
+        return list(Partido.objects.filter(campeonato=camp, ronda=numero)
+                    .order_by("fecha", "hora", "id"))
+
+    def test_la_primera_ronda_queda_marcada_como_ronda_1(self):
+        camp = self._cuadro(8)
+        self.assertEqual(len(self._ronda(camp, 1)), 4)
+
+    def test_ocho_equipos_llegan_hasta_la_final(self):
+        """4 cuartos + 2 semifinales + 1 final = 7 partidos."""
+        camp = self._cuadro(8)
+
+        for partido in self._ronda(camp, 1):
+            _cerrar(partido, 2, 1)          # gana siempre el local
+        semifinales = self._ronda(camp, 2)
+        self.assertEqual(len(semifinales), 2, "deben crearse 2 semifinales solas")
+
+        for partido in semifinales:
+            _cerrar(partido, 3, 0)
+        final = self._ronda(camp, 3)
+        self.assertEqual(len(final), 1, "debe crearse la final sola")
+
+        _cerrar(final[0], 1, 0)
+        self.assertEqual(Partido.objects.filter(campeonato=camp).count(), 7)
+        self.assertEqual(self._ronda(camp, 4), [], "despues de la final no hay mas")
+
+    def test_no_avanza_hasta_que_termina_toda_la_ronda(self):
+        camp = self._cuadro(8)
+        cuartos = self._ronda(camp, 1)
+        for partido in cuartos[:3]:
+            _cerrar(partido, 1, 0)
+        self.assertEqual(self._ronda(camp, 2), [],
+                         "con un partido sin jugar no debe cruzarse nada")
+
+        _cerrar(cuartos[3], 1, 0)
+        self.assertEqual(len(self._ronda(camp, 2)), 2)
+
+    def test_un_empate_bloquea_el_avance(self):
+        """Sin penaltis ni desempate, un empate no puede decidir quien pasa."""
+        camp = self._cuadro(4)
+        for partido in self._ronda(camp, 1):
+            _cerrar(partido, 1, 1)
+        self.assertEqual(self._ronda(camp, 2), [],
+                         "un empate no debe generar la ronda siguiente")
+
+    def test_corregir_el_empate_desbloquea(self):
+        camp = self._cuadro(4)
+        primera = self._ronda(camp, 1)
+        for partido in primera:
+            _cerrar(partido, 1, 1)
+        self.assertEqual(self._ronda(camp, 2), [])
+
+        for partido in primera:
+            _cerrar(partido, 2, 1)
+        self.assertEqual(len(self._ronda(camp, 2)), 1, "ya hay ganadores: se crea la final")
+
+    def test_los_equipos_con_bye_entran_en_la_segunda_ronda(self):
+        """Con 5 equipos, 3 descansan en la primera ronda."""
+        camp = self._cuadro(5)
+        primera = self._ronda(camp, 1)
+        self.assertEqual(len(primera), 1, "5 equipos -> 8 plazas -> 1 solo cruce")
+
+        _cerrar(primera[0], 2, 0)
+        segunda = self._ronda(camp, 2)
+        self.assertEqual(len(segunda), 2, "el ganador y los 3 que descansaron son 4")
+
+        jugaron = {e for p in segunda for e in (p.equipo_local_id, p.equipo_visitante_id)}
+        self.assertEqual(len(jugaron), 4)
+        self.assertNotIn(primera[0].equipo_visitante_id, jugaron,
+                         "el eliminado no puede reaparecer")
+
+    def test_el_perdedor_no_vuelve_a_jugar(self):
+        camp = self._cuadro(8)
+        perdedores = set()
+        for partido in self._ronda(camp, 1):
+            _cerrar(partido, 3, 1)
+            perdedores.add(partido.equipo_visitante_id)
+
+        for partido in self._ronda(camp, 2):
+            self.assertNotIn(partido.equipo_local_id, perdedores)
+            self.assertNotIn(partido.equipo_visitante_id, perdedores)
+
+    def test_la_ronda_siguiente_respeta_los_dias_permitidos(self):
+        camp = _campeonato_para_calendario(
+            "Copa sabados", self.datos["deporte"], ["SABADO"], tipo="ELIMINATORIA")
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_eliminatoria(camp.id)
+        for partido in self._ronda(camp, 1):
+            _cerrar(partido, 1, 0)
+        for partido in self._ronda(camp, 2):
+            self.assertEqual(partido.fecha.weekday(), 5)
+
+    def test_la_ronda_siguiente_se_juega_despues(self):
+        camp = self._cuadro(4)
+        primera = self._ronda(camp, 1)
+        for partido in primera:
+            _cerrar(partido, 1, 0)
+        ultima_de_la_primera = max(p.fecha for p in primera)
+        for partido in self._ronda(camp, 2):
+            self.assertGreater(partido.fecha, ultima_de_la_primera)
+
+    def test_una_liga_no_se_ve_afectada(self):
+        """El avance solo aplica a ELIMINATORIA."""
+        camp = _campeonato_para_calendario(
+            "Liga intacta", self.datos["deporte"], ["LUNES", "MIERCOLES"])
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_liga(camp.id)
+        antes = Partido.objects.filter(campeonato=camp).count()
+        for partido in Partido.objects.filter(campeonato=camp):
+            _cerrar(partido, 2, 1)
+        self.assertEqual(Partido.objects.filter(campeonato=camp).count(), antes,
+                         "una liga no debe generar rondas nuevas")
+
+
+class BotonManualDeAvance(PruebaBase):
+    """Respaldo por si el avance automatico no se hubiera disparado."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _cuadro_con_ronda_cerrada(self):
+        camp = _campeonato_para_calendario(
+            "Copa boton", self.datos["deporte"], ["LUNES", "MIERCOLES"],
+            tipo="ELIMINATORIA")
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_eliminatoria(camp.id)
+        return camp
+
+    def test_el_boton_crea_la_ronda_si_falta(self):
+        camp = self._cuadro_con_ronda_cerrada()
+        # Se cierran los partidos sin pasar por el save() del modelo, de modo
+        # que la senal no salta: simula el caso que el boton debe cubrir.
+        for partido in Partido.objects.filter(campeonato=camp, ronda=1):
+            Partido.objects.filter(pk=partido.pk).update(
+                resultado_local=2, resultado_visitante=0, estado="FINALIZADO")
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 0)
+
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.post(
+            reverse("avanzar_ronda_eliminatoria", args=[camp.id]))
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 1)
+
+    def test_pulsarlo_dos_veces_no_duplica(self):
+        camp = self._cuadro_con_ronda_cerrada()
+        for partido in Partido.objects.filter(campeonato=camp, ronda=1):
+            _cerrar(partido, 2, 0)
+        self.client.force_login(self.datos["admin"])
+        url = reverse("avanzar_ronda_eliminatoria", args=[camp.id])
+        self.client.post(url)
+        self.client.post(url)
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 1,
+                         "no debe crear la misma ronda dos veces")
+
+    def test_un_jugador_no_puede_usarlo(self):
+        camp = self._cuadro_con_ronda_cerrada()
+        self.client.force_login(self.datos["jugador"].usuario)
+        respuesta = self.client.post(
+            reverse("avanzar_ronda_eliminatoria", args=[camp.id]))
+        self.assertIn(respuesta.status_code, (302, 403))
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 0)
+
+    def test_avisa_cuando_hay_un_empate(self):
+        camp = self._cuadro_con_ronda_cerrada()
+        for partido in Partido.objects.filter(campeonato=camp, ronda=1):
+            Partido.objects.filter(pk=partido.pk).update(
+                resultado_local=1, resultado_visitante=1, estado="FINALIZADO")
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.post(
+            reverse("avanzar_ronda_eliminatoria", args=[camp.id]), follow=True)
+        textos = [m.message for m in respuesta.context["messages"]]
+        self.assertTrue(any("empatado" in t for t in textos),
+                        f"deberia explicar el empate: {textos}")
+
+    def test_avisa_cuando_la_ronda_sigue_en_juego(self):
+        camp = self._cuadro_con_ronda_cerrada()
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.post(
+            reverse("avanzar_ronda_eliminatoria", args=[camp.id]), follow=True)
+        textos = [m.message for m in respuesta.context["messages"]]
+        self.assertTrue(any("sin jugar" in t for t in textos),
+                        f"deberia decir que faltan partidos: {textos}")
+
+    def test_el_boton_aparece_solo_en_eliminatoria(self):
+        camp = self._cuadro_con_ronda_cerrada()
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.get(
+            reverse("fixture_campeonato_detalle", args=[camp.id]))
+        self.assertTrue(respuesta.context["puede_avanzar_ronda"])
+
+        liga = _campeonato_para_calendario(
+            "Liga sin boton", self.datos["deporte"], ["LUNES"])
+        _equipos_para_calendario(
+            liga, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_liga(liga.id)
+        respuesta = self.client.get(
+            reverse("fixture_campeonato_detalle", args=[liga.id]))
+        self.assertFalse(respuesta.context["puede_avanzar_ronda"])
+
+
 # ---------------------------------------------------------------------------
 # Tanda de penaltis.
 #
 # Un empate no puede decidir quien pasa de ronda. La tanda es lo unico que
 # lo resuelve, y no cuenta como goles: no debe tocar la tabla de posiciones.
 # ---------------------------------------------------------------------------
+
+
+class ReglasDeLaTandaDePenales(PruebaBase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _partido(self, gl, gv, pl=None, pv=None):
+        camp = self.datos["campeonato"]
+        return Partido(
+            campeonato=camp,
+            equipo_local=self.datos["equipo"],
+            equipo_visitante=Equipo.objects.filter(campeonato=camp)
+                                           .exclude(pk=self.datos["equipo"].pk).first(),
+            fecha=date.today(), hora=time(18, 0), lugar="Cancha 1",
+            resultado_local=gl, resultado_visitante=gv,
+            penales_local=pl, penales_visitante=pv)
+
+    def test_sin_tanda_es_valido(self):
+        self._partido(2, 1).clean()
+        self._partido(1, 1).clean()
+
+    def test_la_tanda_exige_los_dos_equipos(self):
+        with self.assertRaises(ValidationError) as caso:
+            self._partido(1, 1, pl=4).clean()
+        self.assertIn("los dos equipos", caso.exception.messages[0])
+
+        with self.assertRaises(ValidationError):
+            self._partido(1, 1, pv=4).clean()
+
+    def test_la_tanda_solo_vale_si_hay_empate(self):
+        with self.assertRaises(ValidationError) as caso:
+            self._partido(2, 1, pl=5, pv=4).clean()
+        self.assertIn("empatado", caso.exception.messages[0])
+
+    def test_la_tanda_no_puede_quedar_igualada(self):
+        with self.assertRaises(ValidationError) as caso:
+            self._partido(1, 1, pl=3, pv=3).clean()
+        self.assertIn("ganador", caso.exception.messages[0])
+
+    def test_una_tanda_correcta_pasa(self):
+        self._partido(1, 1, pl=5, pv=4).clean()
+
+    def test_ganador_por_penales(self):
+        self.assertEqual(self._partido(1, 1, pl=5, pv=4).ganador_por_penales(),
+                         self.datos["equipo"])
+        self.assertIsNone(self._partido(1, 1).ganador_por_penales())
+
+
+class LaTandaDecideQuienPasaDeRonda(PruebaBase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _cuadro(self, nombre="Copa penales"):
+        camp = _campeonato_para_calendario(
+            nombre, self.datos["deporte"], ["LUNES", "MIERCOLES", "VIERNES"],
+            tipo="ELIMINATORIA")
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_eliminatoria(camp.id)
+        return camp
+
+    def test_un_empate_con_tanda_avanza_solo(self):
+        camp = self._cuadro()
+        primera = list(Partido.objects.filter(campeonato=camp, ronda=1)
+                       .order_by("fecha", "hora", "id"))
+        ganadores = []
+        for partido in primera:
+            partido.resultado_local = 1
+            partido.resultado_visitante = 1
+            partido.penales_local = 5
+            partido.penales_visitante = 3
+            partido.estado = "FINALIZADO"
+            partido.save()
+            ganadores.append(partido.equipo_local_id)
+
+        final = list(Partido.objects.filter(campeonato=camp, ronda=2))
+        self.assertEqual(len(final), 1, "la tanda debe desbloquear la ronda")
+        self.assertCountEqual(
+            [final[0].equipo_local_id, final[0].equipo_visitante_id], ganadores,
+            "deben pasar los ganadores de la tanda, no los locales por defecto")
+
+    def test_pasa_el_visitante_si_gana_la_tanda(self):
+        camp = self._cuadro("Copa visitante")
+        primera = list(Partido.objects.filter(campeonato=camp, ronda=1))
+        esperados = []
+        for partido in primera:
+            partido.resultado_local = 2
+            partido.resultado_visitante = 2
+            partido.penales_local = 2
+            partido.penales_visitante = 4
+            partido.estado = "FINALIZADO"
+            partido.save()
+            esperados.append(partido.equipo_visitante_id)
+
+        final = Partido.objects.filter(campeonato=camp, ronda=2).first()
+        self.assertCountEqual(
+            [final.equipo_local_id, final.equipo_visitante_id], esperados)
+
+    def test_sin_tanda_sigue_bloqueado(self):
+        camp = self._cuadro("Copa bloqueada")
+        for partido in Partido.objects.filter(campeonato=camp, ronda=1):
+            partido.resultado_local = 1
+            partido.resultado_visitante = 1
+            partido.estado = "FINALIZADO"
+            partido.save()
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 0)
+
+    def test_anotar_la_tanda_despues_desbloquea(self):
+        """El arbitro cierra el acta empatada y luego anota la tanda."""
+        camp = self._cuadro("Copa tardia")
+        primera = list(Partido.objects.filter(campeonato=camp, ronda=1))
+        for partido in primera:
+            partido.resultado_local = 0
+            partido.resultado_visitante = 0
+            partido.estado = "FINALIZADO"
+            partido.save()
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 0)
+
+        for partido in primera:
+            partido.penales_local = 4
+            partido.penales_visitante = 2
+            partido.save()
+        self.assertEqual(Partido.objects.filter(campeonato=camp, ronda=2).count(), 1)
+
+
+class LaTandaNoAfectaALaTablaDePosiciones(PruebaBase):
+    """Los penaltis no son goles: no deben sumar en la clasificacion."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_un_empate_con_tanda_sigue_siendo_empate_en_la_tabla(self):
+        camp = _campeonato_para_calendario(
+            "Liga con tanda", self.datos["deporte"], ["LUNES"])
+        equipos = _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 2)
+
+        Partido.objects.create(
+            campeonato=camp, equipo_local=equipos[0], equipo_visitante=equipos[1],
+            fecha=date.today(), hora=time(18, 0), lugar="Cancha 1",
+            resultado_local=1, resultado_visitante=1,
+            penales_local=5, penales_visitante=3, estado="FINALIZADO")
+
+        tabla = calcular_tabla_posiciones(camp)
+        for fila in tabla:
+            self.assertEqual(fila["puntos"], 1, "un empate da 1 punto a cada uno")
+            self.assertEqual(fila["gf"], 1, "los penaltis no cuentan como goles")
+            self.assertEqual(fila["pe"], 1)
+            self.assertEqual(fila["pg"], 0, "la tanda no convierte el empate en victoria")
+
+
+class ElArbitroAnotaLaTandaDesdeElActa(PruebaBase):
+    """El acta es la unica via enrutada para cerrar un partido.
+
+    La URL registrar_resultado_partido apunta en realidad a
+    acta_partido_arbitro; la funcion registrar_resultado_partido de
+    arbitro_views no la enruta nadie.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _partido_de_eliminatoria(self, nombre):
+        camp = _campeonato_para_calendario(
+            nombre, self.datos["deporte"], ["LUNES", "MIERCOLES"],
+            tipo="ELIMINATORIA")
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_eliminatoria(camp.id)
+        partido = Partido.objects.filter(campeonato=camp, ronda=1).first()
+        partido.arbitro = self.datos["arbitro"]
+        partido.save()
+        return partido
+
+    def _enviar(self, partido, datos):
+        # Los equipos de estos campeonatos no tienen jugadores, asi que la
+        # suma de goles por jugador es 0 y el acta solo cuadra con un 0-0.
+        self.client.force_login(self.datos["arbitro"].usuario)
+        return self.client.post(
+            reverse("registrar_resultado_partido", args=[partido.id]), datos)
+
+    def test_guarda_la_tanda(self):
+        partido = self._partido_de_eliminatoria("Acta tanda")
+        self._enviar(partido, {"resultado_local": "0", "resultado_visitante": "0",
+                               "penales_local": "5", "penales_visitante": "4"})
+        partido.refresh_from_db()
+        self.assertEqual((partido.penales_local, partido.penales_visitante), (5, 4))
+        self.assertEqual(partido.estado, "FINALIZADO")
+
+    def test_rechaza_una_tanda_igualada(self):
+        partido = self._partido_de_eliminatoria("Acta igualada")
+        self._enviar(partido, {"resultado_local": "0", "resultado_visitante": "0",
+                               "penales_local": "3", "penales_visitante": "3"})
+        partido.refresh_from_db()
+        self.assertIsNone(partido.penales_local,
+                          "una tanda igualada no debe guardarse")
+        self.assertNotEqual(partido.estado, "FINALIZADO")
+
+    def test_rechaza_penaltis_sin_empate(self):
+        partido = self._partido_de_eliminatoria("Acta sin empate")
+        self._enviar(partido, {"resultado_local": "1", "resultado_visitante": "0",
+                               "penales_local": "5", "penales_visitante": "4"})
+        partido.refresh_from_db()
+        self.assertIsNone(partido.penales_local)
+
+    def test_un_partido_normal_se_guarda_sin_tanda(self):
+        """El flujo de siempre no debe cambiar."""
+        partido = self._partido_de_eliminatoria("Acta normal")
+        self._enviar(partido, {"resultado_local": "0", "resultado_visitante": "0"})
+        partido.refresh_from_db()
+        self.assertEqual(partido.estado, "FINALIZADO")
+        self.assertIsNone(partido.penales_local)
+
+    def test_el_acta_valida_la_tanda(self):
+        from core.forms import ArbitroActaForm
+
+        formulario = ArbitroActaForm(data={
+            "resultado_local": "1", "resultado_visitante": "1",
+            "penales_local": "3", "penales_visitante": "3"})
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("penales_local", formulario.errors)
+
+        correcto = ArbitroActaForm(data={
+            "resultado_local": "1", "resultado_visitante": "1",
+            "penales_local": "5", "penales_visitante": "3"})
+        self.assertTrue(correcto.is_valid(), correcto.errors.as_text())
+
 
 
 # ---------------------------------------------------------------------------
