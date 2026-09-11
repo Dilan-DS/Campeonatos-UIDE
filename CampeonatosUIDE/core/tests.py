@@ -5,12 +5,16 @@ no vuelva a colarse. La primera clase es un barrido: recorre todas las
 rutas con nombre en cada rol y falla si alguna responde 5xx, que es como
 se detectaron once vistas rotas.
 """
+import ast
+import importlib
+import inspect
+import pkgutil
 import re
 from datetime import date, time, timedelta
 from pathlib import Path
 
 from django.test import TestCase, override_settings
-from django.urls import NoReverseMatch, get_resolver, reverse
+from django.urls import NoReverseMatch, get_resolver, resolve, reverse
 from django.urls.resolvers import URLPattern, URLResolver
 
 from core.forms import ArbitroActaForm, RegistroUsuarioForm
@@ -21,6 +25,9 @@ from core.models import (
     Jugador, Noticia, Pago, Partido, Suspension, Testimonio, Usuario,
 )
 from core.utils.tabla_posiciones import calcular_tabla_posiciones
+from core.utils.calendario import dias_permitidos_de
+from core.utils.generar_fixture_liga import generar_fixture_liga
+from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
 from core.validators import normalizar_cedula, validate_ecuadorian_cedula
 from django.core.exceptions import ValidationError
 
@@ -1418,3 +1425,309 @@ class CedulaNoSePuedeSaltarPorHttp(PruebaBase):
         }, follow=True)
         self.assertTrue(Usuario.objects.filter(username="correcto").exists(),
                         f"deberia haberse creado: {respuesta.status_code}")
+
+
+
+# ---------------------------------------------------------------------------
+# Generacion del calendario.
+#
+# Cada clase fija un fallo que se reprodujo antes de corregirlo: el comando
+# que no arrancaba, el campeonato sin dias que devolvia un error 500, la
+# regeneracion fallida que borraba el calendario y los partidos que caian a
+# la vez en la misma cancha.
+# ---------------------------------------------------------------------------
+
+
+def _campeonato_para_calendario(nombre, deporte, dias, tipo="LIGA", duracion=120):
+    hoy = date.today()
+    return Campeonato.objects.create(
+        nombre=nombre, tipo_campeonato=tipo, deporte=deporte,
+        descripcion="Campeonato de prueba del calendario.",
+        fecha_inicio=hoy, fecha_fin=hoy + timedelta(days=duracion),
+        fecha_fin_inscripcion=hoy, estado="INSCRIPCION",
+        max_jugadores_por_equipo=11, precio_inscripcion=0,
+        activo="SI", es_publico="SI", dias_partido=dias)
+
+
+def _equipos_para_calendario(campeonato, carrera, delegado, cuantos,
+                             genero="masculino", sufijo=""):
+    # El nombre es unico por campeonato, asi que se numera y se admite un
+    # sufijo para poder anadir equipos a un campeonato que ya tiene otros.
+    return [
+        Equipo.objects.create(
+            nombre=f"{campeonato.pk}-{genero[:3]}-{i}{sufijo}", campeonato=campeonato,
+            carrera=carrera, delegado=delegado, aprobado=True, genero=genero)
+        for i in range(cuantos)
+    ]
+
+
+class ElComandoDeCalendarioArranca(PruebaBase):
+    """Importaba asignar_arbitros_a_partidos, que no existe en el proyecto.
+
+    El comando aparecia en `manage.py help` pero fallaba con ImportError
+    antes de ejecutar nada.
+    """
+
+    def test_el_modulo_se_importa(self):
+        from core.management.commands import generar_fixtures  # noqa: F401
+
+    def test_el_comando_se_ejecuta_sin_campeonatos_pendientes(self):
+        from io import StringIO
+        from django.core.management import call_command
+
+        salida = StringIO()
+        call_command("generar_fixtures", stdout=salida, stderr=StringIO())
+        self.assertIn("No hay campeonatos", salida.getvalue())
+
+    def test_el_comando_genera_el_calendario_de_punta_a_punta(self):
+        """Campeonato con la inscripcion cerrada: el comando debe programarlo."""
+        from io import StringIO
+        from django.core.management import call_command
+
+        datos = _datos_base()
+        camp = _campeonato_para_calendario(
+            "Comando liga", datos["deporte"], ["LUNES", "MIERCOLES"])
+        camp.fecha_fin_inscripcion = date.today() - timedelta(days=1)
+        camp.fixture_generado = False
+        camp.estado = "INSCRIPCION"
+        camp.save()
+        _equipos_para_calendario(camp, datos["carrera"], datos["delegado"], 4)
+
+        salida = StringIO()
+        call_command("generar_fixtures", stdout=salida, stderr=StringIO())
+
+        camp.refresh_from_db()
+        self.assertEqual(Partido.objects.filter(campeonato=camp).count(), 6)
+        self.assertTrue(camp.fixture_generado)
+        self.assertEqual(camp.estado, "EN_CURSO")
+        self.assertIn("finalizado", salida.getvalue())
+
+
+class CampeonatoSinDiasNoRompe(PruebaBase):
+    """dias_partido admite vacio (blank=True, default=[]).
+
+    Con la lista vacia el bucle que buscaba fecha no terminaba: avanzaba
+    hasta pasar del ano 9999 y lanzaba OverflowError, que desde la web
+    salia como un error 500.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_liga_sin_dias_genera_igualmente(self):
+        camp = _campeonato_para_calendario("Liga sin dias", self.datos["deporte"], [])
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4)
+        creados = generar_fixture_liga(camp.id)
+        self.assertEqual(creados, 6, "4 equipos son 6 partidos, con o sin dias marcados")
+
+    def test_eliminatoria_sin_dias_genera_igualmente(self):
+        camp = _campeonato_para_calendario(
+            "Elim sin dias", self.datos["deporte"], [], tipo="ELIMINATORIA")
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4)
+        self.assertEqual(generar_fixture_eliminatoria(camp.id), 2)
+
+    def test_un_dia_desconocido_no_rompe(self):
+        """Si el dato guardado no esta en el mapa, se permiten los siete."""
+        self.assertEqual(dias_permitidos_de(_ConDias(["MIÉRCOLES"])), list(range(7)))
+        self.assertEqual(dias_permitidos_de(_ConDias([])), list(range(7)))
+        self.assertEqual(dias_permitidos_de(_ConDias(["SABADO"])), [5])
+
+    def test_la_vista_no_devuelve_error_500(self):
+        camp = _campeonato_para_calendario("Web sin dias", self.datos["deporte"], [])
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4)
+        self.client.force_login(self.datos["admin"])
+        respuesta = self.client.post(
+            reverse("generar_fixture_campeonato", args=[camp.id]))
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(Partido.objects.filter(campeonato=camp).count(), 6)
+
+
+class _ConDias:
+    """Objeto minimo con dias_partido, para probar el helper sin tocar la BD."""
+
+    def __init__(self, dias):
+        self.dias_partido = dias
+
+
+class RegenerarNoPierdeElCalendario(PruebaBase):
+    """La vista borraba los partidos antes de generar y fuera de transaccion.
+
+    Si la generacion fallaba, el campeonato se quedaba sin calendario:
+    comprobado, 6 partidos programados pasaban a 0.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def _camp_con_calendario(self):
+        camp = _campeonato_para_calendario(
+            "Regenerar", self.datos["deporte"], ["LUNES", "MIERCOLES"])
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4)
+        self.client.force_login(self.datos["admin"])
+        self.client.post(reverse("generar_fixture_campeonato", args=[camp.id]))
+        return camp
+
+    def test_si_no_se_generan_partidos_se_conserva_el_anterior(self):
+        """Dos equipos aprobados pero de generos distintos.
+
+        Asi se supera la guarda de "al menos 2 equipos aprobados" de la
+        vista y se llega de verdad al borrado: cada genero se queda con un
+        solo equipo, la generacion devuelve 0 y hay que revertir.
+        """
+        camp = self._camp_con_calendario()
+        antes = Partido.objects.filter(campeonato=camp).count()
+        self.assertEqual(antes, 6)
+
+        Equipo.objects.filter(campeonato=camp).update(aprobado=False)
+        _equipos_para_calendario(camp, self.datos["carrera"],
+                                 self.datos["delegado"], 1, "masculino", "-bis")
+        _equipos_para_calendario(camp, self.datos["carrera"],
+                                 self.datos["delegado"], 1, "femenino", "-bis")
+        self.assertEqual(
+            Equipo.objects.filter(campeonato=camp, aprobado=True).count(), 2,
+            "la vista debe pasar su guarda previa y llegar al borrado")
+
+        respuesta = self.client.post(
+            reverse("generar_fixture_campeonato", args=[camp.id]))
+        self.assertEqual(respuesta.status_code, 302)
+
+        self.assertEqual(Partido.objects.filter(campeonato=camp).count(), antes,
+                         "el calendario anterior no debe perderse")
+
+    def test_regenerar_bien_sustituye_el_calendario(self):
+        """El caso normal debe seguir funcionando."""
+        camp = self._camp_con_calendario()
+        ids_antes = set(Partido.objects.filter(campeonato=camp).values_list("id", flat=True))
+        self.client.post(reverse("generar_fixture_campeonato", args=[camp.id]))
+        ids_despues = set(Partido.objects.filter(campeonato=camp).values_list("id", flat=True))
+        self.assertEqual(len(ids_despues), 6)
+        self.assertFalse(ids_antes & ids_despues, "deben ser partidos nuevos")
+
+
+class NoHayDosPartidosEnLaMismaCanchaYHora(PruebaBase):
+    """Toda la jornada se creaba a las 18:00 con Cancha aleatoria 1-5.
+
+    Dos partidos de la misma jornada podian caer a la vez en la misma
+    cancha.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_sin_solapes_de_cancha(self):
+        for n in (4, 6, 8, 10, 12):
+            with self.subTest(equipos=n):
+                camp = _campeonato_para_calendario(
+                    f"Canchas {n}", self.datos["deporte"], ["LUNES"])
+                _equipos_para_calendario(
+                    camp, self.datos["carrera"], self.datos["delegado"], n)
+                generar_fixture_liga(camp.id)
+
+                ocupacion = [
+                    (p.fecha, p.hora, p.lugar)
+                    for p in Partido.objects.filter(campeonato=camp)
+                ]
+                self.assertEqual(len(ocupacion), len(set(ocupacion)),
+                                 "dos partidos no pueden compartir fecha, hora y cancha")
+
+    def test_los_primeros_cinco_van_a_las_seis(self):
+        """Con cinco canchas libres no hace falta mover la hora."""
+        camp = _campeonato_para_calendario(
+            "Canchas horario", self.datos["deporte"], ["LUNES"])
+        _equipos_para_calendario(
+            camp, self.datos["carrera"], self.datos["delegado"], 10)
+        generar_fixture_liga(camp.id)
+        primera_jornada = Partido.objects.filter(campeonato=camp).order_by("fecha")[:5]
+        self.assertTrue(all(p.hora.hour == 18 for p in primera_jornada))
+        self.assertEqual(
+            sorted(p.lugar for p in primera_jornada),
+            ["Cancha 1", "Cancha 2", "Cancha 3", "Cancha 4", "Cancha 5"])
+
+
+class ElEmparejamientoSigueSiendoCorrecto(PruebaBase):
+    """Red de seguridad del algoritmo: los arreglos no deben alterarlo."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datos = _datos_base()
+
+    def test_todos_contra_todos(self):
+        for n in (2, 3, 4, 5, 6, 8):
+            with self.subTest(equipos=n):
+                camp = _campeonato_para_calendario(
+                    f"Liga check {n}", self.datos["deporte"], ["LUNES", "MIERCOLES", "VIERNES"])
+                _equipos_para_calendario(
+                    camp, self.datos["carrera"], self.datos["delegado"], n)
+                creados = generar_fixture_liga(camp.id)
+                self.assertEqual(creados, n * (n - 1) // 2)
+
+                partidos = list(Partido.objects.filter(campeonato=camp))
+                parejas = [frozenset((p.equipo_local_id, p.equipo_visitante_id))
+                           for p in partidos]
+                self.assertEqual(len(parejas), len(set(parejas)))
+                for p in partidos:
+                    self.assertNotEqual(p.equipo_local_id, p.equipo_visitante_id)
+
+    def test_nadie_juega_dos_veces_el_mismo_dia(self):
+        camp = _campeonato_para_calendario(
+            "Liga dias check", self.datos["deporte"], ["LUNES", "MIERCOLES"])
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 6)
+        generar_fixture_liga(camp.id)
+        por_dia = {}
+        for p in Partido.objects.filter(campeonato=camp):
+            por_dia.setdefault(p.fecha, []).extend(
+                [p.equipo_local_id, p.equipo_visitante_id])
+        for fecha, equipos in por_dia.items():
+            self.assertEqual(len(equipos), len(set(equipos)), f"solape el {fecha}")
+
+    def test_solo_dias_permitidos(self):
+        camp = _campeonato_para_calendario(
+            "Liga sabados", self.datos["deporte"], ["SABADO"])
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4)
+        generar_fixture_liga(camp.id)
+        for p in Partido.objects.filter(campeonato=camp):
+            self.assertEqual(p.fecha.weekday(), 5)
+
+    def test_los_generos_no_se_cruzan(self):
+        camp = _campeonato_para_calendario(
+            "Liga mixta check", self.datos["deporte"], ["LUNES", "MIERCOLES"])
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4, "masculino")
+        _equipos_para_calendario(camp, self.datos["carrera"], self.datos["delegado"], 4, "femenino")
+        self.assertEqual(generar_fixture_liga(camp.id), 12)
+        for p in Partido.objects.filter(campeonato=camp):
+            self.assertEqual(p.equipo_local.genero, p.equipo_visitante.genero)
+
+
+# ---------------------------------------------------------------------------
+# Avance del cuadro de eliminatoria.
+#
+# generar_fixture_eliminatoria solo creaba la primera ronda: con 8 equipos
+# programaba 4 cruces y ahi se quedaba, cuando el cuadro completo necesita
+# 7 partidos. Ahora los ganadores cruzan solos al cerrarse la ronda, y hay
+# un boton manual de respaldo.
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Tanda de penaltis.
+#
+# Un empate no puede decidir quien pasa de ronda. La tanda es lo unico que
+# lo resuelve, y no cuenta como goles: no debe tocar la tabla de posiciones.
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Imports de las vistas.
+#
+# core/urls.py hacia `from .views import *` y core/views/__init__.py
+# encadenaba otros dieciocho comodines. Cuando dos modulos definian una
+# funcion con el mismo nombre, el ultimo importado se quedaba con el nombre
+# y el otro dejaba de existir sin ningun aviso: asi quedaron inalcanzables
+# detalle_equipo (jugador_views) y registrar_resultado_partido
+# (arbitro_views), con aspecto de codigo en uso.
+# ---------------------------------------------------------------------------
+
+

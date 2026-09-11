@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -12,14 +13,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from core.utils.generar_fixture_liga import generar_fixture_liga
 from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
 from core.utils.generar_fixture_fase_grupos import generar_fixture_fase_grupos
+def es_admin_o_delegado(user):
+    return user.rol in ['ADMIN', 'DELEGADO']
 
 
 class EsAdminODelegadoMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.rol in ['ADMIN', 'DELEGADO']
-
-def es_admin_o_delegado(user):
-    return user.rol in ['ADMIN', 'DELEGADO']
 
 import io
 from openpyxl import Workbook
@@ -186,6 +186,10 @@ class TablaPosiciones(LoginRequiredMixin, View):
         return render(request, 'campeonato/tabla_posiciones.html', context)
 
 
+class _SinPartidos(Exception):
+    """Se lanza para revertir la transacción cuando no se creó ningún partido."""
+
+
 class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
     def post(self, request, campeonato_id):
         campeonato = get_object_or_404(Campeonato, id=campeonato_id)
@@ -194,27 +198,47 @@ class GenerarFixtureCampeonato(LoginRequiredMixin, EsAdminODelegadoMixin, View):
             messages.error(request, "Se necesitan al menos 2 equipos aprobados para generar el fixture.")
             return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
 
-        Partido.objects.filter(campeonato=campeonato).delete()
-
+        # El borrado y la generación van juntos dentro de una transacción.
+        # Antes se borraba primero y por fuera, asi que si la generación
+        # fallaba a mitad el campeonato se quedaba sin calendario: un
+        # campeonato con 6 partidos ya programados pasaba a 0 y no habia
+        # forma de recuperarlos.
         tipo = campeonato.tipo_campeonato
-        creados = 0
-        if tipo == 'LIGA':
-            creados = generar_fixture_liga(campeonato.id) or 0
-        elif tipo == 'FASE_GRUPOS':
-            creados = generar_fixture_fase_grupos(campeonato.id) or 0
-        else:
-            creados = generar_fixture_eliminatoria(campeonato.id) or 0
+        generadores = {
+            'LIGA': generar_fixture_liga,
+            'FASE_GRUPOS': generar_fixture_fase_grupos,
+        }
+        generar = generadores.get(tipo, generar_fixture_eliminatoria)
 
-        
+        try:
+            with transaction.atomic():
+                Partido.objects.filter(campeonato=campeonato).delete()
+                creados = generar(campeonato.id) or 0
 
-        if creados > 0:
-            campeonato.fixture_generado = True
-            if campeonato.estado == 'INSCRIPCION':
-                campeonato.estado = 'EN_CURSO'
-            campeonato.save(update_fields=['fixture_generado', 'estado'])
-            messages.success(request, "Fixture generado.")
-        else:
-            messages.warning(request, "No se generaron partidos (verifica que haya al menos 2 equipos por género).")
+                if creados == 0:
+                    # Revierte el borrado: preferimos conservar el calendario
+                    # anterior antes que dejar el campeonato vacio.
+                    raise _SinPartidos()
+
+                campeonato.fixture_generado = True
+                if campeonato.estado == 'INSCRIPCION':
+                    campeonato.estado = 'EN_CURSO'
+                campeonato.save(update_fields=['fixture_generado', 'estado'])
+
+            messages.success(request, f"Fixture generado: {creados} partidos.")
+
+        except _SinPartidos:
+            messages.warning(
+                request,
+                "No se generaron partidos, asi que el calendario anterior se ha "
+                "conservado. Revisa que haya al menos 2 equipos aprobados del "
+                "mismo género."
+            )
+        except Exception as exc:
+            messages.error(
+                request,
+                f"No se pudo generar el calendario y no se ha cambiado nada: {exc}"
+            )
 
         return redirect('fixture_campeonato_detalle', campeonato_id=campeonato.id)
 

@@ -1,8 +1,12 @@
 from core.models import Campeonato, Equipo, Partido
 from django.utils import timezone
-from datetime import timedelta, time
+from datetime import timedelta
 import random
 from django.core.exceptions import ValidationError
+
+from core.utils.calendario import (
+    dias_permitidos_de, horario_y_cancha, primera_fecha_valida,
+)
 
 def generar_fixture_eliminatoria(campeonato_id):
     try:
@@ -46,30 +50,28 @@ def generar_fixture_eliminatoria(campeonato_id):
         # 3. Asignar fechas y crear partidos
         fecha_partido = campeonato.fecha_inicio
         
-        # Mapeo explícito y robusto de días de la semana a números de weekday()
-        DIAS_MAP = {
-            'LUNES': 0, 'MARTES': 1, 'MIERCOLES': 2, 'JUEVES': 3, 
-            'VIERNES': 4, 'SABADO': 5, 'DOMINGO': 6
-        }
-        dias_permitidos_num = [DIAS_MAP[d.upper()] for d in campeonato.dias_partido]
+        # Con el campeonato sin dias marcados esta lista quedaba vacia y la
+        # busqueda de fecha no terminaba nunca. dias_permitidos_de devuelve
+        # los siete dias en ese caso.
+        dias_permitidos_num = dias_permitidos_de(campeonato)
 
         for equipo1, equipo2 in partidos_ronda:
-            while fecha_partido.weekday() not in dias_permitidos_num:
-                fecha_partido += timedelta(days=1)
+            fecha_partido = primera_fecha_valida(fecha_partido, dias_permitidos_num)
 
             if fecha_partido > campeonato.fecha_fin:
                 print("ADVERTENCIA: Se ha superado la fecha de fin del campeonato.")
                 break
 
             try:
-                hora_partido = time(18, 0) # Usar una hora fija
+                # Un partido por fecha, asi que siempre el primer turno.
+                hora_partido, lugar = horario_y_cancha(0)
                 partido = Partido(
                     campeonato=campeonato,
                     equipo_local=equipo1,
                     equipo_visitante=equipo2,
                     fecha=fecha_partido,
                     hora=hora_partido,
-                    lugar=f'Cancha {random.randint(1, 5)}',
+                    lugar=lugar,
                     arbitro=None
                 )
                 partido.save()
