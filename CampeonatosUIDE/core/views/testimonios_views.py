@@ -75,7 +75,7 @@ class EliminarTestimonio(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request, id):
         testimonio = get_object_or_404(Testimonio, id=id)
-        return render(request, 'testimonio/form.html', {'testimonio': testimonio})
+        return render(request, 'testimonio/form.html', {'testimonio': testimonio, 'modo': 'eliminar'})
 
     def post(self, request, id):
         testimonio = get_object_or_404(Testimonio, id=id)

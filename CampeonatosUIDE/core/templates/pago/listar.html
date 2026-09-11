@@ -11,7 +11,7 @@
 
         <div class="uide-panel uide-panel--pad">
             <div class="buttons is-right mb-4">
-                <a href="{% url 'registrar_pago_admin' %}" class="button is-primary is-rounded">
+                <a href="{% url 'registrar_pago_admin' %}" class="button is-primary">
                     <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
                     <span>Agregar Pago</span>
                 </a>
@@ -43,7 +43,7 @@
                                 <form action="{% url 'cambiar_estado_pago_admin' pago.pk %}" method="post" class="is-inline">
                                     {% csrf_token %}
                                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                    <div class="select is-small is-rounded">
+                                    <div class="select is-small">
                                         <select name="estado" onchange="this.form.submit()">
                                             <option value="PENDIENTE" {% if pago.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
                                             <option value="APROBADO" {% if pago.estado == 'APROBADO' %}selected{% endif %}>Aprobado</option>
@@ -51,12 +51,12 @@
                                         </select>
                                     </div>
                                 </form>
-                                <a href="{% url 'detalle_pago_admin' pago.pk %}" class="button is-small is-info is-rounded ml-2">Ver Detalle</a>
+                                <a href="{% url 'detalle_pago_admin' pago.pk %}" class="button is-small is-info ml-2">Ver Detalle</a>
                                 {% if request.user.rol == 'ADMIN' %}
-                                <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-small is-warning is-rounded ml-2">Editar</a>
-                                <form action="{% url 'eliminar_pago_admin' pago.pk %}" method="post" class="is-inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago?');">
+                                <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-small is-warning ml-2">Editar</a>
+                                <form action="{% url 'eliminar_pago_admin' pago.pk %}" method="post" class="is-inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="button is-small is-danger is-rounded ml-2">Eliminar</button>
+                                    <button type="submit" class="button is-small is-danger ml-2">Eliminar</button>
                                 </form>
                                 {% endif %}
                             </td>
@@ -72,7 +72,7 @@
             {% endif %}
 
             <div class="has-text-centered mt-5">
-                <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">
+                <a href="{% url 'admin_dashboard' %}" class="button is-light">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
                 </a>
             </div>

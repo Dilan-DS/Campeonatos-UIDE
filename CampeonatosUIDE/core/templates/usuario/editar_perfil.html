@@ -11,29 +11,29 @@
 <div class="columns">
 <div class="column">
 <label class="label" for="{{ form.first_name.id_for_label }}">Nombre</label>
-{{ form.first_name|add_class:"input is-rounded" }}
+{{ form.first_name|add_class:"input" }}
 {% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
 </div>
 <div class="column">
 <label class="label" for="{{ form.last_name.id_for_label }}">Apellido</label>
-{{ form.last_name|add_class:"input is-rounded" }}
+{{ form.last_name|add_class:"input" }}
 {% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
 </div>
 </div>
 <div class="field">
 <label class="label" for="{{ form.email.id_for_label }}">Correo</label>
-{{ form.email|add_class:"input is-rounded" }}
+{{ form.email|add_class:"input" }}
 {% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
 </div>
 <div class="columns">
 <div class="column">
 <label class="label" for="{{ form.cedula.id_for_label }}">Cédula</label>
-{{ form.cedula|add_class:"input is-rounded" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
+{{ form.cedula|add_class:"input" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
 {% if form.cedula.errors %}<p class="help is-danger">{{ form.cedula.errors.0 }}</p>{% endif %}
 </div>
 <div class="column">
 <label class="label" for="{{ form.carrera.id_for_label }}">Carrera</label>
-<div class="select is-fullwidth is-rounded">
+<div class="select is-fullwidth">
 {{ form.carrera }}
 </div>
 {% if form.carrera.errors %}<p class="help is-danger">{{ form.carrera.errors.0 }}</p>{% endif %}
@@ -41,13 +41,13 @@
 </div>
 <div class="field">
 <label class="label" for="{{ form.genero.id_for_label }}">Género</label>
-<div class="select is-fullwidth is-rounded">
+<div class="select is-fullwidth">
 {{ form.genero }}
 </div>
 {% if form.genero.errors %}<p class="help is-danger">{{ form.genero.errors.0 }}</p>{% endif %}
 </div>
 <div class="field mt-4">
-<button class="button is-primary is-fullwidth is-rounded" type="submit"> Guardar Cambios </button>
+<button class="button is-primary is-fullwidth" type="submit"> Guardar Cambios </button>
 </div>
 </form>
 </div>

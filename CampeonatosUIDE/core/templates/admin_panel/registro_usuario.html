@@ -11,18 +11,16 @@
 
 {% block content %}
 
-<section class="section">
-  <!-- Sección principal con estilo Bulma para dar margen y padding. -->
-  <div class="container">
-    <!-- Contenedor centrado de ancho limitado para evitar que el contenido se vea muy extendido. -->
-    <div class="columns is-centered">
-      <!-- Centra las columnas horizontalmente. -->
-      <div class="column is-10-desktop is-12-tablet">
+<div class="container uide-container">
 
-        <h1 class="title is-4 has-text-centered mb-5">
-          Crear usuario
-        </h1>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Crear usuario</h1>
+      <p class="subtitle">Cuenta con acceso administrativo, arbitral o de delegado.</p>
+    </div>
+  </div>
 
+  <div class="box">
         <form method="POST" novalidate>
           {% csrf_token %}
           {% include "comun/_errores_formulario.html" with form=form %}
@@ -47,7 +45,7 @@
                     <div class="field mb-4">
                       <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                       <div class="control">
-                        {{ field|add_class:"input is-rounded" }}
+                        {{ field|add_class:"input" }}
                       </div>
                       {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
                     </div>
@@ -75,9 +73,9 @@
                       <div class="control">
                         {% if field|widget_type == 'select' %}
                           {# carrera y genero son <select>: el envoltorio de Bulma, no la clase de input. #}
-                          <div class="select is-rounded is-fullwidth">{{ field }}</div>
+                          <div class="select is-fullwidth">{{ field }}</div>
                         {% else %}
-                          {{ field|add_class:"input is-rounded" }}
+                          {{ field|add_class:"input" }}
                         {% endif %}
                       </div>
                       {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
@@ -116,26 +114,20 @@
 
           </div>
 
-          <div class="field mt-5 is-grouped is-grouped-right">
-            <div class="control">
-              <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">Cancelar</a>
-            </div>
-            <div class="control">
-              <button type="submit" name="guardar_y_crear_otro" value="1" class="button is-light is-rounded">
-                Guardar y crear otro
-              </button>
-            </div>
-            <div class="control">
-              <button type="submit" class="button is-primary is-rounded">
-                <strong>Crear usuario</strong>
-              </button>
-            </div>
+          <div class="uide-form-actions">
+            <button type="submit" class="button is-primary">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+              <span>Crear usuario</span>
+            </button>
+            <button type="submit" name="guardar_y_crear_otro" value="1" class="button is-light">
+              Guardar y crear otro
+            </button>
+            <span class="uide-form-actions__spacer"></span>
+            <a href="{% url 'admin_dashboard' %}" class="button is-light">Cancelar</a>
           </div>
         </form>
-
-      </div>
-    </div>
   </div>
-</section>
+
+</div>
 {% endblock %}
 <!-- Cierra el bloque 'content'. -->

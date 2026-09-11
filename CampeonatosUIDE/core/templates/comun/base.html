@@ -74,6 +74,9 @@
     {% include "comun/footer.html" %}
   {% endif %}
 
+  {# Host único para las ediciones y confirmaciones CRUD cargadas en contexto. #}
+  <div id="uide-modal-root" class="uide-modal-root" aria-live="polite"></div>
+
   <script>
     /* Tablas de datos en móvil ------------------------------------------
        Cada celda recibe data-label con el encabezado de su columna para
@@ -132,6 +135,7 @@
 
     window.addEventListener('pageshow', () => liberarEnvio(document));
   </script>
+  <script src="{% static 'js/uide-modals.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

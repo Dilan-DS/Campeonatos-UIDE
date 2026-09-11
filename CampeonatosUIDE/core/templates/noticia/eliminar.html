@@ -4,11 +4,22 @@
 {% block title %}Eliminar noticia{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container uide-ancho-limitado uide-ancho-limitado--holgado">
-    <div class="uide-panel uide-panel--pad">
-      <h1 class="title is-4"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar noticia</h1>
+<div class="container uide-container">
 
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar noticia</h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_noticias' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
+
+  <div class="box uide-ancho-limitado--holgado">
+    <form method="post">
+      {% csrf_token %}
       <article class="message is-danger">
         <div class="message-header">
           <p>Acción irreversible</p>
@@ -25,17 +36,15 @@
         </figure>
       {% endif %}
 
-      <form method="post">
-        {% csrf_token %}
-        <div class="buttons is-right">
-          <a href="{% url 'listar_noticias' %}" class="button">Cancelar</a>
-          <button type="submit" class="button is-danger">
-            <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg></span>
-            <span>Eliminar definitivamente</span>
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="uide-form-actions" style="justify-content:center">
+        <button type="submit" class="button is-danger">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
+          <span>Eliminar definitivamente</span>
+        </button>
+        <a href="{% url 'listar_noticias' %}" class="button is-light">Cancelar</a>
+      </div>
+    </form>
   </div>
-</section>
+
+</div>
 {% endblock %}

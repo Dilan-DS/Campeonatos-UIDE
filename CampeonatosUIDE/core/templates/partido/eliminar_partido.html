@@ -3,28 +3,36 @@
 {% block title %}Eliminar partido | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
+<div class="container uide-container">
 
-    <h1 class="title is-4 has-text-danger">
-      <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
-      Eliminar partido
-    </h1>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
+        Eliminar partido
+      </h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_partidos' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
 
-    <div class="box has-background-warning-light uide-ancho-limitado">
+  <div class="box uide-ancho-limitado">
+    <form method="post">
+      {% csrf_token %}
       <p class="has-text-centered mb-4">
         ¿Estás seguro que deseas eliminar el partido
         <strong>{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</strong>
         del {{ partido.fecha }}?
       </p>
-
-      <form method="post" class="has-text-centered">
-        {% csrf_token %}
-        <button type="submit" class="button is-danger is-rounded">Sí, eliminar</button>
-        <a href="{% url 'listar_partidos' %}" class="button is-light is-rounded ml-3">Cancelar</a>
-      </form>
-    </div>
-
+      <div class="uide-form-actions" style="justify-content:center">
+        <button type="submit" class="button is-danger">Sí, eliminar</button>
+        <a href="{% url 'listar_partidos' %}" class="button is-light">Cancelar</a>
+      </div>
+    </form>
   </div>
-</section>
+
+</div>
 {% endblock %}

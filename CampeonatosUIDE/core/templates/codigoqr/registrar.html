@@ -1,121 +1,150 @@
 {% extends 'comun/base.html' %}
 {% load static %}
 
-{% block title %}{% if form.instance.pk %}Editar código QR{% else %}Registrar código QR{% endif %} | Campeonatos UIDE{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
+{% block title %}
+  {% if modo == 'detalle' %}Detalle código QR{% elif modo == 'eliminar' %}Eliminar código QR{% elif form.instance.pk %}Editar código QR{% else %}Registrar código QR{% endif %} | Campeonatos UIDE
 {% endblock %}
 
 {% block content %}
-<div class="container mt-6">
-    <div class="columns is-centered">
-        <div class="column is-half">
-            <div class="box">
-                <h1 class="title has-text-centered">{% if form.instance.pk %}Editar Código QR{% else %}Registrar Código QR{% endif %}</h1>
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
+<div class="container uide-container">
 
-                    <div class="field">
-                        <label class="label" for="{{ form.banco.id_for_label }}">{{ form.banco.label }}</label>
-                        <div class="control">
-                            {{ form.banco }}
-                        </div>
-                        {% if form.banco.errors %}
-                            <p class="help is-danger">{{ form.banco.errors|first }}</p>
-                        {% endif %}
-                    </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if modo == 'detalle' %}Detalle de Código QR
+        {% elif modo == 'eliminar' %}Eliminar Código QR
+        {% elif form.instance.pk %}Editar Código QR
+        {% else %}Registrar Código QR{% endif %}
+      </h1>
+      <p class="subtitle">Cuenta bancaria para recibir transferencias de inscripción.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_codigos_qr' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
 
-                    <div class="field">
-                        <label class="label" for="{{ form.titular.id_for_label }}">{{ form.titular.label }}</label>
-                        <div class="control">
-                            {{ form.titular }}
-                        </div>
-                        {% if form.titular.errors %}
-                            <p class="help is-danger">{{ form.titular.errors|first }}</p>
-                        {% endif %}
-                    </div>
+  {% if modo == 'detalle' %}
+    <div class="box">
+      <dl class="uide-details">
+        <div><dt>Banco</dt><dd>{{ codigo.banco }}</dd></div>
+        <div><dt>Titular</dt><dd>{{ codigo.titular }}</dd></div>
+        <div><dt>Identificación</dt><dd>{{ codigo.identificacion }}</dd></div>
+        <div><dt>Tipo de cuenta</dt><dd>{{ codigo.get_tipo_cuenta_display }}</dd></div>
+        <div><dt>Número de cuenta</dt><dd>{{ codigo.numero_cuenta }}</dd></div>
+        <div class="is-full"><dt>Descripción</dt><dd>{{ codigo.descripcion|default:"—" }}</dd></div>
+        {% if codigo.imagen_qr %}
+          <div class="is-full">
+            <dt>Imagen QR</dt>
+            <dd><figure class="image is-128x128 mt-2"><img src="{{ codigo.imagen_qr.url }}" alt="QR de {{ codigo.banco }}"></figure></dd>
+          </div>
+        {% endif %}
+      </dl>
+      <div class="uide-form-actions">
+        <a href="{% url 'editar_codigo_qr' codigo.pk %}" class="button is-warning">Editar</a>
+        <a href="{% url 'eliminar_codigo_qr' codigo.pk %}" class="button is-danger is-light">Eliminar</a>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'listar_codigos_qr' %}" class="button is-light">Volver al listado</a>
+      </div>
+    </div>
 
-                    <div class="field">
-                        <label class="label" for="{{ form.identificacion.id_for_label }}">{{ form.identificacion.label }}</label>
-                        <div class="control">
-                            {{ form.identificacion }}
-                        </div>
-                        {% if form.identificacion.errors %}
-                            <p class="help is-danger">{{ form.identificacion.errors|first }}</p>
-                        {% endif %}
-                    </div>
+  {% elif modo == 'eliminar' %}
+    <div class="box uide-ancho-limitado">
+      <form method="post">
+        {% csrf_token %}
+        <p class="has-text-centered mb-4">
+          ¿Estás seguro de eliminar el código QR de <strong>{{ codigo.banco }} — {{ codigo.titular }}</strong>?
+        </p>
+        <div class="uide-form-actions" style="justify-content:center">
+          <button type="submit" class="button is-danger">Sí, eliminar</button>
+          <a href="{% url 'listar_codigos_qr' %}" class="button is-light">Cancelar</a>
+        </div>
+      </form>
+    </div>
 
-                    <div class="field">
-                        <label class="label" for="{{ form.tipo_cuenta.id_for_label }}">{{ form.tipo_cuenta.label }}</label>
-                        <div class="control">
-                            <div class="select is-fullwidth">
-                                {{ form.tipo_cuenta }}
-                            </div>
-                        </div>
-                        {% if form.tipo_cuenta.errors %}
-                            <p class="help is-danger">{{ form.tipo_cuenta.errors|first }}</p>
-                        {% endif %}
-                    </div>
+  {% else %}
+  <div class="box">
+    <form method="post" enctype="multipart/form-data" class="uide-form">
+        {% csrf_token %}
 
-                    <div class="field">
-                        <label class="label" for="{{ form.numero_cuenta.id_for_label }}">{{ form.numero_cuenta.label }}</label>
-                        <div class="control">
-                            {{ form.numero_cuenta }}
-                        </div>
-                        {% if form.numero_cuenta.errors %}
-                            <p class="help is-danger">{{ form.numero_cuenta.errors|first }}</p>
-                        {% endif %}
-                    </div>
+        <div class="uide-form-grid">
+            <div class="field">
+                <label class="label" for="{{ form.banco.id_for_label }}">{{ form.banco.label }}</label>
+                <div class="control">{{ form.banco }}</div>
+                {% if form.banco.errors %}<p class="help is-danger">{{ form.banco.errors|first }}</p>{% endif %}
+            </div>
 
-                    <div class="field">
-                        <label class="label" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
-                        <div class="control">
-                            {{ form.descripcion }}
-                        </div>
-                        {% if form.descripcion.errors %}
-                            <p class="help is-danger">{{ form.descripcion.errors|first }}</p>
-                        {% endif %}
-                    </div>
+            <div class="field">
+                <label class="label" for="{{ form.titular.id_for_label }}">{{ form.titular.label }}</label>
+                <div class="control">{{ form.titular }}</div>
+                {% if form.titular.errors %}<p class="help is-danger">{{ form.titular.errors|first }}</p>{% endif %}
+            </div>
 
-                    <div class="field">
-                        <label class="label" for="{{ form.imagen_qr.id_for_label }}">{{ form.imagen_qr.label }}</label>
-                        <div class="file has-name is-fullwidth">
-                            <label class="file-label">
-                                {{ form.imagen_qr }}
-                                <span class="file-cta">
-                                    <span class="file-icon">
-                                        <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
-                                    </span>
-                                    <span class="file-label">
-                                        Seleccionar archivo…
-                                    </span>
-                                </span>
-                                <span class="file-name" id="file-name-imagen-qr">
-                                    {% if form.instance.imagen_qr %}{{ form.instance.imagen_qr.name|cut:"codigos_qr/" }}{% else %}Ningún archivo seleccionado{% endif %}
-                                </span>
-                            </label>
-                        </div>
-                        {% if form.imagen_qr.errors %}
-                            <p class="help is-danger">{{ form.imagen_qr.errors|first }}</p>
-                        {% endif %}
-                        {% if form.instance.imagen_qr %}
-                            <p class="help">Archivo actual: <a href="{{ form.instance.imagen_qr.url }}" target="_blank">{{ form.instance.imagen_qr.name|cut:"codigos_qr/" }}</a></p>
-                        {% endif %}
-                    </div>
+            <div class="field">
+                <label class="label" for="{{ form.identificacion.id_for_label }}">{{ form.identificacion.label }}</label>
+                <div class="control">{{ form.identificacion }}</div>
+                {% if form.identificacion.errors %}<p class="help is-danger">{{ form.identificacion.errors|first }}</p>{% endif %}
+            </div>
 
-                    <div class="field is-grouped is-grouped-centered">
-                        <div class="control">
-                            <button type="submit" class="button is-primary">{% if form.instance.pk %}Actualizar{% else %}Registrar{% endif %}</button>
-                        </div>
-                        <div class="control">
-                            <a href="{% url 'listar_codigos_qr' %}" class="button is-link is-light">Cancelar</a>
-                        </div>
-                    </div>
-                </form>
+            <div class="field">
+                <label class="label" for="{{ form.tipo_cuenta.id_for_label }}">{{ form.tipo_cuenta.label }}</label>
+                <div class="control">{{ form.tipo_cuenta }}</div>
+                {% if form.tipo_cuenta.errors %}<p class="help is-danger">{{ form.tipo_cuenta.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="field">
+                <label class="label" for="{{ form.numero_cuenta.id_for_label }}">{{ form.numero_cuenta.label }}</label>
+                <div class="control">{{ form.numero_cuenta }}</div>
+                {% if form.numero_cuenta.errors %}<p class="help is-danger">{{ form.numero_cuenta.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="field is-full">
+                <label class="label" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                <div class="control">{{ form.descripcion }}</div>
+                {% if form.descripcion.errors %}<p class="help is-danger">{{ form.descripcion.errors|first }}</p>{% endif %}
+            </div>
+
+            <div class="field is-full">
+                <label class="label" for="{{ form.imagen_qr.id_for_label }}">{{ form.imagen_qr.label }}</label>
+                <div class="file has-name is-fullwidth">
+                    <label class="file-label">
+                        {{ form.imagen_qr }}
+                        <span class="file-cta">
+                            <span class="file-icon">
+                                <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
+                            </span>
+                            <span class="file-label">
+                                Seleccionar archivo…
+                            </span>
+                        </span>
+                        <span class="file-name" id="file-name-imagen-qr">
+                            {% if form.instance.imagen_qr %}{{ form.instance.imagen_qr.name|cut:"codigos_qr/" }}{% else %}Ningún archivo seleccionado{% endif %}
+                        </span>
+                    </label>
+                </div>
+                {% if form.imagen_qr.errors %}
+                    <p class="help is-danger">{{ form.imagen_qr.errors|first }}</p>
+                {% endif %}
+                {% if form.instance.imagen_qr %}
+                    <p class="help">Archivo actual: <a href="{{ form.instance.imagen_qr.url }}" target="_blank">{{ form.instance.imagen_qr.name|cut:"codigos_qr/" }}</a></p>
+                {% endif %}
+                <p class="help">Formatos de imagen habituales, tamaño razonable para verse nítido al escanear.</p>
             </div>
         </div>
-    </div>
+
+        <div class="uide-form-actions">
+            <button type="submit" class="button is-primary">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+                <span>{% if form.instance.pk %}Actualizar{% else %}Registrar{% endif %}</span>
+            </button>
+            <span class="uide-form-actions__spacer"></span>
+            <a href="{% url 'listar_codigos_qr' %}" class="button is-light">Cancelar</a>
+        </div>
+    </form>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}
 

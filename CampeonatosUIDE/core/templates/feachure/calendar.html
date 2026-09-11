@@ -48,6 +48,7 @@
       <!-- Tabla -->
       <div class="box">
         {% if partidos %}
+          <div class="table-container">
           <table class="table is-fullwidth is-striped is-hoverable">
             <thead>
               <tr>
@@ -89,6 +90,7 @@
               {% endfor %}
             </tbody>
           </table>
+          </div>
         {% else %}
           <p class="has-text-centered">
             No hay partidos programados para la categoría <strong>{{ genero_seleccionado }}</strong> en este momento.

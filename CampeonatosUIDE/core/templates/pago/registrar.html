@@ -8,26 +8,27 @@
 
 {% block content %}
 
+<div class="container uide-container">
 
-<section class="section">
-  <div class="container">
-
-    <div class="mb-5">
-      <div class="is-flex is-justify-content-space-between is-align-items-center">
-        <h1 class="title is-4 mb-0">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> {% if pago_existente %}Editar Pago{% else %}Registrar Pago{% endif %}
-          <span id="equipo-titulo">
-            {% if equipo and equipo.nombre %} — {{ equipo.nombre }}
-            {% elif equipo_nombre %} — {{ equipo_nombre }}{% endif %}
-          </span>
-        </h1>
-        <span class="tag" id="equipo-chip">
-          {% if equipo and equipo.id %}Equipo #{{ equipo.id }}{% else %}Equipo{% endif %}
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> {% if pago_existente %}Editar Pago{% else %}Registrar Pago{% endif %}
+        <span id="equipo-titulo">
+          {% if equipo and equipo.nombre %} — {{ equipo.nombre }}
+          {% elif equipo_nombre %} — {{ equipo_nombre }}{% endif %}
         </span>
-      </div>
+      </h1>
     </div>
+    <div class="uide-page-head__actions">
+      <span class="tag" id="equipo-chip">
+        {% if equipo and equipo.id %}Equipo #{{ equipo.id }}{% else %}Equipo{% endif %}
+      </span>
+      <a href="{% url 'delegado_dashboard' %}" class="button is-light"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard</a>
+    </div>
+  </div>
 
-    <div class="box p-5">
+    <div class="box">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -41,7 +42,7 @@
           {% if form.equipo %}
           <div class="field">
             <label class="label has-text-weight-semibold" for="{{ form.equipo.id_for_label }}">{{ form.equipo.label }}</label>
-            <div class="select is-rounded is-medium is-fullwidth">
+            <div class="select is-fullwidth">
               {{ form.equipo }}
             </div>
             {% if form.equipo.errors %}<p class="help is-danger">{{ form.equipo.errors|striptags }}</p>{% endif %}
@@ -58,7 +59,7 @@
               {% if not ocultar_select_qr %}
                 <div class="field is-hidden" data-qr-field>
                   <label class="label has-text-weight-semibold" for="{{ form.codigo_qr.id_for_label }}">{{ form.codigo_qr.label }}</label>
-                  <div class="select is-rounded is-medium is-fullwidth">
+                  <div class="select is-fullwidth">
                     {{ form.codigo_qr }}
                   </div>
                   {% for error in form.codigo_qr.errors %}
@@ -73,9 +74,9 @@
                 <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="control">
                   {% if field|widget_type == 'textarea' %}
-                    {{ field|add_class:"textarea is-rounded is-medium is-light" }}
+                    {{ field|add_class:"textarea is-light" }}
                   {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
-                    <div class="select is-rounded is-medium is-fullwidth">{{ field }}</div>
+                    <div class="select is-fullwidth">{{ field }}</div>
                   {% elif field|widget_type == 'clearablefileinput' %}
                     <div class="file has-name is-fullwidth">
                       <label class="file-label">
@@ -90,7 +91,7 @@
                       <p class="help">Archivo actual: <a href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a></p>
                     {% endif %}
                   {% else %}
-                    {{ field|add_class:"input is-rounded is-medium is-light" }}
+                    {{ field|add_class:"input is-light" }}
                   {% endif %}
                 </div>
                 {% if field.errors %}<p class="help is-danger">{{ field.errors|striptags }}</p>{% endif %}
@@ -101,7 +102,7 @@
 
         <div class="field mt-5">
           <div class="buttons is-right">
-            <button type="submit" class="button is-primary is-rounded is-medium">
+            <button type="submit" class="button is-primary">
               {% if pago_existente %}Guardar Cambios{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Registrar Pago{% endif %}
             </button>
           </div>
@@ -125,14 +126,8 @@
           </div>
         </div>
       </form>
-
-      <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
-        <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard</a>
-      </div>
-
     </div>
-  </div>
-</section>
+</div>
 
 {# ——— Catálogo QR ——— #}
 {% comment %}

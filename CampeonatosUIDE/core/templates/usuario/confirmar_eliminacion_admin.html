@@ -1,13 +1,29 @@
 {% extends 'comun/base.html' %}
 {% block title %}Eliminar Usuario{% endblock %}
 {% block content %}
-<section class="section">
-  <div class="container has-text-centered">
-    <h1 class="title has-text-danger">¿Estás seguro de eliminar al usuario <strong>{{ usuario.username }}</strong>?</h1>
-    <form method="POST">{% csrf_token %}
-      <button class="button is-danger">Sí, eliminar</button>
-      <a href="{% url 'listar_usuarios' %}" class="button is-light">Cancelar</a>
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Eliminar usuario</h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_usuarios' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
+
+  <div class="box uide-ancho-limitado">
+    <form method="POST">
+      {% csrf_token %}
+      <p class="has-text-centered mb-4">¿Estás seguro de eliminar al usuario <strong>{{ usuario.username }}</strong>?</p>
+      <div class="uide-form-actions" style="justify-content:center">
+        <button type="submit" class="button is-danger">Sí, eliminar</button>
+        <a href="{% url 'listar_usuarios' %}" class="button is-light">Cancelar</a>
+      </div>
     </form>
   </div>
-</section>
+
+</div>
 {% endblock %}

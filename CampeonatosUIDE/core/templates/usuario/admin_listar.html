@@ -49,7 +49,7 @@
             <td>{{ user.email }}</td>
             <td>{{ user.get_rol_display }}</td>
             <td class="has-text-centered">
-              <a class="button is-small is-info mx-1" href="{% url 'editar_usuario' user.id %}">Editar</a>
+              <a class="button is-small is-warning mx-1" href="{% url 'editar_usuario' user.id %}">Editar</a>
                 <a class="button is-small is-danger mx-1" href="{% url 'eliminar_usuario' user.id %}">Eliminar</a>
 
             </td>

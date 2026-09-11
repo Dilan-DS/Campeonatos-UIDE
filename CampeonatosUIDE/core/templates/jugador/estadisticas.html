@@ -10,6 +10,7 @@
         <div class="box">
             <h2 class="title is-5">Estadísticas de {{ deporte_nombre }}</h2>
             {% if estadisticas %}
+                <div class="table-container">
                 <table class="table is-striped is-hoverable is-fullwidth">
                     <thead>
                         <tr>
@@ -66,13 +67,14 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             {% else %}
                 <p>No hay estadísticas disponibles para este jugador en este campeonato.</p>
             {% endif %}
         </div>
 
         <div class="has-text-centered mt-5">
-            <a href="{% url 'jugador_dashboard' %}" class="button is-light is-rounded">
+            <a href="{% url 'jugador_dashboard' %}" class="button is-light">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
             </a>
         </div>

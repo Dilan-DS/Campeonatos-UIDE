@@ -5,106 +5,106 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title is-3 has-text-centered has-text-primary">
-      {% if modo == 'crear' %} Subir Imagen {% elif modo == 'editar' %} Editar Imagen {% elif modo == 'eliminar' %} Confirmar eliminación {% else %} Detalle Imagen {% endif %}
-    </h1>
+<div class="container uide-container">
 
-    {% if modo == 'detalle' %}
-      <div class="box">
-        <h2 class="subtitle">{{ imagen.titulo }}</h2>
-        <figure class="image is-128x128 mb-4">
-          <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
-        </figure>
-        <p><strong>Descripción:</strong> {{ imagen.descripcion|default:"-" }}</p>
-        <p><strong>Fecha:</strong> {{ imagen.fecha|date:"d/m/Y H:i" }}</p>
-        <a href="{% url 'listar_imagenes_galeria' %}" class="button is-link mt-4">Volver a la galería</a>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if modo == 'crear' %}Subir Imagen{% elif modo == 'editar' %}Editar Imagen{% elif modo == 'eliminar' %}Confirmar eliminación{% else %}Detalle Imagen{% endif %}
+      </h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_imagenes_galeria' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a la galería
+      </a>
+    </div>
+  </div>
 
-    {% elif modo == 'eliminar' %}
+  {% if modo == 'detalle' %}
+    <div class="box uide-ancho-limitado--holgado">
+      <h2 class="subtitle">{{ imagen.titulo }}</h2>
+      <figure class="image is-128x128 mb-4">
+        <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
+      </figure>
+      <dl class="uide-details">
+        <div><dt>Descripción</dt><dd>{{ imagen.descripcion|default:"—" }}</dd></div>
+        <div><dt>Fecha</dt><dd>{{ imagen.fecha|date:"d/m/Y H:i" }}</dd></div>
+      </dl>
+    </div>
+
+  {% elif modo == 'eliminar' %}
+    <div class="box uide-ancho-limitado--holgado">
       <form method="post">
         {% csrf_token %}
-        <div class="notification is-warning is-light">
+        <p class="notification is-warning is-light">
           ¿Estás seguro de que deseas eliminar <strong>{{ imagen.titulo }}</strong>?
-        </div>
-        <div class="buttons mt-4">
+        </p>
+        <div class="uide-form-actions" style="justify-content:center">
           <button type="submit" class="button is-danger">Eliminar</button>
           <a href="{% url 'listar_imagenes_galeria' %}" class="button is-light">Cancelar</a>
         </div>
       </form>
+    </div>
 
-    {% else %}
-      <form method="post" enctype="multipart/form-data">
+  {% else %}
+    <div class="box">
+      <form method="post" enctype="multipart/form-data" class="uide-form">
         {% csrf_token %}
 
-        <!-- Título -->
-        <div class="field">
-          <label class="label" for="{{ form.titulo.id_for_label }}">Título</label>
-          <div class="control">
-            {{ form.titulo }}
+        <div class="uide-form-grid">
+          <div class="field is-full">
+            <label class="label" for="{{ form.titulo.id_for_label }}">Título</label>
+            <div class="control">{{ form.titulo }}</div>
+            {% if form.titulo.errors %}<p class="help is-danger">{{ form.titulo.errors.0 }}</p>{% endif %}
           </div>
-          {% if form.titulo.errors %}
-            <p class="help is-danger">{{ form.titulo.errors.0 }}</p>
-          {% endif %}
-        </div>
 
-        <!-- Imagen -->
-        <div class="field">
-          <label class="label" for="{{ form.imagen.id_for_label }}">Imagen
-            {% if modo == 'editar' %} (opcional) {% endif %}
-          </label>
-
-          <div class="file has-name is-boxed is-fullwidth">
-            <label class="file-label">
-              {{ form.imagen }}
-              <span class="file-cta">
-                <span class="file-icon">
-                  <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
-                </span>
-                <span class="file-label">Elegir archivo…</span>
-              </span>
-              <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
+          <div class="field is-full">
+            <label class="label" for="{{ form.imagen.id_for_label }}">
+              Imagen {% if modo == 'editar' %}<span class="uide-optional">(opcional)</span>{% endif %}
             </label>
+            <div class="file has-name is-fullwidth">
+              <label class="file-label">
+                {{ form.imagen }}
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
+                  </span>
+                  <span class="file-label">Elegir archivo…</span>
+                </span>
+                <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
+              </label>
+            </div>
+            {% if form.imagen.errors %}<p class="help is-danger">{{ form.imagen.errors.0 }}</p>{% endif %}
+            {% if modo == 'editar' and imagen.imagen %}
+              <div class="mt-3">
+                <p class="help mb-2">Imagen actual:</p>
+                <figure class="image is-128x128">
+                  <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
+                </figure>
+              </div>
+            {% endif %}
           </div>
 
-          {% if form.imagen.errors %}
-            <p class="help is-danger">{{ form.imagen.errors.0 }}</p>
-          {% endif %}
-
-          {% if modo == 'editar' and imagen.imagen %}
-            <p class="mt-3">Imagen actual:</p>
-            <figure class="image is-128x128">
-              <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
-            </figure>
-          {% endif %}
+          <div class="field is-full">
+            <label class="label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
+            <div class="control">{{ form.descripcion }}</div>
+            {% if form.descripcion.errors %}<p class="help is-danger">{{ form.descripcion.errors.0 }}</p>{% endif %}
+          </div>
         </div>
 
-        <!-- Descripción -->
-        <div class="field">
-          <label class="label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
-          <div class="control">
-            {{ form.descripcion }}
-          </div>
-          {% if form.descripcion.errors %}
-            <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
-          {% endif %}
-        </div>
-
-        <!-- Botones -->
-        <div class="field is-grouped mt-5">
-          <div class="control">
-            <button type="submit" class="button is-primary">
-              {% if modo == 'crear' %} Subir {% elif modo == 'editar' %} Guardar {% endif %}
-            </button>
-          </div>
-          <div class="control">
-            <a href="{% url 'listar_imagenes_galeria' %}" class="button is-light">Cancelar</a>
-          </div>
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>{% if modo == 'crear' %}Subir{% elif modo == 'editar' %}Guardar{% endif %}</span>
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'listar_imagenes_galeria' %}" class="button is-light">Cancelar</a>
         </div>
       </form>
-    {% endif %}
-  </div>
-</section>
+    </div>
+  {% endif %}
+
+</div>
 
 <!-- Script para mostrar nombre del archivo -->
 <script>

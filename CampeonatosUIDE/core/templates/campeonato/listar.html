@@ -20,12 +20,13 @@
       </h1>
 
       <div class="has-text-right mb-4">
-        <a href="{% url 'crear_campeonato' %}" class="button is-primary is-rounded">
+        <a href="{% url 'crear_campeonato' %}" class="button is-primary">
           <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Crear nuevo campeonato
         </a>
       </div>
 
       {% if campeonatos %}
+        <div class="table-container">
         <table class="table is-striped is-hoverable is-fullwidth">
           <thead>
             <tr>
@@ -52,16 +53,16 @@
                   </span>
                 </td>
                 <td class="has-text-centered">
-                  <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-small is-info is-light is-rounded">
+                  <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-small is-info is-light">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> Ver
                   </a>
-                  <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light is-rounded">
+                  <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-small is-warning is-light">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar
                   </a>
-                  <a href="{% url 'fixture_campeonato_detalle' campeonato.id %}" class="button is-small is-danger is-light is-rounded">
+                  <a href="{% url 'fixture_campeonato_detalle' campeonato.id %}" class="button is-small is-danger is-light">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg> Fixture
                   </a>
-                  <a href="{% url 'listar_equipos' %}?campeonato_id={{ campeonato.id }}" class="button is-small is-link is-light is-rounded">
+                  <a href="{% url 'listar_equipos' %}?campeonato_id={{ campeonato.id }}" class="button is-small is-link is-light">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Ver Equipos
                   </a>
                   {% if request.user.rol == 'ADMIN' or request.user.rol == 'DELEGADO' %} <form method="post" action="{% url 'generar_fixture_campeonato' campeonato.id %}" class="is-inline-block ml-1"> {% csrf_token %} <input type="hidden" name="modo" value="manual"> <button class="button is-small is-info is-light">Generar ahora</button> </form> {% endif %}
@@ -70,6 +71,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
       {% else %}
         <p class="notification is-info is-light has-text-centered">
           No hay campeonatos registrados todavía.

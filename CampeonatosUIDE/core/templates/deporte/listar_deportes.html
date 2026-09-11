@@ -20,7 +20,7 @@
 
         {% if user.rol == "ADMIN" %}
         <!-- Boton para registrar nuevo deporte -->
-        <a href="{% url 'registrar_deporte' %}" class="button is-warning is-rounded">
+        <a href="{% url 'registrar_deporte' %}" class="button is-primary">
           <strong>+ Agregar Deporte</strong>
         </a>
         {% endif %}
@@ -39,6 +39,7 @@
 
       {% if deportes %}
       <!-- Tabla con los deportes listados -->
+        <div class="table-container">
         <table class="table is-fullwidth is-hoverable is-striped" id="tablaDeportes">
           <thead>
             <tr class="has-background-warning-light">
@@ -56,14 +57,15 @@
                 <td>{{ deporte.descripcion|default:"Sin descripción" }}</td>
                 {% if user.rol == "ADMIN" %}
                 <td class="has-text-centered">
-                  <a href="{% url 'editar_deporte' deporte.id %}" class="button is-small is-info is-light" title="Editar deporte"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
-                  <a href="{% url 'eliminar_deporte' deporte.id %}" class="button is-small is-danger is-light" title="Eliminar deporte" onclick="return confirm('¿Estás seguro de eliminar este deporte?')"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar</a>
+                  <a href="{% url 'editar_deporte' deporte.id %}" class="button is-small is-warning is-light" title="Editar deporte"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
+                  <a href="{% url 'eliminar_deporte' deporte.id %}" class="button is-small is-danger is-light" title="Eliminar deporte"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar</a>
                 </td>
                 {% endif %}
               </tr>
             {% endfor %}
           </tbody>
         </table>
+        </div>
       {% else %}
       <!-- Mensaje si no hay deportes registrados -->
         <div class="notification is-warning is-light has-text-centered">

@@ -92,8 +92,12 @@
   --uide-fast: 140ms;
   --uide-base: 200ms;
 
-  /* Contenedor */
-  --uide-page-max: 1180px;
+  /* Contenedor: workspace administrativo a todo lo ancho, con margen
+     lateral razonable en pantallas grandes en vez de una columna angosta
+     centrada. El contenido público (hero, feed) sigue leyéndose bien
+     porque sus propios bloques internos ya limitan su ancho de lectura
+     (--uide-hero__inner, .uide-feed). */
+  --uide-page-max: 1600px;
 }
 
 /* ============= 2. Tema fijado en claro + superficies del navegador ========
@@ -292,9 +296,9 @@ body.uide-app {
   padding-top: 0;
 }
 
-.uide-main > .container,
+.uide-main .container,
 .uide-container {
-  max-width: var(--uide-page-max);
+  max-width: var(--uide-page-max) !important;
 }
 
 /* 41 plantillas envuelven su contenido en <section class="section">. El
@@ -730,7 +734,9 @@ fieldset[disabled] {
 .button {
   border-radius: var(--uide-radius-sm);
   font-weight: 600;
-  min-height: 2.6em;
+  /* Mismo alto que un input/select (2.75em) para que un botón junto a un
+     campo de formulario o de búsqueda quede alineado, no desnivelado. */
+  min-height: 2.75em;
   transition: background-color var(--uide-fast) var(--uide-ease),
               border-color var(--uide-fast) var(--uide-ease),
               color var(--uide-fast) var(--uide-ease),
@@ -878,8 +884,10 @@ fieldset[disabled] {
   gap: var(--uide-space-2);
 }
 
+/* Mismo alto que cualquier otro botón del sistema: una fila de tabla no
+   necesita un botón más pequeño, sólo más compacto en padding horizontal. */
 .uide-actions .button {
-  min-height: 2.25em;
+  padding-inline: var(--uide-space-3);
 }
 
 /* En pantallas táctiles los controles crecen hasta un área cómoda.
@@ -1000,6 +1008,16 @@ select {
 .file-label {
   flex-wrap: wrap;
   gap: var(--uide-space-2);
+}
+
+/* Bulma redondea las esquinas exteriores de .file-cta con su propio radio
+   (6px) cuando el campo tiene nombre de archivo (.has-name), más
+   específico que la regla compartida de arriba. Se iguala al radio del
+   resto de controles para que no sea el único campo con una esquina
+   distinta. */
+.file.has-name .file-cta,
+.file-cta {
+  border-radius: var(--uide-radius-sm) 0 0 var(--uide-radius-sm);
 }
 
 .file-name {
@@ -1424,6 +1442,29 @@ select.input[multiple],
 /* Columna de acciones: siempre al final, sin envolver innecesariamente. */
 .table td.uide-cell-actions {
   white-space: nowrap;
+}
+
+/* Paginación: mismo radio y borde que el resto de controles, en vez del
+   4px por defecto de Bulma. */
+.pagination-link,
+.pagination-previous,
+.pagination-next {
+  border-radius: var(--uide-radius-sm);
+  border-color: var(--uide-border-strong);
+  color: var(--uide-text-soft);
+  font-weight: 600;
+}
+
+.pagination-link:hover,
+.pagination-previous:hover,
+.pagination-next:hover {
+  border-color: var(--uide-muted);
+  color: var(--uide-text);
+}
+
+.pagination-link.is-current {
+  background: var(--uide-primary);
+  border-color: var(--uide-primary);
 }
 
 /* ======================= 11. Etiquetas y estados ========================= */
@@ -3058,6 +3099,28 @@ td.uide-empty-cell .uide-empty {
     transform: none;
   }
 }
+
+/* ============================ UIDE Modal System ========================== */
+body.uide-modal-open { overflow: hidden; }
+.uide-modal-root { position: relative; z-index: 2000; }
+.uide-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, .58); animation: uide-modal-fade .16s ease-out; }
+.uide-modal { position: fixed; z-index: 1; inset: 50% auto auto 50%; width: min(720px, calc(100vw - 2rem)); max-height: min(860px, calc(100vh - 2rem)); transform: translate(-50%, -50%); display: flex; flex-direction: column; background: var(--uide-surface, #fff); border: 1px solid var(--uide-border, #e2e8f0); border-radius: 16px; box-shadow: 0 24px 70px rgba(15,23,42,.28); animation: uide-modal-in .18s ease-out; outline: none; }
+.uide-modal--danger { width: min(500px, calc(100vw - 2rem)); }
+.uide-modal__head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--uide-border, #e2e8f0); }
+.uide-modal__head h2 { margin: 0; color: var(--uide-heading, #172033); font-size: 1.25rem; font-weight: 700; }
+.uide-modal__description { margin: .35rem 0 0; color: var(--uide-muted, #64748b); font-size: .9rem; }
+.uide-modal__close { width: 44px; height: 44px; margin: -.5rem -.5rem 0 0; border: 0; border-radius: 10px; background: transparent; color: var(--uide-muted, #64748b); font-size: 1.75rem; line-height: 1; cursor: pointer; }
+.uide-modal__close:hover, .uide-modal__close:focus-visible { background: #f1f5f9; color: var(--uide-heading, #172033); }
+.uide-modal__body { overflow-y: auto; padding: 1.5rem; min-height: 0; }
+.uide-modal__form { margin: 0; }
+.uide-modal__form .buttons, .uide-modal__form p:last-child { margin-bottom: 0; }
+.uide-modal__footer { display: flex; justify-content: flex-end; align-items: center; gap: .75rem; margin-top: 1.5rem; }
+.uide-modal__footer form { margin: 0; }
+.uide-modal__warning { color: #b42318; font-size: .9rem; }
+@keyframes uide-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes uide-modal-in { from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(.985); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@media (max-width: 600px) { .uide-modal { width: calc(100vw - 1rem); max-height: calc(100vh - 1rem); border-radius: 12px; } .uide-modal__head, .uide-modal__body { padding: 1rem; } .uide-modal__footer { flex-direction: column-reverse; align-items: stretch; } .uide-modal__footer .button, .uide-modal__footer form, .uide-modal__footer form .button { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .uide-modal, .uide-modal-backdrop { animation: none; } }
 
 @media print {
   .uide-navbar,

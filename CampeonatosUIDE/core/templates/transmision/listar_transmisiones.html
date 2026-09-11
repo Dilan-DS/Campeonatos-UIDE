@@ -10,12 +10,13 @@
     <!-- Título + botón de nueva transmisión -->
     <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
       <h1 class="title is-4 has-text-primary"><svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Lista de Transmisiones</h1>
-      <a href="{% url 'registrar_transmision' %}" class="button is-primary is-light">
+      <a href="{% url 'registrar_transmision' %}" class="button is-primary">
         <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Nueva Transmisión
       </a>
     </div>
 
     <!-- Tabla de transmisiones -->
+    <div class="table-container">
     <table class="table is-striped is-hoverable is-fullwidth">
       <thead>
         <tr>
@@ -51,7 +52,7 @@
               <a href="{% url 'editar_transmision' transmision.id %}" class="button is-warning is-light" title="Editar">
                 <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg>
               </a>
-              <form method="post" action="{% url 'eliminar_transmision' transmision.id %}" class="is-inline" onsubmit="return confirm('¿Eliminar esta transmisión?');">
+              <form method="post" action="{% url 'eliminar_transmision' transmision.id %}" class="is-inline">
                 {% csrf_token %}
                 <button type="submit" class="button is-danger is-light" title="Eliminar">
                   <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg>
@@ -67,6 +68,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   </div>
 </section>
 {% endblock %}

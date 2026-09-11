@@ -84,6 +84,7 @@
         {% comment %} Tabla {% endcomment %}
         <div class="box">
             {% if partidos %}
+                <div class="table-container">
                 <table class="table is-fullwidth is-striped is-hoverable">
                     <thead>
                         <tr>
@@ -145,11 +146,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="tag
-                                        {% if p.estado == 'PROGRAMADO' %}is-info
-                                        {% elif p.estado == 'EN_CURSO' %}is-warning
-                                        {% elif p.estado == 'FINALIZADO' %}is-success
-                                        {% else %}is-light{% endif %}">
+                                    <span class="tag {% if p.estado == 'PROGRAMADO' %}is-info {% elif p.estado == 'EN_CURSO' %}is-warning {% elif p.estado == 'FINALIZADO' %}is-success {% else %}is-light{% endif %}">
                                         {{ p.get_estado_display }}
                                     </span>
                                 </td>
@@ -167,6 +164,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
             {% else %}
                 <div class="notification is-info is-light has-text-centered">
                     No hay partidos con los filtros actuales.

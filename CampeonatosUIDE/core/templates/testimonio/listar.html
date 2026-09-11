@@ -8,7 +8,7 @@
     <h1 class="title is-3 has-text-centered mb-5">Testimonios</h1>
 
     <div class="mb-5 has-text-right">
-      <a href="{% url 'registrar_testimonio' %}" class="button is-primary is-medium">
+      <a href="{% url 'registrar_testimonio' %}" class="button is-primary">
         <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
         <span>Agregar Testimonio</span>
       </a>
@@ -43,7 +43,7 @@
                   {{ testimonio.fecha|date:"d/m/Y H:i" }}
                 </p>
                 <p class="card-footer-item">
-                  <a href="{% url 'editar_testimonio' testimonio.id %}" class="button is-small is-info mr-2" title="Editar">
+                  <a href="{% url 'editar_testimonio' testimonio.id %}" class="button is-small is-warning mr-2" title="Editar">
                     <span class="icon is-small"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg></span>
                   </a>
                   <a href="{% url 'eliminar_testimonio' testimonio.id %}" class="button is-small is-danger" title="Eliminar">

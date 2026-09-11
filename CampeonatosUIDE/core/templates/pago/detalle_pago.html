@@ -4,82 +4,89 @@
 {% block title %}Detalle de Pago - Admin{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <h1 class="title is-3 has-text-centered mb-5">Detalle de Pago</h1>
+<div class="container uide-container">
 
-
-        <div class="uide-panel uide-panel--pad">
-            <div class="content">
-                <p><strong>Equipo:</strong> {{ pago.equipo.nombre }}</p>
-                <p><strong>Método de Pago:</strong> {{ pago.get_metodo_display }}</p>
-                {% if pago.codigo_qr %}
-                    <p><strong>Banco (QR):</strong> {{ pago.codigo_qr.banco }}</p>
-                {% endif %}
-                <p><strong>Estado:</strong>
-                    <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
-                        {{ pago.get_estado_display }}
-                    </span>
-                </p>
-                <p><strong>Fecha de Registro:</strong> {{ pago.fecha_pago|date:"d/m/Y H:i" }}</p>
-                {% if pago.comprobante_pago %}
-                    <p><strong>Comprobante de Pago:</strong> <a href="{{ pago.comprobante_pago.url }}" target="_blank">Ver Comprobante</a></p>
-                    <figure class="image is-128x128">
-                        <img src="{{ pago.comprobante_pago.url }}" alt="Comprobante de Pago">
-                    </figure>
-                {% else %}
-                    <p><strong>Comprobante de Pago:</strong> No subido</p>
-                {% endif %}
-                <p><strong>Observaciones del Administrador:</strong> {{ pago.observacion_admin|default:"N/A" }}</p>
-            </div>
-
-            {% if pago.estado == 'PENDIENTE' %}
-                <hr>
-                <h4 class="title is-5">Acciones de Administración</h4>
-                <form method="POST" action="{% url 'aprobar_pago_admin' pago.pk %}" class="mb-3">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label class="label" for="obs-aprobar">Observaciones (opcional)</label>
-                        <div class="control">
-                            <textarea class="textarea" id="obs-aprobar" name="observacion_admin" placeholder="Motivo o comentario de la aprobación"></textarea>
-                        </div>
-                    </div>
-                    <div class="control">
-                        <button type="submit" class="button is-success is-fullwidth is-rounded">Aprobar Pago</button>
-                    </div>
-                </form>
-
-                <form method="POST" action="{% url 'rechazar_pago_admin' pago.pk %}">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label class="label" for="obs-rechazar">Motivo del rechazo</label>
-                        <div class="control">
-                            <textarea class="textarea" id="obs-rechazar" name="observacion_admin" placeholder="Explica al delegado qué debe corregir"></textarea>
-                        </div>
-                    </div>
-                    <div class="control">
-                        <button type="submit" class="button is-danger is-fullwidth is-rounded">Rechazar Pago</button>
-                    </div>
-                </form>
-            {% endif %}
-
-            {% if request.user.rol == 'ADMIN' %}
-            <hr>
-            <div class="buttons is-centered">
-                <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-info is-rounded">Editar Pago</a>
-                <form method="POST" action="{% url 'eliminar_pago_admin' pago.pk %}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago? Esta acción no se puede deshacer.');">
-                    {% csrf_token %}
-                    <button type="submit" class="button is-danger is-rounded">Eliminar Pago</button>
-                </form>
-            </div>
-            {% endif %}
-
-            <div class="has-text-centered mt-5">
-                <a href="{% url 'listar_pagos_admin' %}" class="button is-light is-rounded">
-                    <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
-                </a>
-            </div>
-        </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Detalle de Pago</h1>
     </div>
-</section>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_pagos_admin' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
+      </a>
+    </div>
+  </div>
+
+  <div class="box">
+    <dl class="uide-details">
+      <div><dt>Equipo</dt><dd>{{ pago.equipo.nombre }}</dd></div>
+      <div><dt>Método de pago</dt><dd>{{ pago.get_metodo_display }}</dd></div>
+      {% if pago.codigo_qr %}
+        <div><dt>Banco (QR)</dt><dd>{{ pago.codigo_qr.banco }}</dd></div>
+      {% endif %}
+      <div>
+        <dt>Estado</dt>
+        <dd>
+          <span class="tag is-{% if pago.estado == 'APROBADO' %}success{% elif pago.estado == 'RECHAZADO' %}danger{% else %}warning{% endif %}">
+            {{ pago.get_estado_display }}
+          </span>
+        </dd>
+      </div>
+      <div><dt>Fecha de registro</dt><dd>{{ pago.fecha_pago|date:"d/m/Y H:i" }}</dd></div>
+      <div class="is-full">
+        <dt>Comprobante de pago</dt>
+        <dd>
+          {% if pago.comprobante_pago %}
+            <a href="{{ pago.comprobante_pago.url }}" target="_blank">Ver comprobante</a>
+            <figure class="image is-128x128 mt-2">
+              <img src="{{ pago.comprobante_pago.url }}" alt="Comprobante de Pago">
+            </figure>
+          {% else %}
+            No subido
+          {% endif %}
+        </dd>
+      </div>
+      <div class="is-full"><dt>Observaciones del administrador</dt><dd>{{ pago.observacion_admin|default:"—" }}</dd></div>
+    </dl>
+
+    {% if pago.estado == 'PENDIENTE' %}
+      <hr>
+      <h2 class="title is-6 mb-4">Acciones de administración</h2>
+      <div class="uide-form-grid">
+        <form method="POST" action="{% url 'aprobar_pago_admin' pago.pk %}" class="field">
+          {% csrf_token %}
+          <label class="label" for="obs-aprobar">Observaciones (opcional)</label>
+          <div class="control">
+            <textarea class="textarea" id="obs-aprobar" name="observacion_admin" placeholder="Motivo o comentario de la aprobación"></textarea>
+          </div>
+          <button type="submit" class="button is-success mt-3">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Aprobar Pago
+          </button>
+        </form>
+
+        <form method="POST" action="{% url 'rechazar_pago_admin' pago.pk %}" class="field">
+          {% csrf_token %}
+          <label class="label" for="obs-rechazar">Motivo del rechazo</label>
+          <div class="control">
+            <textarea class="textarea" id="obs-rechazar" name="observacion_admin" placeholder="Explica al delegado qué debe corregir"></textarea>
+          </div>
+          <button type="submit" class="button is-danger mt-3">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Rechazar Pago
+          </button>
+        </form>
+      </div>
+    {% endif %}
+
+    {% if request.user.rol == 'ADMIN' %}
+      <div class="uide-form-actions">
+        <a href="{% url 'editar_pago_admin' pago.pk %}" class="button is-warning">Editar Pago</a>
+        <form method="POST" action="{% url 'eliminar_pago_admin' pago.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="button is-danger is-light">Eliminar Pago</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
 {% endblock %}

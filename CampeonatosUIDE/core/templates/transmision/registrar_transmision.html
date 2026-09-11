@@ -4,109 +4,75 @@
 {% block title %}{% if solo_lectura %}Detalle de transmisión{% elif es_edicion %}Editar transmisión{% else %}Registrar transmisión{% endif %} | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-11-tablet is-9-desktop is-8-widescreen">
+<div class="container uide-container">
 
-        <!-- Header / breadcrumb -->
-        <nav class="level mb-4">
-          <div class="level-left">
-            <div class="level-item">
-              <a href="{% url 'listar_transmisiones' %}" class="button is-light">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
-              </a>
-            </div>
-          </div>
-          <div class="level-right">
-            <div class="level-item">
-              {% if solo_lectura %}
-                <span class="tag is-warning is-light">Solo lectura</span>
-              {% elif es_edicion %}
-                <span class="tag is-link is-light">Edición</span>
-              {% else %}
-                <span class="tag is-success is-light">Nuevo</span>
-              {% endif %}
-            </div>
-          </div>
-        </nav>
-
-        <!-- Card -->
-        <div class="card">
-          <header class="card-header has-background-link-light">
-            <h1 class="card-header-title">
-              {% if solo_lectura %}<svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> Ver transmisión
-              {% elif es_edicion %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar transmisión
-              {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Registrar transmisión{% endif %}
-            </h1>
-          </header>
-
-          <div class="card-content">
-            <!-- errores globales -->
-            {% if form.non_field_errors %}
-              <div class="notification is-danger is-light">
-                {% for err in form.non_field_errors %}
-                  <p>{{ err }}</p>
-                {% endfor %}
-              </div>
-            {% endif %}
-
-            <form method="post" enctype="multipart/form-data">
-              {% csrf_token %}
-
-              {% if solo_lectura %}<fieldset disabled>{% endif %}
-                {% for field in form.visible_fields %}
-                  <div class="field">
-                    <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    <div class="control">
-                      {{ field }}
-                    </div>
-                    {% if field.help_text %}
-                      <p class="help">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% if field.errors %}
-                      <p class="help is-danger">
-                        {% for e in field.errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
-                      </p>
-                    {% endif %}
-                  </div>
-                {% endfor %}
-              {% if solo_lectura %}</fieldset>{% endif %}
-
-              {% if not solo_lectura %}
-              <hr>
-              <div class="field is-grouped is-justify-content-flex-end">
-                <p class="control">
-                  <button type="submit" class="button is-link">
-                    {% if es_edicion %}Actualizar{% else %}Guardar{% endif %}
-                  </button>
-                </p>
-                <p class="control">
-                  <a href="{% url 'listar_transmisiones' %}" class="button is-light">Cancelar</a>
-                </p>
-              </div>
-              {% endif %}
-            </form>
-          </div>
-
-          {% if es_edicion and obj and not solo_lectura %}
-          <footer class="card-footer">
-            <div class="card-footer-item">
-              <form method="post"
-                    action="{% url 'eliminar_transmision' obj.id %}"
-                    onsubmit="return confirm('¿Eliminar esta transmisión?');">
-                {% csrf_token %}
-                <button type="submit" class="button is-danger is-outlined">
-                  <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar
-                </button>
-              </form>
-            </div>
-          </footer>
-          {% endif %}
-        </div>
-
-      </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if solo_lectura %}<svg class="uide-icon" aria-hidden="true"><use href="#i-ver"></use></svg> Ver transmisión
+        {% elif es_edicion %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar transmisión
+        {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg> Registrar transmisión{% endif %}
+      </h1>
+      <p class="subtitle">Enlace de transmisión en vivo de un partido.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      {% if solo_lectura %}
+        <span class="tag is-warning is-light">Solo lectura</span>
+      {% elif es_edicion %}
+        <span class="tag is-info is-light">Edición</span>
+      {% else %}
+        <span class="tag is-success is-light">Nuevo</span>
+      {% endif %}
+      <a href="{% url 'listar_transmisiones' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
     </div>
   </div>
-</section>
+
+  <div class="box">
+    {% if form.non_field_errors %}
+      <div class="uide-form-errors" role="alert">
+        <strong class="uide-with-icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+          Revisa los datos
+        </strong>
+        <ul>
+          {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="uide-form">
+      {% csrf_token %}
+
+      {% if solo_lectura %}<fieldset disabled>{% endif %}
+        {% include "comun/_campos_formulario.html" with form=form %}
+      {% if solo_lectura %}</fieldset>{% endif %}
+
+      {% if not solo_lectura %}
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>{% if es_edicion %}Actualizar{% else %}Guardar{% endif %}</span>
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          {% if es_edicion and obj %}
+            <button type="submit" form="form-eliminar-transmision" class="button is-danger is-light">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar
+            </button>
+          {% endif %}
+          <a href="{% url 'listar_transmisiones' %}" class="button is-light">Cancelar</a>
+        </div>
+      {% endif %}
+    </form>
+
+    {% if es_edicion and obj and not solo_lectura %}
+      <form id="form-eliminar-transmision" method="post"
+            action="{% url 'eliminar_transmision' obj.id %}">
+        {% csrf_token %}
+      </form>
+    {% endif %}
+  </div>
+
+</div>
 {% endblock %}

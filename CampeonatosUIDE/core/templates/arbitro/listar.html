@@ -12,7 +12,7 @@
 
       <div class="is-flex is-flex-wrap-wrap is-justify-content-space-between is-align-items-center mb-4">
         <h1 class="title is-3 has-text-weight-semibold">Árbitros Registrados</h1>
-        <a href="{% url 'registrar_arbitro' %}" class="button is-warning is-rounded">
+        <a href="{% url 'registrar_arbitro' %}" class="button is-primary">
           <strong>+ Nuevo Árbitro</strong>
         </a>
       </div>
@@ -45,15 +45,15 @@
                   </td>
                   <td class="has-text-centered">
                     {% for deporte in arbitro.deportes.all %}
-                      <span class="tag is-info is-light is-rounded mb-1">{{ deporte.nombre }}</span>
+                      <span class="tag is-info is-light mb-1">{{ deporte.nombre }}</span>
                     {% empty %}
                       <span class="tag is-light">No asignado</span>
                     {% endfor %}
                   </td>
                   <td class="has-text-centered">
-                    <a href="{% url 'detalle_arbitro' arbitro.id %}" class="button is-small is-info is-light is-rounded mb-1">Ver</a>
-                    <a href="{% url 'editar_arbitro' arbitro.id %}" class="button is-small is-link is-light is-rounded mb-1">Editar</a>
-                    <a href="{% url 'eliminar_arbitro' arbitro.id %}" class="button is-small is-danger is-light is-rounded mb-1">Eliminar</a>
+                    <a href="{% url 'detalle_arbitro' arbitro.id %}" class="button is-small is-info is-light mb-1">Ver</a>
+                    <a href="{% url 'editar_arbitro' arbitro.id %}" class="button is-small is-warning is-light mb-1">Editar</a>
+                    <a href="{% url 'eliminar_arbitro' arbitro.id %}" class="button is-small is-danger is-light mb-1">Eliminar</a>
                   </td>
                 </tr>
               {% endfor %}

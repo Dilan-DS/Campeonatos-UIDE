@@ -12,67 +12,56 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
+<div class="container uide-container">
 
-    {% if modo == 'crear' or modo == 'editar' %}
-      <div class="uide-panel uide-panel--pad uide-ancho-limitado">
-        <h1 class="title is-3 has-text-centered has-text-danger mb-5">
-          {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Registrar Deporte{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Deporte{% endif %}
-        </h1>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg> Registrar Deporte
+        {% elif modo == 'editar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Deporte
+        {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar Deporte{% endif %}
+      </h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_deportes' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
 
-        <form method="post">
-          {% csrf_token %}
+  {% if modo == 'crear' or modo == 'editar' %}
+    {# Solo 2 campos (nombre, descripción): se mantiene angosto a propósito, #}
+    {# estirarlo a todo el ancho no aportaría nada y se vería vacío. #}
+    <div class="box uide-ancho-limitado--holgado">
+      <form method="post" class="uide-form">
+        {% csrf_token %}
+        {% include "comun/_campos_formulario.html" with form=form columnas=1 %}
 
-          <div class="field">
-            <label class="label" for="{{ form.nombre.id_for_label }}">Nombre</label>
-            <div class="control">
-              {{ form.nombre|add_class:"input" }}
-            </div>
-            {% if form.nombre.errors %}
-              <p class="help is-danger">{{ form.nombre.errors.0 }}</p>
-            {% endif %}
-          </div>
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-warning">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>{% if modo == 'crear' %}Guardar Deporte{% else %}Guardar cambios{% endif %}</span>
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'listar_deportes' %}" class="button is-light">Cancelar</a>
+        </div>
+      </form>
+    </div>
 
-          <div class="field">
-            <label class="label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
-            <div class="control">
-              {{ form.descripcion|add_class:"textarea" }}
-            </div>
-            {% if form.descripcion.errors %}
-              <p class="help is-danger">{{ form.descripcion.errors.0 }}</p>
-            {% endif %}
-          </div>
-
-          <div class="field is-grouped is-grouped-centered mt-5">
-            <div class="control">
-              <button type="submit" class="button {% if modo == 'crear' %}is-warning{% else %}is-danger{% endif %} is-rounded">
-                {% if modo == 'crear' %}Guardar Deporte{% else %}Guardar cambios{% endif %}
-              </button>
-            </div>
-            <div class="control">
-              <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded">Cancelar</a>
-            </div>
-          </div>
-        </form>
-      </div>
-
-    {% elif modo == 'eliminar' %}
-      <div class="box has-background-warning-light uide-ancho-limitado">
-        <h2 class="title is-3 has-text-centered has-text-danger mb-4"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar Deporte</h2>
-
+  {% elif modo == 'eliminar' %}
+    <div class="box uide-ancho-limitado">
+      <form method="post">
+        {% csrf_token %}
         <p class="has-text-centered mb-4">
           ¿Estás seguro que deseas eliminar el deporte <strong>{{ deporte.nombre }}</strong>?
         </p>
+        <div class="uide-form-actions" style="justify-content:center">
+          <button type="submit" class="button is-danger">Sí, eliminar</button>
+          <a href="{% url 'listar_deportes' %}" class="button is-light">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  {% endif %}
 
-        <form method="post" class="has-text-centered">
-          {% csrf_token %}
-          <button type="submit" class="button is-danger is-rounded">Sí, eliminar</button>
-          <a href="{% url 'listar_deportes' %}" class="button is-light is-rounded ml-3">Cancelar</a>
-        </form>
-      </div>
-    {% endif %}
-
-  </div>
-</section>
+</div>
 {% endblock %}

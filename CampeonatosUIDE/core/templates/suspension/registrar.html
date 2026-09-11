@@ -1,70 +1,51 @@
 {% extends "comun/base.html" %}
-{% load widget_tweaks %}
 
 {% block title %}Registrar Suspensión - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<!-- Sección principal para registrar una nueva suspensión -->
-<section class="section">
-  <div class="container">
-    <!-- Caja blanca con bordes redondeados y sombra para el formulario -->
-    <div class="uide-panel uide-panel--pad">
+<div class="container uide-container">
 
-      <!-- Título principal centrado con estilo -->
-      <h1 class="title is-3 has-text-centered mb-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg> Registrar Suspensión</h1>
-
-      <!-- Formulario que envía datos por POST -->
-      <form method="POST">
-        {% csrf_token %} <!-- Token de seguridad para evitar CSRF -->
-
-        <!-- Contenedor de columnas para campos del formulario, con soporte para múltiples filas -->
-        <div class="columns is-multiline">
-
-          <!-- Iteración sobre cada campo del formulario -->
-          {% for field in form %}
-          <div class="column is-12-mobile is-6-tablet"> <!-- Cada campo ocupa toda la fila en móvil y mitad en tablet -->
-            <div class="field">
-              <!-- Etiqueta del campo -->
-              <label class="label has-text-grey-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
-
-              <div class="control">
-                <!-- Diferenciamos textarea de inputs normales para aplicar clases de Bulma -->
-                {% if field|widget_type == "textarea" %}
-                  {{ field|add_class:"textarea is-rounded is-medium" }}
-                {% elif field|widget_type == "select" %}
-                  <div class="select is-rounded is-medium is-fullwidth">{{ field }}</div>
-                {% else %}
-                  {{ field|add_class:"input is-rounded is-medium" }}
-                {% endif %}
-              </div>
-
-              <!-- Mostrar errores debajo del campo si los hay -->
-              {% for error in field.errors %}
-                <p class="help is-danger">{{ error }}</p>
-              {% endfor %}
-            </div>
-          </div>
-          {% endfor %}
-
-        </div>
-
-        <!-- Botón para enviar el formulario -->
-        <div class="field mt-5">
-          <div class="control">
-            <button class="button is-warning is-fullwidth is-rounded is-medium">
-              <strong>Guardar Suspensión</strong>
-            </button>
-          </div>
-        </div>
-
-        <!-- Botón para cancelar y regresar a la lista de suspensiones -->
-        <div class="has-text-centered mt-4">
-          <a href="{% url 'listar_suspensiones' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Cancelar</a>
-        </div>
-      </form>
-
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg> Registrar Suspensión
+      </h1>
+      <p class="subtitle">Sanciona a un jugador o miembro del equipo por una infracción.</p>
     </div>
   </div>
-</section>
 
+  <div class="box">
+    {% if form.errors %}
+      <div class="uide-form-errors" role="alert">
+        <strong class="uide-with-icon">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+          Revisa los datos
+        </strong>
+        <ul>
+          {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+          {% for campo in form %}
+            {% for err in campo.errors %}<li>{{ campo.label }}: {{ err }}</li>{% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="POST" class="uide-form">
+      {% csrf_token %}
+      {% include "comun/_campos_formulario.html" with form=form %}
+
+      <div class="uide-form-actions">
+        <button class="button is-warning" type="submit">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar Suspensión</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'listar_suspensiones' %}" class="button is-light">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+</div>
 {% endblock %}

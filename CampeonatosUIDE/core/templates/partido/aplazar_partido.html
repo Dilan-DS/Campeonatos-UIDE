@@ -3,34 +3,38 @@
 {% block title %}Aplazar partido | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
+<div class="container uide-container">
 
-    <h1 class="title is-4 has-text-primary">
-      <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
-      Aplazar partido
-    </h1>
-    <p class="subtitle is-6">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</p>
-
-    <div class="uide-panel uide-panel--pad uide-ancho-limitado">
-      <form method="post">
-        {% csrf_token %}
-        {% include "comun/_campos_formulario.html" with form=form %}
-
-        <div class="field is-grouped is-grouped-centered mt-5">
-          <div class="control">
-            <button type="submit" class="button is-warning is-rounded">
-              <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
-              Guardar nueva fecha
-            </button>
-          </div>
-          <div class="control">
-            <a href="{% url 'detalle_partido' partido_id=partido.id %}" class="button is-light is-rounded">Cancelar</a>
-          </div>
-        </div>
-      </form>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+        Aplazar partido
+      </h1>
+      <p class="subtitle">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</p>
     </div>
-
+    <div class="uide-page-head__actions">
+      <a href="{% url 'detalle_partido' partido_id=partido.id %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al partido
+      </a>
+    </div>
   </div>
-</section>
+
+  <div class="box uide-ancho-limitado--holgado">
+    <form method="post" class="uide-form">
+      {% csrf_token %}
+      {% include "comun/_campos_formulario.html" with form=form %}
+
+      <div class="uide-form-actions">
+        <button type="submit" class="button is-warning">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar nueva fecha</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'detalle_partido' partido_id=partido.id %}" class="button is-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+</div>
 {% endblock %}

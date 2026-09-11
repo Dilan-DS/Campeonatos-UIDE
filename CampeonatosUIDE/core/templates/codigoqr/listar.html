@@ -30,6 +30,7 @@
       </div>
 
       {% if codigos_qr %}
+        <div class="table-container">
         <table class="table is-fullwidth is-striped is-hoverable">
           <thead>
             <tr>
@@ -61,6 +62,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
       {% else %}
         <p class="notification is-info is-light has-text-centered">No hay códigos QR registrados aún.</p>
       {% endif %}

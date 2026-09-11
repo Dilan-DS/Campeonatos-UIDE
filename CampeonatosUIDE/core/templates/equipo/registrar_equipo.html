@@ -67,7 +67,7 @@
                         <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {% if field.field.widget.input_type %}
                           <div class="control">
-                            {{ field|add_class:"input is-rounded is-medium" }}{% if view_mode %} readonly{% endif %}
+                            {{ field|add_class:"input" }}{% if view_mode %} readonly{% endif %}
                           </div>
                         {% else %}
                           <div class="select is-fullwidth">
@@ -99,7 +99,7 @@
                     <figure class="image is-128x128 mx-auto mb-4">
                       <img class="is-rounded" src="{{ equipo.logo.url }}" alt="Logo del equipo">
                     </figure>
-                    <a class="button is-info is-light is-fullwidth is-rounded" href="{{ equipo.logo.url }}" target="_blank">Ver Logo Actual</a>
+                    <a class="button is-info is-light is-fullwidth" href="{{ equipo.logo.url }}" target="_blank">Ver Logo Actual</a>
                   {% elif view_mode %}
                     <span class="tag is-light">No hay logo</span>
                   {% else %}
@@ -195,7 +195,7 @@
         {% if not view_mode %}
           <div class="field mt-5">
             <div class="buttons is-right">
-              <button type="submit" class="button is-primary is-rounded is-medium">
+              <button type="submit" class="button is-primary">
                 {% if edit_mode %}Guardar Cambios{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg> Registrar Equipo{% endif %}
               </button>
             </div>
@@ -205,13 +205,13 @@
 
       <div class="is-flex is-justify-content-space-between is-align-items-center mt-4">
         {% if equipo.id %}
-          <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-light is-rounded">
+          <a href="{% url 'jugadores_equipo' id=equipo.id %}" class="button is-info is-light">
             <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Ver mis compañeros
           </a>
         {% else %}
           <span></span>
         {% endif %}
-        <a href="{% url 'listar_equipos' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado</a>
+        <a href="{% url 'listar_equipos' %}" class="button is-light"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado</a>
       </div>
 
     </div>

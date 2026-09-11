@@ -9,7 +9,7 @@
     <div class="uide-panel uide-panel--pad">
       <div class="is-flex is-justify-content-space-between is-align-items-center mb-4">
         <h1 class="title is-4 has-text-danger-dark">Lista de Carreras</h1>
-        <a href="{% url 'registrar_carrera' %}" class="button is-primary is-rounded">
+        <a href="{% url 'registrar_carrera' %}" class="button is-primary">
           <span class="icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg></span>
           <span>Registrar Nueva Carrera</span>
         </a>
@@ -30,9 +30,9 @@
                 <tr>
                   <td>{{ carrera.nombre }}</td>
                   <td class="has-text-centered">
-                    <a href="{% url 'detalle_carrera' id=carrera.id %}" class="button is-small is-info is-light is-rounded mr-2">Ver</a>
-                    <a href="{% url 'editar_carrera' id=carrera.id %}" class="button is-small is-warning is-light is-rounded mr-2">Editar</a>
-                    <a href="{% url 'eliminar_carrera' id=carrera.id %}" class="button is-small is-danger is-light is-rounded">Eliminar</a>
+                    <a href="{% url 'detalle_carrera' id=carrera.id %}" class="button is-small is-info is-light mr-2">Ver</a>
+                    <a href="{% url 'editar_carrera' id=carrera.id %}" class="button is-small is-warning is-light mr-2">Editar</a>
+                    <a href="{% url 'eliminar_carrera' id=carrera.id %}" class="button is-small is-danger is-light">Eliminar</a>
                   </td>
                 </tr>
               {% endfor %}

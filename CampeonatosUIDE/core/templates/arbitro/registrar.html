@@ -11,19 +11,26 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="uide-panel uide-panel--pad">
+<div class="container uide-container">
 
-      <h1 class="title is-3 has-text-centered mb-5">
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
         {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg> Registrar Nuevo Árbitro
         {% elif modo == 'editar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Árbitro
         {% elif modo == 'eliminar' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Confirmar Eliminación de Árbitro
         {% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg> Detalle del Árbitro
         {% endif %}
       </h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'admin_dashboard' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
+      </a>
+    </div>
+  </div>
 
-
+  <div class="box">
       {% if modo == 'crear' or modo == 'editar' %}
         <form method="post" enctype="multipart/form-data" novalidate>
             {% include "comun/_errores_formulario.html" with form=form %}
@@ -49,7 +56,7 @@
                       {% if field.name == "password" or field.name == "confirm_password" %}
                         <div class="field mb-4">
                           <label class="label" for="{{ field.id_for_label }}">{{ field.label }} <span class="uide-required" aria-hidden="true">*</span></label>
-                          <div class="control">{{ field|add_class:"input is-rounded" }}</div>
+                          <div class="control">{{ field|add_class:"input" }}</div>
                           {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
                         </div>
                       {% endif %}
@@ -74,9 +81,9 @@
                         </label>
                         <div class="control">
                           {% if field|widget_type == 'select' %}
-                            <div class="select is-rounded is-fullwidth">{{ field }}</div>
+                            <div class="select is-fullwidth">{{ field }}</div>
                           {% else %}
-                            {{ field|add_class:"input is-rounded" }}
+                            {{ field|add_class:"input" }}
                           {% endif %}
                         </div>
                         {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
@@ -102,9 +109,9 @@
                         </label>
                         <div class="control">
                           {% if field|widget_type == 'textarea' %}
-                            {{ field|add_class:"textarea is-rounded" }}
+                            {{ field|add_class:"textarea" }}
                           {% else %}
-                            {{ field|add_class:"input is-rounded" }}
+                            {{ field|add_class:"input" }}
                           {% endif %}
                         </div>
                         {% for e in field.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
@@ -141,63 +148,77 @@
               </div>
 
             </div>
-            <div class="field mt-5">
-              <div class="control">
-                <button type="submit" class="button is-warning is-fullwidth is-rounded is-medium">
-                  <strong>
-                    {% if modo == 'crear' %}Registrar Árbitro
-                    {% else %}Actualizar Árbitro
-                    {% endif %}
-                  </strong>
-                </button>
-              </div>
+            <div class="uide-form-actions">
+              <button type="submit" class="button is-warning">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+                <span>{% if modo == 'crear' %}Registrar Árbitro{% else %}Actualizar Árbitro{% endif %}</span>
+              </button>
+              <span class="uide-form-actions__spacer"></span>
+              <a href="{% url 'listar_arbitros' %}" class="button is-light">Cancelar</a>
             </div>
         </form>
       {% elif modo == 'eliminar' %}
-        <p class="has-text-centered has-text-danger is-size-5">¿Estás seguro de que quieres eliminar al árbitro <strong>{{ arbitro.usuario.username }}</strong>?</p>
-        <form method="POST" action="{% url 'eliminar_arbitro' id=arbitro.id %}" class="has-text-centered mt-4">
+        <form method="POST" action="{% url 'eliminar_arbitro' id=arbitro.id %}">
           {% csrf_token %}
-          <button type="submit" class="button is-danger is-rounded mr-2">Confirmar Eliminación</button>
-          <a href="{% url 'listar_arbitros' %}" class="button is-link is-light is-rounded">Cancelar</a>
+          <p class="has-text-centered has-text-danger is-size-5">¿Estás seguro de que quieres eliminar al árbitro <strong>{{ arbitro.usuario.username }}</strong>?</p>
+          <div class="uide-form-actions" style="justify-content:center">
+            <button type="submit" class="button is-danger">Confirmar Eliminación</button>
+            <a href="{% url 'listar_arbitros' %}" class="button is-light">Cancelar</a>
+          </div>
         </form>
       {% else %} {# modo == 'ver' #}
-        <div class="content">
-          <p><strong>Usuario:</strong> {{ arbitro.usuario.username }}</p>
-          <p><strong>Nombre:</strong> {{ arbitro.usuario.first_name }} {{ arbitro.usuario.last_name }}</p>
-          <p><strong>Email:</strong> {{ arbitro.usuario.email }}</p>
-          <p><strong>Contacto:</strong> {{ arbitro.contacto }}</p>
-          <p><strong>Experiencia:</strong> {{ arbitro.experiencia }}</p>
-          <p><strong>Deportes:</strong>
-            {% for deporte in arbitro.deportes.all %}
-              <span class="tag is-info is-light">{{ deporte.nombre }}</span>
-            {% empty %}
-              Ninguno
-            {% endfor %}
-          </p>
-          <p><strong>Estado:</strong>
-            {% if arbitro.estado %}
-              <span class="tag is-success">Activo</span>
-            {% else %}
-              <span class="tag is-danger">Inactivo</span>
-            {% endif %}
-          </p>
-        </div>
-        <div class="has-text-centered mt-4">
-          <a href="{% url 'editar_arbitro' id=arbitro.id %}" class="button is-info is-rounded mr-2">Editar</a>
-          <a href="{% url 'eliminar_arbitro' id=arbitro.id %}" class="button is-danger is-rounded mr-2">Eliminar</a>
-          <a href="{% url 'listar_arbitros' %}" class="button is-link is-light is-rounded">Volver a la lista</a>
+        <dl class="uide-details">
+          <div>
+            <dt>Usuario</dt>
+            <dd>{{ arbitro.usuario.username }}</dd>
+          </div>
+          <div>
+            <dt>Nombre</dt>
+            <dd>{{ arbitro.usuario.first_name }} {{ arbitro.usuario.last_name }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ arbitro.usuario.email }}</dd>
+          </div>
+          <div>
+            <dt>Contacto</dt>
+            <dd>{{ arbitro.contacto }}</dd>
+          </div>
+          <div>
+            <dt>Experiencia</dt>
+            <dd>{{ arbitro.experiencia }}</dd>
+          </div>
+          <div>
+            <dt>Deportes</dt>
+            <dd>
+              {% for deporte in arbitro.deportes.all %}
+                <span class="tag is-info is-light">{{ deporte.nombre }}</span>
+              {% empty %}
+                Ninguno
+              {% endfor %}
+            </dd>
+          </div>
+          <div>
+            <dt>Estado</dt>
+            <dd>
+              {% if arbitro.estado %}
+                <span class="tag is-success">Activo</span>
+              {% else %}
+                <span class="tag is-danger">Inactivo</span>
+              {% endif %}
+            </dd>
+          </div>
+        </dl>
+        <div class="uide-form-actions">
+          <a href="{% url 'editar_arbitro' id=arbitro.id %}" class="button is-warning">Editar</a>
+          <a href="{% url 'eliminar_arbitro' id=arbitro.id %}" class="button is-danger is-light">Eliminar</a>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'listar_arbitros' %}" class="button is-light">Volver a la lista</a>
         </div>
       {% endif %}
-
-      <div class="has-text-centered mt-5">
-        <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
-        </a>
-      </div>
-
-    </div>
   </div>
-</section>
+
+</div>
 
 <script>
   // "Seleccionar todos" para el grupo de deportes: no cambia el name/id de

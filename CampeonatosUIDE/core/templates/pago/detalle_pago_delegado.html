@@ -44,15 +44,15 @@
 
             <hr>
             <div class="buttons is-centered">
-                <a href="{% url 'registrar_pago_delegado' %}" class="button is-info is-rounded">Editar Pago</a>
-                <form method="POST" action="{% url 'eliminar_pago_delegado' pago.pk %}" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este pago? Esta acción no se puede deshacer.');">
+                <a href="{% url 'registrar_pago_delegado' %}" class="button is-info">Editar Pago</a>
+                <form method="POST" action="{% url 'eliminar_pago_delegado' pago.pk %}">
                     {% csrf_token %}
-                    <button type="submit" class="button is-danger is-rounded">Eliminar Pago</button>
+                    <button type="submit" class="button is-danger">Eliminar Pago</button>
                 </form>
             </div>
 
             <div class="has-text-centered mt-5">
-                <a href="{% url 'delegado_dashboard' %}" class="button is-light is-rounded">
+                <a href="{% url 'delegado_dashboard' %}" class="button is-light">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
                 </a>
             </div>

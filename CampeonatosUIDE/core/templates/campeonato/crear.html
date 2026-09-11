@@ -12,18 +12,25 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="box">
+<div class="container uide-container">
 
-      <!-- TÍTULO PRINCIPAL -->
-      <h1 class="title is-3 has-text-centered mb-5">
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
         {% if modo == "crear" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Crear nuevo campeonato{% endif %}
         {% if modo == "editar" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar campeonato: {{ campeonato.nombre }}{% endif %}
         {% if modo == "detalle" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-trofeo"></use></svg> Detalles del campeonato: {{ campeonato.nombre }}{% endif %}
         {% if modo == "eliminar" %}<svg class="uide-icon" aria-hidden="true"><use href="#i-alerta"></use></svg> Eliminar campeonato: {{ campeonato.nombre }}{% endif %}
       </h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_campeonatos' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
 
+  <div class="box">
       <!-- FORMULARIO -->
       {% if modo == "crear" or modo == "editar" %}
         <form method="POST" enctype="multipart/form-data" novalidate id="form-campeonato">
@@ -55,11 +62,11 @@
                           <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                           <div class="control">
                             {% if field|widget_type == 'textarea' %}
-                              {{ field|add_class:"textarea is-rounded" }}
+                              {{ field|add_class:"textarea" }}
                             {% elif field|widget_type == 'select' %}
                               <div class="select is-fullwidth">{{ field }}</div>
                             {% else %}
-                              {{ field|add_class:"input is-rounded" }}
+                              {{ field|add_class:"input" }}
                             {% endif %}
                           </div>
                           {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
@@ -107,7 +114,7 @@
                             {% if field|widget_type == 'select' %}
                               <div class="select is-fullwidth">{{ field }}</div>
                             {% else %}
-                              {{ field|add_class:"input is-rounded" }}
+                              {{ field|add_class:"input" }}
                             {% endif %}
                           </div>
                           {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
@@ -168,76 +175,67 @@
           </div>
 
           <!-- BOTÓN GUARDAR -->
-          <div class="field mt-5 is-grouped is-grouped-right">
-            <div class="control">
-              <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded is-medium">Cancelar</a>
-            </div>
-            <div class="control">
-              <button type="submit" class="button is-primary is-rounded is-medium">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
-                {% if modo == "crear" %}Guardar Campeonato{% else %}Guardar Cambios{% endif %}
-              </button>
-            </div>
+          <div class="uide-form-actions">
+            <button type="submit" class="button is-primary">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+              <span>{% if modo == "crear" %}Guardar Campeonato{% else %}Guardar Cambios{% endif %}</span>
+            </button>
+            <span class="uide-form-actions__spacer"></span>
+            <a href="{% url 'listar_campeonatos' %}" class="button is-light">Cancelar</a>
           </div>
         </form>
 
       <!-- VISTA DETALLE -->
       {% elif modo == "detalle" %}
-        <table class="table is-bordered is-fullwidth is-striped">
-          <tbody>
-            <tr><th>Nombre:</th><td>{{ campeonato.nombre }}</td></tr>
-            <tr><th>Deporte:</th><td>{{ campeonato.deporte.nombre }}</td></tr>
-            <tr><th>Tipo:</th><td>{{ campeonato.tipo_campeonato.nombre }}</td></tr>
-            <tr><th>Fecha de Inicio:</th><td>{{ campeonato.fecha_inicio }}</td></tr>
-            <tr><th>Fecha de Fin:</th><td>{{ campeonato.fecha_fin }}</td></tr>
-            <tr><th>Estado:</th><td>{{ campeonato.estado }}</td></tr>
-            <tr><th>Descripción:</th><td>{{ campeonato.descripcion }}</td></tr>
-            <tr><th>Delegado:</th><td>{{ campeonato.delegado }}</td></tr>
-            <tr><th>Activo:</th><td>{{ campeonato.activo|yesno:"Sí,No" }}</td></tr>
-            <tr><th>Público:</th><td>{{ campeonato.es_publico|yesno:"Sí,No" }}</td></tr>
-            <tr><th>Días de Partido:</th><td>
-              {% if campeonato.dias_partido %}
-                {{ campeonato.dias_partido|join:", " }}
-              {% else %}
-                No asignado
-              {% endif %}
-            </td></tr>
-          </tbody>
-        </table>
+        <dl class="uide-details">
+          <div><dt>Nombre</dt><dd>{{ campeonato.nombre }}</dd></div>
+          <div><dt>Deporte</dt><dd>{{ campeonato.deporte.nombre }}</dd></div>
+          <div><dt>Tipo</dt><dd>{{ campeonato.tipo_campeonato.nombre }}</dd></div>
+          <div><dt>Fecha de inicio</dt><dd>{{ campeonato.fecha_inicio }}</dd></div>
+          <div><dt>Fecha de fin</dt><dd>{{ campeonato.fecha_fin }}</dd></div>
+          <div><dt>Estado</dt><dd>{{ campeonato.estado }}</dd></div>
+          <div><dt>Delegado</dt><dd>{{ campeonato.delegado }}</dd></div>
+          <div><dt>Activo</dt><dd>{{ campeonato.activo|yesno:"Sí,No" }}</dd></div>
+          <div><dt>Público</dt><dd>{{ campeonato.es_publico|yesno:"Sí,No" }}</dd></div>
+          <div>
+            <dt>Días de partido</dt>
+            <dd>{% if campeonato.dias_partido %}{{ campeonato.dias_partido|join:", " }}{% else %}No asignado{% endif %}</dd>
+          </div>
+          <div class="is-full"><dt>Descripción</dt><dd>{{ campeonato.descripcion|default:"—" }}</dd></div>
+        </dl>
 
         {% if campeonato.reglamento %}
-          <div class="has-text-centered mt-4">
-            <a href="{{ campeonato.reglamento.url }}" target="_blank" class="button is-link is-rounded">
+          <div class="mt-4">
+            <a href="{{ campeonato.reglamento.url }}" target="_blank" class="button is-info is-light">
               <svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> Ver Reglamento
             </a>
           </div>
         {% endif %}
 
         <!-- BOTONES DETALLE -->
-        <div class="buttons is-centered mt-5">
-          <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-warning is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
-          <a href="{% url 'eliminar_campeonato' campeonato.id %}" class="button is-danger is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar</a>
-          <a href="{% url 'listar_campeonatos' %}" class="button is-light is-rounded"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado</a>
+        <div class="uide-form-actions">
+          <a href="{% url 'editar_campeonato' campeonato.id %}" class="button is-warning"><svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
+          <a href="{% url 'eliminar_campeonato' campeonato.id %}" class="button is-danger is-light"><svg class="uide-icon" aria-hidden="true"><use href="#i-eliminar"></use></svg> Eliminar</a>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'listar_campeonatos' %}" class="button is-light"><svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado</a>
         </div>
 
       <!-- CONFIRMACIÓN DE ELIMINACIÓN -->
       {% elif modo == "eliminar" %}
-        <p class="notification is-danger is-light has-text-centered">
-          ¿Estás seguro que quieres eliminar el campeonato <strong>{{ campeonato.nombre }}</strong>?
-        </p>
         <form method="POST">
           {% csrf_token %}
-          <div class="field mt-5">
-            <div class="control buttons is-centered">
-              <button type="submit" class="button is-danger is-rounded">Eliminar</button>
-              <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-light is-rounded">Cancelar</a>
-            </div>
+          <p class="notification is-danger is-light has-text-centered">
+            ¿Estás seguro que quieres eliminar el campeonato <strong>{{ campeonato.nombre }}</strong>?
+          </p>
+          <div class="uide-form-actions" style="justify-content:center">
+            <button type="submit" class="button is-danger">Eliminar</button>
+            <a href="{% url 'detalle_campeonato' campeonato.id %}" class="button is-light">Cancelar</a>
           </div>
         </form>
       {% endif %}
-    </div>
   </div>
-</section>
+
+</div>
 
 <!-- Script para mostrar nombre del archivo cargado -->
 <script>

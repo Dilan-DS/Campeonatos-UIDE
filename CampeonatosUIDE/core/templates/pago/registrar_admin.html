@@ -8,83 +8,71 @@
 
 {% block content %}
 
+<div class="container uide-container">
 
-<section class="section">
-  <div class="container">
-
-    <!-- Decorative header -->
-    <div class="mb-5">
-      <div class="is-flex is-justify-content-space-between is-align-items-center">
-        <h1 class="title is-4 mb-0">
-          {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Registrar Pago (Admin){% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Pago (Admin){% endif %}
-        </h1>
-        <span class="tag is-light is-medium">Módulo Pagos</span>
-      </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if modo == 'crear' %}<svg class="uide-icon" aria-hidden="true"><use href="#i-pago"></use></svg> Registrar Pago{% else %}<svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Pago{% endif %}
+      </h1>
+      <p class="subtitle">Registro administrativo de una inscripción.</p>
     </div>
-
-    <!-- Main card -->
-    <div class="box">
-
-      <form method="POST" enctype="multipart/form-data" class="box">
-        {% csrf_token %}
-        <div class="columns is-multiline">
-          {% for field in form %}
-            <div class="column is-12-mobile is-6-tablet mb-4">
-              <div class="field">
-                <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                <div class="control">
-                  {% if field|widget_type == 'textarea' %}
-                    {{ field|add_class:"textarea is-rounded is-medium is-light" }}
-                  {% elif field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
-                    <div class="select is-rounded is-medium is-fullwidth">
-                      {{ field }}
-                    </div>
-                  {% elif field|widget_type == 'clearablefileinput' %}
-                    <div class="file has-name is-fullwidth is-right">
-                      <label class="file-label">
-                        {{ field|add_class:"file-input" }}
-                        <span class="file-cta">
-                          <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg> </span>
-                          <span class="file-label">Elegir archivo…</span>
-                        </span>
-                        <span class="file-name">
-                          {{ field.value.name|default:"Ningún archivo seleccionado" }}
-                        </span>
-                      </label>
-                    </div>
-                    {% if field.value %}
-                      <p class="help">
-                        Archivo actual:
-                        <a href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a>
-                      </p>
-                    {% endif %}
-                  {% else %}
-                    {{ field|add_class:"input is-rounded is-medium is-light" }}
-                  {% endif %}
-                </div>
-                {% for error in field.errors %}
-                  <p class="help is-danger">{{ error }}</p>
-                {% endfor %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-
-        <div class="field mt-4">
-          <button type="submit" class="button is-primary is-fullwidth is-rounded is-medium">
-            <strong>{% if modo == 'crear' %}Registrar Pago{% else %}Actualizar Pago{% endif %}</strong>
-          </button>
-        </div>
-      </form>
-
-      <div class="has-text-centered mt-5">
-        <a href="{% url 'listar_pagos_admin' %}" class="button is-light is-rounded">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
-        </a>
-      </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_pagos_admin' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver a Pagos
+      </a>
     </div>
   </div>
-</section>
+
+  <div class="box">
+    <form method="POST" enctype="multipart/form-data" class="uide-form">
+      {% csrf_token %}
+      <div class="uide-form-grid">
+        {% for field in form %}
+          <div class="field{% if field|widget_type == 'textarea' or field|widget_type == 'clearablefileinput' %} is-full{% endif %}">
+            <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="control">
+              {% if field|widget_type == 'clearablefileinput' %}
+                <div class="file has-name is-fullwidth">
+                  <label class="file-label">
+                    {{ field }}
+                    <span class="file-cta">
+                      <span class="file-icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-documento"></use></svg></span>
+                      <span class="file-label">Elegir archivo…</span>
+                    </span>
+                    <span class="file-name">
+                      {{ field.value.name|default:"Ningún archivo seleccionado" }}
+                    </span>
+                  </label>
+                </div>
+                {% if field.value %}
+                  <p class="help">
+                    Archivo actual:
+                    <a href="{{ field.value.url }}" target="_blank">{{ field.value.name }}</a>
+                  </p>
+                {% endif %}
+              {% else %}
+                {{ field }}
+              {% endif %}
+            </div>
+            {% for error in field.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="uide-form-actions">
+        <button type="submit" class="button is-primary">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>{% if modo == 'crear' %}Registrar Pago{% else %}Actualizar Pago{% endif %}</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'listar_pagos_admin' %}" class="button is-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
   // Actualiza el nombre del archivo en inputs Bulma (no interfiere con Django)

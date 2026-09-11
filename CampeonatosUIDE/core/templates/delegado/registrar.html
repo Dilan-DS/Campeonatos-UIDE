@@ -5,12 +5,16 @@
 {% block title %}Registrar Delegado - Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="uide-panel uide-panel--pad">
+<div class="container uide-container">
 
-      <h1 class="title is-3 has-text-centered mb-5"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Registrar Delegado</h1>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3"><svg class="uide-icon" aria-hidden="true"><use href="#i-usuario"></use></svg> Registrar Delegado</h1>
+      <p class="subtitle">Crea la cuenta del delegado responsable de una carrera.</p>
+    </div>
+  </div>
 
+  <div class="box">
       <form method="POST" novalidate>
         {% csrf_token %}
         {% include "comun/_errores_formulario.html" with form=form %}
@@ -35,7 +39,7 @@
                       {% if field.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
                     </label>
                     <div class="control">
-                      {{ field|add_class:"input is-rounded is-medium is-light" }}
+                      {{ field|add_class:"input is-light" }}
                     </div>
                     {% if field.help_text %}<p class="help">{{ field.help_text|safe }}</p>{% endif %}
                     {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
@@ -60,9 +64,9 @@
                     </label>
                     <div class="control">
                       {% if field|widget_type == 'select' or field|widget_type == 'selectmultiple' %}
-                        <div class="select is-rounded is-medium is-fullwidth">{{ field }}</div>
+                        <div class="select is-fullwidth">{{ field }}</div>
                       {% else %}
-                        {{ field|add_class:"input is-rounded is-medium is-light" }}
+                        {{ field|add_class:"input is-light" }}
                       {% endif %}
                     </div>
                     {% for error in field.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
@@ -74,27 +78,21 @@
 
         </div>
 
-        <div class="field mt-5 is-grouped is-grouped-right">
-          <div class="control">
-            <button type="submit" name="guardar_y_crear_otro" value="1" class="button is-light is-rounded is-medium">
-              Guardar y crear otro
-            </button>
-          </div>
-          <div class="control">
-            <button type="submit" class="button is-warning is-rounded is-medium">
-              <strong>Guardar Delegado</strong>
-            </button>
-          </div>
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-warning">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>Guardar Delegado</span>
+          </button>
+          <button type="submit" name="guardar_y_crear_otro" value="1" class="button is-light">
+            Guardar y crear otro
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'admin_dashboard' %}" class="button is-light">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
+          </a>
         </div>
       </form>
-
-      <div class="has-text-centered mt-5">
-        <a href="{% url 'admin_dashboard' %}" class="button is-light is-rounded">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
-        </a>
-      </div>
-
-    </div>
   </div>
-</section>
+
+</div>
 {% endblock %}

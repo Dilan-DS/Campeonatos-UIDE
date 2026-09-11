@@ -8,95 +8,92 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h1 class="title is-3 has-text-centered mb-5">
-      {% if modo == 'crear' %} Crear Testimonio
-      {% elif modo == 'editar' %} Editar Testimonio
-      {% elif modo == 'eliminar' %} Confirmar eliminación
-      {% endif %}
-    </h1>
+<div class="container uide-container">
 
-    {% if modo == 'eliminar' %}
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if modo == 'crear' %}Crear Testimonio{% elif modo == 'editar' %}Editar Testimonio{% elif modo == 'eliminar' %}Confirmar eliminación{% endif %}
+      </h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_testimonios' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
+  </div>
+
+  {% if modo == 'eliminar' %}
+    <div class="box uide-ancho-limitado--holgado">
       <form method="post">
         {% csrf_token %}
-        <p>¿Seguro que quieres eliminar el testimonio de <strong>{{ testimonio.autor }}</strong>?</p>
-        <div class="buttons mt-4">
+        <p class="notification is-danger is-light">¿Seguro que quieres eliminar el testimonio de <strong>{{ testimonio.autor }}</strong>?</p>
+        <div class="uide-form-actions" style="justify-content:center">
           <button type="submit" class="button is-danger">Eliminar</button>
           <a href="{% url 'listar_testimonios' %}" class="button is-light">Cancelar</a>
         </div>
       </form>
+    </div>
 
-    {% else %}
-      <form method="post" enctype="multipart/form-data" novalidate>
+  {% else %}
+    <div class="box">
+      <form method="post" enctype="multipart/form-data" novalidate class="uide-form">
         {% csrf_token %}
 
-        <div class="field">
-          <label class="label" for="{{ form.autor.id_for_label }}">Autor</label>
-          <div class="control">
-            {{ form.autor }}
+        <div class="uide-form-grid">
+          <div class="field is-full">
+            <label class="label" for="{{ form.autor.id_for_label }}">Autor</label>
+            <div class="control">{{ form.autor }}</div>
+            {% if form.autor.errors %}<p class="help is-danger">{{ form.autor.errors.0 }}</p>{% endif %}
           </div>
-          {% if form.autor.errors %}
-            <p class="help is-danger">{{ form.autor.errors.0 }}</p>
-          {% endif %}
-        </div>
 
-        <div class="field">
-          <label class="label" for="{{ form.contenido.id_for_label }}">Contenido</label>
-          <div class="control">
-            {{ form.contenido }}
+          <div class="field is-full">
+            <label class="label" for="{{ form.contenido.id_for_label }}">Contenido</label>
+            <div class="control">{{ form.contenido }}</div>
+            {% if form.contenido.errors %}<p class="help is-danger">{{ form.contenido.errors.0 }}</p>{% endif %}
           </div>
-          {% if form.contenido.errors %}
-            <p class="help is-danger">{{ form.contenido.errors.0 }}</p>
-          {% endif %}
-        </div>
 
-        <div class="field">
-          <label class="label" for="{{ form.foto.id_for_label }}">Foto
-            {% if modo == 'editar' %} <small class="has-text-grey">(Opcional: deja vacío para conservar la actual)</small> {% endif %}
-          </label>
-          <div class="control">
-            <div class="file has-name is-boxed is-fullwidth">
+          <div class="field is-full">
+            <label class="label" for="{{ form.foto.id_for_label }}">
+              Foto {% if modo == 'editar' %}<span class="uide-optional">(deja vacío para conservar la actual)</span>{% endif %}
+            </label>
+            <div class="file has-name is-fullwidth">
               <label class="file-label">
                 {{ form.foto }}
                 <span class="file-cta">
                   <span class="file-icon">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-subir"></use></svg>
                   </span>
-                  <span class="file-label">
-                    Elegir archivo…
-                  </span>
+                  <span class="file-label">Elegir archivo…</span>
                 </span>
                 <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
               </label>
             </div>
+            {% if form.foto.errors %}<p class="help is-danger">{{ form.foto.errors.0 }}</p>{% endif %}
+            {% if modo == 'editar' and testimonio.foto %}
+              <div class="mt-3">
+                <p class="help mb-2">Foto actual:</p>
+                <figure class="image is-128x128">
+                  <img src="{{ testimonio.foto.url }}" alt="{{ testimonio.autor }}">
+                </figure>
+              </div>
+            {% endif %}
           </div>
-          {% if form.foto.errors %}
-            <p class="help is-danger">{{ form.foto.errors.0 }}</p>
-          {% endif %}
-
-          {% if modo == 'editar' and testimonio.foto %}
-            <p class="mt-3">Foto actual:</p>
-            <figure class="image is-128x128">
-              <img src="{{ testimonio.foto.url }}" alt="{{ testimonio.autor }}">
-            </figure>
-          {% endif %}
         </div>
 
-        <div class="field is-grouped mt-5">
-          <div class="control">
-            <button type="submit" class="button is-primary">
-              {% if modo == 'crear' %} Crear {% elif modo == 'editar' %} Guardar Cambios {% endif %}
-            </button>
-          </div>
-          <div class="control">
-            <a href="{% url 'listar_testimonios' %}" class="button is-light">Cancelar</a>
-          </div>
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>{% if modo == 'crear' %}Crear{% elif modo == 'editar' %}Guardar Cambios{% endif %}</span>
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'listar_testimonios' %}" class="button is-light">Cancelar</a>
         </div>
       </form>
-    {% endif %}
-  </div>
-</section>
+    </div>
+  {% endif %}
+
+</div>
 
 <script>
   // Script para mostrar nombre archivo en input file Bulma

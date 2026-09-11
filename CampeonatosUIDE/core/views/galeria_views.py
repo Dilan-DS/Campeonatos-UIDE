@@ -50,7 +50,7 @@ class EliminarImagenGaleria(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request, id):
         imagen = get_object_or_404(ImagenGaleria, id=id)
-        return render(request, 'galeria/imagen_form.html', {'imagen': imagen})
+        return render(request, 'galeria/imagen_form.html', {'imagen': imagen, 'modo': 'eliminar'})
 
     def post(self, request, id):
         imagen = get_object_or_404(ImagenGaleria, id=id)

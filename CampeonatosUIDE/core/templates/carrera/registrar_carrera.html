@@ -11,62 +11,72 @@
 {% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="uide-panel uide-panel--pad">
-      <h1 class="title is-4 has-text-centered has-text-danger-dark">
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
         {% if modo == 'crear' %}Registrar Nueva Carrera
         {% elif modo == 'editar' %}Editar Carrera
         {% elif modo == 'eliminar' %}Confirmar Eliminación de Carrera
         {% else %}Detalle de Carrera
         {% endif %}
       </h1>
-
-
-      {% if modo == 'crear' or modo == 'editar' %}
-        <form method="post" action="{% if modo == 'editar' %}{% url 'editar_carrera' id=carrera.id %}{% else %}{% url 'registrar_carrera' %}{% endif %}">
-          {% csrf_token %}
-          <div class="field">
-            <label class="label" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
-            <div class="control">
-              {{ form.nombre|add_class:"input" }}
-            </div>
-            {% for error in form.nombre.errors %}
-              <p class="help is-danger">{{ error }}</p>
-            {% endfor %}
-          </div>
-
-          <div class="field is-grouped is-grouped-centered">
-            <div class="control">
-              <button type="submit" class="button is-primary is-rounded">
-                {% if modo == 'crear' %}Registrar
-                {% else %}Actualizar
-                {% endif %}
-              </button>
-            </div>
-            <div class="control">
-              <a href="{% url 'listar_carreras' %}" class="button is-link is-light is-rounded">Cancelar</a>
-            </div>
-          </div>
-        </form>
-      {% elif modo == 'eliminar' %}
-        <p class="has-text-centered has-text-danger is-size-5">¿Estás seguro de que quieres eliminar la carrera <strong>{{ carrera.nombre }}</strong>?</p>
-        <form method="post" action="{% url 'eliminar_carrera' id=carrera.id %}" class="has-text-centered mt-4">
-          {% csrf_token %}
-          <button type="submit" class="button is-danger is-rounded mr-2">Confirmar Eliminación</button>
-          <a href="{% url 'listar_carreras' %}" class="button is-link is-light is-rounded">Cancelar</a>
-        </form>
-      {% else %} {# modo == 'ver' #}
-        <div class="content has-text-centered">
-          <p class="title is-5">Nombre de la Carrera: <strong>{{ carrera.nombre }}</strong></p>
-        </div>
-        <div class="has-text-centered mt-4">
-          <a href="{% url 'editar_carrera' id=carrera.id %}" class="button is-info is-rounded mr-2">Editar</a>
-          <a href="{% url 'eliminar_carrera' id=carrera.id %}" class="button is-danger is-rounded mr-2">Eliminar</a>
-          <a href="{% url 'listar_carreras' %}" class="button is-link is-light is-rounded">Volver a la lista</a>
-        </div>
-      {% endif %}
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_carreras' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
     </div>
   </div>
-</section>
+
+  {% if modo == 'crear' or modo == 'editar' %}
+    {# Un solo campo (nombre): se mantiene angosto a propósito. #}
+    <div class="box uide-ancho-limitado">
+      <form method="post" class="uide-form" action="{% if modo == 'editar' %}{% url 'editar_carrera' id=carrera.id %}{% else %}{% url 'registrar_carrera' %}{% endif %}">
+        {% csrf_token %}
+        <div class="field">
+          <label class="label" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+          <div class="control">{{ form.nombre }}</div>
+          {% for error in form.nombre.errors %}
+            <p class="help is-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="uide-form-actions">
+          <button type="submit" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+            <span>{% if modo == 'crear' %}Registrar{% else %}Actualizar{% endif %}</span>
+          </button>
+          <span class="uide-form-actions__spacer"></span>
+          <a href="{% url 'listar_carreras' %}" class="button is-light">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  {% elif modo == 'eliminar' %}
+    <div class="box uide-ancho-limitado">
+      <form method="post" action="{% url 'eliminar_carrera' id=carrera.id %}">
+        {% csrf_token %}
+        <p class="has-text-centered has-text-danger">¿Estás seguro de que quieres eliminar la carrera <strong>{{ carrera.nombre }}</strong>?</p>
+        <div class="uide-form-actions" style="justify-content:center">
+          <button type="submit" class="button is-danger">Confirmar Eliminación</button>
+          <a href="{% url 'listar_carreras' %}" class="button is-light">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  {% else %} {# modo == 'ver' #}
+    <div class="box uide-ancho-limitado">
+      <dl class="uide-details">
+        <div><dt>Nombre de la carrera</dt><dd>{{ carrera.nombre }}</dd></div>
+      </dl>
+      <div class="uide-form-actions">
+        <a href="{% url 'editar_carrera' id=carrera.id %}" class="button is-warning">Editar</a>
+        <a href="{% url 'eliminar_carrera' id=carrera.id %}" class="button is-danger is-light">Eliminar</a>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'listar_carreras' %}" class="button is-light">Volver a la lista</a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

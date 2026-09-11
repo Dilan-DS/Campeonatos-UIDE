@@ -28,7 +28,7 @@
 
       <!-- 🔘 Botón para registrar nuevo equipo con campeonato_id -->
       <div class="has-text-right mb-4">
-        <a href="{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}" class="button is-success is-rounded">
+        <a href="{% url 'registrar_equipo' %}{% if campeonato %}?campeonato_id={{ campeonato.id }}{% endif %}" class="button is-primary">
           <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Registrar Nuevo Equipo
         </a>
       </div>
@@ -64,17 +64,20 @@
                   <!-- Botones de acción -->
                   <td class="has-text-centered">
                     <div class="buttons is-centered">
-                      <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light is-rounded">Ver</a>
+                      <a href="{% url 'detalle_equipo' equipo.id %}" class="button is-small is-info is-light">Ver</a>
                       {% if request.user.rol == "DELEGADO" and equipo.delegado == request.user %}
-                          <a href="{% url 'listar_jugadores_para_equipo' %}" class="button is-small is-primary is-light is-rounded">Registrar Jugadores</a>
+                          <a href="{% url 'listar_jugadores_para_equipo' %}" class="button is-small is-primary is-light">Registrar Jugadores</a>
                       {% elif request.user.rol == "ADMIN" %}
-                          <a href="{% url 'listar_jugadores_admin' %}" class="button is-small is-primary is-light is-rounded">Ver Jugadores</a>
-                          <a href="{% url 'registrar_pago_admin_equipo' equipo.id %}" class="button is-small is-link is-light is-rounded">Registrar Pago</a>
+                          <a href="{% url 'listar_jugadores_admin' %}" class="button is-small is-primary is-light">Ver Jugadores</a>
+                          <a href="{% url 'registrar_pago_admin_equipo' equipo.id %}" class="button is-small is-link is-light">Registrar Pago</a>
                       {% endif %}
                       {% if request.user.rol == "DELEGADO" %}
                         {% if equipo.delegado == request.user %}
-                          <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light is-rounded">Editar</a>
-                          <a href="{% url 'eliminar_equipo' equipo.id %}" class="button is-small is-danger is-light is-rounded" onclick="return confirm('¿Estás seguro de eliminar este equipo?');">Eliminar</a>
+                          <a href="{% url 'editar_equipo' equipo.id %}" class="button is-small is-warning is-light">Editar</a>
+                          <form method="post" action="{% url 'eliminar_equipo' equipo.id %}" class="is-inline-block">
+                            {% csrf_token %}
+                            <button type="submit" class="button is-small is-danger is-light">Eliminar</button>
+                          </form>
                         {% endif %}
                       {% else %}
                         {# Otros roles: solo Ver #}
@@ -92,7 +95,7 @@
 
       <!-- Botón para regresar -->
       <div class="has-text-centered mt-4">
-        <a href="{% url 'vista_inicio' %}" class="button is-link is-light is-rounded">
+        <a href="{% url 'vista_inicio' %}" class="button is-link is-light">
           <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al inicio
         </a>
       </div>

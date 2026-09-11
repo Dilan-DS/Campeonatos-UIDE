@@ -12,6 +12,7 @@
     </h1>
 
     <div class="uide-panel uide-panel--pad uide-ancho-limitado">
+      <div class="table-container">
       <table class="table is-fullwidth">
         <tbody>
           <tr>
@@ -44,16 +45,17 @@
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div class="field is-grouped is-grouped-centered mt-5">
         <div class="control">
-          <a href="{{ transmision.enlace }}" target="_blank" rel="noopener noreferrer" class="button is-primary is-rounded">
+          <a href="{{ transmision.enlace }}" target="_blank" rel="noopener noreferrer" class="button is-primary">
             <svg class="uide-icon" aria-hidden="true"><use href="#i-transmision"></use></svg>
             Ver transmisión
           </a>
         </div>
         <div class="control">
-          <a href="{% url 'listar_transmisiones' %}" class="button is-light is-rounded">Volver al listado</a>
+          <a href="{% url 'listar_transmisiones' %}" class="button is-light">Volver al listado</a>
         </div>
       </div>
     </div>
