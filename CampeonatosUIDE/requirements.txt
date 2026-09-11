@@ -27,3 +27,17 @@ reportlab==5.0.1
 # noticias, galeria). Hasta ahora solo entraba de rebote como dependencia
 # de reportlab; se declara porque el proyecto la usa de forma directa.
 pillow==12.3.0
+
+# WSGI server used by the production container.
+gunicorn==23.0.0
+
+# Sirve los estaticos (incluido el admin) desde el propio proceso Django en
+# produccion. Sin esto, con DEBUG=False Django no entrega /static/ y Nginx,
+# que solo hace proxy, devuelve 404 en todo el CSS/JS.
+whitenoise==6.8.2
+
+# Driver MySQL en Python puro para el contenedor de produccion. Ver
+# CampeonatosUIDE/__init__.py. En local con SQLite no se usa.
+# El extra [rsa] arrastra "cryptography", que PyMySQL necesita para el
+# metodo de autenticacion por defecto de MySQL 8 (caching_sha2_password).
+PyMySQL[rsa]==1.1.1

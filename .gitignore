@@ -21,3 +21,17 @@ desktop.ini
 # Archivos temporales y comprimidos del proyecto
 *.zip
 *.log
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+crash.log
+crash.*.log
+
+# Secrets and deployment credentials
+*.pem
+.env
+.env.*
+!.env.example

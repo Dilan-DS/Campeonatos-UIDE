@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    # Solo accesible dentro de la red de Compose. NO se publica el 3306.
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  web:
+    build: .
+    restart: unless-stopped
+    init: true
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # media: bind mount sobre el disco de la EC2, lo sirve Nginx por ruta.
+      - ./media:/app/media
+      # estaticos: volumen gestionado por Docker (los sirve WhiteNoise desde
+      # el propio proceso Django, Nginx no los toca). En un bind mount sobre
+      # Docker Desktop/Windows, os.utime de la compresion de WhiteNoise falla
+      # con EPERM.
+      - static_data:/app/staticfiles
+
+volumes:
+  mysql_data:
+  static_data:

@@ -1,0 +1,33 @@
+# Nada de esto debe entrar en la imagen: infla el build y en un t3.micro
+# (1 GB de RAM) eso importa. El venv es de Windows y sus binarios no sirven
+# dentro del contenedor Linux.
+.venv/
+.venv-audit/
+venv/
+__pycache__/
+*.py[cod]
+*.log
+
+# La base de datos local (SQLite de desarrollo) no va al contenedor.
+db.sqlite3
+
+# Se generan dentro del contenedor.
+staticfiles/
+media/
+codigos_qr/
+
+# Control de versiones y config local.
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+.claude/
+
+# Secretos.
+.env
+*.pem
+
+# Docs.
+docs/
+README.md

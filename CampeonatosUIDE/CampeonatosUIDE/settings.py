@@ -56,6 +56,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Sirve los ficheros de STATIC_ROOT directamente desde Django en
+    # produccion (Nginx solo hace proxy y no ve el volumen de estaticos).
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -138,6 +141,16 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# WhiteNoise: comprime y cachea los estaticos con hash en el nombre. El
+# almacenamiento de media sigue en disco (lo sirve Nginx desde el bind mount).
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    # Sin "Manifest": no exige que cada referencia estatica exista en
+    # collectstatic, asi que una plantilla con una ruta suelta no rompe el
+    # build ni CI. Solo comprime.
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -161,6 +174,13 @@ EMAIL_TIMEOUT = 20
 
 
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+
+# Bound request bodies and uploads before application-level validation.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
 
 # ---------------------------------------------------------------------------
