@@ -198,27 +198,6 @@ def mis_partidos_arbitro(request):
         messages.error(request, "No estás registrado como árbitro o tu perfil de árbitro no está completo.")
         return redirect('vista_inicio') # Redirigir a una página segura
 
-# FBV registrar_resultado_partido (ÁRBITRO)
-@login_required
-@user_passes_test(es_arbitro, login_url='/login/')
-def registrar_resultado_partido(request, partido_id):
-    try:
-        arbitro_obj = request.user.arbitro
-        partido = get_object_or_404(Partido, pk=partido_id, arbitro=arbitro_obj) # Ensure arbitro matches
-    except Arbitro.DoesNotExist:
-        messages.error(request, "No estás registrado como árbitro o tu perfil de árbitro no está completo.")
-        return redirect('vista_inicio')
-
-    if request.method == 'POST':
-        partido.resultado_local = int(request.POST.get('resultado_local', 0))
-        partido.resultado_visitante = int(request.POST.get('resultado_visitante', 0))
-        partido.estado = 'FINALIZADO'
-        partido.save()
-        messages.success(request, "Resultado registrado correctamente y partido finalizado.")
-        return redirect('mis_partidos_arbitro')
-    
-    return render(request, 'arbitro/registrar_resultado.html', {'partido': partido})
-
 # FBV disciplinario_partido (ÁRBITRO)
 @login_required
 @user_passes_test(es_arbitro, login_url='/login/')

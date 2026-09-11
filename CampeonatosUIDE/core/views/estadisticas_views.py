@@ -21,17 +21,6 @@ def es_admin_o_delegado(user):
     return user.rol in ['ADMIN', 'DELEGADO']
 
 
-@login_required
-def tabla_estadisticas(request, campeonato_id):
-    campeonato = get_object_or_404(Campeonato, id=campeonato_id)
-    tabla_ordenada = calcular_tabla_posiciones(campeonato)
-
-    context = {
-        'campeonato': campeonato,
-        'tabla': tabla_ordenada,
-    }
-    return render(request, 'estadisticas/tabla_estadisticas.html', context)
-
 # ========================
 # ESTADÍSTICAS
 # ========================
