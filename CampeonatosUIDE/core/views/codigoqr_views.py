@@ -13,10 +13,7 @@ from core.models import CodigoQR
 # Importa el formulario CodigoQRForm para manejar los datos de códigos QR
 from core.forms import CodigoQRForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
-def es_admin(user):
-    return user.rol == 'ADMIN'
-
+from core.permisos import es_admin
 
 # Vista para listar códigos QR con opción de búsqueda
 class ListarCodigosQRView(LoginRequiredMixin, UserPassesTestMixin, View):

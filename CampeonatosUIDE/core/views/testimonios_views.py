@@ -4,7 +4,7 @@ from django.contrib import messages
 from core.models import Testimonio
 from core.forms import TestimonioForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from core.views.campeonato_views import es_admin_o_delegado
+from core.permisos import es_admin_o_delegado
 
 class ListarTestimonios(View):
     def get(self, request):

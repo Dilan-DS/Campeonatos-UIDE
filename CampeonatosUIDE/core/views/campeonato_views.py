@@ -14,8 +14,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from core.utils.generar_fixture_liga import generar_fixture_liga
 from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
 from core.utils.generar_fixture_fase_grupos import generar_fixture_fase_grupos
-def es_admin_o_delegado(user):
-    return user.rol in ['ADMIN', 'DELEGADO']
+from core.permisos import es_admin_o_delegado
 
 
 class EsAdminODelegadoMixin(UserPassesTestMixin):

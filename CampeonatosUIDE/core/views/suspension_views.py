@@ -3,7 +3,7 @@ from django.contrib import messages
 from core.models import Suspension
 from core.forms import SuspensionForm
 from django.contrib.auth.decorators import login_required, user_passes_test
-from core.views.campeonato_views import es_admin_o_delegado
+from core.permisos import es_admin_o_delegado
 
 
 

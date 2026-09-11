@@ -5,10 +5,7 @@ from django.views.decorators.http import require_POST
 from django.views import View
 from core.models import Transmision, Campeonato, Partido
 from core.forms import TransmisionForm
-
-# Mixin para permitir solo ADMIN o DELEGADO
-def es_admin_o_delegado(user):
-    return user.rol in ['ADMIN', 'DELEGADO']
+from core.permisos import es_admin_o_delegado
 
 # Listar todas las transmisiones
 class ListarTransmisionView(View): # Removed LoginRequiredMixin as it will be applied via decorator in urls.py if needed

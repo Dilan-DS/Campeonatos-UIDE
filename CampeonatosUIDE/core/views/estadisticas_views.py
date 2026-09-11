@@ -15,10 +15,7 @@ from ..models import (
     EstadisticaJugadorVideojuegos, EstadisticaJugadorFutbolin, Jugador, Campeonato, Equipo, Partido
 )
 from core.utils.tabla_posiciones import calcular_tabla_posiciones
-
-
-def es_admin_o_delegado(user):
-    return user.rol in ['ADMIN', 'DELEGADO']
+from core.permisos import es_admin_o_delegado
 
 
 # ========================

@@ -12,12 +12,7 @@ from django.utils.decorators import method_decorator
 from core.models import Deporte
 # Importa el formulario para manejar datos de Deporte
 from core.forms import DeporteForm
-
-
-# Función para verificar si el usuario tiene rol de administrador
-def es_admin(user):
-    # Retorna True si el atributo rol del usuario es 'ADMIN'
-    return user.rol == 'ADMIN'
+from core.permisos import es_admin
 
 
 # Lista de decoradores que exigen login y que el usuario sea admin

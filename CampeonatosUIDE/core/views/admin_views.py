@@ -18,11 +18,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from django.db.models import Q
 from datetime import datetime, timedelta
+from core.permisos import es_admin
 
-
-def es_admin(user):
-    # Verifica si el usuario es un administrador
-    return user.rol == 'ADMIN'
 
 @login_required
 @user_passes_test(es_admin)

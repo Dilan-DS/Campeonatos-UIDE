@@ -4,9 +4,7 @@ from django.contrib import messages
 from core.models import ImagenGaleria
 from core.forms import ImagenGaleriaForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
-def es_admin_o_delegado(user):
-    return user.rol in ['ADMIN', 'DELEGADO']
+from core.permisos import es_admin_o_delegado
 
 class ListarImagenGaleria(View):
     def get(self, request):

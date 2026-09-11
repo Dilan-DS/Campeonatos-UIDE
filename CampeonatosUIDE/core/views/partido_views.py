@@ -4,8 +4,8 @@ from django.contrib import messages
 from core.models import Partido, Campeonato, Usuario, Equipo, Arbitro
 from collections import defaultdict
 from core.forms import PartidoForm
-from core.views.admin_views import es_admin
-from core.views.admin_views import es_admin
+from core.permisos import es_admin
+from core.permisos import es_admin
 
 # Valores validos de Partido.estado. Se derivan del modelo para que los
 # filtros no vuelvan a validar contra estados inexistentes.

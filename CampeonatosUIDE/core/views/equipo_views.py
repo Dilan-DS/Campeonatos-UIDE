@@ -13,13 +13,7 @@ from core.models import (
     EstadisticaJugadorVideojuegos, EstadisticaJugadorFutbolin,
 )
 from core.forms import EquipoForm, PagoForm  # PagoForm se conserva por compatibilidad
-
-# ---------------------------
-# Helpers
-# ---------------------------
-def es_admin_o_delegado(user):
-    return getattr(user, "rol", None) in ["ADMIN", "DELEGADO"]
-
+from core.permisos import es_admin_o_delegado
 
 def _get_campeonato_id(request, kwargs=None):
     """

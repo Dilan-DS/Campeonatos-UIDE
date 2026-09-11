@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from core.models import Carrera
 from core.forms import CarreraForm
-from core.views.campeonato_views import es_admin_o_delegado
+from core.permisos import es_admin_o_delegado
 
 class ListarCarrerasView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):

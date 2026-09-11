@@ -6,7 +6,7 @@ from django.contrib import messages
 from core.models import Noticia
 from core.forms import NoticiaForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from core.views.campeonato_views import es_admin_o_delegado
+from core.permisos import es_admin_o_delegado
 
 class ListarNoticias(View):
     """Listado de noticias con búsqueda y paginación.

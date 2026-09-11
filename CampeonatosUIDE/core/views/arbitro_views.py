@@ -9,8 +9,7 @@ from django.utils import timezone
 from core.forms import ArbitroActaForm
 import datetime # Added datetime
 from django.core.exceptions import ValidationError # Added ValidationError
-def es_admin(user):
-    return user.is_authenticated and getattr(user, "rol", "") == "ADMIN"
+from core.permisos import es_admin
 
 # --- ACTA ÁRBITRO HELPERS ---
 def _leer_snapshot(partido):
