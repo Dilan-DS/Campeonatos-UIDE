@@ -3,11 +3,13 @@
 aws_region        = "us-east-1"
 availability_zone = "us-east-1a"
 
-# Tu IP publica /32. Consiguela con: curl -s https://checkip.amazonaws.com
-ssh_allowed_cidr = "181.233.50.0/24"
+# Rango de tu IP publica. Si es fija, usa /32; si es dinamica (ISP
+# residencial), usa el /24 de tu proveedor para no perder acceso cada vez
+# que cambie. Consiguela con: curl -s https://checkip.amazonaws.com
+ssh_allowed_cidr = "203.0.113.0/24"
 
-# Clave publica SSH ya existente en tu maquina (genera uno con ssh-keygen).
-public_key_path = "C:/Users/steph181.233.50.169/.ssh/campeonatos-uide.pub"
+# Clave publica SSH ya existente en tu maquina (genera una con ssh-keygen).
+public_key_path = "C:/Users/tu-usuario/.ssh/campeonatos-uide.pub"
 key_name        = "campeonatos-uide"
 
 # Dominio real (Hostinger).
