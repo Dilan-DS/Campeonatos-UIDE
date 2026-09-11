@@ -17,10 +17,13 @@ resource "aws_vpc" "main" {
   tags                 = { Name = "campeonatos-uide-vpc" }
 }
 resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = var.availability_zone
-  map_public_ip_on_launch = true
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = var.availability_zone
+  # La IP publica real la da el Elastic IP (elastic-ip.tf, atado a
+  # aws_instance.app), no el auto-assign de la subred: no hace falta
+  # que cada instancia que se cree aqui reciba una IP publica efimera.
+  map_public_ip_on_launch = false
   tags                    = { Name = "campeonatos-uide-public" }
 }
 resource "aws_internet_gateway" "main" {
