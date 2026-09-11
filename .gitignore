@@ -35,3 +35,11 @@ crash.*.log
 .env
 .env.*
 !.env.example
+
+# Cobertura de pruebas y artefactos de Playwright
+.coverage
+htmlcov/
+test-results/
+playwright-report/
+.pytest_cache/
+

@@ -40,7 +40,7 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Comprobaciones del proyecto
         run: python manage.py check
@@ -57,8 +57,17 @@ jobs:
       - name: Estaticos (build)
         run: python manage.py collectstatic --noinput
 
-      - name: Pruebas
-        run: python manage.py test core --verbosity 2
+      - name: Pruebas con cobertura
+        run: |
+          coverage run manage.py test core --verbosity 2
+          coverage report
+
+      - name: Subir reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: CampeonatosUIDE/.coverage
+          retention-days: 7
 
       - name: Plantillas sin errores de sintaxis
         run: |
@@ -110,3 +119,42 @@ jobs:
               sys.exit(1)
           print("Sin comentarios multilinea")
           PY
+
+  e2e:
+    name: Pruebas E2E (Playwright)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: CampeonatosUIDE
+
+    env:
+      SECRET_KEY: ci-placeholder-sin-valor-real-x7Kq2mZ9pL4vT8wR3nJ6bY1cH5sD0aFgU2eW
+      DEBUG: "False"
+      # pytest-playwright inicializa su propio loop de asyncio en el hilo
+      # principal, lo que hace que Django detecte (falsamente) una llamada
+      # sincrona de base de datos dentro de un contexto async al levantar
+      # la base de datos de pruebas de live_server. No hay E/S async real
+      # aqui: es una incompatibilidad conocida entre pytest-playwright y
+      # pytest-django, y esta es la solucion documentada para ese caso.
+      DJANGO_ALLOW_ASYNC_UNSAFE: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: CampeonatosUIDE/requirements-dev.txt
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Instalar navegador de Playwright
+        run: python -m playwright install --with-deps chromium
+
+      - name: Pruebas E2E
+        run: python -m pytest e2e --verbose

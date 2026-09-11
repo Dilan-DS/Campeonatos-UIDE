@@ -1,0 +1,14 @@
+[run]
+source = core
+omit =
+    */migrations/*
+    core/tests/*
+    manage.py
+
+[report]
+skip_covered = False
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
