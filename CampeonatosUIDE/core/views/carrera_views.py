@@ -43,6 +43,12 @@ class GestionCarreraView(LoginRequiredMixin, UserPassesTestMixin, View):
         return render(request, 'carrera/registrar_carrera.html', context)
 
     def post(self, request, id=None, action=None):
+        # `carrera` solo se asignaba en las ramas 'eliminar' y 'editar': al
+        # crear una carrera con datos invalidos (p.ej. nombre duplicado), el
+        # contexto final de abajo intentaba leer una variable que nunca se
+        # habia definido y la vista terminaba en un 500 (UnboundLocalError)
+        # en vez de mostrar el error del formulario.
+        carrera = None
         if action == 'eliminar':
             carrera = get_object_or_404(Carrera, id=id)
             carrera.delete()

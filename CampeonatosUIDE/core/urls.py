@@ -353,6 +353,7 @@ urlpatterns = [
     # Pagos Admin
     path('panel/admin/pagos/', pago_views.ListarPagosAdminView.as_view(), name='listar_pagos_admin'),
     path('panel/admin/pagos/registrar/', pago_views.RegistrarPagoAdminView.as_view(), name='registrar_pago_admin'),
+    path('panel/admin/equipos/<int:equipo_id>/pagos/registrar/', pago_views.RegistrarPagoParaEquipoAdminView.as_view(), name='registrar_pago_admin_equipo'),
     path('panel/admin/pagos/<int:pk>/editar/', pago_views.EditarPagoAdminView.as_view(), name='editar_pago_admin'),
     path('panel/admin/pagos/<int:pk>/eliminar/', pago_views.EliminarPagoAdminView.as_view(), name='eliminar_pago_admin'),
     path('panel/admin/pagos/<int:pk>/', pago_views.DetallePagoAdminView.as_view(), name='detalle_pago_admin'),

@@ -11,6 +11,7 @@ from core.validators import (
     normalizar_cedula, validate_ecuadorian_cedula, validate_pdf_upload,
     validate_upload_size,
 )
+from core.utils.texto import sin_acentos
 
 # Modelos base reutilizables
 
@@ -202,16 +203,21 @@ class Equipo(models.Model):
         return self.nombre
 
     def clean(self):
+        # Los errores de campo concreto (delegado, logo) se lanzan como
+        # {'campo': mensaje} en vez de una cadena: asi Django los asocia al
+        # <select>/<input> real en el formulario (form.errors['delegado'])
+        # en vez de meterlos todos en non_field_errors, donde quedaban
+        # invisibles junto al campo que realmente fallo.
         if not self.nombre:
-            raise ValidationError("El nombre del equipo es obligatorio.")
+            raise ValidationError({'nombre': "El nombre del equipo es obligatorio."})
         if self.campeonato.estado != 'INSCRIPCION':
             raise ValidationError("El campeonato debe estar en estado de inscripción para registrar un equipo.")
         if self.delegado and self.delegado.rol != 'DELEGADO':
-            raise ValidationError("El delegado debe ser un usuario con rol DELEGADO.")
+            raise ValidationError({'delegado': "El delegado debe ser un usuario con rol DELEGADO."})
         if not self.delegado:
-            raise ValidationError("El equipo debe tener un delegado asignado.")
+            raise ValidationError({'delegado': "El equipo debe tener un delegado asignado."})
         if not self.logo:
-            raise ValidationError("Debes subir el logo del equipo.")
+            raise ValidationError({'logo': "Debes subir el logo del equipo."})
         pago_obj = getattr(self, 'pago', None)
         if self.aprobado and (not pago_obj or pago_obj.estado != 'APROBADO'):
             raise ValidationError("No puedes aprobar el equipo sin un pago aprobado.")
@@ -232,7 +238,7 @@ class Equipo(models.Model):
 
     @cached_property
     def puntos_totales(self):
-        deporte = self.campeonato.deporte.nombre.upper()
+        deporte = sin_acentos(self.campeonato.deporte.nombre.upper())
         if deporte == 'FUTBOL':
             puntos = 0
             partidos_local = self.partidos_locales.filter(estado='FINALIZADO')

@@ -69,6 +69,7 @@
                           <a href="{% url 'listar_jugadores_para_equipo' %}" class="button is-small is-primary is-light is-rounded">Registrar Jugadores</a>
                       {% elif request.user.rol == "ADMIN" %}
                           <a href="{% url 'listar_jugadores_admin' %}" class="button is-small is-primary is-light is-rounded">Ver Jugadores</a>
+                          <a href="{% url 'registrar_pago_admin_equipo' equipo.id %}" class="button is-small is-link is-light is-rounded">Registrar Pago</a>
                       {% endif %}
                       {% if request.user.rol == "DELEGADO" %}
                         {% if equipo.delegado == request.user %}

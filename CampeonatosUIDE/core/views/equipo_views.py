@@ -14,6 +14,7 @@ from core.models import (
 )
 from core.forms import EquipoForm, PagoForm  # PagoForm se conserva por compatibilidad
 from core.permisos import es_admin_o_delegado
+from core.utils.texto import sin_acentos
 
 def _get_campeonato_id(request, kwargs=None):
     """
@@ -53,24 +54,27 @@ def ver_equipo_jugador(request, equipo_id):
     jugadores_data = []
     campeonato = equipo.campeonato
     deporte_nombre = campeonato.deporte.nombre.upper()
+    # Comparado sin tildes: "Futbol" y "Fútbol" deben tratarse igual, y el
+    # formulario de alta de deportes no fuerza ninguna de las dos formas.
+    deporte_normalizado = sin_acentos(deporte_nombre)
 
     for jugador_item in equipo.jugadores.all():
         player_stats = None
-        if deporte_nombre == "FUTBOL":
+        if deporte_normalizado == "FUTBOL":
             player_stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "BASQUET":
+        elif deporte_normalizado == "BASQUET":
             player_stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "AJEDREZ":
+        elif deporte_normalizado == "AJEDREZ":
             player_stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "ECUABOLY":
+        elif deporte_normalizado == "ECUABOLY":
             player_stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "PING PONG":
+        elif deporte_normalizado == "PING PONG":
             player_stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "TENIS":
+        elif deporte_normalizado == "TENIS":
             player_stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "VIDEOJUEGOS":
+        elif deporte_normalizado == "VIDEOJUEGOS":
             player_stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
-        elif deporte_nombre == "FUTBOLIN":
+        elif deporte_normalizado == "FUTBOLIN":
             player_stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador_item, campeonato=campeonato).first()
 
         jugadores_data.append({
@@ -194,25 +198,28 @@ def jugadores_equipo(request, id):
 
     campeonato = equipo.campeonato
     deporte_nombre = campeonato.deporte.nombre.upper()
+    # Comparado sin tildes: "Futbol" y "Fútbol" deben tratarse igual, y el
+    # formulario de alta de deportes no fuerza ninguna de las dos formas.
+    deporte_normalizado = sin_acentos(deporte_nombre)
 
     jugadores_data = []
     for jugador in equipo.jugadores.all():
         player_stats = None
-        if deporte_nombre == "FUTBOL":
+        if deporte_normalizado == "FUTBOL":
             player_stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "BASQUET":
+        elif deporte_normalizado == "BASQUET":
             player_stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "AJEDREZ":
+        elif deporte_normalizado == "AJEDREZ":
             player_stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "ECUABOLY":
+        elif deporte_normalizado == "ECUABOLY":
             player_stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "PING PONG":
+        elif deporte_normalizado == "PING PONG":
             player_stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "TENIS":
+        elif deporte_normalizado == "TENIS":
             player_stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "VIDEOJUEGOS":
+        elif deporte_normalizado == "VIDEOJUEGOS":
             player_stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "FUTBOLIN":
+        elif deporte_normalizado == "FUTBOLIN":
             player_stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
 
         jugadores_data.append({
@@ -241,25 +248,28 @@ def mis_jugadores_delegado(request):
 
     campeonato = equipo.campeonato
     deporte_nombre = campeonato.deporte.nombre.upper()
+    # Comparado sin tildes: "Futbol" y "Fútbol" deben tratarse igual, y el
+    # formulario de alta de deportes no fuerza ninguna de las dos formas.
+    deporte_normalizado = sin_acentos(deporte_nombre)
 
     jugadores_data = []
     for jugador in equipo.jugadores.all():
         stats = None
-        if deporte_nombre == "FUTBOL":
+        if deporte_normalizado == "FUTBOL":
             stats = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "BASQUET":
+        elif deporte_normalizado == "BASQUET":
             stats = EstadisticaJugadorBasquet.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "AJEDREZ":
+        elif deporte_normalizado == "AJEDREZ":
             stats = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "ECUABOLY":
+        elif deporte_normalizado == "ECUABOLY":
             stats = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "PING PONG":
+        elif deporte_normalizado == "PING PONG":
             stats = EstadisticaJugadorPingPong.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "TENIS":
+        elif deporte_normalizado == "TENIS":
             stats = EstadisticaJugadorTenis.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "VIDEOJUEGOS":
+        elif deporte_normalizado == "VIDEOJUEGOS":
             stats = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador, campeonato=campeonato).first()
-        elif deporte_nombre == "FUTBOLIN":
+        elif deporte_normalizado == "FUTBOLIN":
             stats = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
 
         jugadores_data.append({"jugador": jugador, "stats": stats, "deporte_nombre": deporte_nombre, "posicion": jugador.posicion})

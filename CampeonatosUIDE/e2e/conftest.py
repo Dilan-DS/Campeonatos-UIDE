@@ -6,6 +6,7 @@ verdad, con su propia base de datos de pruebas.
 """
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -20,6 +21,14 @@ django.setup()
 from core.tests.base import PWD, _datos_base  # noqa: E402
 
 __all__ = ["PWD"]
+
+
+@pytest.fixture(autouse=True)
+def _media_root_temporal(settings):
+    """live_server sirve la app real: sin esto, cada logo/comprobante que
+    sube un test de Playwright se escribe de verdad en el media/ del
+    proyecto (los tests de Django ya se protegen igual en PruebaBase)."""
+    settings.MEDIA_ROOT = tempfile.mkdtemp(prefix="uide_e2e_media_")
 
 
 @pytest.fixture

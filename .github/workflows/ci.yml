@@ -61,12 +61,17 @@ jobs:
         run: |
           coverage run manage.py test core --verbosity 2
           coverage report
+          # --fail-under sirve de piso: si baja de esto, el PR se bloquea.
+          coverage report --fail-under=75
+          coverage html -d htmlcov
 
-      - name: Subir reporte de cobertura
+      - name: Subir reporte de cobertura (HTML navegable)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: CampeonatosUIDE/.coverage
+          name: coverage-html
+          path: CampeonatosUIDE/htmlcov
+          retention-days: 14
           retention-days: 7
 
       - name: Plantillas sin errores de sintaxis

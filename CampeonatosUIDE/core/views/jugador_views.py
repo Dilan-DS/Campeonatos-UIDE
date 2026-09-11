@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 from core.utils.tabla_posiciones import calcular_tabla_posiciones
+from core.utils.texto import sin_acentos
 from core.models import (
     Jugador,
     Partido,
@@ -173,22 +174,25 @@ def ver_estadisticas_jugador(request, jugador_id):
     # Jugador con equipo/campeonato: deja la lógica existente, pero
     # TODAS las consultas que antes asumían campeonato deben protegerse.
     deporte_nombre = campeonato.deporte.nombre.upper()
+    # Sin tildes para que "Futbol" y "Fútbol" se traten igual (ver
+    # core/utils/texto.py).
+    deporte_normalizado = sin_acentos(deporte_nombre)
 
-    if deporte_nombre == 'FUTBOL':
+    if deporte_normalizado == 'FUTBOL':
         estadisticas = EstadisticaJugadorFutbol.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'BASQUET':
+    elif deporte_normalizado == 'BASQUET':
         estadisticas = EstadisticaJugadorBasquet.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'AJEDREZ':
+    elif deporte_normalizado == 'AJEDREZ':
         estadisticas = EstadisticaJugadorAjedrez.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'ECUABOLY':
+    elif deporte_normalizado == 'ECUABOLY':
         estadisticas = EstadisticaJugadorEcuaboly.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'PING PONG':
+    elif deporte_normalizado == 'PING PONG':
         estadisticas = EstadisticaJugadorPingPong.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'TENIS':
+    elif deporte_normalizado == 'TENIS':
         estadisticas = EstadisticaJugadorTenis.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'VIDEOJUEGOS':
+    elif deporte_normalizado == 'VIDEOJUEGOS':
         estadisticas = EstadisticaJugadorVideojuegos.objects.filter(jugador=jugador, campeonato=campeonato).first()
-    elif deporte_nombre == 'FUTBOLIN':
+    elif deporte_normalizado == 'FUTBOLIN':
         estadisticas = EstadisticaJugadorFutbolin.objects.filter(jugador=jugador, campeonato=campeonato).first()
 
     contexto = {

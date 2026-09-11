@@ -31,7 +31,20 @@ def listar_partidos(request):
 @login_required
 @user_passes_test(es_admin)
 def registrar_partido(request):
-    raise PermissionDenied
+    # Antes: `raise PermissionDenied` incondicional. El boton "Registrar
+    # Partido" de listar_partidos.html llevaba a esta URL y cualquier admin
+    # se encontraba con un 403 sin explicacion; no habia ni plantilla.
+    if request.method == 'POST':
+        form = PartidoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Partido registrado correctamente.')
+            return redirect('listar_partidos')
+        messages.error(request, "Revisa los campos del formulario.")
+    else:
+        form = PartidoForm()
+
+    return render(request, 'partido/registrar_partido.html', {'form': form})
 
 
 @login_required

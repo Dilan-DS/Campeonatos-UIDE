@@ -1,0 +1,35 @@
+{% extends 'comun/base.html' %}
+
+{% block title %}Registrar partido | Campeonatos UIDE{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <h1 class="title is-4 has-text-primary">
+      <svg class="uide-icon" aria-hidden="true"><use href="#i-balon"></use></svg>
+      Registrar partido
+    </h1>
+
+    <div class="uide-panel uide-panel--pad uide-ancho-limitado">
+      <form method="post">
+        {% csrf_token %}
+        {% include "comun/_campos_formulario.html" with form=form %}
+
+        <div class="field is-grouped is-grouped-centered mt-5">
+          <div class="control">
+            <button type="submit" class="button is-primary is-rounded">
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+              Guardar partido
+            </button>
+          </div>
+          <div class="control">
+            <a href="{% url 'listar_partidos' %}" class="button is-light is-rounded">Cancelar</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

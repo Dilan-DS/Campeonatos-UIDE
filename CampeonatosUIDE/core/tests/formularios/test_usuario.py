@@ -19,7 +19,7 @@ class AltaDeDelegadoPorFormulario(PruebaBase):
         formulario = CrearUsuarioDelegadoForm(data={
             "username": "delegado_nuevo", "first_name": "Nuevo", "last_name": "Delegado",
             "email": "delegado_nuevo@uide.edu.ec", "carrera": self.datos["carrera"].pk,
-            "password": "Prueba.2026",
+            "password": "Prueba.2026", "password2": "Prueba.2026",
         })
         self.assertTrue(formulario.is_valid(), formulario.errors.as_text())
 
@@ -28,6 +28,29 @@ class AltaDeDelegadoPorFormulario(PruebaBase):
         self.assertEqual(usuario.rol, "DELEGADO")
         self.assertTrue(usuario.check_password("Prueba.2026"))
         self.assertNotEqual(usuario.password, "Prueba.2026", "no debe guardarse en texto plano")
+
+    def test_rechaza_si_las_contrasenas_no_coinciden(self):
+        formulario = CrearUsuarioDelegadoForm(data={
+            "username": "delegado_typo", "email": "delegado_typo@uide.edu.ec",
+            "password": "Prueba.2026", "password2": "Prueba.2027",
+        })
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("password2", formulario.errors)
+
+    def test_rechaza_un_correo_ya_registrado(self):
+        formulario = CrearUsuarioDelegadoForm(data={
+            "username": "otro_delegado", "email": self.datos["admin"].email,
+            "password": "Prueba.2026", "password2": "Prueba.2026",
+        })
+        self.assertFalse(formulario.is_valid())
+        self.assertIn("email", formulario.errors)
+
+    def test_nombre_apellido_y_carrera_son_opcionales(self):
+        formulario = CrearUsuarioDelegadoForm(data={
+            "username": "delegado_minimo", "email": "delegado_minimo@uide.edu.ec",
+            "password": "Prueba.2026", "password2": "Prueba.2026",
+        })
+        self.assertTrue(formulario.is_valid(), formulario.errors.as_text())
 
 
 class EdicionDePerfilPropio(PruebaBase):

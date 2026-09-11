@@ -8,12 +8,15 @@ fixtures y helpers compartidos por varias categorias viven en
 import ast
 import importlib
 import inspect
+import io
 import pkgutil
 import re
+import tempfile
 from datetime import date, time, timedelta
 from pathlib import Path
 
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import NoReverseMatch, get_resolver, resolve, reverse
 from django.urls.resolvers import URLPattern, URLResolver
@@ -25,8 +28,13 @@ from core.forms.usuario import (
     UsuarioForm,
 )
 from core.models import (
-    Arbitro, Campeonato, Carrera, CodigoQR, Deporte, Equipo, ImagenGaleria,
-    Jugador, Noticia, Pago, Partido, Suspension, Testimonio, Transmision, Usuario,
+    Arbitro, Campeonato, Carrera, CodigoQR, Deporte, Equipo,
+    EstadisticaJugadorAjedrez, EstadisticaJugadorBasquet,
+    EstadisticaJugadorEcuaboly, EstadisticaJugadorFutbol,
+    EstadisticaJugadorFutbolin, EstadisticaJugadorPingPong,
+    EstadisticaJugadorTenis, EstadisticaJugadorVideojuegos,
+    ImagenGaleria, Jugador, Noticia, Pago, Partido, Suspension, Testimonio,
+    Transmision, Usuario,
 )
 from core.utils.calendario import dias_permitidos_de
 from core.utils.generar_fixture_eliminatoria import generar_fixture_eliminatoria
@@ -50,6 +58,12 @@ RAIZ_PLANTILLAS = Path(__file__).resolve().parent.parent / "templates"
     SESSION_COOKIE_SECURE=False,
     CSRF_COOKIE_SECURE=False,
     SECURE_HSTS_SECONDS=0,
+    # Sin esto, cada test que sube un archivo (logo, comprobante, foto de
+    # galeria, QR) lo escribia de verdad en el media/ del proyecto: los
+    # FileField no van a la base de datos de pruebas, van al disco. Con
+    # MEDIA_ROOT temporal esos archivos quedan aislados y se descartan
+    # solos al terminar la corrida.
+    MEDIA_ROOT=tempfile.mkdtemp(prefix="uide_test_media_"),
 )
 class PruebaBase(TestCase):
     """Base comun: las subclases heredan estos ajustes."""
@@ -62,8 +76,30 @@ PREFIJOS_IGNORADOS = (
 )
 
 
+def _sembrar_archivos_de_media(*rutas_relativas):
+    """Crea archivos reales en el MEDIA_ROOT temporal de la corrida actual.
+
+    _datos_base() referencia FileField con una ruta fija ("codigos_qr/qr.png")
+    en vez de subir un archivo real: antes colaba porque el media/ real del
+    proyecto tenia (por accidente) restos de corridas de test anteriores en
+    ese mismo path. Con MEDIA_ROOT aislado (ver PruebaBase) ese atajo
+    desaparece, y cualquier validator que llame a FieldFile.size necesita
+    que el archivo exista de verdad.
+    """
+    from django.conf import settings
+
+    raiz = Path(settings.MEDIA_ROOT)
+    for relativa in rutas_relativas:
+        destino = raiz / relativa
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        if not destino.exists():
+            destino.write_bytes(_imagen_valida().read())
+
+
 def _datos_base():
     """Conjunto mínimo pero completo para poder resolver cualquier ruta."""
+    _sembrar_archivos_de_media(
+        "codigos_qr/qr.png", "comprobantes/qr.png", "galeria/x.jpg")
     carrera = Carrera.objects.create(nombre="Ingeniería en TI")
     deporte = Deporte.objects.create(nombre="Fútbol", descripcion="Fútbol 11.")
 
@@ -228,6 +264,16 @@ def _equipos_para_calendario(campeonato, carrera, delegado, cuantos,
     ]
 
 
+def _imagen_valida(nombre="imagen.png"):
+    """Un PNG minimo pero real: ImageField lo valida con Pillow, y bytes
+    de cabecera PNG escritos a mano no bastan (Pillow los rechaza)."""
+    from PIL import Image
+
+    buffer = io.BytesIO()
+    Image.new("RGB", (2, 2), color=(10, 20, 30)).save(buffer, format="PNG")
+    return SimpleUploadedFile(nombre, buffer.getvalue(), content_type="image/png")
+
+
 def _cerrar(partido, goles_local, goles_visitante):
     """Cierra un partido con marcador, como hace el acta del arbitro."""
     partido.resultado_local = goles_local
@@ -286,6 +332,14 @@ __all__ = [
     "CodigoQR",
     "Deporte",
     "Equipo",
+    "EstadisticaJugadorAjedrez",
+    "EstadisticaJugadorBasquet",
+    "EstadisticaJugadorEcuaboly",
+    "EstadisticaJugadorFutbol",
+    "EstadisticaJugadorFutbolin",
+    "EstadisticaJugadorPingPong",
+    "EstadisticaJugadorTenis",
+    "EstadisticaJugadorVideojuegos",
     "ImagenGaleria",
     "Jugador",
     "Noticia",
@@ -311,6 +365,7 @@ __all__ = [
     "_plantillas_de_pagina",
     "_campeonato_para_calendario",
     "_equipos_para_calendario",
+    "_imagen_valida",
     "_cerrar",
     "_modulos_de_vistas",
     "_definidos_en",
