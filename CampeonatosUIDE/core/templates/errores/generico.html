@@ -1,0 +1,24 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ titulo }} — Campeonatos UIDE</title>
+  <link rel="icon" href="{% static 'img/logo.png' %}" type="image/png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+  <style>
+    /* Una sola plantilla para 403/404/500/CSRF: se ve como un modal
+       (tarjeta centrada sobre fondo oscurecido) en vez de una pagina de
+       error completa distinta para cada codigo. */
+    body { background: rgba(10, 10, 10, .6); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .uide-modal { max-width: 420px; width: 90%; }
+  </style>
+</head>
+<body>
+  <div class="box uide-modal has-text-centered">
+    <p class="title is-5">{{ titulo }}</p>
+    <p class="mb-4">{{ mensaje }}</p>
+    <a class="button is-link" href="javascript:history.back()">Volver</a>
+  </div>
+</body>
+</html>
