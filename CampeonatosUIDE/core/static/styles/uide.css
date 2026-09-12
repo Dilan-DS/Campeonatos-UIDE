@@ -3488,6 +3488,8 @@ body.uide-modal-open { overflow: hidden; }
 .uide-modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, .58); animation: uide-modal-fade .16s ease-out; }
 .uide-modal { position: fixed; z-index: 1; inset: 50% auto auto 50%; width: min(720px, calc(100vw - 2rem)); max-height: min(860px, calc(100vh - 2rem)); transform: translate(-50%, -50%); display: flex; flex-direction: column; background: var(--uide-surface, #fff); border: 1px solid var(--uide-border, #e2e8f0); border-radius: 16px; box-shadow: 0 24px 70px rgba(15,23,42,.28); animation: uide-modal-in .18s ease-out; outline: none; }
 .uide-modal--danger { width: min(500px, calc(100vw - 2rem)); }
+.uide-modal--lg { width: min(900px, calc(100vw - 2rem)); }
+.uide-modal--xl { width: min(1120px, calc(100vw - 2rem)); max-height: min(920px, calc(100vh - 2rem)); }
 .uide-modal__head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--uide-border, #e2e8f0); }
 .uide-modal__head h2 { margin: 0; color: var(--uide-heading, #172033); font-size: 1.25rem; font-weight: 700; }
 .uide-modal__description { margin: .35rem 0 0; color: var(--uide-muted, #64748b); font-size: .9rem; }

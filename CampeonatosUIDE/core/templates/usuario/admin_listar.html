@@ -4,67 +4,87 @@
 {% block title %}Usuarios registrados - Admin{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
+<div class="container uide-container">
 
-    <!-- 🔴 Título de la página -->
-    <h1 class="title has-text-centered has-text-danger mb-5">
-      <span class="icon-text">
-        <span class="icon has-text-danger">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>
-        </span>
-        <span>Usuarios Registrados</span>
-      </span>
-    </h1>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg>
+        Usuarios Registrados
+      </h1>
+      <p class="subtitle">Cuentas de administradores, árbitros, delegados y jugadores.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'crear_usuario_admin' %}" class="button is-primary">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
+        <span>Crear usuario</span>
+      </a>
+    </div>
+  </div>
 
-    <!-- Barra de búsqueda -->
-    <form method="get" class="field has-addons is-justify-content-center mb-6 uide-ancho-limitado">
-      <div class="control is-expanded">
-        <label class="uide-sr-only" for="buscar-usuarios">Buscar usuarios</label>
-        <input class="input" id="buscar-usuarios" type="search" name="buscar"
-               placeholder="Buscar por cédula o usuario" value="{{ query|default:'' }}">
-      </div>
-      <div class="control">
-        <button class="button is-danger" type="submit">Buscar</button>
-      </div>
-    </form>
-
-    <!-- Tabla de usuarios -->
-    <div class="table-container">
-      <table class="table is-bordered is-striped is-hoverable is-fullwidth">
-        <thead>
-          <tr class="has-background-light">
-            <th>Nombre de Usuario</th>
-            <th>Cédula</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th class="has-text-centered">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for user in usuarios %}
-          <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.cedula }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.get_rol_display }}</td>
-            <td class="has-text-centered">
-              <a class="button is-small is-warning mx-1" href="{% url 'editar_usuario' user.id %}">Editar</a>
-                <a class="button is-small is-danger mx-1" href="{% url 'eliminar_usuario' user.id %}">Eliminar</a>
-
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="5" class="has-text-centered has-text-grey py-5">
-              No se encontraron usuarios con ese criterio.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="box">
+    <div class="uide-toolbar">
+      <form method="get" class="field has-addons uide-ancho-limitado" style="margin-bottom:0">
+        <div class="control is-expanded">
+          <label class="uide-sr-only" for="buscar-usuarios">Buscar usuarios</label>
+          <input class="input" id="buscar-usuarios" type="search" name="buscar"
+                 placeholder="Buscar por cédula o usuario" value="{{ query|default:'' }}">
+        </div>
+        <div class="control">
+          <button class="button is-primary" type="submit">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg>
+            <span>Buscar</span>
+          </button>
+        </div>
+      </form>
     </div>
 
+    {% if usuarios %}
+      <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Nombre de usuario</th>
+              <th>Cédula</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in usuarios %}
+            <tr>
+              <td class="uide-cell-strong">{{ user.username }}</td>
+              <td>{{ user.cedula|default:"—" }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.get_rol_display }}</td>
+              <td class="uide-cell-actions">
+                <div class="uide-actions">
+                  <a class="button is-small is-warning is-light" href="{% url 'editar_usuario' user.id %}">Editar</a>
+                  <a class="button is-small is-danger is-light" href="{% url 'eliminar_usuario' user.id %}">Eliminar</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="uide-empty">
+        <span class="uide-empty__icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-equipos"></use></svg></span>
+        <p class="uide-empty__title">No se encontraron usuarios</p>
+        <p class="uide-empty__text">
+          {% if query %}Ningún usuario coincide con "{{ query }}".{% else %}Todavía no hay usuarios registrados.{% endif %}
+        </p>
+        <div class="uide-empty__actions">
+          <a href="{% url 'crear_usuario_admin' %}" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
+            <span>Crear usuario</span>
+          </a>
+        </div>
+      </div>
+    {% endif %}
   </div>
-</section>
+
+</div>
 {% endblock %}

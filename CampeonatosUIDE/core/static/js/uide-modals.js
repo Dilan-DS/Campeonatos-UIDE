@@ -5,24 +5,46 @@
   if (!root) return;
   let opener = null;
 
+  // Formularios de creacion demasiado interactivos para sobrevivir a la
+  // extraccion (solo se mueve el <form>, los <script> de esa pagina no se
+  // ejecutan en el modal): fechas con validacion cruzada en vivo, o un
+  // select que rellena una tarjeta bancaria. Se listan por segmento final
+  // de la URL para excluirlos del modal y dejarlos como pagina completa.
+  const CREATE_EXCEPTIONS = ['campeonatos', 'pagos', 'equipo', 'equipos'];
+
   const isAction = (el) => {
     if (!el || el.dataset.modalManaged === 'true') return false;
     const href = el.getAttribute('href') || '';
     const action = el.getAttribute('data-modal-action') || '';
     const text = (el.textContent || '').trim().toLowerCase();
-    // Dos convenciones de URL conviven en el proyecto: ".../<id>/editar/"
-    // (mayoria) y ".../editar/<id>/" (noticias, testimonios, galeria). Se
-    // detecta por segmento de ruta en vez de un regex de "al final",
-    // que solo cubria la primera y dejaba la segunda cayendo a pagina
-    // completa en vez de abrir el modal.
+    // Varias convenciones de URL conviven en el proyecto: ".../<id>/editar/"
+    // (mayoria), ".../editar/<id>/" (noticias, testimonios, galeria) y
+    // ".../registrar/" o ".../crear/" (altas). Se detecta por segmento de
+    // ruta en vez de un regex de "al final", que dejaba fuera del modal
+    // cualquier variante que no terminara justo asi.
+    // includes() en vez de igualdad exacta: rutas como "crear-usuario" o
+    // "registrar_pago_admin" llevan la palabra pegada a otra dentro del
+    // mismo segmento, no como segmento propio.
     const segments = href.split('?')[0].split('/').filter(Boolean).map((s) => s.toLowerCase());
-    const hasEditOrDelete = segments.includes('editar') || segments.includes('eliminar');
-    return !!action || (href && hasEditOrDelete &&
-      (/editar|eliminar|borrar|actualizar/i.test(text) || el.classList.contains('is-danger')));
+    const hasEditOrDelete = segments.some((s) => s.includes('editar')) || segments.some((s) => s.includes('eliminar'));
+    const hasCreate = segments.some((s) => s.includes('registrar') || s.includes('crear') || s.includes('nuevo'));
+    if (hasCreate && CREATE_EXCEPTIONS.some((seg) => segments.some((s) => s.includes(seg)))) return false;
+    return !!action || (href && (hasEditOrDelete || hasCreate) &&
+      (/editar|eliminar|borrar|actualizar|registrar|crear|nuevo/i.test(text) || el.classList.contains('is-danger') || el.classList.contains('is-primary') || el.classList.contains('is-success')));
   };
 
+  function actionKind(url, destructive) {
+    if (destructive) return 'eliminar';
+    const segments = url.split('?')[0].split('/').filter(Boolean).map((s) => s.toLowerCase());
+    if (segments.some((s) => s.includes('registrar') || s.includes('crear') || s.includes('nuevo'))) return 'crear';
+    return 'editar';
+  }
+
   function titleFor(url, destructive) {
-    return destructive ? 'Confirmar eliminación' : 'Editar registro';
+    const kind = actionKind(url, destructive);
+    if (kind === 'eliminar') return 'Confirmar eliminación';
+    if (kind === 'crear') return 'Crear registro';
+    return 'Editar registro';
   }
 
   function close(force) {
@@ -49,16 +71,24 @@
     // (ej. ".../eliminar/2/"), y el backend respondia 405. Se usa el
     // atributo HTML tal cual vino, con la URL de origen como respaldo.
     const targetAction = form.getAttribute('action') || url;
+    const kind = actionKind(url, destructive);
     const heading = source.querySelector('h1, h2, .modal-card-title, .title')?.textContent.trim() || titleFor(url, destructive);
+    // Modal a la medida del formulario: uno de 2 campos no necesita el
+    // mismo ancho que uno con 10+. Se cuenta sobre el <form> ya extraido,
+    // antes de moverlo, para no incluir nada del resto de la pagina.
+    const fieldCount = form.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), select, textarea').length;
+    const sizeClass = fieldCount > 9 ? 'uide-modal--xl' : fieldCount > 4 ? 'uide-modal--lg' : '';
     root.innerHTML = `<div class="uide-modal-backdrop" data-modal-close="true"></div>
-      <section class="uide-modal" role="dialog" aria-modal="true" aria-labelledby="uide-modal-title" tabindex="-1">
+      <section class="uide-modal ${sizeClass}" role="dialog" aria-modal="true" aria-labelledby="uide-modal-title" tabindex="-1">
         <header class="uide-modal__head"><div><h2 id="uide-modal-title"></h2><p class="uide-modal__description"></p></div>
           <button type="button" class="uide-modal__close" data-modal-close="true" aria-label="Cerrar">&times;</button></header>
         <div class="uide-modal__body"></div>
       </section>`;
     const dialog = root.querySelector('.uide-modal');
     root.querySelector('#uide-modal-title').textContent = heading;
-    const description = destructive ? 'Esta acción no se puede deshacer.' : 'Revisa los datos y guarda los cambios cuando termines.';
+    const description = kind === 'eliminar' ? 'Esta acción no se puede deshacer.'
+      : kind === 'crear' ? 'Completa los datos para registrar el nuevo elemento.'
+      : 'Revisa los datos y guarda los cambios cuando termines.';
     root.querySelector('.uide-modal__description').textContent = description;
     form.classList.add('uide-modal__form');
     form.dataset.dirty = 'false';

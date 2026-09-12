@@ -12,6 +12,14 @@
         {% if is_admin_view %}Listado de Jugadores{% else %}Gestión de Jugadores para {{ equipo_delegado.nombre }}{% endif %}
       </h1>
     </div>
+    {% if not is_admin_view %}
+      <div class="uide-page-head__actions">
+        <a href="{% url 'registrar_jugador' %}" class="button is-primary">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
+          <span>Registrar jugador</span>
+        </a>
+      </div>
+    {% endif %}
   </div>
 
     {% if not is_admin_view and not pago_aprobado %}
