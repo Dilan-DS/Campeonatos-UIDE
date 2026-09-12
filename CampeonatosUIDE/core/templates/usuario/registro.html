@@ -3,169 +3,532 @@
 {% load widget_tweaks %}
 
 {% comment %}
-  Registro de usuario.
+  Registro de usuario — wizard de 4 pasos.
 
-  Se retiró el bloque de estilos propio (~53 líneas) con un degradado
-  rosa/naranja y estilos de campo a medida. Los controles ahora heredan
-  del sistema de diseño mediante .uide-form, sin tocar los widgets.
+  Sigue siendo UN SOLO <form> con los mismos campos de RegistroUsuarioForm
+  y el mismo POST de siempre: el wizard es una capa visual (JS) que
+  muestra un paso a la vez y valida antes de dejar avanzar, pero no
+  cambia qué se envía al servidor ni la vista que lo procesa.
 
-  Se retiró el bloque "Datos como jugador" y su script: RegistroUsuarioForm
-  no define numero_camiseta, posicion ni edad, así que la sección se
-  renderizaba siempre vacía. Esos datos se piden en completar_perfil_jugador,
-  a donde la vista redirige tras registrarse como jugador.
-
-  Mejoras: las secciones son <fieldset>/<legend> (antes <h3> suelto), el
-  grupo de rol es un control segmentado con foco visible, y los errores
-  del formulario se resumen arriba además de junto a cada campo.
+  Si el servidor devuelve errores (POST invalido), initStepFromErrors()
+  calcula en qué paso está el primer campo con error y abre ese paso, para
+  que el error nunca quede oculto en un paso que el usuario no ve.
 {% endcomment %}
 
 {% block title %}Crear cuenta | Campeonatos UIDE{% endblock %}
 
 {% block content %}
 <section class="uide-auth">
-  <div class="uide-auth__card uide-auth__card--wide">
+  <div class="uide-wizard">
+    <div class="uide-wizard__card">
 
-    <div class="uide-auth__head">
-      <img class="uide-auth__logo" src="{% static 'img/logo.png' %}" alt="UIDE Loja">
-      <h1>Crear cuenta</h1>
-      <p>Regístrate para inscribirte en los campeonatos internos de la UIDE Loja.</p>
-    </div>
-
-    {% if form.errors %}
-      <div class="uide-form-errors" role="alert">
-        <strong class="uide-with-icon">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
-          Revisa los datos marcados
-        </strong>
-        <ul>
-          {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
-          {% for campo in form %}
-            {% for err in campo.errors %}<li>{{ campo.label }}: {{ err }}</li>{% endfor %}
-          {% endfor %}
-        </ul>
+      <div class="uide-auth__head">
+        <img class="uide-auth__logo" src="{% static 'img/logo.png' %}" alt="UIDE Loja">
+        <h1>Crear cuenta</h1>
+        <p>Regístrate para inscribirte en los campeonatos internos de la UIDE Loja.</p>
       </div>
-    {% endif %}
 
-    <form method="post" class="uide-form" novalidate>
-      {% csrf_token %}
-
-      {# --- Datos personales --- #}
-      <fieldset class="uide-fieldset">
-        <legend>Datos personales</legend>
-        <div class="uide-form-grid">
-          {% for campo in form %}
-            {% if campo.name == 'first_name' or campo.name == 'last_name' or campo.name == 'carrera' or campo.name == 'genero' or campo.name == 'cedula' %}
-              <div class="field">
-                <label class="label" for="{{ campo.id_for_label }}">
-                  {{ campo.label }}
-                  {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
-                </label>
-                <div class="control">{{ campo }}</div>
-                {% if campo.errors %}
-                  {% for err in campo.errors %}
-                    <p class="help is-danger">
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
-                      <span>{{ err }}</span>
-                    </p>
-                  {% endfor %}
-                {% elif campo.name == 'cedula' %}
-                  <p class="help">10 dígitos, sólo números.</p>
-                {% elif campo.help_text %}
-                  <p class="help">{{ campo.help_text|safe }}</p>
-                {% endif %}
-              </div>
-            {% endif %}
-          {% endfor %}
+      {% if form.non_field_errors %}
+        <div class="uide-form-errors" role="alert">
+          <strong class="uide-with-icon">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+            Revisa los datos marcados
+          </strong>
+          <ul>
+            {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+          </ul>
         </div>
-      </fieldset>
-
-      {# --- Datos de acceso --- #}
-      <fieldset class="uide-fieldset">
-        <legend>Datos de acceso</legend>
-        <div class="uide-form-grid">
-          {% for campo in form %}
-            {% if campo.name == 'username' or campo.name == 'email' or campo.name == 'password1' or campo.name == 'password2' %}
-              <div class="field">
-                <label class="label" for="{{ campo.id_for_label }}">
-                  {{ campo.label }}
-                  {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
-                </label>
-                <div class="control">{{ campo }}</div>
-                {% if campo.errors %}
-                  {% for err in campo.errors %}
-                    <p class="help is-danger">
-                      <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
-                      <span>{{ err }}</span>
-                    </p>
-                  {% endfor %}
-                {% elif campo.help_text %}
-                  <p class="help">{{ campo.help_text|safe }}</p>
-                {% endif %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </fieldset>
-
-      {# --- Rol --- #}
-      {% if form.rol %}
-        <fieldset class="uide-fieldset">
-          <legend>¿Cómo participas?</legend>
-          <div class="uide-segmented">
-            {% for radio in form.rol %}
-              {{ radio.tag }}
-              <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-            {% endfor %}
-          </div>
-          {% for err in form.rol.errors %}
-            <p class="help is-danger">
-              <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
-              <span>{{ err }}</span>
-            </p>
-          {% endfor %}
-        </fieldset>
       {% endif %}
 
-      {% comment %}
-        Cualquier campo que no encaje en las secciones anteriores se sigue
-        mostrando: así añadir un campo al formulario no lo deja invisible.
-      {% endcomment %}
-      {% with conocidos="first_name last_name carrera genero cedula username email password1 password2 rol" %}
-        {% for campo in form %}
-          {% if campo.name not in conocidos.split %}
-            <div class="field">
-              <label class="label" for="{{ campo.id_for_label }}">
-                {{ campo.label }}
-                {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
-              </label>
-              <div class="control">{{ campo }}</div>
-              {% for err in campo.errors %}
-                <p class="help is-danger">
-                  <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
-                  <span>{{ err }}</span>
-                </p>
+      <!-- Stepper -->
+      <nav class="uide-stepper" aria-label="Progreso del registro">
+        <div class="uide-stepper__item" data-stepper-item="1">
+          <div class="uide-stepper__step">
+            <span class="uide-stepper__circle" data-stepper-circle>
+              <span data-stepper-number>1</span>
+              <svg class="uide-icon" data-stepper-check hidden aria-hidden="true"><use href="#i-exito"></use></svg>
+            </span>
+            <span class="uide-stepper__label">Datos personales</span>
+          </div>
+          <span class="uide-stepper__connector" aria-hidden="true"></span>
+        </div>
+        <div class="uide-stepper__item" data-stepper-item="2">
+          <div class="uide-stepper__step">
+            <span class="uide-stepper__circle" data-stepper-circle>
+              <span data-stepper-number>2</span>
+              <svg class="uide-icon" data-stepper-check hidden aria-hidden="true"><use href="#i-exito"></use></svg>
+            </span>
+            <span class="uide-stepper__label">Acceso</span>
+          </div>
+          <span class="uide-stepper__connector" aria-hidden="true"></span>
+        </div>
+        <div class="uide-stepper__item" data-stepper-item="3">
+          <div class="uide-stepper__step">
+            <span class="uide-stepper__circle" data-stepper-circle>
+              <span data-stepper-number>3</span>
+              <svg class="uide-icon" data-stepper-check hidden aria-hidden="true"><use href="#i-exito"></use></svg>
+            </span>
+            <span class="uide-stepper__label">Participación</span>
+          </div>
+          <span class="uide-stepper__connector" aria-hidden="true"></span>
+        </div>
+        <div class="uide-stepper__item" data-stepper-item="4">
+          <div class="uide-stepper__step">
+            <span class="uide-stepper__circle" data-stepper-circle>
+              <span data-stepper-number>4</span>
+              <svg class="uide-icon" data-stepper-check hidden aria-hidden="true"><use href="#i-exito"></use></svg>
+            </span>
+            <span class="uide-stepper__label">Confirmación</span>
+          </div>
+        </div>
+      </nav>
+      <p class="uide-wizard__progress" data-wizard-progress>Paso 1 de 4</p>
+
+      <form method="post" class="uide-form" id="form-registro" novalidate>
+        {% csrf_token %}
+
+        <!-- ========== Paso 1: Datos personales ========== -->
+        <div class="uide-wizard-step" data-step="1">
+          <div class="uide-wizard-step__head">
+            <h2>Datos personales</h2>
+            <p>Cuéntanos quién eres.</p>
+          </div>
+          <div class="uide-form-grid">
+            {% for campo in form %}
+              {% if campo.name == 'first_name' or campo.name == 'last_name' or campo.name == 'cedula' or campo.name == 'carrera' or campo.name == 'genero' %}
+                <div class="field">
+                  <label class="label" for="{{ campo.id_for_label }}">
+                    {{ campo.label }}
+                    {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                  </label>
+                  <div class="control">{{ campo }}</div>
+                  <p class="help is-danger" data-field-error hidden></p>
+                  {% if campo.errors %}
+                    {% for err in campo.errors %}
+                      <p class="help is-danger">
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                        <span>{{ err }}</span>
+                      </p>
+                    {% endfor %}
+                  {% elif campo.name == 'cedula' %}
+                    <p class="help">10 dígitos, sólo números.</p>
+                  {% elif campo.help_text %}
+                    <p class="help">{{ campo.help_text|safe }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="uide-wizard__actions">
+            <a href="{% url 'login' %}" class="button is-light">Cancelar</a>
+            <span class="uide-form-actions__spacer"></span>
+            <button type="button" class="button is-primary" data-wizard-next>
+              <span>Continuar</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-derecha"></use></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== Paso 2: Datos de acceso ========== -->
+        <div class="uide-wizard-step" data-step="2" hidden>
+          <div class="uide-wizard-step__head">
+            <h2>Datos de acceso</h2>
+            <p>Con esto vas a iniciar sesión cada vez.</p>
+          </div>
+          <div class="uide-form-grid">
+            {% for campo in form %}
+              {% if campo.name == 'username' or campo.name == 'email' or campo.name == 'password1' or campo.name == 'password2' %}
+                <div class="field{% if campo.name == 'password1' or campo.name == 'password2' %} is-full{% endif %}">
+                  <label class="label" for="{{ campo.id_for_label }}">
+                    {{ campo.label }}
+                    {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                  </label>
+                  <div class="control">{{ campo }}</div>
+                  <p class="help is-danger" data-field-error hidden></p>
+                  {% if campo.errors %}
+                    {% for err in campo.errors %}
+                      <p class="help is-danger">
+                        <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                        <span>{{ err }}</span>
+                      </p>
+                    {% endfor %}
+                  {% elif campo.help_text %}
+                    <p class="help">{{ campo.help_text|safe }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="uide-wizard__actions">
+            <button type="button" class="button is-light" data-wizard-prev>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+              <span>Atrás</span>
+            </button>
+            <span class="uide-form-actions__spacer"></span>
+            <button type="button" class="button is-primary" data-wizard-next>
+              <span>Continuar</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-derecha"></use></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== Paso 3: Participación ========== -->
+        <div class="uide-wizard-step" data-step="3" hidden>
+          <div class="uide-wizard-step__head">
+            <h2>¿Cómo participas?</h2>
+            <p>Elige el tipo de cuenta que necesitas.</p>
+          </div>
+
+          {% if form.rol %}
+            <div class="uide-choice-grid" role="radiogroup" aria-label="¿Cómo participas?">
+              {% for radio in form.rol %}
+                <label class="uide-choice-card">
+                  {{ radio.tag }}
+                  <span class="uide-choice-card__face">
+                    <span class="uide-choice-card__icon">
+                      <svg class="uide-icon" aria-hidden="true">
+                        <use href="{% if radio.data.value == 'DELEGADO' %}#i-escudo{% else %}#i-camiseta{% endif %}"></use>
+                      </svg>
+                    </span>
+                    <span class="uide-choice-card__title">{{ radio.choice_label }}</span>
+                    <span class="uide-choice-card__desc">
+                      {% if radio.data.value == 'DELEGADO' %}
+                        Administra el equipo de tu carrera: jugadores, pagos e inscripción.
+                      {% else %}
+                        Participa como jugador en los campeonatos de tu carrera.
+                      {% endif %}
+                    </span>
+                  </span>
+                  <span class="uide-choice-card__check" aria-hidden="true">
+                    <svg class="uide-icon" aria-hidden="true"><use href="#i-exito"></use></svg>
+                  </span>
+                </label>
               {% endfor %}
             </div>
+            <p class="help is-danger" data-field-error hidden></p>
+            {% for err in form.rol.errors %}
+              <p class="help is-danger">
+                <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                <span>{{ err }}</span>
+              </p>
+            {% endfor %}
+
+            <p class="uide-role-note" data-role-note="JUGADOR" hidden>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+              <span>Si te registras como jugador, en el siguiente paso completarás tu número de camiseta y posición.</span>
+            </p>
+            <p class="uide-role-note" data-role-note="DELEGADO" hidden>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-info"></use></svg>
+              <span>Como delegado podrás inscribir tu equipo apenas inicies sesión.</span>
+            </p>
           {% endif %}
-        {% endfor %}
-      {% endwith %}
 
-      <div class="field">
-        <button type="submit" class="button is-primary is-fullwidth">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
-          <span>Crear cuenta</span>
-        </button>
+          <div class="uide-wizard__actions">
+            <button type="button" class="button is-light" data-wizard-prev>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+              <span>Atrás</span>
+            </button>
+            <span class="uide-form-actions__spacer"></span>
+            <button type="button" class="button is-primary" data-wizard-next>
+              <span>Continuar</span>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-chevron-derecha"></use></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== Paso 4: Revisar y crear cuenta ========== -->
+        <div class="uide-wizard-step" data-step="4" hidden>
+          <div class="uide-wizard-step__head">
+            <h2>Revisa tus datos</h2>
+            <p>Confirma que todo esté correcto antes de crear tu cuenta.</p>
+          </div>
+
+          <div class="uide-review">
+            <div class="uide-review__section">
+              <h3>Datos personales</h3>
+              <dl class="uide-details">
+                <div><dt>Nombre</dt><dd data-review="first_name"></dd></div>
+                <div><dt>Apellidos</dt><dd data-review="last_name"></dd></div>
+                <div><dt>Cédula</dt><dd data-review="cedula"></dd></div>
+                <div><dt>Carrera</dt><dd data-review="carrera"></dd></div>
+                <div><dt>Género</dt><dd data-review="genero"></dd></div>
+              </dl>
+            </div>
+            <div class="uide-review__section">
+              <h3>Datos de acceso</h3>
+              <dl class="uide-details">
+                <div><dt>Usuario</dt><dd data-review="username"></dd></div>
+                <div><dt>Correo</dt><dd data-review="email"></dd></div>
+              </dl>
+            </div>
+            <div class="uide-review__section">
+              <h3>Participación</h3>
+              <dl class="uide-details">
+                <div><dt>Tipo de cuenta</dt><dd data-review="rol"></dd></div>
+              </dl>
+            </div>
+          </div>
+
+          {% comment %}
+            Cualquier campo que no encaje en los tres pasos anteriores (por
+            si el formulario gana uno nuevo) se muestra aquí para que no
+            quede invisible ni bloquee el envío.
+          {% endcomment %}
+          {% with conocidos="first_name last_name carrera genero cedula username email password1 password2 rol" %}
+            {% for campo in form %}
+              {% if campo.name not in conocidos.split %}
+                <div class="field mt-4">
+                  <label class="label" for="{{ campo.id_for_label }}">
+                    {{ campo.label }}
+                    {% if campo.field.required %}<span class="uide-required" aria-hidden="true">*</span>{% endif %}
+                  </label>
+                  <div class="control">{{ campo }}</div>
+                  {% for err in campo.errors %}
+                    <p class="help is-danger">
+                      <svg class="uide-icon" aria-hidden="true"><use href="#i-error"></use></svg>
+                      <span>{{ err }}</span>
+                    </p>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+
+          <div class="uide-wizard__actions">
+            <button type="button" class="button is-light" data-wizard-prev>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+              <span>Atrás</span>
+            </button>
+            <span class="uide-form-actions__spacer"></span>
+            <button type="submit" class="button is-primary" data-wizard-submit>
+              <svg class="uide-icon" aria-hidden="true"><use href="#i-usuario-mas"></use></svg>
+              <span>Crear cuenta</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+      <div class="uide-auth__actions">
+        <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
       </div>
-      <p class="help has-text-centered">
-        Si te registras como jugador, en el siguiente paso completarás tu número
-        de camiseta y posición.
-      </p>
-    </form>
 
-    <div class="uide-auth__actions">
-      <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
     </div>
-
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('form-registro');
+    if (!form) return;
+
+    const TOTAL_STEPS = 4;
+    const steps = Array.from(form.querySelectorAll('[data-step]'));
+    const stepperItems = Array.from(document.querySelectorAll('[data-stepper-item]'));
+    const progressLabel = document.querySelector('[data-wizard-progress]');
+
+    // Campos de cada paso, para validar antes de avanzar y para el resumen.
+    const FIELDS_BY_STEP = {
+      1: ['first_name', 'last_name', 'cedula', 'carrera', 'genero'],
+      2: ['username', 'email', 'password1', 'password2'],
+      3: ['rol'],
+    };
+
+    function fieldEl(name) {
+      return form.querySelector(`[name="${name}"]`);
+    }
+
+    function fieldWrapper(el) {
+      return el ? el.closest('.field') : null;
+    }
+
+    function clearFieldError(name) {
+      const el = fieldEl(name);
+      const wrap = fieldWrapper(el);
+      if (!wrap) return;
+      const errorEl = wrap.querySelector('[data-field-error]');
+      if (errorEl) { errorEl.hidden = true; errorEl.textContent = ''; }
+      if (el) el.classList.remove('is-danger');
+    }
+
+    function showFieldError(name, message) {
+      const el = fieldEl(name);
+      if (!el) return;
+      if (name === 'rol') {
+        const box = form.querySelector('[data-step="3"] [data-field-error]');
+        if (box) { box.hidden = false; box.textContent = message; }
+        return;
+      }
+      const wrap = fieldWrapper(el);
+      if (!wrap) return;
+      const errorEl = wrap.querySelector('[data-field-error]');
+      if (errorEl) { errorEl.hidden = false; errorEl.textContent = message; }
+      el.classList.add('is-danger');
+    }
+
+    // Valida un paso. Usa la validez nativa del campo (required/pattern/
+    // type=email, etc., ya declarada por los widgets de Django) más una
+    // comprobación extra de coincidencia de contraseñas en el paso 2.
+    function validateStep(step) {
+      const names = FIELDS_BY_STEP[step] || [];
+      let firstInvalid = null;
+      let ok = true;
+
+      if (step === 3) {
+        const checked = form.querySelector('input[name="rol"]:checked');
+        clearFieldError('rol');
+        if (!checked) {
+          showFieldError('rol', 'Selecciona una opción para continuar.');
+          ok = false;
+        }
+        return ok;
+      }
+
+      names.forEach((name) => {
+        const el = fieldEl(name);
+        if (!el) return;
+        clearFieldError(name);
+        if (!el.checkValidity()) {
+          showFieldError(name, el.validationMessage || 'Revisa este campo.');
+          ok = false;
+          if (!firstInvalid) firstInvalid = el;
+        }
+      });
+
+      if (step === 2) {
+        const p1 = fieldEl('password1');
+        const p2 = fieldEl('password2');
+        if (p1 && p2 && p1.value && p2.value && p1.value !== p2.value) {
+          showFieldError('password2', 'Las contraseñas no coinciden.');
+          ok = false;
+          if (!firstInvalid) firstInvalid = p2;
+        }
+      }
+
+      if (firstInvalid) firstInvalid.focus();
+      return ok;
+    }
+
+    function updateStepper(step) {
+      stepperItems.forEach((item) => {
+        const n = Number(item.dataset.stepperItem);
+        item.classList.remove('is-active', 'is-done');
+        const numberEl = item.querySelector('[data-stepper-number]');
+        const checkEl = item.querySelector('[data-stepper-check]');
+        if (n < step) {
+          item.classList.add('is-done');
+          numberEl.hidden = true;
+          checkEl.hidden = false;
+        } else {
+          numberEl.hidden = false;
+          checkEl.hidden = true;
+          if (n === step) item.classList.add('is-active');
+        }
+      });
+      if (progressLabel) progressLabel.textContent = `Paso ${step} de ${TOTAL_STEPS}`;
+    }
+
+    function populateReview() {
+      const map = {
+        first_name: 'first_name', last_name: 'last_name', cedula: 'cedula',
+        username: 'username', email: 'email',
+      };
+      Object.keys(map).forEach((key) => {
+        const el = fieldEl(map[key]);
+        const out = form.querySelector(`[data-review="${key}"]`);
+        if (out) out.textContent = (el && el.value) ? el.value : '—';
+      });
+
+      const carreraEl = fieldEl('carrera');
+      const carreraOut = form.querySelector('[data-review="carrera"]');
+      if (carreraOut) {
+        const opt = carreraEl && carreraEl.selectedOptions && carreraEl.selectedOptions[0];
+        carreraOut.textContent = opt && opt.value ? opt.textContent.trim() : '—';
+      }
+
+      const generoEl = fieldEl('genero');
+      const generoOut = form.querySelector('[data-review="genero"]');
+      if (generoOut) {
+        const opt = generoEl && generoEl.selectedOptions && generoEl.selectedOptions[0];
+        generoOut.textContent = opt && opt.value ? opt.textContent.trim() : '—';
+      }
+
+      const rolChecked = form.querySelector('input[name="rol"]:checked');
+      const rolOut = form.querySelector('[data-review="rol"]');
+      if (rolOut) {
+        const title = rolChecked ? rolChecked.closest('.uide-choice-card')?.querySelector('.uide-choice-card__title') : null;
+        rolOut.textContent = title ? title.textContent.trim() : '—';
+      }
+    }
+
+    function updateRoleNote() {
+      const rolChecked = form.querySelector('input[name="rol"]:checked');
+      const value = rolChecked ? rolChecked.value : null;
+      form.querySelectorAll('[data-role-note]').forEach((note) => {
+        note.hidden = note.dataset.roleNote !== value;
+      });
+    }
+
+    function goToStep(step) {
+      steps.forEach((el) => { el.hidden = Number(el.dataset.step) !== step; });
+      updateStepper(step);
+      if (step === 3) updateRoleNote();
+      if (step === 4) populateReview();
+      const heading = form.querySelector(`[data-step="${step}"] .uide-wizard-step__head h2`);
+      if (heading) heading.setAttribute('tabindex', '-1');
+      if (heading) heading.focus({ preventScroll: false });
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    form.querySelectorAll('[data-wizard-next]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const currentStep = Number(btn.closest('[data-step]').dataset.step);
+        if (!validateStep(currentStep)) return;
+        goToStep(currentStep + 1);
+      });
+    });
+
+    form.querySelectorAll('[data-wizard-prev]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const currentStep = Number(btn.closest('[data-step]').dataset.step);
+        goToStep(currentStep - 1);
+      });
+    });
+
+    form.querySelectorAll('input[name="rol"]').forEach((input) => {
+      input.addEventListener('change', updateRoleNote);
+    });
+
+    // Evita un envío real si, por lo que sea (JS deshabilitado a medias,
+    // atajo de teclado), el paso 3 no tiene rol seleccionado.
+    form.addEventListener('submit', (event) => {
+      if (!validateStep(1) ) { event.preventDefault(); goToStep(1); return; }
+      if (!validateStep(2) ) { event.preventDefault(); goToStep(2); return; }
+      if (!validateStep(3) ) { event.preventDefault(); goToStep(3); return; }
+      const submitBtn = form.querySelector('[data-wizard-submit]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('is-loading'); }
+    });
+
+    // Si el servidor devolvió errores (POST invalido), abre el primer paso
+    // que tenga un campo marcado con error en vez de dejar el wizard en el
+    // paso 1 escondiendo el problema.
+    function initialStep() {
+      for (let step = 1; step <= TOTAL_STEPS; step += 1) {
+        const names = FIELDS_BY_STEP[step];
+        if (!names) continue;
+        const hasServerError = names.some((name) => {
+          const el = fieldEl(name);
+          const wrap = fieldWrapper(el);
+          return wrap && wrap.querySelector('.help.is-danger:not([data-field-error])');
+        });
+        if (hasServerError) return step;
+      }
+      return 1;
+    }
+
+    goToStep(initialStep());
+  });
+</script>
 {% endblock %}

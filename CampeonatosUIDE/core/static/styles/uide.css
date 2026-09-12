@@ -2189,6 +2189,14 @@ td.uide-empty-cell .uide-empty {
   padding: var(--uide-space-6) var(--uide-space-4);
 }
 
+/* El wizard de registro necesita todo el ancho de su columna (hasta el
+   max-width de .uide-wizard) en vez de encogerse a su contenido, que es
+   lo que "place-items: center" hace por defecto para las tarjetas de
+   login/registro simples. */
+.uide-auth:has(.uide-wizard) {
+  justify-items: stretch;
+}
+
 .uide-auth__card {
   width: 100%;
   max-width: 27rem;
@@ -2518,6 +2526,372 @@ td.uide-empty-cell .uide-empty {
   outline-offset: 2px;
 }
 
+/* --- Registro por pasos (wizard) ---------------------------------------
+
+   La pantalla de registro usa un único <form> con todos los campos de
+   RegistroUsuarioForm en el DOM a la vez (el POST real no cambia); este
+   componente sólo decide qué sección se ve. Así, avanzar/retroceder no
+   pierde datos ni requiere partir el formulario en varias vistas.        */
+
+.uide-wizard {
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.uide-wizard__card {
+  background: var(--uide-surface);
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-lg);
+  box-shadow: var(--uide-shadow-md);
+  padding: var(--uide-space-6);
+}
+
+@media (max-width: 640px) {
+  .uide-wizard__card {
+    padding: var(--uide-space-4);
+    border-radius: var(--uide-radius-md);
+  }
+}
+
+/* Stepper ------------------------------------------------------------- */
+
+.uide-stepper {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--uide-space-6);
+  counter-reset: uide-step;
+}
+
+.uide-stepper__item {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.uide-stepper__item:last-child {
+  flex: 0 0 auto;
+}
+
+.uide-stepper__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--uide-space-2);
+  flex: 0 0 auto;
+  text-align: center;
+  min-width: 4.5rem;
+}
+
+.uide-stepper__circle {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 2px solid var(--uide-border-strong);
+  background: var(--uide-surface);
+  color: var(--uide-muted);
+  font-weight: 700;
+  font-size: .9rem;
+  font-variant-numeric: tabular-nums;
+  transition: border-color var(--uide-fast) var(--uide-ease),
+              background-color var(--uide-fast) var(--uide-ease),
+              color var(--uide-fast) var(--uide-ease);
+}
+
+.uide-stepper__circle .uide-icon {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.uide-stepper__label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--uide-muted);
+  line-height: 1.25;
+}
+
+.uide-stepper__connector {
+  flex: 1 1 auto;
+  height: 2px;
+  background: var(--uide-border-strong);
+  margin: 0 var(--uide-space-2);
+  margin-top: -1.6rem;
+  transition: background-color var(--uide-fast) var(--uide-ease);
+}
+
+/* Paso activo: destacado con el color de marca. */
+.uide-stepper__item.is-active .uide-stepper__circle {
+  border-color: var(--uide-primary);
+  background: var(--uide-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--uide-primary-soft);
+}
+
+.uide-stepper__item.is-active .uide-stepper__label {
+  color: var(--uide-primary-strong);
+}
+
+/* Paso completado: check en vez de número, conector siguiente en color. */
+.uide-stepper__item.is-done .uide-stepper__circle {
+  border-color: var(--uide-primary);
+  background: var(--uide-primary-soft);
+  color: var(--uide-primary-strong);
+}
+
+.uide-stepper__item.is-done .uide-stepper__connector {
+  background: var(--uide-primary);
+}
+
+@media (max-width: 640px) {
+  .uide-stepper__label {
+    display: none;
+  }
+
+  .uide-stepper__step {
+    min-width: 0;
+  }
+
+  .uide-stepper__connector {
+    margin-top: 0;
+  }
+}
+
+/* Progreso textual ("Paso 2 de 4"), visible sólo en móvil bajo el stepper
+   compacto (los labels del stepper se ocultan ahí). */
+.uide-wizard__progress {
+  display: none;
+  color: var(--uide-muted);
+  font-size: .82rem;
+  font-weight: 600;
+  text-align: center;
+  margin: calc(var(--uide-space-3) * -1) 0 var(--uide-space-5);
+}
+
+@media (max-width: 640px) {
+  .uide-wizard__progress {
+    display: block;
+  }
+}
+
+/* Pasos: sólo el activo se muestra; el resto queda en el DOM (sin perder
+   valores) pero fuera de flujo y de la navegación por teclado/lector. */
+.uide-wizard-step {
+  animation: uide-step-in var(--uide-base) var(--uide-ease);
+}
+
+.uide-wizard-step[hidden] {
+  display: none;
+}
+
+@keyframes uide-step-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uide-wizard-step {
+    animation: none;
+  }
+}
+
+.uide-wizard-step__head {
+  margin-bottom: var(--uide-space-5);
+}
+
+.uide-wizard-step__head h2 {
+  margin: 0 0 var(--uide-space-1);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--uide-text);
+}
+
+.uide-wizard-step__head p {
+  margin: 0;
+  color: var(--uide-muted);
+  font-size: .9rem;
+}
+
+.uide-wizard__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--uide-space-3);
+  margin-top: var(--uide-space-6);
+  padding-top: var(--uide-space-4);
+  border-top: 1px solid var(--uide-border);
+}
+
+.uide-wizard__actions .uide-form-actions__spacer {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 640px) {
+  .uide-wizard__actions {
+    flex-wrap: wrap;
+  }
+
+  .uide-wizard__actions .button {
+    flex: 1 1 auto;
+  }
+}
+
+/* Tarjetas de selección grandes (Jugador / Delegado) --------------------- */
+
+.uide-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--uide-space-4);
+}
+
+.uide-choice-card {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.uide-choice-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.uide-choice-card__face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--uide-space-3);
+  padding: var(--uide-space-5);
+  height: 100%;
+  border: 1.5px solid var(--uide-border-strong);
+  border-radius: var(--uide-radius-md);
+  background: var(--uide-surface);
+  transition: border-color var(--uide-fast) var(--uide-ease),
+              background-color var(--uide-fast) var(--uide-ease),
+              box-shadow var(--uide-fast) var(--uide-ease);
+}
+
+.uide-choice-card:hover .uide-choice-card__face {
+  border-color: var(--uide-muted);
+}
+
+.uide-choice-card input:checked + .uide-choice-card__face {
+  border-color: var(--uide-primary);
+  background: var(--uide-primary-soft);
+  box-shadow: 0 0 0 3px var(--uide-primary-soft);
+}
+
+.uide-choice-card input:focus-visible + .uide-choice-card__face {
+  outline: 2px solid var(--uide-primary);
+  outline-offset: 2px;
+}
+
+.uide-choice-card__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--uide-primary-soft);
+  color: var(--uide-primary);
+  flex: 0 0 auto;
+}
+
+.uide-choice-card input:checked + .uide-choice-card__face .uide-choice-card__icon {
+  background: var(--uide-primary);
+  color: #fff;
+}
+
+.uide-choice-card__title {
+  font-weight: 700;
+  color: var(--uide-text);
+  font-size: 1.05rem;
+}
+
+.uide-choice-card__desc {
+  color: var(--uide-muted);
+  font-size: .85rem;
+  line-height: 1.4;
+}
+
+.uide-choice-card__check {
+  position: absolute;
+  top: var(--uide-space-3);
+  right: var(--uide-space-3);
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--uide-primary);
+  color: #fff;
+  opacity: 0;
+  transform: scale(.6);
+  transition: opacity var(--uide-fast) var(--uide-ease),
+              transform var(--uide-fast) var(--uide-ease);
+}
+
+.uide-choice-card__check .uide-icon {
+  width: .85em;
+  height: .85em;
+}
+
+.uide-choice-card input:checked ~ .uide-choice-card__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Nota contextual segun la opcion elegida (jugador/delegado). Solo una
+   esta visible a la vez; ver data-role-note en registro.html. */
+.uide-role-note {
+  margin-top: var(--uide-space-4);
+  padding: var(--uide-space-3) var(--uide-space-4);
+  background: var(--uide-info-bg);
+  border: 1px solid var(--uide-info-border);
+  border-radius: var(--uide-radius-sm);
+  color: var(--uide-info);
+  font-size: .85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uide-space-2);
+}
+
+.uide-role-note .uide-icon {
+  flex: 0 0 auto;
+  margin-top: .15em;
+}
+
+/* display:flex con la misma especificidad que [hidden] del User Agent
+   Stylesheet gana por venir despues en la cascada: sin esto, la nota
+   "oculta" por JS se mostraba igual. */
+.uide-role-note[hidden] {
+  display: none;
+}
+
+/* Resumen del paso de confirmacion. */
+.uide-review {
+  display: grid;
+  gap: var(--uide-space-5);
+}
+
+.uide-review__section {
+  border: 1px solid var(--uide-border);
+  border-radius: var(--uide-radius-md);
+  padding: var(--uide-space-4) var(--uide-space-5);
+}
+
+.uide-review__section h3 {
+  margin: 0 0 var(--uide-space-3);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--uide-muted);
+}
+
 /* --- Marcador de acta (árbitro) --- */
 .uide-scoreboard {
   display: grid;
@@ -2655,6 +3029,14 @@ td.uide-empty-cell .uide-empty {
   stroke-linecap: round;
   stroke-linejoin: round;
   pointer-events: none;
+}
+
+/* display:inline-block empata en especificidad con el [hidden] del User
+   Agent Stylesheet y gana por ir despues en la cascada: cualquier icono
+   ocultado con el atributo hidden (toggles de JS, como el stepper del
+   registro) se seguia viendo. Regla global, no solo para el wizard. */
+.uide-icon[hidden] {
+  display: none;
 }
 
 .uide-icon--lg {
