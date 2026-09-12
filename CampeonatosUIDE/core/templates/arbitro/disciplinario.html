@@ -4,91 +4,86 @@
 {% block title %}Registrar Disciplinario{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="title has-text-centered">Registrar Disciplinario del Partido</h1>
-    <h2 class="subtitle has-text-centered">{{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }}</h2>
-    <p class="has-text-centered">Fecha: {{ partido.fecha|date:"d/m/Y" }} | Hora: {{ partido.hora|time:"H:i" }} | Lugar: {{ partido.lugar }}</p>
+<div class="container uide-container">
 
-
-    <div class="box">
-        <form method="post">
-            {% csrf_token %}
-            <h3 class="title is-5">Tarjetas Amarillas</h3>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label" for="tarjetas_amarillas_local">{{ partido.equipo_local.nombre }}</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="tarjetas_amarillas_local" type="number" name="tarjetas_amarillas_local" value="{{ partido.tarjetas_amarillas_local|default:0 }}" min="0">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label" for="tarjetas_amarillas_visitante">{{ partido.equipo_visitante.nombre }}</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="tarjetas_amarillas_visitante" type="number" name="tarjetas_amarillas_visitante" value="{{ partido.tarjetas_amarillas_visitante|default:0 }}" min="0">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h3 class="title is-5 mt-5">Tarjetas Rojas</h3>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label" for="tarjetas_rojas_local">{{ partido.equipo_local.nombre }}</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="tarjetas_rojas_local" type="number" name="tarjetas_rojas_local" value="{{ partido.tarjetas_rojas_local|default:0 }}" min="0">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="field is-horizontal">
-                <div class="field-label is-normal">
-                    <label class="label" for="tarjetas_rojas_visitante">{{ partido.equipo_visitante.nombre }}</label>
-                </div>
-                <div class="field-body">
-                    <div class="field">
-                        <div class="control">
-                            <input class="input" id="tarjetas_rojas_visitante" type="number" name="tarjetas_rojas_visitante" value="{{ partido.tarjetas_rojas_visitante|default:0 }}" min="0">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h3 class="title is-5 mt-5">Observaciones del Árbitro</h3>
-            <div class="field">
-                <div class="control">
-                    <textarea class="textarea" name="observaciones_arbitro" placeholder="Notas sobre el partido, incidentes, etc.">{{ partido.observaciones_arbitro|default:"" }}</textarea>
-                </div>
-            </div>
-
-            <h3 class="title is-5 mt-5">Suspensiones (JSON simple)</h3>
-            <div class="field">
-                <div class="control">
-                    <textarea class="textarea" name="suspensiones_json" placeholder='[{"jugador_id": 1, "partidos": 2, "motivo": "Agresión"}]'">{{ partido.suspensiones_json|default:"" }}</textarea>
-                </div>
-                <p class="help">Formato JSON: [{"jugador_id": ID_JUGADOR, "partidos": NUM_PARTIDOS_SUSPENDIDO, "motivo": "MOTIVO"}]</p>
-            </div>
-
-            <div class="field is-grouped mt-5">
-                <div class="control">
-                    <button type="submit" class="button is-primary">Guardar Disciplinario</button>
-                </div>
-                <div class="control">
-                    <a href="{% url 'mis_partidos_arbitro' %}" class="button is-link is-light">Cancelar</a>
-                </div>
-            </div>
-        </form>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg>
+        Registrar Disciplinario
+      </h1>
+      <p class="subtitle">
+        {{ partido.equipo_local.nombre }} vs {{ partido.equipo_visitante.nombre }} ·
+        {{ partido.fecha|date:"d/m/Y" }}, {{ partido.hora|time:"H:i" }} · {{ partido.lugar }}
+      </p>
     </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'mis_partidos_arbitro' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="box">
+    <form method="post" class="uide-form">
+      {% csrf_token %}
+
+      <h2 class="title is-6 mb-4">Tarjetas amarillas</h2>
+      <div class="uide-form-grid mb-5">
+        <div class="field">
+          <label class="label" for="tarjetas_amarillas_local">{{ partido.equipo_local.nombre }}</label>
+          <div class="control">
+            <input class="input" id="tarjetas_amarillas_local" type="number" name="tarjetas_amarillas_local" value="{{ partido.tarjetas_amarillas_local|default:0 }}" min="0">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="tarjetas_amarillas_visitante">{{ partido.equipo_visitante.nombre }}</label>
+          <div class="control">
+            <input class="input" id="tarjetas_amarillas_visitante" type="number" name="tarjetas_amarillas_visitante" value="{{ partido.tarjetas_amarillas_visitante|default:0 }}" min="0">
+          </div>
+        </div>
+      </div>
+
+      <h2 class="title is-6 mb-4">Tarjetas rojas</h2>
+      <div class="uide-form-grid mb-5">
+        <div class="field">
+          <label class="label" for="tarjetas_rojas_local">{{ partido.equipo_local.nombre }}</label>
+          <div class="control">
+            <input class="input" id="tarjetas_rojas_local" type="number" name="tarjetas_rojas_local" value="{{ partido.tarjetas_rojas_local|default:0 }}" min="0">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="tarjetas_rojas_visitante">{{ partido.equipo_visitante.nombre }}</label>
+          <div class="control">
+            <input class="input" id="tarjetas_rojas_visitante" type="number" name="tarjetas_rojas_visitante" value="{{ partido.tarjetas_rojas_visitante|default:0 }}" min="0">
+          </div>
+        </div>
+      </div>
+
+      <h2 class="title is-6 mb-4">Observaciones del árbitro</h2>
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" name="observaciones_arbitro" placeholder="Notas sobre el partido, incidentes, etc.">{{ partido.observaciones_arbitro|default:"" }}</textarea>
+        </div>
+      </div>
+
+      <h2 class="title is-6 mb-4 mt-5">Suspensiones</h2>
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" name="suspensiones_json" placeholder='[{"jugador_id": 1, "partidos": 2, "motivo": "Agresión"}]'>{{ partido.suspensiones_json|default:"" }}</textarea>
+        </div>
+        <p class="help">Formato JSON: [{"jugador_id": ID_JUGADOR, "partidos": NUM_PARTIDOS_SUSPENDIDO, "motivo": "MOTIVO"}]</p>
+      </div>
+
+      <div class="uide-form-actions">
+        <button type="submit" class="button is-primary">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar Disciplinario</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'mis_partidos_arbitro' %}" class="button is-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

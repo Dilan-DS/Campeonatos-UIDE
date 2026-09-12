@@ -3,33 +3,30 @@
 {% block title %}Perfil de Usuario{% endblock %}
 
 {% block content %}
+<div class="container uide-container">
 
-
-<section class="section">
-  <div class="container">
-    <h1 class="title has-text-centered mb-6">Perfil de {{ user.username }}</h1>
-
-    <div class="columns is-centered">
-      <div class="column is-full-mobile is-half-tablet is-one-third-desktop">
-        <div class="uide-panel uide-panel--pad">
-          <h2 class="subtitle has-text-weight-semibold mb-4 has-text-primary">Información Personal</h2>
-          <div class="content">
-            <p><strong>Nombre:</strong> {{ user.first_name }} {{ user.last_name }}</p>
-            <p><strong>Correo:</strong> {{ user.email }}</p>
-            <p><strong>Cédula:</strong> {{ user.cedula|default:"No registrado" }}</p>
-            <p><strong>Carrera:</strong> {{ user.carrera|default:"No asignada" }}</p>
-            <p><strong>Rol:</strong> {{ user.get_rol_display }}</p>
-          </div>
-        </div>
-
-        <div class="has-text-centered mt-5">
-          <a href="{% url 'editar_perfil' %}" class="button is-primary is-fullwidth">
-            <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg> Editar Perfil
-          </a>
-        </div>
-      </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Mi perfil</h1>
+      <p class="subtitle">{{ user.username }}</p>
     </div>
   </div>
-</section>
 
+  <div class="box uide-ancho-limitado">
+    <dl class="uide-details">
+      <div><dt>Nombre</dt><dd>{{ user.first_name }} {{ user.last_name }}</dd></div>
+      <div><dt>Correo</dt><dd>{{ user.email }}</dd></div>
+      <div><dt>Cédula</dt><dd>{{ user.cedula|default:"No registrado" }}</dd></div>
+      <div><dt>Carrera</dt><dd>{{ user.carrera|default:"No asignada" }}</dd></div>
+      <div><dt>Rol</dt><dd>{{ user.get_rol_display }}</dd></div>
+    </dl>
+
+    <div class="uide-form-actions">
+      <a href="{% url 'editar_perfil' %}" class="button is-primary">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-editar"></use></svg>
+        <span>Editar perfil</span>
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

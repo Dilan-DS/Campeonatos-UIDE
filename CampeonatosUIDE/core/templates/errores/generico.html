@@ -9,11 +9,14 @@
 {% block title %}{{ titulo }}{% endblock %}
 {% block content %}
   <div class="container uide-container my-6">
-    <div class="box has-text-centered" style="max-width: 480px; margin: 0 auto;">
+    <div class="box has-text-centered uide-ancho-limitado">
       {# Encabezado real: es el titulo de la pagina, no un parrafo con aspecto de titulo. #}
       <h1 class="title is-5">{{ titulo }}</h1>
       <p class="mb-4">{{ mensaje }}</p>
-      <a class="button is-link" href="javascript:history.back()">Volver</a>
+      <a class="button is-primary" href="javascript:history.back()">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg>
+        <span>Volver</span>
+      </a>
     </div>
   </div>
 {% endblock %}

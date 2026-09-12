@@ -3,54 +3,75 @@
 {% block title %}Mis Partidos Asignados{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="title">Mis Partidos Asignados</h1>
-    <hr>
+<div class="container uide-container">
 
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg>
+        Mis Partidos Asignados
+      </h1>
+      <p class="subtitle">Partidos donde arbitras, con acceso directo al acta y a los resultados.</p>
+    </div>
+  </div>
 
-    {% if partidos %}
-        <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-                <thead>
-                    <tr>
-                        <th>Campeonato</th>
-                        <th>Fecha y Hora</th>
-                        <th>Lugar</th>
-                        <th>Equipos</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for partido in partidos %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'ver_tabla_posiciones_arbitro' partido.campeonato.id %}">
-                                    {{ partido.campeonato.nombre }}
-                                </a>
-                            </td>
-                            <td>{{ partido.fecha }} - {{ partido.hora }}</td>
-                            <td>{{ partido.lugar }}</td>
-                            <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
-                            <td><span class="tag is-info">{{ partido.get_estado_display }}</span></td>
-                            <td>
-                                <a href="{% url 'acta_partido_arbitro' pk=partido.id %}" class="button is-small is-info">Cargar/Editar Acta</a>
-                                {% if partido.estado == 'PROGRAMADO' or partido.estado == 'EN_CURSO' %}
-                                    <a href="{% url 'registrar_resultado_partido' partido.id %}" class="button is-small is-primary">Registrar Resultado</a>
-                                    <a href="{% url 'disciplinario_partido' partido.id %}" class="button is-small is-warning">Registrar Faltas</a>
-                                {% else %}
-                                    <span class="tag is-success">Finalizado</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="notification is-info">
-            No tienes partidos asignados por el momento.
-        </div>
-    {% endif %}
+  {% if partidos %}
+    <div class="box">
+      <div class="table-container">
+        <table class="table is-striped is-fullwidth is-hoverable">
+          <thead>
+            <tr>
+              <th>Campeonato</th>
+              <th>Fecha y hora</th>
+              <th>Lugar</th>
+              <th>Equipos</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for partido in partidos %}
+              <tr>
+                <td>
+                  <a href="{% url 'ver_tabla_posiciones_arbitro' partido.campeonato.id %}" class="uide-cell-strong">
+                    {{ partido.campeonato.nombre }}
+                  </a>
+                </td>
+                <td>{{ partido.fecha }} · {{ partido.hora }}</td>
+                <td>{{ partido.lugar }}</td>
+                <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
+                <td>
+                  {% if partido.estado == 'FINALIZADO' %}
+                    <span class="tag is-success">Finalizado</span>
+                  {% elif partido.estado == 'EN_CURSO' %}
+                    <span class="tag is-warning">{{ partido.get_estado_display }}</span>
+                  {% else %}
+                    <span class="tag is-info">{{ partido.get_estado_display }}</span>
+                  {% endif %}
+                </td>
+                <td class="uide-cell-actions">
+                  <div class="uide-actions">
+                    <a href="{% url 'acta_partido_arbitro' pk=partido.id %}" class="button is-small is-info is-light">Acta</a>
+                    {% if partido.estado == 'PROGRAMADO' or partido.estado == 'EN_CURSO' %}
+                      <a href="{% url 'registrar_resultado_partido' partido.id %}" class="button is-small is-primary">Resultado</a>
+                      <a href="{% url 'disciplinario_partido' partido.id %}" class="button is-small is-warning is-light">Faltas</a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="box">
+      <div class="uide-empty">
+        <span class="uide-empty__icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-calendario"></use></svg></span>
+        <p class="uide-empty__title">No tienes partidos asignados</p>
+        <p class="uide-empty__text">Cuando administración te asigne un partido, aparecerá aquí.</p>
+      </div>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

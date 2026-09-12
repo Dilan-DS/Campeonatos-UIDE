@@ -2,35 +2,30 @@
 
 {% block title %}Detalle de suspensión | Campeonatos UIDE{% endblock %}
 {% block content %}
-<!-- Sección principal para mostrar el detalle de una suspensión -->
-<section class="section">
-  <!-- Contenedor central para organizar el contenido -->
-  <div class="container">
+<div class="container uide-container">
 
-    <!-- Título principal de la página -->
-    <h1 class="title">Detalle de Suspensión</h1>
-
-    <!-- Caja con borde y relleno para agrupar la información -->
-    <div class="box">
-      <!-- Nombre de usuario del jugador suspendido -->
-      <p><strong>Jugador:</strong> {{ suspension.jugador.usuario.username }}</p>
-
-      <!-- Nombre del equipo al que pertenece el jugador -->
-      <p><strong>Equipo:</strong> {{ suspension.jugador.equipo.nombre }}</p>
-
-      <!-- Fecha en que comienza la suspensión -->
-      <p><strong>Fecha Inicio:</strong> {{ suspension.fecha_inicio }}</p>
-
-      <!-- Fecha en que termina la suspensión -->
-      <p><strong>Fecha Fin:</strong> {{ suspension.fecha_fin }}</p>
-
-      <!-- Motivo o razón de la suspensión -->
-      <p><strong>Motivo:</strong> {{ suspension.motivo }}</p>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-prohibido"></use></svg>
+        Detalle de Suspensión
+      </h1>
     </div>
-
-    <!-- Botón para regresar a la lista de suspensiones -->
-    <a href="{% url 'listar_suspensiones' %}" class="button is-link">Volver</a>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'listar_suspensiones' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al listado
+      </a>
+    </div>
   </div>
-</section>
 
+  <div class="box">
+    <dl class="uide-details">
+      <div><dt>Jugador</dt><dd>{{ suspension.jugador.usuario.username }}</dd></div>
+      <div><dt>Equipo</dt><dd>{{ suspension.jugador.equipo.nombre }}</dd></div>
+      <div><dt>Fecha de inicio</dt><dd>{{ suspension.fecha_inicio }}</dd></div>
+      <div><dt>Fecha de fin</dt><dd>{{ suspension.fecha_fin }}</dd></div>
+      <div class="is-full"><dt>Motivo</dt><dd>{{ suspension.motivo }}</dd></div>
+    </dl>
+  </div>
+</div>
 {% endblock %}

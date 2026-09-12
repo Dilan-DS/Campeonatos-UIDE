@@ -2,54 +2,71 @@
 {% load widget_tweaks %}
 {% block title %}Editar Perfil{% endblock %}
 {% block content %}
-<section class="section">
-<div class="container uide-ancho-limitado">
-<h1 class="title has-text-centered">Editar Perfil</h1>
-<form method="post" enctype="multipart/form-data" class="box">
-{% csrf_token %}
-{{ form.non_field_errors }}
-<div class="columns">
-<div class="column">
-<label class="label" for="{{ form.first_name.id_for_label }}">Nombre</label>
-{{ form.first_name|add_class:"input" }}
-{% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Editar perfil</h1>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'perfil_usuario' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al perfil
+      </a>
+    </div>
+  </div>
+
+  <div class="box uide-ancho-limitado--holgado">
+    <form method="post" enctype="multipart/form-data" class="uide-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="uide-form-grid">
+        <div class="field">
+          <label class="label" for="{{ form.first_name.id_for_label }}">Nombre</label>
+          <div class="control">{{ form.first_name }}</div>
+          {% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label class="label" for="{{ form.last_name.id_for_label }}">Apellido</label>
+          <div class="control">{{ form.last_name }}</div>
+          {% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="field is-full">
+          <label class="label" for="{{ form.email.id_for_label }}">Correo</label>
+          <div class="control">{{ form.email }}</div>
+          {% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label class="label" for="{{ form.cedula.id_for_label }}">Cédula</label>
+          <div class="control">
+            {{ form.cedula|attr:"placeholder:Ej. 1105444176"|attr:"maxlength:10"|attr:"pattern:\d{10}"|attr:"inputmode:numeric" }}
+          </div>
+          {% if form.cedula.errors %}<p class="help is-danger">{{ form.cedula.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label class="label" for="{{ form.carrera.id_for_label }}">Carrera</label>
+          <div class="control">{{ form.carrera }}</div>
+          {% if form.carrera.errors %}<p class="help is-danger">{{ form.carrera.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="field is-full">
+          <label class="label" for="{{ form.genero.id_for_label }}">Género</label>
+          <div class="control">{{ form.genero }}</div>
+          {% if form.genero.errors %}<p class="help is-danger">{{ form.genero.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="uide-form-actions">
+        <button class="button is-primary" type="submit">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar cambios</span>
+        </button>
+        <span class="uide-form-actions__spacer"></span>
+        <a href="{% url 'perfil_usuario' %}" class="button is-light">Cancelar</a>
+      </div>
+    </form>
+  </div>
 </div>
-<div class="column">
-<label class="label" for="{{ form.last_name.id_for_label }}">Apellido</label>
-{{ form.last_name|add_class:"input" }}
-{% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
-</div>
-</div>
-<div class="field">
-<label class="label" for="{{ form.email.id_for_label }}">Correo</label>
-{{ form.email|add_class:"input" }}
-{% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
-</div>
-<div class="columns">
-<div class="column">
-<label class="label" for="{{ form.cedula.id_for_label }}">Cédula</label>
-{{ form.cedula|add_class:"input" |attr:"placeholder:Ej. 1105444176" |attr:"maxlength:10" |attr:"pattern:\d{10}" |attr:"inputmode:numeric" }}
-{% if form.cedula.errors %}<p class="help is-danger">{{ form.cedula.errors.0 }}</p>{% endif %}
-</div>
-<div class="column">
-<label class="label" for="{{ form.carrera.id_for_label }}">Carrera</label>
-<div class="select is-fullwidth">
-{{ form.carrera }}
-</div>
-{% if form.carrera.errors %}<p class="help is-danger">{{ form.carrera.errors.0 }}</p>{% endif %}
-</div>
-</div>
-<div class="field">
-<label class="label" for="{{ form.genero.id_for_label }}">Género</label>
-<div class="select is-fullwidth">
-{{ form.genero }}
-</div>
-{% if form.genero.errors %}<p class="help is-danger">{{ form.genero.errors.0 }}</p>{% endif %}
-</div>
-<div class="field mt-4">
-<button class="button is-primary is-fullwidth" type="submit"> Guardar Cambios </button>
-</div>
-</form>
-</div>
-</section>
 {% endblock %}

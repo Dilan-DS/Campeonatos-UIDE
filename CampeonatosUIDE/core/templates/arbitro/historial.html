@@ -3,42 +3,55 @@
 {% block title %}Historial de Partidos{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="title">Historial de Partidos</h1>
-    <hr>
+<div class="container uide-container">
 
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-lista"></use></svg>
+        Historial de Partidos
+      </h1>
+      <p class="subtitle">Partidos que ya dirigiste, con su resultado final.</p>
+    </div>
+  </div>
 
-    {% if partidos %}
-        <div class="table-container">
-            <table class="table is-striped is-fullwidth">
-                <thead>
-                    <tr>
-                        <th>Campeonato</th>
-                        <th>Fecha y Hora</th>
-                        <th>Lugar</th>
-                        <th>Equipos</th>
-                        <th>Estado</th>
-                        <th>Resultado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for partido in partidos %}
-                        <tr>
-                            <td>{{ partido.campeonato.nombre }}</td>
-                            <td>{{ partido.fecha }} - {{ partido.hora }}</td>
-                            <td>{{ partido.lugar }}</td>
-                            <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
-                            <td><span class="tag is-success">{{ partido.get_estado_display }}</span></td>
-                            <td>{{ partido.resultado_local }} - {{ partido.resultado_visitante }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="notification is-info">
-            No tienes partidos en tu historial.
-        </div>
-    {% endif %}
+  {% if partidos %}
+    <div class="box">
+      <div class="table-container">
+        <table class="table is-striped is-fullwidth is-hoverable">
+          <thead>
+            <tr>
+              <th>Campeonato</th>
+              <th>Fecha y hora</th>
+              <th>Lugar</th>
+              <th>Equipos</th>
+              <th>Estado</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for partido in partidos %}
+              <tr>
+                <td class="uide-cell-strong">{{ partido.campeonato.nombre }}</td>
+                <td>{{ partido.fecha }} · {{ partido.hora }}</td>
+                <td>{{ partido.lugar }}</td>
+                <td>{{ partido.equipo_local }} vs {{ partido.equipo_visitante }}</td>
+                <td><span class="tag is-success">{{ partido.get_estado_display }}</span></td>
+                <td class="uide-numeric">{{ partido.resultado_local }} - {{ partido.resultado_visitante }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="box">
+      <div class="uide-empty">
+        <span class="uide-empty__icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-lista"></use></svg></span>
+        <p class="uide-empty__title">Sin historial todavía</p>
+        <p class="uide-empty__text">Los partidos que dirijas y finalices aparecerán aquí.</p>
+      </div>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

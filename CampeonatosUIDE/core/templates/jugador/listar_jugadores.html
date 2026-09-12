@@ -4,15 +4,15 @@
 {% block title %}Jugadores | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="title has-text-centered">
-        {% if is_admin_view %}
-            Listado de Jugadores (Administrador)
-        {% else %}
-            Gestión de Jugadores para {{ equipo_delegado.nombre }}
-        {% endif %}
-    </h1>
+<div class="container uide-container">
 
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        {% if is_admin_view %}Listado de Jugadores{% else %}Gestión de Jugadores para {{ equipo_delegado.nombre }}{% endif %}
+      </h1>
+    </div>
+  </div>
 
     {% if not is_admin_view and not pago_aprobado %}
         <div class="notification is-warning">
@@ -20,15 +20,14 @@
         </div>
     {% else %}
         <div class="box">
-            <div class="field">
-                <p class="control has-icons-left">
+            <div class="uide-toolbar">
+                <p class="control has-icons-left uide-ancho-limitado">
                     <input class="input" type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar jugador por nombre o cédula...">
                     <span class="icon is-small is-left">
                         <svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg>
                     </span>
                 </p>
             </div>
-
 
             <div class="table-container">
                 <table class="table is-fullwidth is-striped is-hoverable" id="jugadoresTable">
@@ -87,7 +86,7 @@
 
 <script>
     function filterTable() {
-        var input, filter, table, tr, td, i, txtValueUsername, txtValueCedula;
+        var input, filter, table, tr, tdUsername, tdCedula, i, txtValueUsername, txtValueCedula;
         input = document.getElementById("searchInput");
         filter = input.value.toUpperCase();
         table = document.getElementById("jugadoresTable");
@@ -102,28 +101,6 @@
                 txtValueCedula = tdCedula ? (tdCedula.textContent || tdCedula.innerText) : '';
 
                 if (txtValueUsername.toUpperCase().indexOf(filter) > -1 || txtValueCedula.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-    }
-</script>
-
-<script>
-    function filterTable() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("searchInput");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("jugadoresTable");
-        tr = table.getElementsByTagName("tr");
-
-        for (i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
-            td = tr[i].getElementsByTagName("td")[0]; // Search by username column
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
                     tr[i].style.display = "";
                 } else {
                     tr[i].style.display = "none";

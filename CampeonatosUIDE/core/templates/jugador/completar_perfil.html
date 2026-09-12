@@ -3,35 +3,27 @@
 {% block title %}Completa tu perfil | Campeonatos UIDE{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="columns is-centered">
-        <div class="column is-half">
-            <h1 class="title has-text-centered">Completa tu Perfil de Jugador</h1>
-            <div class="box">
-                <form method="post">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div class="field">
-                            <label class="label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            <div class="control">
-                                {{ field }}
-                            </div>
-                            {% if field.help_text %}
-                                <p class="help">{{ field.help_text }}</p>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <p class="help is-danger">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                    <div class="field is-grouped">
-                        <div class="control">
-                            <button type="submit" class="button is-primary">Guardar Perfil</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">Completa tu perfil de jugador</h1>
+      <p class="subtitle">Necesitamos estos datos para inscribirte correctamente en un equipo.</p>
     </div>
+  </div>
+
+  <div class="box uide-ancho-limitado--holgado">
+    <form method="post" class="uide-form">
+      {% csrf_token %}
+      {% include "comun/_campos_formulario.html" with form=form %}
+
+      <div class="uide-form-actions">
+        <button type="submit" class="button is-primary">
+          <svg class="uide-icon" aria-hidden="true"><use href="#i-guardar"></use></svg>
+          <span>Guardar perfil</span>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

@@ -2,10 +2,22 @@
 {% block title %}Estadísticas de {{ jugador.usuario.username }}{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <h1 class="title has-text-danger">Estadísticas de {{ jugador.usuario.username }}</h1>
-        <p class="subtitle">Equipo: {{ jugador.equipo.nombre }} | Campeonato: {{ jugador.equipo.campeonato.nombre }}</p>
+<div class="container uide-container">
+
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>
+        Estadísticas de {{ jugador.usuario.username }}
+      </h1>
+      <p class="subtitle">{{ jugador.equipo.nombre }} · {{ jugador.equipo.campeonato.nombre }}</p>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'jugador_dashboard' %}" class="button is-light">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al panel
+      </a>
+    </div>
+  </div>
 
         <div class="box">
             <h2 class="title is-5">Estadísticas de {{ deporte_nombre }}</h2>
@@ -69,15 +81,13 @@
                 </table>
                 </div>
             {% else %}
-                <p>No hay estadísticas disponibles para este jugador en este campeonato.</p>
+                <div class="uide-empty">
+                  <span class="uide-empty__icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg></span>
+                  <p class="uide-empty__title">Sin estadísticas todavía</p>
+                  <p class="uide-empty__text">No hay estadísticas disponibles para este jugador en este campeonato.</p>
+                </div>
             {% endif %}
         </div>
 
-        <div class="has-text-centered mt-5">
-            <a href="{% url 'jugador_dashboard' %}" class="button is-light">
-                <svg class="uide-icon" aria-hidden="true"><use href="#i-atras"></use></svg> Volver al Dashboard
-            </a>
-        </div>
-    </div>
-</section>
+</div>
 {% endblock %}

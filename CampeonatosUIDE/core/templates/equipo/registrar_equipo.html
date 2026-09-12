@@ -67,7 +67,7 @@
                         <label class="label has-text-weight-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {% if field.field.widget.input_type %}
                           <div class="control">
-                            {{ field|add_class:"input" }}{% if view_mode %} readonly{% endif %}
+                            {% if view_mode %}{{ field|add_class:"input"|attr:"readonly" }}{% else %}{{ field|add_class:"input" }}{% endif %}
                           </div>
                         {% else %}
                           <div class="select is-fullwidth">
