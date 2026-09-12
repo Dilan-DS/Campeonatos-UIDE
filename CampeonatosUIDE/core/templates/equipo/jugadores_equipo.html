@@ -93,6 +93,11 @@
             <td class="uide-numeric">{{ data.jugador.edad|default:"—" }}</td>
             <td class="uide-cell-muted">
               {% include "comun/_resumen_estadisticas.html" with stats=data.stats deporte=data.deporte_nombre %}
+              {% if is_jugador_view %}
+                {# ver_estadisticas_jugador exige rol JUGADOR en el backend: #}
+                {# solo se ofrece el enlace cuando quien mira es un jugador. #}
+                <a href="{% url 'ver_estadisticas_jugador' jugador_id=data.jugador.id %}" class="is-size-7">Ver detalle</a>
+              {% endif %}
             </td>
           </tr>
         {% empty %}

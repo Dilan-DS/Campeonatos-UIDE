@@ -222,7 +222,7 @@
               </a>
               {% with jugador=request.user.jugador %}
                 {% if jugador %}
-                  <a class="navbar-item {% if url_name == 'ver_estadisticas_jugador' %}is-current{% endif %}" href="{% url 'ver_estadisticas_jugador' jugador.id %}">
+                  <a class="navbar-item {% if url_name == 'mis_estadisticas' %}is-current{% endif %}" href="{% url 'mis_estadisticas' %}">
                     <svg class="uide-icon" aria-hidden="true"><use href="#i-estadisticas"></use></svg>Mis estadísticas
                   </a>
                   {% if jugador.equipo %}

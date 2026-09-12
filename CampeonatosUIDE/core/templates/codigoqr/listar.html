@@ -4,69 +4,92 @@
 {% block title %}Listado de Códigos QR{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container">
-    <div class="box">
-      <h1 class="title is-3 has-text-centered">Códigos QR Registrados</h1>
+<div class="container uide-container">
 
-      <form method="get" class="mb-5">
-        <div class="field has-addons">
-          <div class="control is-expanded">
-            <label class="uide-sr-only" for="buscar-qr">Buscar códigos QR</label>
-            <input type="search" id="buscar-qr" name="q" class="input"
-                   placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
-          </div>
-          <div class="control">
-            <button class="button is-info" type="submit">Buscar</button>
-          </div>
+  <div class="uide-page-head">
+    <div class="uide-page-head__text">
+      <h1 class="title is-3">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-qr"></use></svg>
+        Códigos QR Registrados
+      </h1>
+      <p class="subtitle">Cuentas bancarias para recibir transferencias de inscripción.</p>
+    </div>
+    <div class="uide-page-head__actions">
+      <a href="{% url 'registrar_codigo_qr' %}" class="button is-primary">
+        <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>
+        <span>Nuevo Código QR</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="uide-toolbar">
+      <form method="get" class="field has-addons uide-ancho-limitado" style="margin-bottom:0">
+        <div class="control is-expanded">
+          <label class="uide-sr-only" for="buscar-qr">Buscar códigos QR</label>
+          <input type="search" id="buscar-qr" name="q" class="input"
+                 placeholder="Buscar por banco o descripción..." value="{{ request.GET.q }}">
+        </div>
+        <div class="control">
+          <button class="button is-primary" type="submit">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-buscar"></use></svg>
+            <span>Buscar</span>
+          </button>
         </div>
       </form>
+    </div>
 
-
-      <div class="mb-4">
-        <a href="{% url 'registrar_codigo_qr' %}" class="button is-primary">
-          <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg> Nuevo Código QR
-        </a>
-      </div>
-
-      {% if codigos_qr %}
-        <div class="table-container">
+    {% if codigos_qr %}
+      <div class="table-container">
         <table class="table is-fullwidth is-striped is-hoverable">
           <thead>
             <tr>
               <th>Banco</th>
               <th>Imagen</th>
               <th>Descripción</th>
-              <th class="has-text-centered">Acciones</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for codigo in codigos_qr %}
               <tr>
-                <td>{{ codigo.banco }}</td>
-               <td>
+                <td class="uide-cell-strong">{{ codigo.banco }}</td>
+                <td>
                   {% if codigo.imagen_qr %}
                     <figure class="image is-64x64 is-square">
                       <img src="{{ codigo.imagen_qr.url }}" alt="QR" class="uide-encajar">
                     </figure>
                   {% else %}
-                    <span class="has-text-grey-light">No disponible</span>
+                    <span class="uide-cell-muted">No disponible</span>
                   {% endif %}
                 </td>
                 <td>{{ codigo.descripcion|default:"Sin descripción" }}</td>
-                <td class="has-text-centered">
-                  <a href="{% url 'editar_codigo_qr' codigo.pk %}" class="button is-small is-warning">Editar</a>
-                  <a href="{% url 'eliminar_codigo_qr' codigo.pk %}" class="button is-small is-danger">Eliminar</a>
+                <td class="uide-cell-actions">
+                  <div class="uide-actions">
+                    <a href="{% url 'detalle_codigo_qr' codigo.pk %}" class="button is-small is-info is-light">Ver</a>
+                    <a href="{% url 'editar_codigo_qr' codigo.pk %}" class="button is-small is-warning is-light">Editar</a>
+                    <a href="{% url 'eliminar_codigo_qr' codigo.pk %}" class="button is-small is-danger is-light">Eliminar</a>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
+      </div>
+    {% else %}
+      <div class="uide-empty">
+        <span class="uide-empty__icon"><svg class="uide-icon" aria-hidden="true"><use href="#i-qr"></use></svg></span>
+        <p class="uide-empty__title">No hay códigos QR registrados</p>
+        <p class="uide-empty__text">Registra la primera cuenta bancaria para que los delegados puedan pagar por transferencia.</p>
+        <div class="uide-empty__actions">
+          <a href="{% url 'registrar_codigo_qr' %}" class="button is-primary">
+            <svg class="uide-icon" aria-hidden="true"><use href="#i-mas"></use></svg>
+            <span>Nuevo Código QR</span>
+          </a>
         </div>
-      {% else %}
-        <p class="notification is-info is-light has-text-centered">No hay códigos QR registrados aún.</p>
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
   </div>
-</section>
+
+</div>
 {% endblock %}
