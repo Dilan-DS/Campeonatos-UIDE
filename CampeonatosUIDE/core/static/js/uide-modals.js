@@ -10,10 +10,15 @@
   // ejecutan en el modal). Campeonato y Equipo solo necesitaban el nombre
   // de archivo en inputs Bulma y (Campeonato) validacion de rango de
   // fechas: ambos se generalizaron abajo en wireDynamicBehaviors() y ya
-  // funcionan dentro del modal, asi que se sacaron de esta lista. Pago
-  // sigue afuera: su <script> depende de un `qr_catalog` inyectado como
-  // json_script FUERA del <form> (no sobrevive a la extraccion) para
-  // rellenar la tarjeta bancaria segun el metodo de pago elegido.
+  // funcionan dentro del modal, asi que se sacaron de esta lista.
+  //
+  // "pagos" solo excluye al flujo de DELEGADO (pago/registrar.html): ese
+  // <script> depende de un `qr_catalog` inyectado como json_script FUERA
+  // del <form> (no sobrevive a la extraccion) para rellenar la tarjeta
+  // bancaria segun el metodo de pago elegido. El flujo de ADMIN
+  // (pago/registrar_admin.html, rutas bajo /panel/admin/...) no tiene esa
+  // dependencia -- solo el nombre de archivo Bulma, ya generalizado -- asi
+  // que se deja pasar via el segmento "admin".
   const CREATE_EXCEPTIONS = ['pagos'];
 
   const isAction = (el) => {
@@ -32,7 +37,8 @@
     const segments = href.split('?')[0].split('/').filter(Boolean).map((s) => s.toLowerCase());
     const hasEditOrDelete = segments.some((s) => s.includes('editar')) || segments.some((s) => s.includes('eliminar'));
     const hasCreate = segments.some((s) => s.includes('registrar') || s.includes('crear') || s.includes('nuevo'));
-    if (hasCreate && CREATE_EXCEPTIONS.some((seg) => segments.some((s) => s.includes(seg)))) return false;
+    const isAdminRoute = segments.includes('admin');
+    if (hasCreate && !isAdminRoute && CREATE_EXCEPTIONS.some((seg) => segments.some((s) => s.includes(seg)))) return false;
     return !!action || (href && (hasEditOrDelete || hasCreate) &&
       (/editar|eliminar|borrar|actualizar|registrar|crear|nuevo/i.test(text) || el.classList.contains('is-danger') || el.classList.contains('is-primary') || el.classList.contains('is-success')));
   };
