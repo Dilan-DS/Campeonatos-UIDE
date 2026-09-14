@@ -7,10 +7,14 @@
 
   // Formularios de creacion demasiado interactivos para sobrevivir a la
   // extraccion (solo se mueve el <form>, los <script> de esa pagina no se
-  // ejecutan en el modal): fechas con validacion cruzada en vivo, o un
-  // select que rellena una tarjeta bancaria. Se listan por segmento final
-  // de la URL para excluirlos del modal y dejarlos como pagina completa.
-  const CREATE_EXCEPTIONS = ['campeonatos', 'pagos', 'equipo', 'equipos'];
+  // ejecutan en el modal). Campeonato y Equipo solo necesitaban el nombre
+  // de archivo en inputs Bulma y (Campeonato) validacion de rango de
+  // fechas: ambos se generalizaron abajo en wireDynamicBehaviors() y ya
+  // funcionan dentro del modal, asi que se sacaron de esta lista. Pago
+  // sigue afuera: su <script> depende de un `qr_catalog` inyectado como
+  // json_script FUERA del <form> (no sobrevive a la extraccion) para
+  // rellenar la tarjeta bancaria segun el metodo de pago elegido.
+  const CREATE_EXCEPTIONS = ['pagos'];
 
   const isAction = (el) => {
     if (!el || el.dataset.modalManaged === 'true') return false;
@@ -45,6 +49,47 @@
     if (kind === 'eliminar') return 'Confirmar eliminación';
     if (kind === 'crear') return 'Crear registro';
     return 'Editar registro';
+  }
+
+  // Comportamientos de pagina que varios formularios repetian con el mismo
+  // <script> pegado (nombre de archivo Bulma, orden de fechas). Se
+  // generalizan aqui una sola vez y se aplican a CUALQUIER formulario que
+  // el modal renderice, en vez de que cada plantilla cargue su propia
+  // copia identica del listener.
+  function wireDynamicBehaviors(form) {
+    // Bulma no actualiza el nombre visible de "file has-name": cada
+    // plantilla con un campo de archivo repetia este mismo listener.
+    form.querySelectorAll('.file input[type="file"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const box = input.closest('.file')?.querySelector('.file-name');
+        if (box) box.textContent = input.files && input.files.length ? input.files[0].name : 'Selecciona un archivo…';
+      });
+    });
+
+    // Rango de fechas: si el formulario trae fecha_inicio/fecha_fin (y
+    // opcionalmente fecha_fin_inscripcion, como Campeonato), se avisa antes
+    // de enviar. El servidor sigue siendo quien valida de verdad.
+    const inicio = form.querySelector('[name="fecha_inicio"]');
+    const fin = form.querySelector('[name="fecha_fin"]');
+    if (!inicio || !fin) return;
+    const limite = form.querySelector('[name="fecha_fin_inscripcion"]');
+    form.addEventListener('submit', (event) => {
+      form.querySelector('.uide-modal__date-warning')?.remove();
+      let mensaje = null;
+      if (inicio.value && fin.value && fin.value < inicio.value) {
+        mensaje = 'La fecha de fin no puede ser anterior a la fecha de inicio.';
+      } else if (limite && limite.value && inicio.value && limite.value > inicio.value) {
+        mensaje = 'La fecha límite de inscripción debe ser antes de que empiece el campeonato.';
+      }
+      if (!mensaje) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const aviso = document.createElement('p');
+      aviso.className = 'help is-danger uide-modal__date-warning';
+      aviso.setAttribute('role', 'alert');
+      aviso.textContent = mensaje;
+      form.prepend(aviso);
+    });
   }
 
   function close(force) {
@@ -98,6 +143,9 @@
     dialog.focus();
     const first = form.querySelector('input:not([type="hidden"]), select, textarea, button');
     if (first) first.focus();
+    // Registrado antes que el submit real: si avisa un problema de fechas
+    // llama a stopImmediatePropagation() y el fetch de abajo no se dispara.
+    wireDynamicBehaviors(form);
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const submit = form.querySelector('[type="submit"]');
