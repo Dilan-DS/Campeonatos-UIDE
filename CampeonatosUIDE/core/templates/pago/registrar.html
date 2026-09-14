@@ -125,17 +125,19 @@
             </figure>
           </div>
         </div>
+
+        {# ——— Catálogo QR ——— #}
+        {% comment %}
+          json_script escapa <, > y & y genera el <script type="application/json">.
+          Va DENTRO del <form>: el modal solo extrae el <form> al abrir esta
+          pagina como modal (uide-modals.js), y este catalogo es el dato que
+          el JS de metodo-de-pago necesita para rellenar la tarjeta bancaria.
+          Fuera del form no sobrevivia a esa extraccion.
+        {% endcomment %}
+        {{ qr_catalog|json_script:"qr-catalog-data" }}
       </form>
     </div>
 </div>
-
-{# ——— Catálogo QR ——— #}
-{% comment %}
-  json_script escapa <, > y & y genera el <script type="application/json">.
-  Las dos unicas vistas que renderizan esta plantilla envian siempre
-  qr_catalog, asi que no hace falta valor por defecto.
-{% endcomment %}
-{{ qr_catalog|json_script:"qr-catalog-data" }}
 
 <script>
   // Actualiza el nombre del archivo en inputs Bulma

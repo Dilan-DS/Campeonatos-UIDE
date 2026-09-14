@@ -7,19 +7,14 @@
 
   // Formularios de creacion demasiado interactivos para sobrevivir a la
   // extraccion (solo se mueve el <form>, los <script> de esa pagina no se
-  // ejecutan en el modal). Campeonato y Equipo solo necesitaban el nombre
-  // de archivo en inputs Bulma y (Campeonato) validacion de rango de
-  // fechas: ambos se generalizaron abajo en wireDynamicBehaviors() y ya
-  // funcionan dentro del modal, asi que se sacaron de esta lista.
-  //
-  // "pagos" solo excluye al flujo de DELEGADO (pago/registrar.html): ese
-  // <script> depende de un `qr_catalog` inyectado como json_script FUERA
-  // del <form> (no sobrevive a la extraccion) para rellenar la tarjeta
-  // bancaria segun el metodo de pago elegido. El flujo de ADMIN
-  // (pago/registrar_admin.html, rutas bajo /panel/admin/...) no tiene esa
-  // dependencia -- solo el nombre de archivo Bulma, ya generalizado -- asi
-  // que se deja pasar via el segmento "admin".
-  const CREATE_EXCEPTIONS = ['pagos'];
+  // ejecutan en el modal). Todos los casos reales del proyecto
+  // (nombre de archivo Bulma, rango de fechas de Campeonato, catalogo QR
+  // y tarjeta bancaria de Pago) se generalizaron abajo en
+  // wireDynamicBehaviors() y ya funcionan dentro del modal, asi que esta
+  // lista queda vacia. Se conserva el mecanismo por si aparece a futuro
+  // un formulario de alta con JS de pagina que de verdad no pueda
+  // replicarse (ej. depende de una libreria externa cargada aparte).
+  const CREATE_EXCEPTIONS = [];
 
   const isAction = (el) => {
     if (!el || el.dataset.modalManaged === 'true') return false;
@@ -77,25 +72,65 @@
     // de enviar. El servidor sigue siendo quien valida de verdad.
     const inicio = form.querySelector('[name="fecha_inicio"]');
     const fin = form.querySelector('[name="fecha_fin"]');
-    if (!inicio || !fin) return;
-    const limite = form.querySelector('[name="fecha_fin_inscripcion"]');
-    form.addEventListener('submit', (event) => {
-      form.querySelector('.uide-modal__date-warning')?.remove();
-      let mensaje = null;
-      if (inicio.value && fin.value && fin.value < inicio.value) {
-        mensaje = 'La fecha de fin no puede ser anterior a la fecha de inicio.';
-      } else if (limite && limite.value && inicio.value && limite.value > inicio.value) {
-        mensaje = 'La fecha límite de inscripción debe ser antes de que empiece el campeonato.';
-      }
-      if (!mensaje) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const aviso = document.createElement('p');
-      aviso.className = 'help is-danger uide-modal__date-warning';
-      aviso.setAttribute('role', 'alert');
-      aviso.textContent = mensaje;
-      form.prepend(aviso);
-    });
+    if (inicio && fin) {
+      const limite = form.querySelector('[name="fecha_fin_inscripcion"]');
+      form.addEventListener('submit', (event) => {
+        form.querySelector('.uide-modal__date-warning')?.remove();
+        let mensaje = null;
+        if (inicio.value && fin.value && fin.value < inicio.value) {
+          mensaje = 'La fecha de fin no puede ser anterior a la fecha de inicio.';
+        } else if (limite && limite.value && inicio.value && limite.value > inicio.value) {
+          mensaje = 'La fecha límite de inscripción debe ser antes de que empiece el campeonato.';
+        }
+        if (!mensaje) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const aviso = document.createElement('p');
+        aviso.className = 'help is-danger uide-modal__date-warning';
+        aviso.setAttribute('role', 'alert');
+        aviso.textContent = mensaje;
+        form.prepend(aviso);
+      });
+    }
+
+    // Pago por transferencia: el catalogo de cuentas QR viaja como
+    // json_script DENTRO del form (pago/registrar.html). Si el metodo
+    // elegido es Transferencia, se muestra el select de cuenta (o la
+    // oculta del delegado) y se rellena la tarjeta bancaria con los datos
+    // de la cuenta seleccionada. Replica exactamente el <script> que traia
+    // la pagina completa, generalizado para correr dentro del modal.
+    const catalogTag = form.querySelector('#qr-catalog-data');
+    const metodo = form.querySelector('[name="metodo"]');
+    if (catalogTag && metodo) {
+      let catalog = {};
+      try { catalog = JSON.parse(catalogTag.textContent || '{}'); } catch (_) { catalog = {}; }
+      const selectQR = form.querySelector('[name="codigo_qr"]');
+      const qrField = form.querySelector('[data-qr-field]');
+      const infoBox = form.querySelector('[data-transferencia-info]');
+      const card = form.querySelector('[data-bank-card]');
+      const fillCard = (id) => {
+        const d = id ? catalog[id] : null;
+        if (!d || !card) { card?.classList.add('is-hidden'); return; }
+        const set = (key, val) => { const el = card.querySelector(`[data-bank-info="${key}"]`); if (el) el.textContent = val || ''; };
+        set('banco', d.banco); set('titular', d.titular); set('identificacion', d.identificacion);
+        set('tipo_cuenta', d.tipo_cuenta); set('numero_cuenta', d.numero_cuenta);
+        const img = card.querySelector('[data-bank-info="qr_image"]');
+        if (img) { if (d.imagen_qr) { img.src = d.imagen_qr; img.style.display = ''; } else { img.removeAttribute('src'); img.style.display = 'none'; } }
+        card.classList.remove('is-hidden');
+      };
+      const toggle = () => {
+        const isTrans = (metodo.value || '').toUpperCase() === 'TRANSFERENCIA';
+        qrField?.classList.toggle('is-hidden', !isTrans);
+        infoBox?.classList.toggle('is-hidden', !isTrans);
+        if (!isTrans) { card?.classList.add('is-hidden'); if (selectQR) selectQR.value = ''; return; }
+        const firstId = Object.keys(catalog)[0] || null;
+        const selectedId = selectQR && selectQR.value ? selectQR.value : firstId;
+        if (selectedId) fillCard(selectedId); else card?.classList.add('is-hidden');
+      };
+      metodo.addEventListener('change', toggle);
+      selectQR?.addEventListener('change', () => fillCard(selectQR.value));
+      toggle();
+    }
   }
 
   function close(force) {
